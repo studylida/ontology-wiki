@@ -168,6 +168,20 @@ document.addEventListener("DOMContentLoaded", () => {
     integrityImpact: document.getElementById("integrity-impact"),
     approveReviewBtn: document.getElementById("approve-review-btn"),
     gotoWikiBtn: document.getElementById("goto-wiki-btn"),
+    // 위키 미리보기 모달 & 승인 완료 모달 (Transitions.dev)
+    btnPreviewWiki: document.getElementById("btn-preview-wiki"),
+    btnQuickPreviewDiff: document.getElementById("btn-quick-preview-diff"),
+    modalWikiPreview: document.getElementById("modal-wiki-preview"),
+    wikiPreviewContent: document.getElementById("wiki-preview-content"),
+    closeWikiPreviewBtn: document.getElementById("close-wiki-preview-btn"),
+    btnPreviewCancel: document.getElementById("btn-preview-cancel"),
+    btnPreviewToEditor: document.getElementById("btn-preview-to-editor"),
+    btnPreviewConfirmApprove: document.getElementById("btn-preview-confirm-approve"),
+    togglePreviewDiffHighlight: document.getElementById("toggle-preview-diff-highlight"),
+    approvalSuccessModal: document.getElementById("approval-success-modal"),
+    approvalSuccessMsg: document.getElementById("approval-success-msg"),
+    btnSuccessGotoWiki: document.getElementById("btn-success-goto-wiki"),
+    btnSuccessStayReview: document.getElementById("btn-success-stay-review"),
     // 토스트
     toastContainer: document.getElementById("toast-container")
   };
@@ -2023,7 +2037,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   : `<span style="font-size:0.6875rem; color:var(--text-muted);">표준 공정 물리 규칙</span>`;
 
                 return `
-                <div class="clarifier-option-card" data-idx="${idx}">
+                <div class="clarifier-option-card clarifier-card" data-idx="${idx}" style="--card-index: ${idx};">
                   <div class="clarifier-option-info">
                     <div class="clarifier-option-title">
                       <span class="concept-badge badge-scale-3" style="font-size:0.6875rem;">${b.domain || '온톨로지 인과'}</span>
@@ -2566,7 +2580,198 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  dom.approveReviewBtn.addEventListener("click", () => {
+  // ── 검토 센터: 승인 시 위키 페이지 렌더링 미리보기 모달 (Transitions.dev) ──
+  function openWikiPreviewModal() {
+    const item = WikiStore.reviewQueue.find(r => r.id === state.selectedReviewId);
+    if (!item || !dom.modalWikiPreview || !dom.wikiPreviewContent) return;
+
+    const targetConceptId = item.conceptId || "dry-etch";
+    const c = WikiStore.concepts[targetConceptId] || {
+      id: targetConceptId,
+      title: item.conceptTitle,
+      engName: "Plasma Dry Etching",
+      processName: "식각 공정",
+      scaleId: "Scale 3",
+      summary: item.currentContent,
+      purpose: "웨이퍼 표면의 불필요한 박막을 선택적으로 제거하여 미세 반도체 패턴 형성",
+      principles: [
+        "플라즈마 방전으로 생성된 반응성 라디칼에 의한 등방성 화학 식각",
+        "웨이퍼 바이어스 전압에 의해 가속된 이온 충돌에 의한 비등방성 물리 식각 (이온 보조 식각)"
+      ],
+      limitations: [
+        "고종횡비 구조에서 마이크로 로딩 및 ARDE(종횡비 의존 식각) 현상으로 인한 식각율 저하",
+        "플라즈마 유기 손상(PID) 및 게이트 절연막 전하 축적 파괴 위험"
+      ]
+    };
+
+    // diff highlight 적용
+    let highlightedDraft = item.aiMergedDraft;
+    if (item.diffAdded && highlightedDraft.includes(item.diffAdded)) {
+      highlightedDraft = highlightedDraft.replace(
+        item.diffAdded,
+        `<mark class="preview-diff-highlight">${item.diffAdded}</mark>`
+      );
+    } else {
+      highlightedDraft = highlightedDraft.replace(
+        /(\[추가\][^.\n]+(?:\.|\n)?)/g,
+        `<mark class="preview-diff-highlight">$1</mark>`
+      );
+      highlightedDraft = highlightedDraft.replace(
+        /(\[지시 반영\][^.\n]+(?:\.|\n)?)/g,
+        `<mark class="preview-diff-highlight">$1</mark>`
+      );
+    }
+
+    const scaleBadgeClass = c.scaleId === "Scale 1" ? "badge-scale-1" :
+                            c.scaleId === "Scale 2" ? "badge-scale-2" :
+                            c.scaleId === "Scale 4" ? "badge-scale-4" : "badge-scale-3";
+
+    const previewHtml = `
+      <!-- 승인 변경 안내 배너 -->
+      <div class="wiki-preview-alert-banner">
+        <span class="preview-banner-badge">✨ 승인 반영 시 변경 요약</span>
+        <div class="preview-banner-text">
+          <strong>제안 구분:</strong> ${item.reviewType} | <strong>제안자:</strong> ${item.author} (${item.date})<br>
+          <strong>공식 출처 정합성:</strong> <span style="color:#15803d; font-weight:700;">${item.integrityCheck?.evidenceMatch || '100% 일치'}</span> | 
+          <strong>온톨로지 충돌:</strong> <span style="color:#15803d; font-weight:700;">${item.integrityCheck?.ontologyConflict || '없음'}</span> | 
+          <strong>영향 범위:</strong> ${item.integrityCheck?.impactScope || '1건'}
+        </div>
+      </div>
+
+      <!-- 위키 문서 헤더 -->
+      <div class="wiki-preview-header">
+        <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:6px;">
+          <span>제조 단위 공정</span> ➔ <span>${c.processName || '단위 공정'}</span> ➔ <strong style="color:var(--text-primary);">${c.title.split('(')[0].trim()}</strong>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+          <div>
+            <h2 style="font-size:1.625rem; font-weight:800; margin:0 0 6px 0; color:var(--text-primary);">
+              ${c.title}
+            </h2>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+              <span class="concept-badge badge-level-1">Level 1 · 산업 공통 기초</span>
+              <span class="concept-badge ${scaleBadgeClass}">${c.scaleId || 'Scale 3'} · 단위 공정 & 런</span>
+              <span class="concept-badge badge-verified" style="background:#dcfce7; color:#15803d; border:1px solid #86efac; font-weight:700;">
+                v1.3 (신규 승인 반영 예정)
+              </span>
+              <span class="concept-badge" style="background:var(--bg-surface-2); border:1px solid var(--border-color); color:var(--text-secondary);">
+                검토: 2026.10.15 (인간 전문가 HITL 승인 예정)
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1. 기본 설명 & AI 통합 초안 -->
+      <div class="doc-section" style="margin-bottom:24px;">
+        <h3 class="section-title" style="font-size:1.125rem; font-weight:700; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+          <span>1. 개요 및 정의</span>
+          <span style="font-size:0.6875rem; color:#15803d; background:#dcfce7; padding:2px 6px; border-radius:4px; font-weight:600;">초안 병합 완료</span>
+        </h3>
+        <div style="line-height:1.75; font-size:0.9375rem; color:var(--text-primary); background:var(--bg-surface-2); padding:16px 18px; border-radius:8px; border:1px solid var(--border-color); margin-bottom:12px;">
+          ${highlightedDraft}
+        </div>
+        <ul class="doc-list" style="font-size:0.875rem; margin-top:8px;">
+          <li><strong>목적:</strong> ${c.purpose || '웨이퍼 표면의 불필요한 박막을 선택적으로 제거하여 초미세 나노 패턴 형성'}</li>
+          ${c.prerequisites && c.prerequisites.length > 0 ? `
+            <li><strong>선행 이해 개념:</strong> ${c.prerequisites.map(p => `<span class="inline-concept-tag">${p.name || p.id}</span>`).join(", ")}</li>
+          ` : `<li><strong>선행 이해 개념:</strong> <span class="inline-concept-tag">플라즈마 방전 기초</span>, <span class="inline-concept-tag">반응성 이온 식각(RIE)</span></li>`}
+        </ul>
+      </div>
+
+      <!-- 2. 핵심 원리 및 물리적 한계 -->
+      <div class="doc-section" style="margin-bottom:24px;">
+        <h3 class="section-title" style="font-size:1.125rem; font-weight:700; margin-bottom:10px;">2. 핵심 원리 및 물리적 한계</h3>
+        <div style="background:var(--bg-surface-2); border:1px solid var(--border-color); border-radius:8px; padding:16px;">
+          <h4 style="font-size:0.875rem; font-weight:700; margin-bottom:6px; color:var(--text-primary);">• 물리·기술적 메커니즘</h4>
+          <ul class="doc-list" style="margin-bottom:12px; font-size:0.875rem;">
+            ${(c.principles || [
+              "플라즈마 방전으로 생성된 CFx 라디칼의 웨이퍼 표면 흡착 및 화학 반응",
+              "RF 바이어스 전압에 가속된 이온의 수직 입사로 측벽 보호막 유지 및 수직 프로파일 구현"
+            ]).map(p => `<li>${p}</li>`).join("")}
+          </ul>
+          <h4 style="font-size:0.875rem; font-weight:700; margin-bottom:6px; color:var(--accent-danger, #ef4444);">• 공정 한계 및 관리 주의사항</h4>
+          <ul class="doc-list" style="font-size:0.875rem;">
+            ${(c.limitations || [
+              "초미세 패턴 종횡비(HARC) 증가 시 이온 수송 장애 및 에칭 정지(Etch Stop) 위험",
+              "극저온(-60℃) 운전 시 불소계 부산물 배기 한계 및 챔버 오염 제어 주의"
+            ]).map(l => `<li>${l}</li>`).join("")}
+          </ul>
+        </div>
+      </div>
+
+      <!-- 3. 다중 물리적 규모(Scale 1~4) 인과 연계 -->
+      <div class="doc-section" style="margin-bottom:24px;">
+        <h3 class="section-title" style="font-size:1.125rem; font-weight:700; margin-bottom:10px;">3. 다중 물리적 규모(Scale 1~4) 인과 연계</h3>
+        <div class="wiki-preview-scale-stepper">
+          <div class="wiki-preview-scale-node" title="Scale 1: 0.1nm ~ 10nm 원자·나노 물리">
+            <span style="font-size:0.6875rem; color:var(--text-muted); display:block;">Scale 1 (나노/분자)</span>
+            CFx 라디칼 흡착 & 이온 충돌
+          </div>
+          <span style="color:var(--text-muted);">➔</span>
+          <div class="wiki-preview-scale-node" title="Scale 2: 10nm ~ 100nm 소자 셀 구조">
+            <span style="font-size:0.6875rem; color:var(--text-muted); display:block;">Scale 2 (소자 셀)</span>
+            GAA 나노시트 선택비 30:1 & 캐패시터
+          </div>
+          <span style="color:var(--text-muted);">➔</span>
+          <div class="wiki-preview-scale-node current" title="Scale 3: 1cm ~ 300mm 웨이퍼 단위 공정">
+            <span style="font-size:0.6875rem; color:#1d4ed8; display:block; font-weight:700;">Scale 3 (본 문서)</span>
+            ICP-RIE 챔버 극저온 ESC 제어
+          </div>
+          <span style="color:var(--text-muted);">➔</span>
+          <div class="wiki-preview-scale-node" title="Scale 4: Fab 전체 & 시스템 수율">
+            <span style="font-size:0.6875rem; color:var(--text-muted); display:block;">Scale 4 (수율/팹)</span>
+            2nm 선단 파운드리 누설전류 불량 통제
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. 4대 도메인 관점 분석 요약 -->
+      <div class="doc-section" style="margin-bottom:20px;">
+        <h3 class="section-title" style="font-size:1.125rem; font-weight:700; margin-bottom:10px;">4. 4대 도메인 관점 분석 요약</h3>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px;">
+          <div style="background:var(--bg-surface-2); padding:12px; border-radius:6px; border:1px solid var(--border-color); font-size:0.8125rem;">
+            <div style="font-weight:700; margin-bottom:4px; color:var(--accent-primary);">🛡️ 신뢰성 관점</div>
+            <div style="color:var(--text-secondary); font-size:0.75rem;">과도 식각 방지를 통한 박막 손상 방지 및 절연 파괴 억제</div>
+          </div>
+          <div style="background:var(--bg-surface-2); padding:12px; border-radius:6px; border:1px solid var(--border-color); font-size:0.8125rem;">
+            <div style="font-weight:700; margin-bottom:4px; color:var(--accent-success);">⚙️ 양산 제조 관점</div>
+            <div style="color:var(--text-secondary); font-size:0.75rem;">웨이퍼 런간(Run-to-Run) 산포 1.2nm 이하 균일도 제어</div>
+          </div>
+          <div style="background:var(--bg-surface-2); padding:12px; border-radius:6px; border:1px solid var(--border-color); font-size:0.8125rem;">
+            <div style="font-weight:700; margin-bottom:4px; color:#d97706;">🔬 공정 제어 관점</div>
+            <div style="color:var(--text-secondary); font-size:0.75rem;">OES 발광 분광 기반 실시간 종말점(EPD) 판정 집행</div>
+          </div>
+          <div style="background:var(--bg-surface-2); padding:12px; border-radius:6px; border:1px solid var(--border-color); font-size:0.8125rem;">
+            <div style="font-weight:700; margin-bottom:4px; color:#7c3aed;">📦 첨단 패키징 관점</div>
+            <div style="color:var(--text-secondary); font-size:0.75rem;">고종횡비 관통전극(TSV) 식각 수직도 89.5° 이상 유지</div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const conceptNameEl = document.getElementById("preview-modal-concept-name");
+    if (conceptNameEl) conceptNameEl.textContent = item.conceptTitle.split("(")[0];
+    dom.wikiPreviewContent.innerHTML = previewHtml;
+
+    // 초기 하이라이트 상태 동기화
+    if (dom.togglePreviewDiffHighlight) {
+      if (dom.togglePreviewDiffHighlight.checked) {
+        dom.wikiPreviewContent.classList.remove("preview-diff-plain");
+      } else {
+        dom.wikiPreviewContent.classList.add("preview-diff-plain");
+      }
+    }
+
+    dom.modalWikiPreview.classList.add("open");
+  }
+
+  function closeWikiPreviewModal() {
+    dom.modalWikiPreview?.classList.remove("open");
+  }
+
+  // 승인 집행 공통 함수
+  function executeReviewApproval() {
     const item = WikiStore.reviewQueue.find(r => r.id === state.selectedReviewId);
     if (!item || item.status === "게시 완료") return;
 
@@ -2582,6 +2787,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     renderReviewQueue();
+    closeWikiPreviewModal();
 
     // 1번 위키 탭 바로가기 버튼 노출 및 바인딩
     if (dom.gotoWikiBtn) {
@@ -2590,7 +2796,6 @@ document.addEventListener("DOMContentLoaded", () => {
       dom.gotoWikiBtn.onclick = () => {
         window.selectWikiConcept(targetConceptId);
         showToast(`'${item.conceptTitle}' 문서가 v1.3으로 갱신되었습니다! 본문을 확인하세요.`, "success");
-        // 본문 상단 하이라이트 애니메이션
         const headerEl = document.querySelector(".concept-header");
         if (headerEl) {
           headerEl.style.transition = "background 0.5s ease";
@@ -2600,7 +2805,83 @@ document.addEventListener("DOMContentLoaded", () => {
       };
     }
 
+    // Transitions.dev 성취 체크마크 모달 표시
+    if (dom.approvalSuccessModal) {
+      if (dom.approvalSuccessMsg) {
+        dom.approvalSuccessMsg.textContent = `'${item.conceptTitle.split("(")[0]}' 문서가 v1.3으로 성공적으로 승인되어 1번 공용 위키 및 온톨로지 코어에 정식 반영되었습니다.`;
+      }
+      dom.approvalSuccessModal.classList.add("open");
+      const icon = dom.approvalSuccessModal.querySelector(".success-check-icon");
+      if (icon) {
+        icon.classList.remove("active");
+        void icon.offsetWidth;
+        icon.classList.add("active");
+      }
+    }
+
     showToast(`'${item.conceptTitle.split("(")[0]}' 문서가 v1.3으로 공용 위키 및 온톨로지 코어에 정식 반영되었습니다!`, "success");
+  }
+
+  // 미리보기 및 승인 이벤트 바인딩
+  dom.btnPreviewWiki?.addEventListener("click", openWikiPreviewModal);
+  dom.btnQuickPreviewDiff?.addEventListener("click", openWikiPreviewModal);
+  dom.closeWikiPreviewBtn?.addEventListener("click", closeWikiPreviewModal);
+  dom.btnPreviewCancel?.addEventListener("click", closeWikiPreviewModal);
+
+  dom.btnPreviewToEditor?.addEventListener("click", () => {
+    closeWikiPreviewModal();
+    if (dom.reviewEditorContainer && dom.diffDraftContainer) {
+      const item = WikiStore.reviewQueue.find(r => r.id === state.selectedReviewId);
+      dom.reviewEditorContainer.style.display = "flex";
+      dom.reviewEditorContainer.classList.remove("fade-slide-up");
+      void dom.reviewEditorContainer.offsetWidth;
+      dom.reviewEditorContainer.classList.add("fade-slide-up");
+      dom.diffDraftContainer.style.display = "none";
+      if (item && dom.reviewEditorInput) {
+        dom.reviewEditorInput.value = item.aiMergedDraft;
+        dom.reviewEditorInput.focus();
+      }
+      if (dom.btnToggleEditor) dom.btnToggleEditor.textContent = "👁️ 비교 뷰로 돌아가기";
+    }
+  });
+
+  dom.btnPreviewConfirmApprove?.addEventListener("click", executeReviewApproval);
+  dom.approveReviewBtn?.addEventListener("click", executeReviewApproval);
+
+  dom.togglePreviewDiffHighlight?.addEventListener("change", (e) => {
+    if (!dom.wikiPreviewContent) return;
+    if (e.target.checked) {
+      dom.wikiPreviewContent.classList.remove("preview-diff-plain");
+    } else {
+      dom.wikiPreviewContent.classList.add("preview-diff-plain");
+    }
+  });
+
+  // 승인 완료 모달 내 버튼 핸들러
+  dom.btnSuccessStayReview?.addEventListener("click", () => {
+    dom.approvalSuccessModal?.classList.remove("open");
+  });
+
+  dom.btnSuccessGotoWiki?.addEventListener("click", () => {
+    const item = WikiStore.reviewQueue.find(r => r.id === state.selectedReviewId);
+    const targetConceptId = item ? (item.conceptId || "dry-etch") : "dry-etch";
+    dom.approvalSuccessModal?.classList.remove("open");
+    window.selectWikiConcept(targetConceptId);
+    showToast(`'${item?.conceptTitle || ''}' 문서가 v1.3으로 갱신되었습니다! 본문을 확인하세요.`, "success");
+    const headerEl = document.querySelector(".concept-header");
+    if (headerEl) {
+      headerEl.style.transition = "background 0.5s ease";
+      headerEl.style.background = "rgba(16, 185, 129, 0.12)";
+      setTimeout(() => { headerEl.style.background = ""; }, 2500);
+    }
+  });
+
+  // 배경 클릭 및 ESC 키 닫기
+  dom.modalWikiPreview?.addEventListener("click", (e) => {
+    if (e.target === dom.modalWikiPreview) closeWikiPreviewModal();
+  });
+  dom.approvalSuccessModal?.addEventListener("click", (e) => {
+    if (e.target === dom.approvalSuccessModal) dom.approvalSuccessModal.classList.remove("open");
   });
 
   // ── 조사 작업실 사이드바 최근 발굴 로그 렌더링 ──
@@ -3376,21 +3657,23 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // FAB 클릭 시 토글
-    dom.floatingChatFab?.addEventListener("click", () => {
-      syncChatContext();
-      if (dom.floatingChatWidget) {
-        const isHidden = dom.floatingChatWidget.style.display === "none";
-        dom.floatingChatWidget.style.display = isHidden ? "flex" : "none";
-        if (isHidden && dom.floatingChatInput) {
-          dom.floatingChatInput.focus();
-        }
+    // Transitions.dev 부드러운 개폐 토글 (.open 클래스 기반)
+    function toggleChatWidget(open) {
+      if (!dom.floatingChatWidget) return;
+      const shouldOpen = open !== undefined ? open : !dom.floatingChatWidget.classList.contains("open");
+      if (shouldOpen) {
+        syncChatContext();
+        dom.floatingChatWidget.classList.add("open");
+        if (dom.floatingChatFab) dom.floatingChatFab.style.transform = "scale(0.92) translateY(2px)";
+        setTimeout(() => dom.floatingChatInput?.focus(), 120);
+      } else {
+        dom.floatingChatWidget.classList.remove("open");
+        if (dom.floatingChatFab) dom.floatingChatFab.style.transform = "";
       }
-    });
+    }
 
-    dom.chatWidgetClose?.addEventListener("click", () => {
-      if (dom.floatingChatWidget) dom.floatingChatWidget.style.display = "none";
-    });
+    dom.floatingChatFab?.addEventListener("click", () => toggleChatWidget());
+    dom.chatWidgetClose?.addEventListener("click", () => toggleChatWidget(false));
 
     // 메시지 렌더링 헬퍼
     function appendChatMessage(role, text) {
@@ -3411,7 +3694,14 @@ document.addEventListener("DOMContentLoaded", () => {
       appendChatMessage("user", query);
       if (dom.floatingChatInput) dom.floatingChatInput.value = "";
 
-      const loadingMsg = appendChatMessage("agent", "⏳ 현재 온톨로지 문서의 물리 인과 사슬을 분석 중입니다...");
+      // Transitions.dev 추론 스트림 & 매트릭스 도트 스피너 적용
+      const loadingMsg = appendChatMessage(
+        "agent",
+        `<div class="reasoning-stream-box" style="margin:2px 0; padding:6px 10px; background:transparent; border:none; color:inherit;">
+          <div class="matrix-dot-spinner"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          <span>현재 온톨로지 문서의 물리 인과 사슬을 분석 중입니다...</span>
+        </div>`
+      );
 
       try {
         const res = await window.OntologyAgentCore.askContextualChat({

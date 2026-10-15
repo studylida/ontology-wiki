@@ -473,6 +473,201 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
+/* ── 14. Wiki Page Preview Modal & Diff Highlight (Transitions.dev) ── */
+.wiki-preview-modal-card {
+  max-width: 1040px;
+  width: 95vw;
+  height: 90vh;
+  max-height: 900px;
+  display: flex;
+  flex-direction: column;
+}
+
+.wiki-preview-body {
+  padding: 24px 28px;
+  overflow-y: auto;
+  flex: 1;
+  background: var(--bg-surface);
+}
+
+.wiki-preview-alert-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-left: 4px solid var(--accent-success, #10b981);
+  border-radius: 8px;
+  margin-bottom: 20px;
+  animation: fadeSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] .wiki-preview-alert-banner {
+  background: rgba(22, 101, 52, 0.15);
+  border-color: #166534;
+  border-left-color: #22c55e;
+}
+
+.preview-banner-badge {
+  background: #22c55e;
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.preview-banner-text {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+/* Diff Highlight Styling (Transitions.dev glowing highlight) */
+.preview-diff-highlight {
+  background-color: #dcfce7;
+  color: #166534;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border-bottom: 2px solid #22c55e;
+  font-weight: 600;
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.2);
+  transition: background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              color 0.25s ease;
+}
+
+[data-theme="dark"] .preview-diff-highlight {
+  background-color: rgba(34, 197, 94, 0.25);
+  color: #86efac;
+  border-bottom-color: #4ade80;
+}
+
+/* When highlight toggle is off */
+.preview-diff-plain .preview-diff-highlight {
+  background-color: transparent !important;
+  color: inherit !important;
+  padding: 0 !important;
+  border-bottom: none !important;
+  font-weight: inherit !important;
+  box-shadow: none !important;
+}
+
+/* Simulated Wiki Card Header in Preview */
+.wiki-preview-header {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+}
+
+.wiki-preview-scale-stepper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  background: var(--bg-surface-2);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  margin: 12px 0 20px 0;
+}
+
+.wiki-preview-scale-node {
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wiki-preview-scale-node.current {
+  background: #dbeafe;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.15);
+}
+
+[data-theme="dark"] .wiki-preview-scale-node.current {
+  background: rgba(37, 99, 235, 0.2);
+  border-color: #60a5fa;
+  color: #93c5fd;
+}
+
+/* ── 15. Transitions.dev Floating Contextual Chatbot Widget ── */
+.floating-chat-widget {
+  opacity: 0;
+  transform: translateY(16px) scale(0.96);
+  pointer-events: none;
+  visibility: hidden;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.22s ease,
+              visibility 0.28s;
+}
+
+.floating-chat-widget.open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+  visibility: visible;
+}
+
+.chat-msg-agent .chat-msg-bubble {
+  animation: fadeSlideUp 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.chat-msg-user .chat-msg-bubble {
+  animation: fadeSlideUp 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── 16. Transitions.dev AI Studio Clarifier Cards & Success Morph Overlay ── */
+.clarifier-card {
+  animation: fadeSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--card-index, 0) * 0.08s);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease;
+}
+
+.clarifier-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12);
+  border-color: var(--accent-primary);
+}
+
+.review-queue-item {
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.18s ease,
+              border-color 0.18s ease;
+}
+
+.review-queue-item:hover {
+  transform: translateX(3px);
+}
+
+.success-check-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px auto;
+  display: block;
+}
+
+.success-check-path {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  transition: stroke-dashoffset 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
+}
+
+.success-check-icon.active .success-check-path {
+  stroke-dashoffset: 0;
+}
+
 /* ── Accessibility: Prefers Reduced Motion ── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
