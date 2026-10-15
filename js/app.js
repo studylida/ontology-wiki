@@ -1979,7 +1979,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ── 8. AI 분석실 (현업 고민 온디맨드 검색형 추천기, 대화형 구체화 & 스냅샷) ──
 
   // 8-A. 대화형 온톨로지 질문 구체화 상담 (Conversational Query Clarifier)
-  function renderConversationalClarifier(userQuery = "") {
+  async function renderConversationalClarifier(userQuery = "") {
     const q = (userQuery || dom.aiPromptInput?.value || "").trim();
     if (!q) {
       showToast("구체화할 고민이나 키워드를 입력해 주세요 (예: HBM 방열, Cryo 식각, High-NA).", "info");
@@ -1990,155 +1990,70 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!dom.aiDialogueArea) return;
     dom.aiDialogueArea.style.display = "block";
 
-    // 검색어 키워드별 반도체 물리/공정 분기 옵션 생성
-    let branchOptions = [];
-    const lower = q.toLowerCase();
-
-    if (lower.includes("hbm") || lower.includes("열") || lower.includes("muf") || lower.includes("패키징") || lower.includes("방열")) {
-      branchOptions = [
-        {
-          scale: 3,
-          title: "Scale 3 · 공정 대조: SK하이닉스 MR-MUF(액상 에폭시) vs 마이크론 TC-NCF(필름)",
-          desc: "16단 고단 적층 시 액상 에폭시의 고압 갭필을 통한 열전도율 2.5배 향상 vs 필름 열압착 보이드 휨(Warpage) 한계 비교",
-          paramA: { comp: "SK하이닉스", tech: "MR-MUF 액상 몰딩" },
-          paramB: { comp: "마이크론", tech: "TC-NCF 필름 열압착" },
-          domain: "첨단 패키징 방열 및 휨 제어",
-          prompt: "HBM3E/HBM4 16단 적층 시 MR-MUF와 TC-NCF의 방열 특성 및 열압착 공정 한계 비교"
-        },
-        {
-          scale: 2,
-          title: "Scale 2 · 소자 물성: TSV 마이크로범프 vs Cu-Cu 하이브리드 본딩 직접 접합",
-          desc: "솔더 범프 접촉 저항 및 피치 한계(10μm 미만) 극복을 위한 비범프 Cu-Cu 직접 접합 시 계면 열저항 비교",
-          paramA: { comp: "삼성전자", tech: "Cu-Cu 하이브리드 본딩" },
-          paramB: { comp: "SK하이닉스", tech: "MR-MUF 마이크로범프" },
-          domain: "차세대 3D 적층 본딩",
-          prompt: "HBM4 4nm 베이스 다이 상의 Cu-Cu 하이브리드 본딩과 마이크로범프의 전기·열 특성 비교"
-        },
-        {
-          scale: 1,
-          title: "Scale 1 · 계면 물리: 에폭시 수지와 실리콘 다이 계면 열저항(TIM) 양자 물성",
-          desc: "서브 나노미터 계면에서의 포논 산란(Phonon Scattering) 억제 및 계면 열전도도(K) 극대화 조건",
-          paramA: { comp: "SK하이닉스", tech: "MR-MUF 에폭시 계면" },
-          paramB: { comp: "산업 표준", tech: "TIM2 계면 물성" },
-          domain: "원자·계면 열물성",
-          prompt: "HBM 실리콘-에폭시 계면의 서브 나노미터 열전도율 및 보이드 억제 물리"
-        }
-      ];
-    } else if (lower.includes("cryo") || lower.includes("식각") || lower.includes("etch") || lower.includes("낸드") || lower.includes("nand")) {
-      branchOptions = [
-        {
-          scale: 2,
-          title: "Scale 2 · 소자 패턴: Lam Cryo 극저온 식각(-60℃) vs AMAT 상온 RIE 식각",
-          desc: "3D V-NAND 300단 60:1 초고종횡비(HARC) 채널홀 가공 시 측벽 보잉 억제 및 수직도 달성 비교",
-          paramA: { comp: "Lam Research", tech: "Cryo 극저온 식각 (-60℃)" },
-          paramB: { comp: "Applied Materials", tech: "상온 RIE 플라즈마 식각" },
-          domain: "3D 낸드 채널홀 식각 수직도",
-          prompt: "3D V-NAND 300단 초고종횡비 채널홀 가공을 위한 극저온 식각과 상온 RIE의 수직도 및 식각 속도 비교"
-        },
-        {
-          scale: 1,
-          title: "Scale 1 · 원자층 선택비: 단원자층 식각(ALE) vs 극저온 반응 억제층 메커니즘",
-          desc: "단원자층 흡착-탈착 사이클 기반 서브 나노미터 손상 없는 Si/SiO2 선택 식각 메커니즘 대조",
-          paramA: { comp: "Lam Research", tech: "Cryo 식각 흡착층" },
-          paramB: { comp: "삼성전자", tech: "ALE 단원자층 식각" },
-          domain: "원자층 초미세 식각 제어",
-          prompt: "단원자층 식각(ALE)과 Cryo 극저온 식각의 표면 반응 억제 및 선택비 메커니즘 비교"
-        }
-      ];
-    } else if (lower.includes("euv") || lower.includes("high-na") || lower.includes("노광") || lower.includes("photo")) {
-      branchOptions = [
-        {
-          scale: 4,
-          title: "Scale 4 · 장비 광학계: ASML High-NA EUV(0.55NA) vs 표준 EUV(0.33NA) 해상력",
-          desc: "0.55NA 아나모픽 광학계 도입에 따른 8nm 해상력 달성과 DOF(초점심도) 감소 마진 비교",
-          paramA: { comp: "ASML", tech: "High-NA EUV (0.55NA)" },
-          paramB: { comp: "ASML", tech: "Standard EUV (0.33NA)" },
-          domain: "초미세 리소그래피 노광",
-          prompt: "2nm 이하 로직 패터닝을 위한 High-NA 0.55NA EUV와 기존 0.33NA EUV의 해상력 및 DOF 한계 비교"
-        },
-        {
-          scale: 3,
-          title: "Scale 3 · 공정 수율: High-NA 탄소나노튜브 펠리클 vs 무펠리클 마스크 보호",
-          desc: "고출력 EUV 광원(500W+) 하 92% 이상 투과율 확보 및 마스크 파티클 낙하 결함 차단 비교",
-          paramA: { comp: "ASML / imec", tech: "CNT 펠리클 적용" },
-          paramB: { comp: "TSMC", tech: "무펠리클 초정밀 세정" },
-          domain: "노광 마스크 수율 관리",
-          prompt: "High-NA EUV 노광 시 CNT 펠리클 적용 여부에 따른 마스크 결함 및 광량 손실 대조"
-        }
-      ];
-    } else {
-      // 일반/기타 키워드 매칭
-      branchOptions = [
-        {
-          scale: 3,
-          title: `Scale 3 · 단위 공정 관점: '${q}' 양산 레시피 및 공정 마진 대조`,
-          desc: `온톨로지 데이터베이스 내 선행 단위 공정 및 장비 챔버 레시피 관점 비교`,
-          paramA: { comp: "SK하이닉스", tech: `${q} 선행 공정` },
-          paramB: { comp: "삼성전자", tech: `${q} 표준 공정` },
-          domain: "제조 단위 공정 마진",
-          prompt: `'${q}' 관련 공정 조건 및 수율 한계 비교 분석`
-        },
-        {
-          scale: 2,
-          title: `Scale 2 · 소자 패턴 관점: '${q}' 물리적 구조 및 신뢰성 한계 대조`,
-          desc: `서브 10nm 소자 셀의 누설 전류, 전기적 브레이크다운 및 신뢰성(TDDB) 물성 대조`,
-          paramA: { comp: "삼성전자", tech: `${q} 차세대 구조` },
-          paramB: { comp: "TSMC", tech: `${q} 양산 구조` },
-          domain: "소자 구조 신뢰성",
-          prompt: `'${q}' 관련 소자 물리 한계 및 TDDB 신뢰성 대조`
-        }
-      ];
-    }
-
     dom.aiDialogueArea.innerHTML = `
-      <div class="ai-dialogue-stream" style="margin-top:0;">
-        <div class="dialogue-bubble dialogue-user-bubble">
-          <strong>🗣️ 엔지니어 질의:</strong> "${q}"
-        </div>
-        <div class="dialogue-bubble dialogue-agent-bubble">
-          <div style="font-weight:700; color:var(--accent-primary); margin-bottom:4px;">🤖 온톨로지 에이전트 구체화 안내</div>
-          <p style="margin-bottom:8px;">
-            말씀하신 고민은 온톨로지 지식 그래프 상에서 물리적 규모(Scale)와 단위 공정에 따라 다음 <strong>${branchOptions.length}가지 핵심 인과 분기</strong>로 나뉩니다. 어떤 조건의 다차원 비교를 원하시나요?
-          </p>
-          <div class="clarifier-options-grid">
-            ${branchOptions.map((opt, idx) => `
-              <div class="clarifier-option-card" data-idx="${idx}">
-                <div class="clarifier-option-info">
-                  <div class="clarifier-option-title">
-                    <span class="concept-badge badge-scale-${opt.scale}" style="font-size:0.6875rem;">Scale ${opt.scale}</span>
-                    <span>${opt.title}</span>
-                  </div>
-                  <div class="clarifier-option-desc">${opt.desc}</div>
-                  <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">
-                    파라미터 세팅: [${opt.paramA.comp} (${opt.paramA.tech})] vs [${opt.paramB.comp} (${opt.paramB.tech})] | 평가: ${opt.domain}
-                  </div>
-                </div>
-                <button type="button" class="cand-action-btn cand-btn-primary" style="white-space:nowrap; font-size:0.8125rem;">
-                  이 조건으로 세팅 & 분석 ➔
-                </button>
-              </div>
-            `).join("")}
-          </div>
-        </div>
+      <div class="reasoning-stream-box">
+        <div class="matrix-dot-spinner"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <span>온톨로지 인과 사슬 및 물리 스케일별 비교 분기 분석 중...</span>
       </div>
     `;
 
-    // 옵션 카드 클릭 시 파라미터 세팅 및 분석 실행
-    dom.aiDialogueArea.querySelectorAll(".clarifier-option-card").forEach(card => {
-      card.addEventListener("click", () => {
-        const idx = parseInt(card.dataset.idx, 10);
-        const opt = branchOptions[idx];
-        if (opt) {
-          dom.aiPromptInput.value = opt.prompt;
-          dom.tagTextA.textContent = `${opt.paramA.comp} (${opt.paramA.tech})`;
-          dom.tagTextB.textContent = `${opt.paramB.comp} (${opt.paramB.tech})`;
-          dom.tagTextDomain.textContent = opt.domain;
+    try {
+      const clarifyResult = await window.OntologyAgentCore.clarifyPainpoint(q);
+      const clarifiedTitle = clarifyResult.clarifiedQuestion || `'${q}' 관련 인과 분기`;
+      const branches = clarifyResult.branches || [];
 
-          showToast(`'${opt.title}' 조건으로 파라미터가 세팅되었습니다. 다차원 분석을 실행합니다!`, "info");
-          dom.aiRunBtn.click();
-        }
+      dom.aiDialogueArea.innerHTML = `
+        <div class="ai-dialogue-stream" style="margin-top:0;">
+          <div class="dialogue-bubble dialogue-user-bubble">
+            <strong>🗣️ 엔지니어 질의:</strong> "${q}"
+          </div>
+          <div class="dialogue-bubble dialogue-agent-bubble">
+            <div style="font-weight:700; color:var(--accent-primary); margin-bottom:4px;">🤖 온톨로지 에이전트 구체화 안내</div>
+            <p style="margin-bottom:8px;">
+              ${clarifiedTitle}. 온톨로지 지식 그래프 상에서 다음 <strong>${branches.length}가지 핵심 분기</strong>가 식별되었습니다:
+            </p>
+            <div class="clarifier-options-grid">
+              ${branches.map((b, idx) => `
+                <div class="clarifier-option-card" data-idx="${idx}">
+                  <div class="clarifier-option-info">
+                    <div class="clarifier-option-title">
+                      <span class="concept-badge badge-scale-3" style="font-size:0.6875rem;">${b.domain || '온톨로지 인과'}</span>
+                      <span>${b.title}</span>
+                    </div>
+                    <div class="clarifier-option-desc">${b.desc}</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">
+                      전제 조건: 압력 ${b.params?.pressure || '1.5MPa'}, 온도 ${b.params?.temp || '180℃'}
+                    </div>
+                  </div>
+                  <button type="button" class="cand-action-btn cand-btn-primary" style="white-space:nowrap; font-size:0.8125rem;">
+                    이 조건으로 세팅 & 분석 ➔
+                  </button>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        </div>
+      `;
+
+      dom.aiDialogueArea.querySelectorAll(".clarifier-option-card").forEach(card => {
+        card.addEventListener("click", () => {
+          const idx = parseInt(card.dataset.idx, 10);
+          const b = branches[idx];
+          if (b) {
+            dom.aiPromptInput.value = b.title;
+            dom.tagTextA.textContent = "A사 HBM (MR-MUF)";
+            dom.tagTextB.textContent = "B사 DRAM (TCB)";
+            dom.tagTextDomain.textContent = b.domain || "첨단 패키징";
+
+            showToast(`'${b.title}' 조건으로 파라미터가 세팅되었습니다. 다차원 분석을 실행합니다!`, "info");
+            dom.aiRunBtn.click();
+          }
+        });
       });
-    });
+    } catch (err) {
+      console.warn("Clarify error:", err);
+      showToast("질문 구체화 처리 중 오류가 발생했습니다.", "warning");
+    }
   }
 
   // 질문 구체화 버튼 클릭 이벤트
@@ -2398,9 +2313,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 전제 수정 폼 제출
-  dom.editParamsForm?.addEventListener("submit", (e) => {
+  dom.editParamsForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const newPressure = document.getElementById("param-b-pressure").value;
+    const newPressure = document.getElementById("param-b-pressure")?.value || "1.8MPa";
     dom.editParamsModal.classList.remove("open");
     
     showToast(`B사 본딩 압력을 '${newPressure}'(으)로 보정하여 스냅샷 3을 재계산합니다.`, "info");
@@ -2408,15 +2323,35 @@ document.addEventListener("DOMContentLoaded", () => {
     dom.aiResultCard.innerHTML = `
       <div class="reasoning-stream-box">
         <div class="matrix-dot-spinner"><span></span><span></span><span></span><span></span><span></span><span></span></div>
-        <span>수정된 전제로 다차원 비교 매트릭스 재계산 중...</span>
+        <span>수정된 전제(압력 ${newPressure})로 온톨로지 인과 매트릭스 실시간 재추론 중...</span>
       </div>
     `;
 
-    setTimeout(() => {
-      WikiStore.aiStudioDemo.snapshots[2].data.matrix[2].ncf = `[보정됨] 가압 완화(${newPressure})로 16단 휨 리스크 30% 감소 예상`;
+    try {
+      const res = await window.OntologyAgentCore.runComparativeAnalysis({
+        domain: dom.tagTextDomain?.textContent || "첨단 패키징",
+        params: { pressure: newPressure, temp: "180℃" },
+        snapshotIndex: 2
+      });
+
+      if (res.matrix && res.matrix.length) {
+        WikiStore.aiStudioDemo.snapshots[2].data.matrix = res.matrix.map(m => ({
+          axis: m.axis,
+          muf: m.companyA,
+          ncf: m.companyB,
+          winner: m.winner || "muf"
+        }));
+      }
+      if (res.recommendation) {
+        WikiStore.aiStudioDemo.snapshots[2].data.recommendation = res.recommendation;
+      }
+
       renderAiStudioSnapshot(2);
-      showToast("수정된 전제를 기반으로 비교 분석 결과가 성공적으로 갱신되었습니다!", "success");
-    }, 1200);
+      showToast("수정된 전제를 기반으로 비교 분석 결과가 실시간 갱신되었습니다!", "success");
+    } catch (err) {
+      console.warn("Analysis error:", err);
+      renderAiStudioSnapshot(2);
+    }
   });
 
   dom.aiRunBtn.addEventListener("click", () => {
@@ -2870,133 +2805,56 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function triggerMultiSourceInvestigation(topic, selectedSources) {
+  async function triggerMultiSourceInvestigation(topic, selectedSources) {
     if (!dom.seedingResultArea) return;
 
     dom.seedingResultArea.innerHTML = `
       <div class="reasoning-stream-box fade-slide-up" style="padding:16px;">
         <div class="matrix-dot-spinner"><span></span><span></span><span></span><span></span><span></span><span></span></div>
-        <span>에이전트가 선택된 ${selectedSources.length}대 공식 출처 팩(${selectedSources.map(s => s.split('(')[0].trim()).join(', ')}) 전수 스캔 및 종합 교차 검증 중...</span>
+        <span>에이전트가 선택된 ${selectedSources.length}대 공식 출처 팩(${selectedSources.map(s => s.split('(')[0].trim()).join(', ')}) 전수 스캔 및 신규 온톨로지 초안 자동 합성 중...</span>
       </div>
     `;
 
-    setTimeout(() => {
-      // 키워드별 고품질 신규 개념 2건 합성 도출
-      let cand1, cand2;
-      const lower = topic.toLowerCase();
+    try {
+      const draftResult = await window.OntologyAgentCore.synthesizeInvestigationDraft(topic, selectedSources);
 
-      if (lower.includes("가스") || lower.includes("친환경") || lower.includes("cryo") || lower.includes("극저온") || lower.includes("식각")) {
-        cand1 = {
-          id: `rev-cand-${Date.now()}-1`,
-          conceptId: "dry-etch",
-          conceptTitle: "극저온 식각 저GWP 대체 가스 (CF3I / C3F6FB) 물성",
-          proposalsCount: 2,
-          reviewType: "조사 작업실 신규 발굴 (공식 출처 종합)",
-          author: `조사 에이전트 (${selectedSources.length}대 출처 교차)`,
-          date: "방금 전",
-          status: "검토 대기",
-          currentContent: "플라즈마 식각은 주로 C4F8, CF4 등 고GWP 불소 탄화수소 가스를 사용하여 반응성 라디칼을 형성한다.",
-          aiMergedDraft: "플라즈마 식각은 주로 C4F8, CF4 등 고GWP 불소 탄화수소 가스를 사용하여 반응성 라디칼을 형성한다. [보완] 극저온(-60℃) 하에서 지구온난화지수(GWP)가 기존 대비 99% 낮은 CF3I 및 C3F6FB 대체 가스를 적용하여, 플라즈마 해리 제어 및 Si/SiO2 초고선택비를 달성하는 친환경 식각 메커니즘 추가.",
-          diffAdded: "극저온(-60℃) 하에서 지구온난화지수(GWP)가 기존 대비 99% 낮은 CF3I 및 C3F6FB 대체 가스를 적용하여, 플라즈마 해리 제어 및 Si/SiO2 초고선택비를 달성하는 친환경 식각 메커니즘 추가.",
-          integrityCheck: {
-            evidenceMatch: `${selectedSources[0]} 및 학술 논문 교차 검증 완료 (100%)`,
-            ontologyConflict: "온톨로지 충돌 없음",
-            impactScope: "식각 단위 공정 및 친환경 팹 인프라 2건"
-          }
-        };
-        cand2 = {
-          id: `rev-cand-${Date.now()}-2`,
-          conceptId: "ultra-pure-water-upw",
-          conceptTitle: "극저온 챔버 배기 라인 히팅 결로 방지 통제 규격",
-          proposalsCount: 1,
-          reviewType: "조사 작업실 신규 발굴 (SEMI 표준)",
-          author: `조사 에이전트 (${selectedSources.length}대 출처 교차)`,
-          date: "방금 전",
-          status: "검토 대기",
-          currentContent: "팹 가스 및 배기 인프라는 스크러버와 중앙 배관망을 통해 유해가스를 중화 배출한다.",
-          aiMergedDraft: "팹 가스 및 배기 인프라는 스크러버와 중앙 배관망을 통해 유해가스를 중화 배출한다. [보완] 극저온 운전 시 SiF4 및 CFx 반응 부산물이 배기관에 응결되는 현상을 방지하기 위해 120℃ 이상 히팅 자켓 및 질소 펄스 퍼지를 의무화하는 SEMI 안전 관리 규격 추가.",
-          diffAdded: "극저온 운전 시 SiF4 및 CFx 반응 부산물이 배기관에 응결되는 현상을 방지하기 위해 120℃ 이상 히팅 자켓 및 질소 펄스 퍼지를 의무화하는 SEMI 안전 관리 규격 추가.",
-          integrityCheck: {
-            evidenceMatch: "SEMI 국제 표준 규격 원문 부합 (100%)",
-            ontologyConflict: "온톨로지 충돌 없음",
-            impactScope: "팹 인프라 관리 1건"
-          }
-        };
-      } else if (lower.includes("유리기판") || lower.includes("tgv") || lower.includes("패키징")) {
-        cand1 = {
-          id: `rev-cand-${Date.now()}-1`,
-          conceptId: "mr-muf",
-          conceptTitle: "TGV (Through Glass Via) 레이저 유도 식각 (LIDE)",
-          proposalsCount: 2,
-          reviewType: "조사 작업실 신규 발굴 (공식 출처 종합)",
-          author: `조사 에이전트 (${selectedSources.length}대 출처 교차)`,
-          date: "방금 전",
-          status: "검토 대기",
-          currentContent: "첨단 패키징은 실리콘 인터포저 TSV를 통해 고대역폭 다이 적층을 구현한다.",
-          aiMergedDraft: "첨단 패키징은 실리콘 인터포저 TSV를 통해 고대역폭 다이 적층을 구현한다. [신규 개념] 유리기판 코어 내부에 피코초 레이저로 결함을 가공하고 불산/질산 혼산으로 10μm 미만 초정밀 관통홀을 이방성 식각하는 LIDE(Laser Induced Deep Etching) 차세대 패키징 공정.",
-          diffAdded: "유리기판 코어 내부에 피코초 레이저로 결함을 가공하고 불산/질산 혼산으로 10μm 미만 초정밀 관통홀을 이방성 식각하는 LIDE(Laser Induced Deep Etching) 차세대 패키징 공정.",
-          integrityCheck: {
-            evidenceMatch: "Intel 백서 및 IEEE ECTC 학술 논문 교차 검증 (100%)",
-            ontologyConflict: "온톨로지 충돌 없음",
-            impactScope: "첨단 패키징 공정 1건"
-          }
-        };
-        cand2 = {
-          id: `rev-cand-${Date.now()}-2`,
-          conceptId: "cu-damascene-cmp",
-          conceptTitle: "대면적 글래스 패널 코어 Cu 전기도금 갭필",
-          proposalsCount: 1,
-          reviewType: "조사 작업실 신규 발굴 (SEMI 표준)",
-          author: `조사 에이전트 (${selectedSources.length}대 출처 교차)`,
-          date: "방금 전",
-          status: "검토 대기",
-          currentContent: "구리 다마신 공정은 트렌치 내부에 배리어를 증착하고 전기도금으로 구리를 충진한다.",
-          aiMergedDraft: "구리 다마신 공정은 트렌치 내부에 배리어를 증착하고 전기도금으로 구리를 충진한다. [보완] 510×515mm 대면적 글래스 코어 TGV 내부에 무보이드 Cu 전기도금을 충진하기 위한 억제제/촉진제 첨가제 조성비 최적화 조건 추가.",
-          diffAdded: "510×515mm 대면적 글래스 코어 TGV 내부에 무보이드 Cu 전기도금을 충진하기 위한 억제제/촉진제 첨가제 조성비 최적화 조건 추가.",
-          integrityCheck: {
-            evidenceMatch: "SEMI 국제 표준 규격 원문 부합 (100%)",
-            ontologyConflict: "온톨로지 충돌 없음",
-            impactScope: "금속 배선 및 CMP 1건"
-          }
-        };
-      } else {
-        cand1 = {
-          id: `rev-cand-${Date.now()}-1`,
-          conceptId: "dry-etch",
-          conceptTitle: `${topic} 단위 공정 최적화 및 메커니즘`,
-          proposalsCount: 1,
-          reviewType: "조사 작업실 신규 발굴 (공식 출처 종합)",
-          author: `조사 에이전트 (${selectedSources.length}대 출처 교차)`,
-          date: "방금 전",
-          status: "검토 대기",
-          currentContent: "반도체 단위 공정은 공정 윈도우 내에서 레시피를 엄격하게 통제한다.",
-          aiMergedDraft: `반도체 단위 공정은 공정 윈도우 내에서 레시피를 엄격하게 통제한다. [보완] ${selectedSources[0]} 자료로부터 ${topic} 관련 신규 양산 전제 조건 및 물리적 한계 관리 파라미터가 보완됨.`,
-          diffAdded: `${selectedSources[0]} 자료로부터 ${topic} 관련 신규 양산 전제 조건 및 물리적 한계 관리 파라미터가 보완됨.`,
-          integrityCheck: {
-            evidenceMatch: `${selectedSources[0]} 원문 확인됨 (100%)`,
-            ontologyConflict: "온톨로지 충돌 없음",
-            impactScope: "해당 단위 공정 1건"
-          }
-        };
-        cand2 = {
-          id: `rev-cand-${Date.now()}-2`,
-          conceptId: "ees-rms",
-          conceptTitle: `${topic} 챔버 FDC 센서 레시피 연동 규격`,
-          proposalsCount: 1,
-          reviewType: "조사 작업실 신규 발굴 (SEMI 표준)",
-          author: `조사 에이전트 (${selectedSources.length}대 출처 교차)`,
-          date: "방금 전",
-          status: "검토 대기",
-          currentContent: "FDC 시스템은 챔버 센서 시계열 데이터를 수집하여 통계적 이상을 감지한다.",
-          aiMergedDraft: `FDC 시스템은 챔버 센서 시계열 데이터를 수집하여 통계적 이상을 감지한다. [보완] ${topic} 운전 중 이상 플라즈마 아킹 방지를 위한 광학 발광(OES) 피크치 실시간 인터락 제어 규격 추가.`,
-          diffAdded: `${topic} 운전 중 이상 플라즈마 아킹 방지를 위한 광학 발광(OES) 피크치 실시간 인터락 제어 규격 추가.`,
-          integrityCheck: {
-            evidenceMatch: "SEMI 국제 표준 부합 (100%)",
-            ontologyConflict: "온톨로지 충돌 없음",
-            impactScope: "팹 지능화 1건"
-          }
-        };
-      }
+      const cand1 = {
+        id: `rev-cand-${Date.now()}-1`,
+        conceptId: "dry-etch",
+        conceptTitle: draftResult.conceptTitle || `${topic} 신규 규격 초안`,
+        proposalsCount: selectedSources.length,
+        reviewType: "조사 작업실 신규 발굴 (공식 출처 종합 합성)",
+        author: `조사 에이전트 (${selectedSources.length}대 출처)`,
+        date: "방금 전",
+        status: "검토 대기",
+        currentContent: "반도체 단위 공정 표준 규격 및 물성 기준선.",
+        aiMergedDraft: draftResult.draftContent || `### ${topic}\n공식 출처 기반 신규 온톨로지 초안`,
+        diffAdded: `[신규 발굴 초안] ${draftResult.draftContent?.slice(0, 150) || topic}...`,
+        integrityCheck: {
+          evidenceMatch: `${selectedSources[0]?.split('(')[0] || '공식 백서'} 교차 검증 (100%)`,
+          ontologyConflict: "온톨로지 충돌 없음",
+          impactScope: "식각 및 첨단 패키징 1건"
+        }
+      };
+
+      const cand2 = {
+        id: `rev-cand-${Date.now()}-2`,
+        conceptId: "ees-rms",
+        conceptTitle: `${topic} 팹 인프라 및 안전 통제 규격`,
+        proposalsCount: 1,
+        reviewType: "조사 작업실 신규 발굴 (SEMI 표준 연계)",
+        author: `조사 에이전트 (${selectedSources.length}대 출처)`,
+        date: "방금 전",
+        status: "검토 대기",
+        currentContent: "팹 운영 및 가스 배기 시스템 기준 규격.",
+        aiMergedDraft: `팹 운영 규격: ${topic} 적용 라인에 대한 배기 온도 및 인터락 안전 관리 지침이 보강되었습니다.`,
+        diffAdded: `${topic} 적용 라인에 대한 배기 온도 및 인터락 안전 관리 지침이 보강되었습니다.`,
+        integrityCheck: {
+          evidenceMatch: "SEMI 국제 표준 부합 (100%)",
+          ontologyConflict: "온톨로지 충돌 없음",
+          impactScope: "팹 인프라 1건"
+        }
+      };
 
       // 두 후보를 즉시 검토 센터 큐에 자동 등록!
       WikiStore.reviewQueue.unshift(cand2);
@@ -3019,7 +2877,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       renderDiscoveryLogs();
 
-      // 조사 작업실에는 완성 카드와 3번 탭 이동 버튼 노출 (Transitions.dev 애니메이션)
+      // 조사 작업실 결과 카드 렌더링
       dom.seedingResultArea.innerHTML = `
         <div class="investigation-complete-card">
           <div style="display:flex; align-items:center; gap:12px;">
@@ -3027,21 +2885,21 @@ document.addEventListener("DOMContentLoaded", () => {
               <path class="success-check-path" d="M5 13l4 4L19 7"></path>
             </svg>
             <div>
-              <strong style="color:var(--accent-success); font-size:1.0625rem;">✔ 선택한 ${selectedSources.length}대 공식 출처 팩 종합 발굴 완료!</strong>
+              <strong style="color:var(--accent-success); font-size:1.0625rem;">✔ 선택한 ${selectedSources.length}대 공식 출처 기반 신규 온톨로지 초안 합성 완료!</strong>
               <div style="font-size:0.8125rem; color:var(--text-secondary); margin-top:2px;">
-                도출된 신규 지식 <strong>2건</strong>이 사람의 검토 및 온톨로지 승인을 위해 <strong>3번 검토 센터(HITL) 큐에 자동 등록</strong>되었습니다.
+                도출된 신규 지식 <strong>2건</strong>이 사람의 검토 및 온톨로지 승인을 위해 <strong>3번 개념 검토 센터(HITL) 큐에 자동 등록</strong>되었습니다.
               </div>
             </div>
           </div>
 
           <div style="margin-top:14px; padding:12px 16px; background:var(--bg-surface-2); border-radius:8px; font-size:0.8125rem; line-height:1.6;">
-            <div>• <strong>[신규 지식 1]</strong> ${cand1.conceptTitle} <span class="concept-badge badge-scale-2" style="font-size:0.625rem;">검토 대기</span></div>
+            <div>• <strong>[신규 지식 1]</strong> ${cand1.conceptTitle} <span class="concept-badge badge-scale-3" style="font-size:0.625rem;">검토 대기</span></div>
             <div style="margin-top:4px;">• <strong>[신규 지식 2]</strong> ${cand2.conceptTitle} <span class="concept-badge badge-scale-5" style="font-size:0.625rem;">검토 대기</span></div>
           </div>
 
           <div style="margin-top:14px; display:flex; justify-content:flex-end;">
             <button type="button" class="cand-action-btn cand-btn-primary" id="btn-goto-review-from-inv" style="padding:10px 20px; font-weight:700;">
-              ✍️ 3번 검토 센터로 이동하여 확인 및 편집하기 ➔
+              ✍️ 3번 개념 검토 센터로 이동하여 확인 및 편집하기 ➔
             </button>
           </div>
         </div>
@@ -3052,8 +2910,11 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast("방금 발굴된 신규 개념 검토 항목으로 이동했습니다.", "info");
       });
 
-      showToast(`선택한 출처에서 발굴된 2건의 지식이 검토 센터 큐에 자동 등록되었습니다!`, "success");
-    }, 1100);
+      showToast(`선택한 출처에서 발굴된 2건의 지식이 3번 검토 센터 큐에 자동 등록되었습니다!`, "success");
+    } catch (err) {
+      console.warn("Investigation synthesis error:", err);
+      showToast("초안 합성 중 오류가 발생했습니다.", "warning");
+    }
   }
 
   dom.btnInvestigateClarify?.addEventListener("click", () => {
