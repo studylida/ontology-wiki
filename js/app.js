@@ -119,6 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
     floatingChatFab: document.getElementById("floating-chat-fab"),
     floatingChatWidget: document.getElementById("floating-chat-widget"),
     chatWidgetClose: document.getElementById("chat-widget-close"),
+    chatEngineModeBadge: document.getElementById("chat-engine-mode-badge"),
     chatContextBadge: document.getElementById("chat-context-badge"),
     chatCurConceptName: document.getElementById("chat-cur-concept-name"),
     floatingChatMessages: document.getElementById("floating-chat-messages"),
@@ -2015,7 +2016,13 @@ document.addEventListener("DOMContentLoaded", () => {
               ${clarifiedTitle}. 온톨로지 지식 그래프 상에서 다음 <strong>${branches.length}가지 핵심 분기</strong>가 식별되었습니다:
             </p>
             <div class="clarifier-options-grid">
-              ${branches.map((b, idx) => `
+              ${branches.map((b, idx) => {
+                const paramEntries = Object.entries(b.params || {});
+                const paramsBadges = paramEntries.length > 0
+                  ? paramEntries.map(([k, v]) => `<span style="background:var(--bg-surface-2); padding:2px 7px; border-radius:4px; border:1px solid var(--border-color); font-size:0.6875rem;">${k}: <strong>${v}</strong></span>`).join(" ")
+                  : `<span style="font-size:0.6875rem; color:var(--text-muted);">표준 공정 물리 규칙</span>`;
+
+                return `
                 <div class="clarifier-option-card" data-idx="${idx}">
                   <div class="clarifier-option-info">
                     <div class="clarifier-option-title">
@@ -2023,15 +2030,17 @@ document.addEventListener("DOMContentLoaded", () => {
                       <span>${b.title}</span>
                     </div>
                     <div class="clarifier-option-desc">${b.desc}</div>
-                    <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">
-                      전제 조건: 압력 ${b.params?.pressure || '1.5MPa'}, 온도 ${b.params?.temp || '180℃'}
+                    <div style="margin-top:6px; display:flex; flex-wrap:wrap; gap:4px; align-items:center;">
+                      <span style="font-size:0.6875rem; font-weight:700; color:var(--text-secondary);">⚙️ 핵심 공학 변수:</span>
+                      ${paramsBadges}
                     </div>
                   </div>
                   <button type="button" class="cand-action-btn cand-btn-primary" style="white-space:nowrap; font-size:0.8125rem;">
                     이 조건으로 세팅 & 분석 ➔
                   </button>
                 </div>
-              `).join("")}
+                `;
+              }).join("")}
             </div>
           </div>
         </div>
@@ -2043,9 +2052,10 @@ document.addEventListener("DOMContentLoaded", () => {
           const b = branches[idx];
           if (b) {
             dom.aiPromptInput.value = b.title;
-            dom.tagTextA.textContent = "A사 HBM (MR-MUF)";
-            dom.tagTextB.textContent = "B사 DRAM (TCB)";
-            dom.tagTextDomain.textContent = b.domain || "첨단 패키징";
+            const titleParts = b.title.split(/[:—–-]/);
+            dom.tagTextA.textContent = (titleParts[0] || b.title).trim();
+            dom.tagTextB.textContent = (titleParts[1] || "업계 표준 대조군").trim();
+            dom.tagTextDomain.textContent = b.domain || "반도체 핵심 공정";
 
             showToast(`'${b.title}' 조건으로 파라미터가 세팅되었습니다. 다차원 분석을 실행합니다!`, "info");
             dom.aiRunBtn.click();
@@ -3328,14 +3338,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ── 0-C. 위키 1번 탭 우측 하단 플로팅 챗봇 컨트롤러 ──
   function initFloatingChatWidget() {
+    function formatChatMarkdown(text) {
+      if (!text) return "";
+      return text
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        .replace(/\*(.*?)\*/g, "<em>$1</em>")
+        .replace(/`([^`]+)`/g, "<code style='background:var(--bg-surface-2); padding:1px 5px; border-radius:3px; font-family:var(--font-mono); font-size:0.75rem;'>$1</code>")
+        .replace(/\n\n/g, "<br><br>")
+        .replace(/\n/g, "<br>");
+    }
+
     function syncChatContext() {
-      const cur = WikiStore.concepts[state.currentConceptId];
+      const cur = WikiStore.concepts[state.currentConceptId] || WikiStore.concepts["dry-etch"];
       if (!cur) return;
+      const title = cur.title || cur.name || state.currentConceptId;
       if (dom.chatContextBadge) {
-        dom.chatContextBadge.textContent = `📌 ${cur.name} (${cur.scaleId || 'Scale 3'})`;
+        dom.chatContextBadge.textContent = `📌 ${title} (${cur.scaleId || 'Scale 3'})`;
       }
       if (dom.chatCurConceptName) {
-        dom.chatCurConceptName.textContent = cur.name;
+        dom.chatCurConceptName.textContent = title;
+      }
+      if (dom.chatEngineModeBadge && window.OntologyAgentCore) {
+        const mode = window.OntologyAgentCore.getMode();
+        const isLive = window.OntologyAgentCore.isLiveAvailable();
+        if (mode === "live" && isLive) {
+          dom.chatEngineModeBadge.className = "concept-badge badge-verified";
+          dom.chatEngineModeBadge.style.background = "#dcfce7";
+          dom.chatEngineModeBadge.style.color = "#15803d";
+          dom.chatEngineModeBadge.textContent = "🟢 Live (GPT-4o)";
+        } else {
+          dom.chatEngineModeBadge.className = "concept-badge badge-level-1";
+          dom.chatEngineModeBadge.style.background = "";
+          dom.chatEngineModeBadge.style.color = "";
+          dom.chatEngineModeBadge.textContent = "⚡ MOCK";
+        }
       }
     }
 
@@ -3360,7 +3397,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!dom.floatingChatMessages) return;
       const msgDiv = document.createElement("div");
       msgDiv.className = `chat-msg chat-msg-${role}`;
-      msgDiv.innerHTML = `<div class="chat-msg-bubble">${text}</div>`;
+      msgDiv.innerHTML = `<div class="chat-msg-bubble">${formatChatMarkdown(text)}</div>`;
       dom.floatingChatMessages.appendChild(msgDiv);
       dom.floatingChatMessages.scrollTop = dom.floatingChatMessages.scrollHeight;
       return msgDiv;
@@ -3386,7 +3423,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (loadingMsg) {
           const bubble = loadingMsg.querySelector(".chat-msg-bubble");
           if (bubble) {
-            bubble.textContent = res.answer;
+            bubble.innerHTML = formatChatMarkdown(res.answer);
           }
         }
       } catch (err) {
