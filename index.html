@@ -39,6 +39,13 @@
     </div>
 
     <div class="topbar-right">
+      <!-- 엔진 모드 & 키 관리 버튼 -->
+      <button type="button" class="apikey-trigger-btn" id="btn-open-apikey-modal" title="API Key 설정 및 런타임 엔진 모드 전환">
+        <span class="engine-mode-dot mode-mock" id="engine-mode-dot"></span>
+        <span id="engine-mode-label">Mock 엔진</span>
+        <span class="apikey-key-icon">🔑</span>
+      </button>
+
       <div class="search-trigger-btn" id="global-search-trigger" title="전역 검색 (Cmd+K / Ctrl+K)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"></circle>
@@ -659,6 +666,77 @@
 
 
 
+  <!-- ── API Key 보안 관리자 모달 ── -->
+  <div class="modal-backdrop" id="apikey-modal" style="display:none;">
+    <div class="modal-box" style="max-width:540px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:1.25rem;">🔑</span>
+          <h3 style="margin:0; font-size:1.125rem;">에이전트 API Key & 런타임 설정</h3>
+        </div>
+        <button type="button" class="modal-close-btn" id="apikey-modal-close">&times;</button>
+      </div>
+
+      <div class="modal-body" style="padding:16px 20px;">
+        <!-- 보안 안내 배너 -->
+        <div style="background:var(--bg-surface-2); border:1px solid var(--border-color); border-radius:6px; padding:12px; margin-bottom:16px; font-size:0.75rem; color:var(--text-secondary); line-height:1.5;">
+          <strong style="color:var(--text-primary); display:block; margin-bottom:4px;">🛡️ 로컬 보안 격리 보장:</strong>
+          입력하신 Google 및 OpenAI API Key는 외부 서버로 전송되지 않으며, 사용자 브라우저의 <code>sessionStorage</code>에만 안전하게 보관됩니다. (브라우저 탭을 닫으면 즉시 파기)
+        </div>
+
+        <!-- 런타임 모드 선택 -->
+        <div style="margin-bottom:16px;">
+          <label style="font-size:0.8125rem; font-weight:700; color:var(--text-primary); display:block; margin-bottom:8px;">
+            런타임 엔진 모드
+          </label>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <label style="display:flex; align-items:center; gap:8px; font-size:0.8125rem; cursor:pointer;">
+              <input type="radio" name="engine-mode-radio" value="mock" id="radio-mode-mock" checked />
+              <span><strong>Mock 에뮬레이션</strong> (키 불필요, 인메모리 Strata Qwen 고속)</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; font-size:0.8125rem; cursor:pointer;">
+              <input type="radio" name="engine-mode-radio" value="live" id="radio-mode-live" />
+              <span><strong>Live 실제 API</strong> (Google text-embedding + OpenAI GPT-6.1 Sol)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Google API Key 입력 -->
+        <div style="margin-bottom:14px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+            <label for="input-google-key" style="font-size:0.8125rem; font-weight:600;">Google Gemini API Key (시맨틱 임베딩)</label>
+            <span style="font-size:0.6875rem; color:var(--text-muted);">text-embedding 매핑용</span>
+          </div>
+          <input type="password" id="input-google-key" class="form-input" placeholder="AIzaSy... (Google API Key 입력)" style="width:100%; font-family:monospace; font-size:0.8125rem; padding:8px 10px;" />
+        </div>
+
+        <!-- OpenAI API Key 입력 -->
+        <div style="margin-bottom:16px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+            <label for="input-openai-key" style="font-size:0.8125rem; font-weight:600;">OpenAI API Key (메인 인과 추론)</label>
+            <span style="font-size:0.6875rem; color:var(--text-muted);">GPT-6.1 Sol 정형 JSON용</span>
+          </div>
+          <input type="password" id="input-openai-key" class="form-input" placeholder="sk-proj-... (OpenAI API Key 입력)" style="width:100%; font-family:monospace; font-size:0.8125rem; padding:8px 10px;" />
+        </div>
+
+        <!-- 키 상태 및 테스트 결과 피드백 영역 -->
+        <div id="apikey-status-msg" style="font-size:0.75rem; margin-bottom:12px; display:none; padding:8px 12px; border-radius:4px;"></div>
+      </div>
+
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; padding:12px 20px; border-top:1px solid var(--border-color);">
+        <button type="button" class="btn-secondary" id="btn-clear-apikeys" style="font-size:0.75rem; color:var(--accent-danger, #ef4444); background:transparent; border:1px solid var(--border-color); padding:6px 10px; border-radius:4px; cursor:pointer;">
+          🗑️ 키 초기화 (삭제)
+        </button>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn-secondary" id="btn-close-apikey-modal" style="padding:6px 12px; border:1px solid var(--border-color); background:transparent; border-radius:4px; cursor:pointer;">취소</button>
+          <button type="button" class="cand-action-btn cand-btn-primary" id="btn-save-apikeys">
+            💾 저장 및 적용
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- 토스트 알림 컨테이너 (Transitions.dev Toast open/close) -->
   <div class="toast-container" id="toast-container"></div>
 
@@ -667,6 +745,7 @@
   <script src="js/sprint2_data.js"></script>
   <script src="js/sprint3_data.js"></script>
   <script src="js/data.js"></script>
+  <script src="js/agent_core.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

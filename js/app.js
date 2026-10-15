@@ -80,6 +80,20 @@ document.addEventListener("DOMContentLoaded", () => {
     openSuggestModalBtn: document.getElementById("open-suggest-modal-btn"),
     editParamsModal: document.getElementById("edit-params-modal"),
     editParamsForm: document.getElementById("edit-params-form"),
+    // API Key 보안 관리자 모달
+    btnOpenApiKeyModal: document.getElementById("btn-open-apikey-modal"),
+    apiKeyModal: document.getElementById("apikey-modal"),
+    apiKeyModalClose: document.getElementById("apikey-modal-close"),
+    btnCloseApiKeyModal: document.getElementById("btn-close-apikey-modal"),
+    btnSaveApiKeys: document.getElementById("btn-save-apikeys"),
+    btnClearApiKeys: document.getElementById("btn-clear-apikeys"),
+    inputGoogleKey: document.getElementById("input-google-key"),
+    inputOpenAIKey: document.getElementById("input-openai-key"),
+    radioModeMock: document.getElementById("radio-mode-mock"),
+    radioModeLive: document.getElementById("radio-mode-live"),
+    engineModeDot: document.getElementById("engine-mode-dot"),
+    engineModeLabel: document.getElementById("engine-mode-label"),
+    apiKeyStatusMsg: document.getElementById("apikey-status-msg"),
     // 전역 검색 모달
     searchModal: document.getElementById("search-modal"),
     searchModalClose: document.getElementById("search-modal-close"),
@@ -3032,7 +3046,115 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // ── 0. API Key 보안 관리자 & 런타임 엔진 컨트롤러 ──
+  function initApiKeyManager() {
+    function updateTopBarStatus() {
+      if (!window.OntologyAgentCore) return;
+      const mode = window.OntologyAgentCore.getMode();
+      const keys = window.OntologyAgentCore.getKeys();
+      const isLiveActive = mode === "live" && keys.hasGoogle && keys.hasOpenAI;
+
+      if (isLiveActive) {
+        if (dom.engineModeDot) {
+          dom.engineModeDot.className = "engine-mode-dot mode-live";
+        }
+        if (dom.engineModeLabel) {
+          dom.engineModeLabel.textContent = "Live API (Sol 6.1)";
+        }
+      } else {
+        if (dom.engineModeDot) {
+          dom.engineModeDot.className = "engine-mode-dot mode-mock";
+        }
+        if (dom.engineModeLabel) {
+          dom.engineModeLabel.textContent = "Mock 엔진";
+        }
+      }
+    }
+
+    // 모달 열기
+    dom.btnOpenApiKeyModal?.addEventListener("click", () => {
+      if (!window.OntologyAgentCore) return;
+      const keys = window.OntologyAgentCore.getKeys();
+      const mode = window.OntologyAgentCore.getMode();
+
+      if (dom.inputGoogleKey) dom.inputGoogleKey.value = keys.googleKey || "";
+      if (dom.inputOpenAIKey) dom.inputOpenAIKey.value = keys.openaiKey || "";
+
+      if (mode === "live" && dom.radioModeLive) {
+        dom.radioModeLive.checked = true;
+      } else if (dom.radioModeMock) {
+        dom.radioModeMock.checked = true;
+      }
+
+      if (dom.apiKeyStatusMsg) {
+        dom.apiKeyStatusMsg.style.display = "none";
+        dom.apiKeyStatusMsg.textContent = "";
+      }
+
+      dom.apiKeyModal.style.display = "flex";
+    });
+
+    // 모달 닫기
+    function closeApiKeyModal() {
+      if (dom.apiKeyModal) dom.apiKeyModal.style.display = "none";
+    }
+
+    dom.apiKeyModalClose?.addEventListener("click", closeApiKeyModal);
+    dom.btnCloseApiKeyModal?.addEventListener("click", closeApiKeyModal);
+    dom.apiKeyModal?.addEventListener("click", (e) => {
+      if (e.target === dom.apiKeyModal) closeApiKeyModal();
+    });
+
+    // 저장 버튼 클릭
+    dom.btnSaveApiKeys?.addEventListener("click", () => {
+      if (!window.OntologyAgentCore) return;
+      const gKey = dom.inputGoogleKey?.value.trim() || "";
+      const oKey = dom.inputOpenAIKey?.value.trim() || "";
+      const selectedMode = dom.radioModeLive?.checked ? "live" : "mock";
+
+      if (selectedMode === "live" && (!gKey || !oKey)) {
+        if (dom.apiKeyStatusMsg) {
+          dom.apiKeyStatusMsg.style.display = "block";
+          dom.apiKeyStatusMsg.style.background = "#fef2f2";
+          dom.apiKeyStatusMsg.style.color = "#b91c1c";
+          dom.apiKeyStatusMsg.style.border = "1px solid #fecaca";
+          dom.apiKeyStatusMsg.textContent = "⚠️ Live API 모드를 가동하려면 Google API Key와 OpenAI API Key가 모두 필요합니다.";
+        }
+        return;
+      }
+
+      window.OntologyAgentCore.saveKeys(gKey, oKey);
+      window.OntologyAgentCore.setMode(selectedMode);
+      updateTopBarStatus();
+      closeApiKeyModal();
+
+      if (selectedMode === "live") {
+        showToast("🚀 Live API 모드가 활성화되었습니다! (Google text-embedding + OpenAI GPT-6.1 Sol)", "success");
+      } else {
+        showToast("⚡ Mock 에뮬레이션 엔진으로 전환되었습니다. (비용 0, 초고속 인메모리)", "info");
+      }
+    });
+
+    // 키 초기화(삭제)
+    dom.btnClearApiKeys?.addEventListener("click", () => {
+      if (!window.OntologyAgentCore) return;
+      if (confirm("세션에 저장된 모든 API Key를 삭제하고 Mock 모드로 전환하시겠습니까?")) {
+        window.OntologyAgentCore.clearKeys();
+        if (dom.inputGoogleKey) dom.inputGoogleKey.value = "";
+        if (dom.inputOpenAIKey) dom.inputOpenAIKey.value = "";
+        if (dom.radioModeMock) dom.radioModeMock.checked = true;
+        updateTopBarStatus();
+        closeApiKeyModal();
+        showToast("API Key가 브라우저 세션에서 안전하게 완전히 삭제되었습니다.", "info");
+      }
+    });
+
+    // 최초 탑바 상태 동기화
+    updateTopBarStatus();
+  }
+
   // ── 초기화 실행 ──
+  initApiKeyManager();
   renderDomainFacets();
   renderSidebarNav();
   renderSidebarScaleTree();
