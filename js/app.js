@@ -94,6 +94,34 @@ document.addEventListener("DOMContentLoaded", () => {
     engineModeDot: document.getElementById("engine-mode-dot"),
     engineModeLabel: document.getElementById("engine-mode-label"),
     apiKeyStatusMsg: document.getElementById("apikey-status-msg"),
+    // 타 프로젝트 API 허브 (Headless Simulator)
+    btnOpenHeadlessHub: document.getElementById("btn-open-headless-hub"),
+    headlessApiModal: document.getElementById("headless-api-modal"),
+    headlessModalClose: document.getElementById("headless-modal-close"),
+    btnCloseHeadlessModal: document.getElementById("btn-close-headless-modal"),
+    headlessClientSelect: document.getElementById("headless-client-select"),
+    headlessQueryInput: document.getElementById("headless-query-input"),
+    headlessMultimodalCb: document.getElementById("headless-multimodal-cb"),
+    btnRunHeadlessQuery: document.getElementById("btn-run-headless-query"),
+    headlessGapBanner: document.getElementById("headless-gap-banner"),
+    headlessGapDesc: document.getElementById("headless-gap-desc"),
+    btnTransferToReview: document.getElementById("btn-transfer-to-review"),
+    headlessResultsContainer: document.getElementById("headless-results-container"),
+    headlessElapsedBadge: document.getElementById("headless-elapsed-badge"),
+    codeHeadlessJson: document.getElementById("code-headless-json"),
+    codeHeadlessCurl: document.getElementById("code-headless-curl"),
+    listHeadlessTrace: document.getElementById("list-headless-trace"),
+    btnCopyJson: document.getElementById("btn-copy-json"),
+    btnCopyCurl: document.getElementById("btn-copy-curl"),
+    // 위키 1번 탭 플로팅 챗봇
+    floatingChatFab: document.getElementById("floating-chat-fab"),
+    floatingChatWidget: document.getElementById("floating-chat-widget"),
+    chatWidgetClose: document.getElementById("chat-widget-close"),
+    chatContextBadge: document.getElementById("chat-context-badge"),
+    chatCurConceptName: document.getElementById("chat-cur-concept-name"),
+    floatingChatMessages: document.getElementById("floating-chat-messages"),
+    floatingChatInput: document.getElementById("floating-chat-input"),
+    floatingChatSendBtn: document.getElementById("floating-chat-send-btn"),
     // 전역 검색 모달
     searchModal: document.getElementById("search-modal"),
     searchModalClose: document.getElementById("search-modal-close"),
@@ -1296,6 +1324,7 @@ document.addEventListener("DOMContentLoaded", () => {
       renderFabStageStrip();
       renderConceptDetail(conceptId);
       setWorkspace("wiki");
+      window.dispatchEvent(new CustomEvent("conceptChanged"));
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       showToast(`'${conceptId}' 문서는 조사 작업실에서 후보 발굴 대기 중입니다.`, "info");
@@ -3153,8 +3182,254 @@ document.addEventListener("DOMContentLoaded", () => {
     updateTopBarStatus();
   }
 
+  // ── 0-B. 타 프로젝트 백엔드 연동 API 허브 시뮬레이터 컨트롤러 ──
+  function initHeadlessApiHub() {
+    function openModal() {
+      if (dom.headlessApiModal) dom.headlessApiModal.style.display = "flex";
+    }
+    function closeModal() {
+      if (dom.headlessApiModal) dom.headlessApiModal.style.display = "none";
+    }
+
+    dom.btnOpenHeadlessHub?.addEventListener("click", openModal);
+    dom.headlessModalClose?.addEventListener("click", closeModal);
+    dom.btnCloseHeadlessModal?.addEventListener("click", closeModal);
+    dom.headlessApiModal?.addEventListener("click", (e) => {
+      if (e.target === dom.headlessApiModal) closeModal();
+    });
+
+    // 퀵 프리셋 칩 클릭
+    document.querySelectorAll(".headless-preset-chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        const client = chip.dataset.client;
+        const query = chip.dataset.query;
+        if (dom.headlessClientSelect && client) dom.headlessClientSelect.value = client;
+        if (dom.headlessQueryInput && query) dom.headlessQueryInput.value = query;
+      });
+    });
+
+    // 결과 탭 전환
+    const tabBtns = document.querySelectorAll(".headless-tab-btn");
+    const panes = {
+      json: document.getElementById("pane-headless-json"),
+      curl: document.getElementById("pane-headless-curl"),
+      trace: document.getElementById("pane-headless-trace")
+    };
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        tabBtns.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const tab = btn.dataset.tab;
+        Object.entries(panes).forEach(([k, p]) => {
+          if (p) p.style.display = (k === tab) ? "block" : "none";
+        });
+      });
+    });
+
+    // 복사 버튼
+    dom.btnCopyJson?.addEventListener("click", () => {
+      if (dom.codeHeadlessJson?.textContent) {
+        navigator.clipboard.writeText(dom.codeHeadlessJson.textContent);
+        showToast("정형 JSON 응답이 클립보드에 복사되었습니다.", "info");
+      }
+    });
+
+    dom.btnCopyCurl?.addEventListener("click", () => {
+      if (dom.codeHeadlessCurl?.textContent) {
+        navigator.clipboard.writeText(dom.codeHeadlessCurl.textContent);
+        showToast("cURL 호출 명령어가 클립보드에 복사되었습니다.", "info");
+      }
+    });
+
+    // 실행 버튼 클릭
+    dom.btnRunHeadlessQuery?.addEventListener("click", async () => {
+      const query = dom.headlessQueryInput?.value.trim();
+      if (!query) {
+        alert("기술 질의 내용을 입력하거나 상단 프리셋을 선택하세요.");
+        return;
+      }
+
+      const callerSystem = dom.headlessClientSelect?.value || "custom-api";
+      const scaleFilters = Array.from(document.querySelectorAll(".headless-scale-cb:checked")).map(cb => cb.value);
+      const bypassMultimodal = !dom.headlessMultimodalCb?.checked;
+
+      // UI 로딩 상태
+      const originalText = dom.btnRunHeadlessQuery.textContent;
+      dom.btnRunHeadlessQuery.textContent = "⏳ 온톨로지 하네스 추론 중...";
+      dom.btnRunHeadlessQuery.disabled = true;
+
+      try {
+        const result = await window.OntologyAgentCore.queryHeadlessApi({
+          query,
+          callerSystem,
+          scaleFilters,
+          bypassMultimodal
+        });
+
+        if (dom.headlessResultsContainer) dom.headlessResultsContainer.style.display = "block";
+        if (dom.codeHeadlessJson) dom.codeHeadlessJson.textContent = JSON.stringify(result.responseJson, null, 2);
+        if (dom.codeHeadlessCurl) dom.codeHeadlessCurl.textContent = result.curlCommand;
+        if (dom.headlessElapsedBadge) dom.headlessElapsedBadge.textContent = `소요: ${result.elapsed}ms`;
+
+        // 트레이스 렌더링
+        if (dom.listHeadlessTrace) {
+          dom.listHeadlessTrace.innerHTML = result.traceSteps.map(step => {
+            const isWarning = step.includes("⚠️") || step.includes("공백");
+            const color = isWarning ? "#b45309" : "var(--text-secondary)";
+            return `<div style="padding:4px 8px; background:var(--bg-surface); border-left:3px solid ${isWarning ? '#f59e0b' : 'var(--accent-primary)'}; border-radius:3px; color:${color}; font-size:0.75rem;">${step}</div>`;
+          }).join("");
+        }
+
+        // 지식 공백(Knowledge Gap) 감지 처리
+        if (result.isKnowledgeGap) {
+          if (dom.headlessGapBanner) dom.headlessGapBanner.style.display = "block";
+          if (dom.headlessGapDesc) dom.headlessGapDesc.textContent = result.responseJson.message;
+
+          if (dom.btnTransferToReview) {
+            dom.btnTransferToReview.onclick = () => {
+              // 3번 검토 센터 큐에 신규 후보 등록
+              const newCand = {
+                id: `gap-${Date.now()}`,
+                conceptTitle: query.slice(0, 30) + (query.length > 30 ? "..." : ""),
+                facetId: "facet-process",
+                levelId: "level-1",
+                sourceAuthor: `외부 호출 [${callerSystem}] 지식 공백 감지`,
+                regDate: "방금 전 (자동 발굴)",
+                currentVersionText: "신규 미등록 (v0.0)",
+                draftVersionText: "v1.0 (에이전트 권고 초안)",
+                draftSnippet: `### ${query}\n본 기술 항목은 외부 시스템(${callerSystem}) 연동 중 온톨로지 공백으로 포착되어 전문가 검토 큐로 긴급 이관되었습니다. 공식 백서(SEMI/장비사) 기반 정식 온톨로지 편입이 필요합니다.`,
+                integrityCheck: {
+                  evidenceMatch: "신규 발굴 대상 (검증 필요)",
+                  ontologyConflict: "신규 독립 노드 (충돌 없음)",
+                  impactScope: "외부 백엔드 연동 1건"
+                }
+              };
+
+              WikiStore.reviewQueue.unshift(newCand);
+              state.selectedReviewId = newCand.id;
+              renderReviewQueue();
+              closeModal();
+              setWorkspace("review");
+              showToast("지식 공백 항목이 3번 개념 검토 센터(HITL) 큐 최상단에 등록되었습니다!", "success");
+            };
+          }
+        } else {
+          if (dom.headlessGapBanner) dom.headlessGapBanner.style.display = "none";
+        }
+
+        showToast(`[${callerSystem}] 온톨로지 하네스 정형 인과 응답 수신 성공!`, "success");
+      } catch (err) {
+        alert("API 호출 중 오류 발생: " + err.message);
+      } finally {
+        dom.btnRunHeadlessQuery.textContent = originalText;
+        dom.btnRunHeadlessQuery.disabled = false;
+      }
+    });
+  }
+
+  // ── 0-C. 위키 1번 탭 우측 하단 플로팅 챗봇 컨트롤러 ──
+  function initFloatingChatWidget() {
+    function syncChatContext() {
+      const cur = WikiStore.concepts[state.currentConceptId];
+      if (!cur) return;
+      if (dom.chatContextBadge) {
+        dom.chatContextBadge.textContent = `📌 ${cur.name} (${cur.scaleId || 'Scale 3'})`;
+      }
+      if (dom.chatCurConceptName) {
+        dom.chatCurConceptName.textContent = cur.name;
+      }
+    }
+
+    // FAB 클릭 시 토글
+    dom.floatingChatFab?.addEventListener("click", () => {
+      syncChatContext();
+      if (dom.floatingChatWidget) {
+        const isHidden = dom.floatingChatWidget.style.display === "none";
+        dom.floatingChatWidget.style.display = isHidden ? "flex" : "none";
+        if (isHidden && dom.floatingChatInput) {
+          dom.floatingChatInput.focus();
+        }
+      }
+    });
+
+    dom.chatWidgetClose?.addEventListener("click", () => {
+      if (dom.floatingChatWidget) dom.floatingChatWidget.style.display = "none";
+    });
+
+    // 메시지 렌더링 헬퍼
+    function appendChatMessage(role, text) {
+      if (!dom.floatingChatMessages) return;
+      const msgDiv = document.createElement("div");
+      msgDiv.className = `chat-msg chat-msg-${role}`;
+      msgDiv.innerHTML = `<div class="chat-msg-bubble">${text}</div>`;
+      dom.floatingChatMessages.appendChild(msgDiv);
+      dom.floatingChatMessages.scrollTop = dom.floatingChatMessages.scrollHeight;
+      return msgDiv;
+    }
+
+    // 질문 발송 처리
+    async function sendChatMessage(userText) {
+      const query = (userText || dom.floatingChatInput?.value || "").trim();
+      if (!query) return;
+
+      appendChatMessage("user", query);
+      if (dom.floatingChatInput) dom.floatingChatInput.value = "";
+
+      const loadingMsg = appendChatMessage("agent", "⏳ 현재 온톨로지 문서의 물리 인과 사슬을 분석 중입니다...");
+
+      try {
+        const res = await window.OntologyAgentCore.askContextualChat({
+          conceptId: state.currentConceptId,
+          userMessage: query,
+          currentPerspective: state.currentPerspective
+        });
+
+        if (loadingMsg) {
+          const bubble = loadingMsg.querySelector(".chat-msg-bubble");
+          if (bubble) {
+            bubble.textContent = res.answer;
+          }
+        }
+      } catch (err) {
+        if (loadingMsg) {
+          const bubble = loadingMsg.querySelector(".chat-msg-bubble");
+          if (bubble) bubble.textContent = "답변 생성 실패: " + err.message;
+        }
+      }
+      if (dom.floatingChatMessages) {
+        dom.floatingChatMessages.scrollTop = dom.floatingChatMessages.scrollHeight;
+      }
+    }
+
+    dom.floatingChatSendBtn?.addEventListener("click", () => sendChatMessage());
+    dom.floatingChatInput?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        sendChatMessage();
+      }
+    });
+
+    // 퀵 질문 칩 클릭
+    document.querySelectorAll(".chat-quick-chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        const q = chip.dataset.q;
+        if (q) sendChatMessage(q);
+      });
+    });
+
+    // 전역 개념 변경 시 컨텍스트 실시간 동기화 등록
+    window.addEventListener("conceptChanged", () => {
+      syncChatContext();
+    });
+
+    syncChatContext();
+  }
+
   // ── 초기화 실행 ──
   initApiKeyManager();
+  initHeadlessApiHub();
+  initFloatingChatWidget();
   renderDomainFacets();
   renderSidebarNav();
   renderSidebarScaleTree();

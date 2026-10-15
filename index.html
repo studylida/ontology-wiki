@@ -39,6 +39,12 @@
     </div>
 
     <div class="topbar-right">
+      <!-- 타 프로젝트 백엔드 API 연동 허브 버튼 -->
+      <button type="button" class="headless-api-trigger-btn" id="btn-open-headless-hub" title="사내 타 프로젝트(FDC, CAD, 챗봇) 연동 백엔드 API 허브 시뮬레이터">
+        <span class="api-hub-pulse-dot"></span>
+        <span>🔌 타 프로젝트 API 연동</span>
+      </button>
+
       <!-- 엔진 모드 & 키 관리 버튼 -->
       <button type="button" class="apikey-trigger-btn" id="btn-open-apikey-modal" title="API Key 설정 및 런타임 엔진 모드 전환">
         <span class="engine-mode-dot mode-mock" id="engine-mode-dot"></span>
@@ -734,6 +740,183 @@
           </button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ── 🔌 타 프로젝트 백엔드 연동 API 허브 시뮬레이터 모달 ── -->
+  <div class="modal-backdrop" id="headless-api-modal" style="display:none;">
+    <div class="modal-box" style="max-width:820px; width:92vw; max-height:90vh; display:flex; flex-direction:column;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:1.25rem;">🔌</span>
+          <div>
+            <h3 style="margin:0; font-size:1.125rem;">타 프로젝트 백엔드 연동 API 허브 (Headless Simulator)</h3>
+            <span style="font-size:0.75rem; color:var(--text-muted);">FDC, 패키징 CAD, 기술 챗봇 등 외부 백엔드 호출 인터페이스 검증</span>
+          </div>
+        </div>
+        <button type="button" class="modal-close-btn" id="headless-modal-close">&times;</button>
+      </div>
+
+      <div class="modal-body" style="padding:16px 20px; overflow-y:auto; flex:1;">
+        <!-- 상단 호출 시스템 및 프리셋 선택 -->
+        <div style="display:flex; gap:12px; margin-bottom:12px; flex-wrap:wrap;">
+          <div style="flex:1; min-width:200px;">
+            <label style="font-size:0.75rem; font-weight:700; color:var(--text-primary); display:block; margin-bottom:4px;">
+              호출 시스템 (Client Identity)
+            </label>
+            <select id="headless-client-select" class="form-input" style="width:100%; padding:6px 10px; font-size:0.8125rem;">
+              <option value="fdc-system">스마트 팩토리 FDC 이상감지 시스템 (Equipment)</option>
+              <option value="packaging-cad">첨단 패키징 EDA CAD 시뮬레이터 (Device)</option>
+              <option value="enterprise-chatbot">전사 엔지니어링 기술 챗봇 (Chatbot)</option>
+              <option value="custom-api">사내 커스텀 REST 마이크로서비스 (Custom)</option>
+            </select>
+          </div>
+
+          <div style="flex:1; min-width:200px;">
+            <label style="font-size:0.75rem; font-weight:700; color:var(--text-primary); display:block; margin-bottom:4px;">
+              물리적 인과 스케일 필터
+            </label>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; font-size:0.75rem; padding-top:4px;">
+              <label><input type="checkbox" class="headless-scale-cb" value="Scale 1" checked /> S1(원자)</label>
+              <label><input type="checkbox" class="headless-scale-cb" value="Scale 2" checked /> S2(소자)</label>
+              <label><input type="checkbox" class="headless-scale-cb" value="Scale 3" checked /> S3(단위공정)</label>
+              <label><input type="checkbox" class="headless-scale-cb" value="Scale 4" checked /> S4(패키지)</label>
+              <label><input type="checkbox" class="headless-scale-cb" value="Scale 5" checked /> S5(팹)</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 퀵 프리셋 칩 -->
+        <div style="margin-bottom:12px;">
+          <div style="font-size:0.6875rem; font-weight:700; color:var(--text-muted); margin-bottom:6px;">빠른 질의 시나리오 프리셋:</div>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button type="button" class="headless-preset-chip" data-client="fdc-system" data-query="극저온 식각 공정 중 배기 압력 불안정 및 칠러 전력 급증 이상 원인 분석 요청">
+              ❄️ FDC 극저온 배기 이상
+            </button>
+            <button type="button" class="headless-preset-chip" data-client="packaging-cad" data-query="MR-MUF 공정 중 16단 적층 시 발생하는 열 방열과 패키지 휨(Warpage) 상충 관계">
+              📦 16단 HBM 휨 vs 방열
+            </button>
+            <button type="button" class="headless-preset-chip" data-client="enterprise-chatbot" data-query="2nm GAA 나노시트 식각 시 SiGe 선택비 저하와 소자 누설전류 인과 사슬">
+              📐 2nm GAA 인과 추론
+            </button>
+            <button type="button" class="headless-preset-chip chip-gap" data-client="custom-api" data-query="차세대 하이퍼 다이아몬드 방열 기판 접합 불량 인과 분석">
+              ⚠️ 미등록 신소재 Gap 검출
+            </button>
+          </div>
+        </div>
+
+        <!-- 질의 입력창 -->
+        <div style="margin-bottom:12px;">
+          <label for="headless-query-input" style="font-size:0.75rem; font-weight:700; display:block; margin-bottom:4px;">
+            기술 질의 페이로드 (자유 질의)
+          </label>
+          <textarea id="headless-query-input" class="form-input" rows="3" placeholder="타 시스템이 에이전트 하네스에 전송할 기술 질의를 입력하세요..." style="width:100%; font-size:0.8125rem; resize:vertical;"></textarea>
+        </div>
+
+        <!-- 멀티모달 바이패스 옵션 및 실행 버튼 -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding:10px 12px; background:var(--bg-surface-2); border-radius:6px;">
+          <label style="display:flex; align-items:center; gap:6px; font-size:0.75rem; cursor:pointer; color:var(--text-secondary);">
+            <input type="checkbox" id="headless-multimodal-cb" />
+            <span>비전/센서 차트 파서 활성화 (기본값: 해제/바이패스로 0ms 지연)</span>
+          </label>
+          <button type="button" class="cand-action-btn cand-btn-primary" id="btn-run-headless-query" style="padding:8px 18px; font-weight:700;">
+            🚀 온톨로지 하네스 API 호출
+          </button>
+        </div>
+
+        <!-- 지식 공백(Knowledge Gap) 감지 알림 배너 (Gap 발견 시만 노출) -->
+        <div id="headless-gap-banner" style="display:none; background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:12px 16px; margin-bottom:16px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <strong style="color:#b45309; font-size:0.875rem;">⚠️ 온톨로지 지식 공백(Knowledge Gap) 감지</strong>
+              <p style="font-size:0.75rem; color:#92400e; margin:2px 0 0 0;" id="headless-gap-desc">
+                현재 37개 핵심 온톨로지에 없는 미등록 신규 공정/소재입니다.
+              </p>
+            </div>
+            <button type="button" class="cand-action-btn" id="btn-transfer-to-review" style="background:#f59e0b; color:#fff; border:none; padding:8px 14px; font-size:0.75rem; font-weight:700; white-space:nowrap;">
+              ✍️ 3번 검토 센터 큐에 신규 후보로 즉시 이관 ➔
+            </button>
+          </div>
+        </div>
+
+        <!-- 결과 3대 탭 UI -->
+        <div class="headless-results-container" id="headless-results-container" style="display:none;">
+          <div class="headless-result-tabs" style="display:flex; border-bottom:1px solid var(--border-color); margin-bottom:12px;">
+            <button type="button" class="headless-tab-btn active" data-tab="json">📄 정형 JSON 응답</button>
+            <button type="button" class="headless-tab-btn" data-tab="curl">💻 cURL 요청 명세</button>
+            <button type="button" class="headless-tab-btn" data-tab="trace">🧠 인과 추론 트레이스</button>
+            <span style="margin-left:auto; font-size:0.6875rem; color:var(--text-muted); align-self:center;" id="headless-elapsed-badge">소요: 12ms</span>
+          </div>
+
+          <!-- 탭 1: 정형 JSON -->
+          <div class="headless-tab-pane" id="pane-headless-json">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span style="font-size:0.6875rem; color:var(--text-muted);">표준 REST API 응답 규격 (Content-Type: application/json)</span>
+              <button type="button" class="btn-copy-code" id="btn-copy-json" style="font-size:0.6875rem; padding:2px 8px; cursor:pointer;">복사</button>
+            </div>
+            <pre style="background:var(--bg-surface-2); padding:12px; border-radius:6px; font-family:var(--font-mono); font-size:0.75rem; max-height:260px; overflow:auto; margin:0;"><code id="code-headless-json"></code></pre>
+          </div>
+
+          <!-- 탭 2: cURL 명세 -->
+          <div class="headless-tab-pane" id="pane-headless-curl" style="display:none;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span style="font-size:0.6875rem; color:var(--text-muted);">타 프로젝트 백엔드 개발자용 터미널 호출 커맨드</span>
+              <button type="button" class="btn-copy-code" id="btn-copy-curl" style="font-size:0.6875rem; padding:2px 8px; cursor:pointer;">복사</button>
+            </div>
+            <pre style="background:var(--bg-surface-2); padding:12px; border-radius:6px; font-family:var(--font-mono); font-size:0.75rem; max-height:260px; overflow:auto; margin:0;"><code id="code-headless-curl"></code></pre>
+          </div>
+
+          <!-- 탭 3: 추론 트레이스 -->
+          <div class="headless-tab-pane" id="pane-headless-trace" style="display:none;">
+            <div style="font-size:0.6875rem; color:var(--text-muted); margin-bottom:8px;">단계별 인과 추론 파이프라인 실행 이력</div>
+            <div id="list-headless-trace" style="display:flex; flex-direction:column; gap:6px; font-size:0.75rem;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="padding:12px 20px; border-top:1px solid var(--border-color); display:flex; justify-content:flex-end;">
+        <button type="button" class="btn-secondary" id="btn-close-headless-modal" style="padding:6px 14px; border:1px solid var(--border-color); background:transparent; border-radius:4px; cursor:pointer;">
+          닫기
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 💬 위키 1번 탭 우측 하단 플로팅 챗봇 (FAB & Widget) ── -->
+  <button type="button" class="floating-chat-fab" id="floating-chat-fab" title="현재 열람 중인 온톨로지 개념에 대해 실시간 질문하기">
+    <span class="fab-chat-icon">💬</span>
+    <span class="fab-chat-label">온톨로지 챗</span>
+  </button>
+
+  <div class="floating-chat-widget" id="floating-chat-widget" style="display:none;">
+    <div class="floating-chat-header">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:1.125rem;">💬</span>
+        <div>
+          <strong style="font-size:0.875rem; display:block;">온톨로지 실시간 챗봇</strong>
+          <span class="chat-context-badge" id="chat-context-badge">📌 플라즈마 건식 식각 (Scale 3)</span>
+        </div>
+      </div>
+      <button type="button" class="chat-widget-close" id="chat-widget-close">&times;</button>
+    </div>
+
+    <div class="floating-chat-messages" id="floating-chat-messages">
+      <!-- 웰컴 메시지 & 퀵 질문 칩 -->
+      <div class="chat-msg chat-msg-agent">
+        <div class="chat-msg-bubble">
+          안녕하세요! 현재 열람 중이신 <strong id="chat-cur-concept-name">플라즈마 건식 식각</strong> 문서의 물리적 인과 관계와 공식 출처를 바탕으로 답변해 드립니다.
+        </div>
+      </div>
+      <div class="chat-chips-row" id="chat-quick-chips">
+        <button type="button" class="chat-quick-chip" data-q="이 공정의 핵심 물리적 한계점(Limits)은 무엇인가요?">⚡ 공정 한계점</button>
+        <button type="button" class="chat-quick-chip" data-q="챔버 압력을 올리면 수율과 식각비에 어떤 영향이 있나요?">📐 압력 증가 영향</button>
+        <button type="button" class="chat-quick-chip" data-q="A사 HBM 레시피 전제 조건과 주요 주의점은?">🏢 A사 레시피 전제</button>
+      </div>
+    </div>
+
+    <div class="floating-chat-input-row">
+      <input type="text" id="floating-chat-input" class="floating-chat-input" placeholder="현재 개념에 대해 질문하세요..." />
+      <button type="button" class="floating-chat-send-btn" id="floating-chat-send-btn">전송</button>
     </div>
   </div>
 
