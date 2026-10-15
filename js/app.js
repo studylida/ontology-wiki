@@ -80,25 +80,27 @@ document.addEventListener("DOMContentLoaded", () => {
     openSuggestModalBtn: document.getElementById("open-suggest-modal-btn"),
     editParamsModal: document.getElementById("edit-params-modal"),
     editParamsForm: document.getElementById("edit-params-form"),
-    // API Key 보안 관리자 모달
-    btnOpenApiKeyModal: document.getElementById("btn-open-apikey-modal"),
-    apiKeyModal: document.getElementById("apikey-modal"),
-    apiKeyModalClose: document.getElementById("apikey-modal-close"),
-    btnCloseApiKeyModal: document.getElementById("btn-close-apikey-modal"),
-    btnSaveApiKeys: document.getElementById("btn-save-apikeys"),
-    btnClearApiKeys: document.getElementById("btn-clear-apikeys"),
-    inputGoogleKey: document.getElementById("input-google-key"),
-    inputOpenAIKey: document.getElementById("input-openai-key"),
-    radioModeMock: document.getElementById("radio-mode-mock"),
-    radioModeLive: document.getElementById("radio-mode-live"),
-    engineModeDot: document.getElementById("engine-mode-dot"),
-    engineModeLabel: document.getElementById("engine-mode-label"),
-    apiKeyStatusMsg: document.getElementById("apikey-status-msg"),
-    // 타 프로젝트 API 허브 (Headless Simulator)
-    btnOpenHeadlessHub: document.getElementById("btn-open-headless-hub"),
+    // 런타임 모드 세그먼트 스위처 (Transitions.dev sliding-tabs)
+    runtimeModeSwitcher: document.getElementById("runtime-mode-switcher"),
+    runtimeModeIndicator: document.getElementById("runtime-mode-indicator"),
+    btnModeMock: document.getElementById("btn-mode-mock"),
+    btnModeLive: document.getElementById("btn-mode-live"),
+    // 타 프로젝트 백엔드 연동 & API Key 보안 허브 (Transitions.dev Modal)
     headlessApiModal: document.getElementById("headless-api-modal"),
     headlessModalClose: document.getElementById("headless-modal-close"),
     btnCloseHeadlessModal: document.getElementById("btn-close-headless-modal"),
+    hubKeyStatusBadge: document.getElementById("hub-key-status-badge"),
+    btnEditKeys: document.getElementById("btn-edit-keys"),
+    btnDeleteKeys: document.getElementById("btn-delete-keys"),
+    inputGoogleKey: document.getElementById("input-google-key"),
+    labelGoogleMasked: document.getElementById("label-google-masked"),
+    btnToggleGoogleMask: document.getElementById("btn-toggle-google-mask"),
+    inputOpenAIKey: document.getElementById("input-openai-key"),
+    labelOpenAIMasked: document.getElementById("label-openai-masked"),
+    btnToggleOpenAIMask: document.getElementById("btn-toggle-openai-mask"),
+    keySecurityNote: document.getElementById("key-security-note"),
+    btnSaveKeysHub: document.getElementById("btn-save-keys-hub"),
+    // 타 프로젝트 API 시뮬레이터 (Headless Simulator)
     headlessClientSelect: document.getElementById("headless-client-select"),
     headlessQueryInput: document.getElementById("headless-query-input"),
     headlessMultimodalCb: document.getElementById("headless-multimodal-cb"),
@@ -2960,130 +2962,236 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // ── 0. API Key 보안 관리자 & 런타임 엔진 컨트롤러 ──
-  function initApiKeyManager() {
-    function updateTopBarStatus() {
-      if (!window.OntologyAgentCore) return;
-      const mode = window.OntologyAgentCore.getMode();
-      const keys = window.OntologyAgentCore.getKeys();
-      const isLiveActive = mode === "live" && keys.hasGoogle && keys.hasOpenAI;
+  // ── 0. 런타임 모드 세그먼트 스위처 & 타 프로젝트 API 허브 (Transitions.dev 표준 모달 & 비식별화) ──
+  function initRuntimeModeAndApiHub() {
+    let isGoogleMaskRevealed = false;
+    let isOpenAIMaskRevealed = false;
+    let isEditingKeys = false;
 
-      if (isLiveActive) {
-        if (dom.engineModeDot) {
-          dom.engineModeDot.className = "engine-mode-dot mode-live";
+    // A. Transitions.dev 슬라이딩 세그먼트 스위처 인디케이터 동기화
+    function updateModeSwitcherUI(mode) {
+      if (!dom.runtimeModeSwitcher) return;
+      const targetBtn = mode === "live" ? dom.btnModeLive : dom.btnModeMock;
+      const otherBtn = mode === "live" ? dom.btnModeMock : dom.btnModeLive;
+      if (!targetBtn || !otherBtn) return;
+
+      targetBtn.classList.add("active");
+      otherBtn.classList.remove("active");
+
+      if (dom.runtimeModeIndicator) {
+        requestAnimationFrame(() => {
+          dom.runtimeModeIndicator.style.width = `${targetBtn.offsetWidth}px`;
+          dom.runtimeModeIndicator.style.transform = `translateX(${targetBtn.offsetLeft}px)`;
+        });
+      }
+    }
+
+    // B. 비식별화 마스킹 헬퍼 (ontology-map-workspace 패턴)
+    function maskKey(key) {
+      if (!key) return "";
+      const trimmed = key.trim();
+      if (trimmed.length <= 10) return "••••••••••••";
+      const prefix = trimmed.slice(0, 8);
+      const suffix = trimmed.slice(-4);
+      return `${prefix}••••••••••••••••${suffix}`;
+    }
+
+    // C. API Key 관리 섹션 UI 상태 렌더링
+    function renderApiKeyBox() {
+      if (!window.OntologyAgentCore) return;
+      const keys = window.OntologyAgentCore.getKeys();
+
+      // 1. Google Gemini Key
+      if (keys.hasGoogle && !isEditingKeys) {
+        if (dom.inputGoogleKey) dom.inputGoogleKey.style.display = "none";
+        if (dom.labelGoogleMasked) {
+          dom.labelGoogleMasked.style.display = "inline-flex";
+          dom.labelGoogleMasked.textContent = isGoogleMaskRevealed ? keys.googleKey : maskKey(keys.googleKey);
         }
-        if (dom.engineModeLabel) {
-          dom.engineModeLabel.textContent = "Live API (Sol 6.1)";
+        if (dom.btnToggleGoogleMask) {
+          dom.btnToggleGoogleMask.style.display = "inline-block";
+          dom.btnToggleGoogleMask.textContent = isGoogleMaskRevealed ? "🙈 가리기" : "👁️ 보기";
         }
       } else {
-        if (dom.engineModeDot) {
-          dom.engineModeDot.className = "engine-mode-dot mode-mock";
+        if (dom.inputGoogleKey) {
+          dom.inputGoogleKey.style.display = "block";
+          dom.inputGoogleKey.value = keys.googleKey || "";
         }
-        if (dom.engineModeLabel) {
-          dom.engineModeLabel.textContent = "Mock 엔진";
+        if (dom.labelGoogleMasked) dom.labelGoogleMasked.style.display = "none";
+        if (dom.btnToggleGoogleMask) dom.btnToggleGoogleMask.style.display = "none";
+      }
+
+      // 2. OpenAI Key
+      if (keys.hasOpenAI && !isEditingKeys) {
+        if (dom.inputOpenAIKey) dom.inputOpenAIKey.style.display = "none";
+        if (dom.labelOpenAIMasked) {
+          dom.labelOpenAIMasked.style.display = "inline-flex";
+          dom.labelOpenAIMasked.textContent = isOpenAIMaskRevealed ? keys.openaiKey : maskKey(keys.openaiKey);
+        }
+        if (dom.btnToggleOpenAIMask) {
+          dom.btnToggleOpenAIMask.style.display = "inline-block";
+          dom.btnToggleOpenAIMask.textContent = isOpenAIMaskRevealed ? "🙈 가리기" : "👁️ 보기";
+        }
+      } else {
+        if (dom.inputOpenAIKey) {
+          dom.inputOpenAIKey.style.display = "block";
+          dom.inputOpenAIKey.value = keys.openaiKey || "";
+        }
+        if (dom.labelOpenAIMasked) dom.labelOpenAIMasked.style.display = "none";
+        if (dom.btnToggleOpenAIMask) dom.btnToggleOpenAIMask.style.display = "none";
+      }
+
+      // 3. 상태 뱃지 및 액션 버튼 제어
+      const hasAnyKey = keys.hasGoogle || keys.hasOpenAI;
+      if (hasAnyKey) {
+        if (dom.hubKeyStatusBadge) {
+          dom.hubKeyStatusBadge.className = "concept-badge badge-verified";
+          dom.hubKeyStatusBadge.style.background = "#dcfce7";
+          dom.hubKeyStatusBadge.style.color = "#15803d";
+          dom.hubKeyStatusBadge.style.border = "1px solid #86efac";
+          dom.hubKeyStatusBadge.textContent = "🟢 키 보관됨 (API 연동 가동)";
+        }
+        if (dom.btnEditKeys) dom.btnEditKeys.style.display = isEditingKeys ? "none" : "inline-block";
+        if (dom.btnDeleteKeys) dom.btnDeleteKeys.style.display = "inline-block";
+        if (dom.btnSaveKeysHub) dom.btnSaveKeysHub.style.display = isEditingKeys ? "inline-block" : "none";
+        if (dom.keySecurityNote) {
+          dom.keySecurityNote.innerHTML = isEditingKeys
+            ? "✏️ 키 수정 후 [저장] 버튼을 누르면 비식별화가 즉시 재적용됩니다."
+            : "🛡️ 브라우저 sessionStorage에 안전하게 비식별화 보관 중입니다. (외부 유출 절대 차단)";
+        }
+      } else {
+        if (dom.hubKeyStatusBadge) {
+          dom.hubKeyStatusBadge.className = "concept-badge";
+          dom.hubKeyStatusBadge.style.background = "#fef3c7";
+          dom.hubKeyStatusBadge.style.color = "#b45309";
+          dom.hubKeyStatusBadge.style.border = "1px solid #fde68a";
+          dom.hubKeyStatusBadge.textContent = "⚠️ 키 미등록 (MOCK 가동 중)";
+        }
+        if (dom.btnEditKeys) dom.btnEditKeys.style.display = "none";
+        if (dom.btnDeleteKeys) dom.btnDeleteKeys.style.display = "none";
+        if (dom.btnSaveKeysHub) dom.btnSaveKeysHub.style.display = "inline-block";
+        if (dom.keySecurityNote) {
+          dom.keySecurityNote.innerHTML = "🛡️ 키 저장 즉시 비식별화 마스킹 처리되며 타 프로젝트 API 연동이 활성화됩니다.";
         }
       }
     }
 
-    // 모달 열기
-    dom.btnOpenApiKeyModal?.addEventListener("click", () => {
-      if (!window.OntologyAgentCore) return;
-      const keys = window.OntologyAgentCore.getKeys();
-      const mode = window.OntologyAgentCore.getMode();
-
-      if (dom.inputGoogleKey) dom.inputGoogleKey.value = keys.googleKey || "";
-      if (dom.inputOpenAIKey) dom.inputOpenAIKey.value = keys.openaiKey || "";
-
-      if (mode === "live" && dom.radioModeLive) {
-        dom.radioModeLive.checked = true;
-      } else if (dom.radioModeMock) {
-        dom.radioModeMock.checked = true;
-      }
-
-      if (dom.apiKeyStatusMsg) {
-        dom.apiKeyStatusMsg.style.display = "none";
-        dom.apiKeyStatusMsg.textContent = "";
-      }
-
-      dom.apiKeyModal.style.display = "flex";
-    });
-
-    // 모달 닫기
-    function closeApiKeyModal() {
-      if (dom.apiKeyModal) dom.apiKeyModal.style.display = "none";
+    // D. Transitions.dev 모달 제어 (.modal-overlay.open 표준 준수)
+    function openHeadlessModal() {
+      if (!dom.headlessApiModal) return;
+      renderApiKeyBox();
+      dom.headlessApiModal.classList.add("open");
     }
 
-    dom.apiKeyModalClose?.addEventListener("click", closeApiKeyModal);
-    dom.btnCloseApiKeyModal?.addEventListener("click", closeApiKeyModal);
-    dom.apiKeyModal?.addEventListener("click", (e) => {
-      if (e.target === dom.apiKeyModal) closeApiKeyModal();
+    function closeHeadlessModal() {
+      if (!dom.headlessApiModal) return;
+      dom.headlessApiModal.classList.remove("open");
+      isEditingKeys = false;
+      isGoogleMaskRevealed = false;
+      isOpenAIMaskRevealed = false;
+
+      // 닫힐 때 실제 저장된 키가 없으면 스위처 인디케이터를 안전하게 MOCK으로 복귀
+      const keys = window.OntologyAgentCore?.getKeys();
+      const curMode = window.OntologyAgentCore?.getMode();
+      if (!keys?.hasGoogle && !keys?.hasOpenAI) {
+        window.OntologyAgentCore?.setMode("mock");
+        updateModeSwitcherUI("mock");
+      } else {
+        updateModeSwitcherUI(curMode);
+      }
+    }
+
+    // E. 탑바 슬라이딩 스위처 이벤트 바인딩
+    dom.btnModeMock?.addEventListener("click", () => {
+      window.OntologyAgentCore?.setMode("mock");
+      updateModeSwitcherUI("mock");
+      if (dom.headlessApiModal?.classList.contains("open")) {
+        closeHeadlessModal();
+      }
+      showToast("⚡ MOCK 모드가 유지됩니다. (37개 온톨로지 데모 데이터 보존, 초고속 인메모리)", "info");
     });
 
-    // 저장 버튼 클릭
-    dom.btnSaveApiKeys?.addEventListener("click", () => {
+    dom.btnModeLive?.addEventListener("click", () => {
+      openHeadlessModal();
+      updateModeSwitcherUI("live");
+      const keys = window.OntologyAgentCore?.getKeys();
+      if (keys?.hasGoogle || keys?.hasOpenAI) {
+        window.OntologyAgentCore?.setMode("live");
+        showToast("🔌 타 프로젝트 API 연동 모드가 가동 중입니다. (키 비식별화 보관됨)", "success");
+      } else {
+        // 최초 클릭 시 키 입력 필드로 포커스 이동
+        setTimeout(() => {
+          if (dom.inputOpenAIKey && dom.inputOpenAIKey.style.display !== "none") {
+            dom.inputOpenAIKey.focus();
+          } else if (dom.inputGoogleKey && dom.inputGoogleKey.style.display !== "none") {
+            dom.inputGoogleKey.focus();
+          }
+        }, 150);
+        showToast("🔑 타 프로젝트 연동을 위해 상용 AI API Key를 등록하거나 아래 시뮬레이터를 테스트하세요.", "info");
+      }
+    });
+
+    // F. 모달 닫기 이벤트들 (Transitions.dev 표준: X버튼, 닫기버튼, 배경클릭, Esc키)
+    dom.headlessModalClose?.addEventListener("click", closeHeadlessModal);
+    dom.btnCloseHeadlessModal?.addEventListener("click", closeHeadlessModal);
+    dom.headlessApiModal?.addEventListener("click", (e) => {
+      if (e.target === dom.headlessApiModal) closeHeadlessModal();
+    });
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && dom.headlessApiModal?.classList.contains("open")) {
+        closeHeadlessModal();
+      }
+    });
+
+    // G. API Key 비식별화/보기/수정/삭제 이벤트
+    dom.btnToggleGoogleMask?.addEventListener("click", () => {
+      isGoogleMaskRevealed = !isGoogleMaskRevealed;
+      renderApiKeyBox();
+    });
+
+    dom.btnToggleOpenAIMask?.addEventListener("click", () => {
+      isOpenAIMaskRevealed = !isOpenAIMaskRevealed;
+      renderApiKeyBox();
+    });
+
+    dom.btnEditKeys?.addEventListener("click", () => {
+      isEditingKeys = true;
+      renderApiKeyBox();
+      if (dom.inputOpenAIKey) dom.inputOpenAIKey.focus();
+    });
+
+    dom.btnDeleteKeys?.addEventListener("click", () => {
+      if (confirm("세션에 저장된 모든 API Key를 삭제하고 ⚡ MOCK 모드로 복귀하시겠습니까?")) {
+        window.OntologyAgentCore?.clearKeys();
+        isEditingKeys = false;
+        isGoogleMaskRevealed = false;
+        isOpenAIMaskRevealed = false;
+        renderApiKeyBox();
+        updateModeSwitcherUI("mock");
+        showToast("API Key가 브라우저 세션에서 안전하게 삭제되었으며 ⚡ MOCK 모드로 복귀했습니다.", "info");
+      }
+    });
+
+    dom.btnSaveKeysHub?.addEventListener("click", () => {
       if (!window.OntologyAgentCore) return;
       const gKey = dom.inputGoogleKey?.value.trim() || "";
       const oKey = dom.inputOpenAIKey?.value.trim() || "";
-      const selectedMode = dom.radioModeLive?.checked ? "live" : "mock";
 
-      if (selectedMode === "live" && (!gKey || !oKey)) {
-        if (dom.apiKeyStatusMsg) {
-          dom.apiKeyStatusMsg.style.display = "block";
-          dom.apiKeyStatusMsg.style.background = "#fef2f2";
-          dom.apiKeyStatusMsg.style.color = "#b91c1c";
-          dom.apiKeyStatusMsg.style.border = "1px solid #fecaca";
-          dom.apiKeyStatusMsg.textContent = "⚠️ Live API 모드를 가동하려면 Google API Key와 OpenAI API Key가 모두 필요합니다.";
-        }
+      if (!gKey && !oKey) {
+        showToast("Google 또는 OpenAI API Key를 하나 이상 입력해주세요.", "warning");
         return;
       }
 
-      window.OntologyAgentCore.saveKeys(gKey, oKey);
-      window.OntologyAgentCore.setMode(selectedMode);
-      updateTopBarStatus();
-      closeApiKeyModal();
-
-      if (selectedMode === "live") {
-        showToast("🚀 Live API 모드가 활성화되었습니다! (Google text-embedding + OpenAI GPT-6.1 Sol)", "success");
-      } else {
-        showToast("⚡ Mock 에뮬레이션 엔진으로 전환되었습니다. (비용 0, 초고속 인메모리)", "info");
-      }
+      window.OntologyAgentCore.saveKeys(gKey, oKey, true);
+      isEditingKeys = false;
+      isGoogleMaskRevealed = false;
+      isOpenAIMaskRevealed = false;
+      renderApiKeyBox();
+      updateModeSwitcherUI("live");
+      showToast("🎉 API Key가 비식별화되어 안전하게 저장되었습니다! 타 프로젝트 API 연동이 활성화되었습니다.", "success");
     });
 
-    // 키 초기화(삭제)
-    dom.btnClearApiKeys?.addEventListener("click", () => {
-      if (!window.OntologyAgentCore) return;
-      if (confirm("세션에 저장된 모든 API Key를 삭제하고 Mock 모드로 전환하시겠습니까?")) {
-        window.OntologyAgentCore.clearKeys();
-        if (dom.inputGoogleKey) dom.inputGoogleKey.value = "";
-        if (dom.inputOpenAIKey) dom.inputOpenAIKey.value = "";
-        if (dom.radioModeMock) dom.radioModeMock.checked = true;
-        updateTopBarStatus();
-        closeApiKeyModal();
-        showToast("API Key가 브라우저 세션에서 안전하게 완전히 삭제되었습니다.", "info");
-      }
-    });
-
-    // 최초 탑바 상태 동기화
-    updateTopBarStatus();
-  }
-
-  // ── 0-B. 타 프로젝트 백엔드 연동 API 허브 시뮬레이터 컨트롤러 ──
-  function initHeadlessApiHub() {
-    function openModal() {
-      if (dom.headlessApiModal) dom.headlessApiModal.style.display = "flex";
-    }
-    function closeModal() {
-      if (dom.headlessApiModal) dom.headlessApiModal.style.display = "none";
-    }
-
-    dom.btnOpenHeadlessHub?.addEventListener("click", openModal);
-    dom.headlessModalClose?.addEventListener("click", closeModal);
-    dom.btnCloseHeadlessModal?.addEventListener("click", closeModal);
-    dom.headlessApiModal?.addEventListener("click", (e) => {
-      if (e.target === dom.headlessApiModal) closeModal();
-    });
-
-    // 퀵 프리셋 칩 클릭
+    // H. 외부 호출 시뮬레이터 로직 (Phase 2 연계)
     document.querySelectorAll(".headless-preset-chip").forEach(chip => {
       chip.addEventListener("click", () => {
         const client = chip.dataset.client;
@@ -3093,7 +3201,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    // 결과 탭 전환
+    // 결과 탭 전환 (Transitions.dev)
     const tabBtns = document.querySelectorAll(".headless-tab-btn");
     const panes = {
       json: document.getElementById("pane-headless-json"),
@@ -3112,7 +3220,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    // 복사 버튼
     dom.btnCopyJson?.addEventListener("click", () => {
       if (dom.codeHeadlessJson?.textContent) {
         navigator.clipboard.writeText(dom.codeHeadlessJson.textContent);
@@ -3127,7 +3234,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // 실행 버튼 클릭
     dom.btnRunHeadlessQuery?.addEventListener("click", async () => {
       const query = dom.headlessQueryInput?.value.trim();
       if (!query) {
@@ -3139,7 +3245,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const scaleFilters = Array.from(document.querySelectorAll(".headless-scale-cb:checked")).map(cb => cb.value);
       const bypassMultimodal = !dom.headlessMultimodalCb?.checked;
 
-      // UI 로딩 상태
       const originalText = dom.btnRunHeadlessQuery.textContent;
       dom.btnRunHeadlessQuery.textContent = "⏳ 온톨로지 하네스 추론 중...";
       dom.btnRunHeadlessQuery.disabled = true;
@@ -3157,7 +3262,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (dom.codeHeadlessCurl) dom.codeHeadlessCurl.textContent = result.curlCommand;
         if (dom.headlessElapsedBadge) dom.headlessElapsedBadge.textContent = `소요: ${result.elapsed}ms`;
 
-        // 트레이스 렌더링
         if (dom.listHeadlessTrace) {
           dom.listHeadlessTrace.innerHTML = result.traceSteps.map(step => {
             const isWarning = step.includes("⚠️") || step.includes("공백");
@@ -3166,14 +3270,12 @@ document.addEventListener("DOMContentLoaded", () => {
           }).join("");
         }
 
-        // 지식 공백(Knowledge Gap) 감지 처리
         if (result.isKnowledgeGap) {
           if (dom.headlessGapBanner) dom.headlessGapBanner.style.display = "block";
           if (dom.headlessGapDesc) dom.headlessGapDesc.textContent = result.responseJson.message;
 
           if (dom.btnTransferToReview) {
             dom.btnTransferToReview.onclick = () => {
-              // 3번 검토 센터 큐에 신규 후보 등록
               const newCand = {
                 id: `gap-${Date.now()}`,
                 conceptTitle: query.slice(0, 30) + (query.length > 30 ? "..." : ""),
@@ -3194,7 +3296,7 @@ document.addEventListener("DOMContentLoaded", () => {
               WikiStore.reviewQueue.unshift(newCand);
               state.selectedReviewId = newCand.id;
               renderReviewQueue();
-              closeModal();
+              closeHeadlessModal();
               setWorkspace("review");
               showToast("지식 공백 항목이 3번 개념 검토 센터(HITL) 큐 최상단에 등록되었습니다!", "success");
             };
@@ -3210,6 +3312,17 @@ document.addEventListener("DOMContentLoaded", () => {
         dom.btnRunHeadlessQuery.textContent = originalText;
         dom.btnRunHeadlessQuery.disabled = false;
       }
+    });
+
+    // I. 최초 초기화 동기화
+    const initialMode = window.OntologyAgentCore?.getMode() || "mock";
+    updateModeSwitcherUI(initialMode);
+    renderApiKeyBox();
+
+    // 윈도우 리사이즈 시 인디케이터 위치 재계산
+    window.addEventListener("resize", () => {
+      const curMode = window.OntologyAgentCore?.getMode() || "mock";
+      updateModeSwitcherUI(curMode);
     });
   }
 
@@ -3312,8 +3425,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ── 초기화 실행 ──
-  initApiKeyManager();
-  initHeadlessApiHub();
+  initRuntimeModeAndApiHub();
   initFloatingChatWidget();
   renderDomainFacets();
   renderSidebarNav();
