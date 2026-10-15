@@ -1,0 +1,15 @@
+# Environment variables & API Keys
+.env
+.env.*
+*.local
+secrets/
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Node / Scratch
+node_modules/
+npm-debug.log*

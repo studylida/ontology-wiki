@@ -1,0 +1,448 @@
+# 반도체 산업 위키 — 공식 출처별 데이터 추출 전략 및 프롬프트 플레이북 (Data Extraction Playbook)
+
+본 문서는 반도체 산업 지식 위키의 사전 적재(Pre-seeding) 및 지속적 확장을 위해, 각 공식 출처(기업·학술·표준)의 원문 형태를 분석하고 최적화된 필터링 기준, Pydantic 구조화 스키마, 시스템 프롬프트를 누적 기록하는 엔지니어링 가이드라인이다.
+
+---
+
+## 1. 개요 및 파이프라인 아키텍처
+
+```
+[공식 출처 원본 웹문서 / PDF]
+            │
+            ▼
+[로컬 스냅샷 영구 저장: sources/<출처명>/]
+            │
+            ▼
+[전처리: 잡음 태그 제거, 텍스트 정규화]
+            │
+            ▼
+[LLM 구조화 추출기 (출처별 전용 프롬프트 & Pydantic 스키마)]
+   ├── 삼성전자: Engineering Neutralizer (비유 제거, 순차 단계, 표준 정의)
+   ├── SK하이닉스: Advanced Tradeoff & Mechanism (공학적 상충, 정량 수치, 양산 관리)
+   ├── 램리서치: Equipment Physics & Chamber Control (하드웨어 한계, 가스/플라즈마 파라미터)
+   ├── AMAT / SEMI: Manufacturing Automation & Standards (E98, SECS/GEM, CMP/에피)
+   ├── ASML: Optical Physics & Holistic Lithography (Rayleigh 수식, Mo/Si 반사율, High-NA)
+   └── 연구기관 / 학술: 3-Tier Academic Evidence (Tier 1 랜드마크, Tier 2 양산실무, Tier 3 온디맨드)
+            │
+            ▼
+[HITL 개념 단위 검토 센터 (W-A03)]
+            │
+            ▼
+[온톨로지 코어 위키 지식 베이스 (data.js / Backend DB)]
+```
+
+---
+
+## 2. 출처 1: 삼성반도체 (Samsung Semiconductor)
+
+### 2.1 자료의 형태적 특성
+- **타깃 독자**: 입문자, 일반 대중, 비전공 엔지니어.
+- **문체 및 포맷**: 스토리텔링 중심, 일상생활의 비유("피자 도우", "흑백 사진 인화", "미술시간 판화") 풍부.
+- **구조**: "1단계 잉곳 → 2단계 슬라이싱 → 3단계 연마" 식의 명확한 순차적 절차 나열.
+- **대조 축**: 건식 vs 습식, 양성 PR vs 음성 PR, PVD vs CVD 등 명확한 2분법 대조.
+
+### 2.2 필터링 원칙 (취할 것 vs 버릴 것)
+- **취할 것**:
+  1. 공식 표준 명칭(국문, 영문, 약어).
+  2. 공정 선후 관계 (`prerequisite_process` → `next_process`).
+  3. 공정 목적 및 해결 과제 (`purpose`, `problem_solved`).
+  4. 4대 공정 품질 관리 지표 (균일도, 식각 속도, 선택비, 형상).
+  5. 양자 기술 대조 매트릭스.
+- **버릴 것**:
+  1. 초심자 유입용 일상 비유 ("피자 도우", "판화 에칭", "도장 찍기").
+  2. 블로그 인사말 및 유튜브 홍보 ("삼성반도체이야기 독자 여러분", "구독과 좋아요").
+  3. 자사 홍보성 형용사 ("세계 최초", "압도적 클라쓰").
+
+### 2.3 Pydantic 스키마
+```python
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+class ProcessStep(BaseModel):
+    step_number: int
+    name: str = Field(description="정식 공정 단계 국문/영문 명칭 (비유 표현 절대 제외)")
+    sub_steps: List[str] = Field(description="세부 실행 순서")
+    key_materials: List[str] = Field(description="투입되는 소재/가스/화학물질")
+    key_equipment: List[str] = Field(description="사용되는 핵심 설비/장비")
+    mechanism: str = Field(description="물리/화학적 반응 원리 (객관적 서술)")
+
+class TechnicalComparison(BaseModel):
+    comparison_axis: str = Field(description="비교 대상 (예: 건식산화 vs 습식산화)")
+    aspects: List[dict] = Field(description="반응속도, 막질 밀도, 두께, 비용 등 비교 항목")
+
+class QualityMetric(BaseModel):
+    metric_name: str = Field(description="품질/수율 핵심 관리 지표")
+    description: str = Field(description="지표의 기술적 의미 및 불량 방지 목적")
+
+class SamsungFabricationOntology(BaseModel):
+    process_name: str
+    standard_definition: str = Field(description="일상 비유가 제거된 엄밀한 백과사전식 1~2줄 정의")
+    prerequisite_processes: List[str]
+    next_processes: List[str]
+    steps: List[ProcessStep]
+    comparisons: List[TechnicalComparison]
+    quality_metrics: List[QualityMetric]
+```
+
+### 2.4 시스템 프롬프트 (Engineering Neutralizer Rule)
+```markdown
+당신은 반도체 산업 온톨로지 지식 엔지니어다.
+주어진 삼성전자 공식 교육 문서를 분석하여 지식 위키에 등록할 온톨로지 데이터를 추출하라.
+
+[엄격한 필터링 규칙]
+1. 비유 표현(Metaphor Stripping) 엄격 금지:
+   - "피자 도우", "흑백 사진 인화", "미술시간 판화", "빌딩 짓기" 등 초심자용 일상 비유는 절대로 정의나 메커니즘에 포함하지 마라.
+   - 반드시 "단결정 실리콘 성장", "UV 선택적 투과", "플라즈마 라디칼 반응" 등 반도체 공학 표준 용어로 환원하여 작성하라.
+2. 홍보 및 감성적 수식어 제거:
+   - "완벽한", "놀라운", "세계 최고", "독자 여러분" 등의 표현은 모두 배제하고 건조하고 명확한 기술 문서 톤(Dry Technical Tone)을 유지하라.
+3. 양자 대조 구조(건식 vs 습식, 양성 vs 음성, PVD vs CVD, 와이어 vs 플립칩)가 등장하면 빠짐없이 TechnicalComparison에 매핑하라.
+4. 관리 지표(Uniformity, Selectivity, Yield, Profile 등)는 공정 품질 지표(QualityMetric)로 분리하라.
+```
+
+---
+
+## 3. 출처 2: SK하이닉스 뉴스룸 (SK hynix Newsroom)
+
+### 3.1 자료의 형태적 특성
+- **타깃 독자**: 실무 엔지니어, 반도체 전공자, 연구원.
+- **문체 및 포맷**: 전문 테크 칼럼(정인성 작가, 대학 교수진, 팹 양산관리팀).
+- **구조**: **"물리적 한계 직면 → 원인 분석 → 공학적 트레이드오프(상충 관계) 극복 → 차세대 신공법 도출"**.
+- **강점 도메인**: 첨단 패키징(HBM, TSV, 하이브리드 본딩, 칩렛), 차세대 메모리(CXL, PIM), 팹 양산 관리 실무(TAT, Q-TIME, 병목).
+
+### 3.2 필터링 원칙 (취할 것 vs 버릴 것)
+- **취할 것**:
+  1. 분자/이온 단위의 물리·화학적 상호작용 (예: RIE 양이온 충돌에 의한 결합 약화 후 라디칼 반응).
+  2. 화학 반응 부산물 기화점 및 공법 도입 인과관계 (예: $SiF_4$ -90.3℃ 기화 vs Cu-할로겐 1,000℃ 이상으로 다마신 공법 채택).
+  3. 인터커넥트 피치 정량 수치 (솔더 100㎛ → 마이크로 20㎛ → 하이브리드 본딩 ≤1㎛).
+  4. 공학적 트레이드오프 (W2W의 초미세 피치 vs D2W의 KGD 고수율, 챔버 압력 저하 시 비등방성 상승 vs 속도 저하).
+  5. 팹 운영 제약조건 (TAT 단축, Q-TIME 위반 방지, 병목 제어).
+- **버릴 것**:
+  1. 칼럼 서두/결미의 기고자 인사말 및 업계 동향 담소.
+  2. 취업준비생 응원 문구.
+  3. 사내 문화 및 행사 스케치.
+
+### 3.3 Pydantic 스키마
+```python
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+class EngineeringTradeoff(BaseModel):
+    decision_point: str = Field(description="공학적 의사결정 주제 (예: W2W vs D2W, 압력 조절 등)")
+    factor_a: dict = Field(description="선택 A의 장점과 치명적 단점 (예: 생산성 vs 수율 리스크)")
+    factor_b: dict = Field(description="선택 B의 장점과 치명적 단점")
+    resolution_engineering: str = Field(description="업계의 공학적 해결책 또는 절충안")
+
+class PhysicalMechanism(BaseModel):
+    phenomenon: str = Field(description="물리/화학적 현상 (예: RIE 비등방성, 구리 식각 불가)")
+    cause_and_reaction: str = Field(description="분자/이온 단위의 반응 원리 및 기화점 수치")
+    adopted_process: str = Field(description="이를 해결하기 위해 채택된 공법 (예: 다마신 공법)")
+
+class OperationalRule(BaseModel):
+    metric: str = Field(description="팹 운영 관리 지표 (TAT, Q-TIME, Bottleneck)")
+    definition: str = Field(description="기술적 정의")
+    risk_if_violated: str = Field(description="미준수 시 발생하는 결함 및 수율 손실 요인")
+
+class SKHynixTechnicalOntology(BaseModel):
+    domain: str = Field(description="전공정, 첨단 패키징, AI 메모리, 양산관리")
+    technology_name: str
+    key_quantitative_specs: List[str] = Field(description="피치(㎛), 기화점(℃), 층수 등 정량 수치")
+    tradeoffs: List[EngineeringTradeoff]
+    mechanisms: List[PhysicalMechanism]
+    operational_rules: Optional[List[OperationalRule]] = None
+```
+
+### 3.4 시스템 프롬프트 (Advanced Tradeoff & Mechanism Rule)
+```markdown
+당신은 반도체 고급 공학 및 공정 온톨로지 설계자다.
+주어진 SK하이닉스 뉴스룸 칼럼 및 기술 해설을 분석하여 지식 위키의 [심화 메커니즘]과 [공학적 트레이드오프]를 추출하라.
+
+[핵심 추출 지침]
+1. 상충 관계(Trade-off) 필수 추출:
+   - "A를 취하면 B가 나빠지는" 물리적/경제적 딜레마를 찾아내고, 업계가 이를 어떤 신소재나 공법으로 절충했는지 반드시 정리하라.
+2. 정량 수치 보존:
+   - 피치(㎛), 온도(℃), 진공도, 종횡비(Aspect Ratio) 등의 정량 실측 수치는 생략하지 말고 그대로 보존하라.
+3. 팹 양산 운영 규칙(TAT, Q-TIME, Bottleneck)은 [반도체 생산운영 지식 모델] 섹션에 매핑하라.
+```
+
+---
+
+## 4. 출처 3: 램리서치 (Lam Research)
+
+### 4.1 자료의 형태적 특성
+- **타깃 독자**: 공정 장비 엔지니어, 팹 하드웨어 기술자, 소자/장비 R&D 연구원.
+- **문체 및 포맷**: 엄밀한 영문/국문 기술 용어사전(Technical Glossary, 236종) + 장비 하드웨어 플랫폼별 솔루션 문서(Etch, Deposition, Clean).
+- **구조**: **"피처의 물리적 한계(고종횡비 1000단 관통, 옹스트롬 미세화) → 장비 아키텍처(밀리초 펄스 플라즈마, 극저온, 전기충진) → 챔버 제어 및 결함 제어(Bevel Edge 수율)"**.
+- **강점 도메인**: 
+  1. 식각 하드웨어: 극저온 식각(Cryogenic Etch), 원자층 식각(ALE), RIE 플라즈마 쉬스 제어.
+  2. 금속 충진 및 증착: 텅스텐/몰리브덴 ALD(ALTUS®), 구리 전기도금/비아 충진(SABRE® ECD).
+  3. 웨이퍼 결함 제어: 베벨 에지(Bevel Edge) 플라즈마 식각/증착(CORONUS®).
+
+### 4.2 필터링 원칙 (취할 것 vs 버릴 것)
+- **취할 것**:
+  1. 원자/피처 단위 물리적 제약 (종횡비 100:1 이상 시 구부러짐 Tier Bending, 스퍼터링에 의한 손상).
+  2. 장비 구동 파라미터 (RF 바이어스 주파수, 0℃ 이하 극저온 냉각, 밀리초 단위 펄스 밸브 응답).
+  3. 공정-장비 매핑 (TSV 구리 채움 = SABRE 3D ECD, 3D 낸드 워드라인 금속화 = ALTUS Halo ALD, 베벨 에지 파티클 방지 = CORONUS).
+  4. 236종의 글로벌 표준 영문/국문 기술 정의.
+- **버릴 것**:
+  1. 장비사 IR/마케팅 문구 ("시장 점유율 1위", "고객사의 총소유비용 TCO 절감").
+  2. 웹사이트 내비게이션, 쿠키 정책 및 법적 고지.
+
+### 4.3 Pydantic 스키마
+```python
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+class EquipmentCapability(BaseModel):
+    platform_name: str = Field(description="장비 플랫폼 명칭 (예: Akara, FLEX, SABRE 3D)")
+    process_type: str = Field(description="식각(RIE/ALE/Cryo), 증착(ALD/CVD/ECD), 베벨 제어")
+    physical_limit_addressed: str = Field(description="해결한 물리적 한계 (예: HAR 틸팅, 구리 보이드, 베벨 파티클)")
+    hardware_mechanism: str = Field(description="하드웨어 작동 원리 (밀리초 펄스, 극저온, 전기도금)")
+    target_devices: List[str] = Field(description="적용 소자 (3D NAND, HBM TSV, GAA 로직)")
+
+class EquipmentParameter(BaseModel):
+    parameter_name: str = Field(description="장비 제어 파라미터 (예: RF Bias, Cryo Temp, Chamber Pressure)")
+    control_significance: str = Field(description="해당 변수 제어가 박막/식각 형상에 미치는 영향")
+
+class LamEquipmentOntology(BaseModel):
+    technology_domain: str
+    term_or_feature: str
+    official_definition: str
+    equipment_platforms: List[EquipmentCapability]
+    critical_parameters: List[EquipmentParameter]
+```
+
+### 4.4 시스템 프롬프트 (Equipment Physics & Chamber Control Rule)
+```markdown
+당신은 반도체 장비 및 플라즈마 하드웨어 온톨로지 지식 엔지니어다.
+주어진 램리서치(Lam Research)의 공식 기술 문서와 용어집을 분석하여 [장비 하드웨어 및 물리 한계 돌파] 지식을 추출하라.
+
+[핵심 추출 지침]
+1. 하드웨어 플랫폼 및 기술 매핑:
+   - 식각/증착 공정이 단순히 화학 반응으로 끝나지 않고, 어떤 챔버 메커니즘(극저온 플라즈마, ALD 자기제한 반응, ECD 전기도금)으로 구현되는지 장비 플랫폼과 매핑하라.
+2. 팹 결함 제어 관점 반영:
+   - 웨이퍼 베벨(Bevel Edge) 결함 방지, 종횡비 100:1 채널 홀 틸팅 제어 등 하드웨어 레벨의 수율 관리 파라미터를 누락 없이 수록하라.
+```
+
+---
+
+## 5. 출처 4: 어플라이드 머티어리얼즈 (AMAT) & SEMI 국제 표준
+
+### 5.1 자료의 형태적 특성
+- **타깃 독자**: 팹 자동화/CIM 엔지니어, 생산운영(MES) 설계자, CMP/에피택시/계측 단위공정 엔지니어.
+- **문체 및 포맷**: 
+  - AMAT: 종합 장비 플랫폼 아키텍처 및 복합 단위공정 백서 (CMP 슬러리 역학, SiGe 격자 응력, E-beam 인라인 계측).
+  - SEMI: 엄격한 상태 전이도(State Machine), 메시지 스트림/펑션(SECS-II SxFy), XML 스키마(APCS/EDA), 정량적 가동률 수식(OEE, RAM).
+- **구조**: **"공정 물리(CMP 평탄도, 에피 채널) ↔ 단위 설비(Centura, Reflexion, PROVision) ↔ 표준 통신 인터페이스(SECS/GEM, E98 OBEM) ↔ 팹 레벨 제어(FDC, R2R, OEE)"**.
+- **강점 도메인**: 
+  1. CMP 나노 평탄화 및 디싱(Dishing)/침식(Erosion) 결함 제어.
+  2. 선택적 에피택시(SEG) 및 채널 응력(Strain Engineering).
+  3. 전자빔(E-beam) 고해상도 검사 및 머신러닝 노이즈 필터링(ExtractAI™).
+  4. SEMI SECS/GEM, E98 OBEM, E133 APCS, E10 RAM, E79 OEE 스마트 팹 표준 아키텍처.
+
+### 5.2 필터링 원칙 (취할 것 vs 버릴 것)
+- **취할 것**:
+  1. 연마 선택비 및 표면 결함 역학 (구리 디싱 방지를 위한 Catalyst 슬러리 온도 제어, SiCN 유전체).
+  2. 에피택시 선택성(Selectivity) 및 격자 부정합 응력 인가 원리.
+  3. E-beam 검사 해상도 및 비가시 결함 검출 메커니즘.
+  4. SEMI 통신 모델: Control State(Offline/Online-Local/Remote), Processing State(Idle/SettingUp/Executing/Paused).
+  5. SECS-II 핵심 스트림: S1F13(통신 개시), S2F41(호스트 커맨드), S6F11(이벤트 리포트).
+  6. FDC 골든 시그니처 비교 및 R2R 피드포워드/피드백 제어 루프.
+  7. E10 6대 장비 상태 분류 및 E79 OEE 3대 팩터(가용률 × 성능효율 × 양품률).
+- **버릴 것**:
+  1. 법적 표준 저작권 공지, 표준화 위원회 회의록, 투표 절차 안내.
+  2. 장비사 영업 채널 안내 및 전시회 부스 스케치.
+
+### 5.3 Pydantic 스키마
+```python
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+class EquipmentProcessSolution(BaseModel):
+    category: str = Field(description="CMP, Epitaxy, E-beam Inspection, Hybrid Bonding")
+    platform: str = Field(description="장비 플랫폼 (Reflexion LK, Centura Epi, PROVision, Kinex)")
+    physical_challenge: str = Field(description="해결한 물리적 결함 (Dishing, Lattice Strain, Invisible Defect)")
+    co_optimized_solution: str = Field(description="공정/소재/하드웨어 복합 해결책")
+
+class SemiStandardSpec(BaseModel):
+    standard_id: str = Field(description="SEMI 규격 번호 (예: SEMI E30, SEMI E98, SEMI E133, SEMI E10)")
+    standard_name: str = Field(description="표준 정식 명칭 (GEM, OBEM, APCS, RAM)")
+    domain: str = Field(description="통신 프로토콜, 장비 객체 모델, 공정 제어(APC/FDC), 설비 효율(OEE)")
+    state_models_or_messages: List[str] = Field(description="주요 상태 머신 또는 SECS-II 메시지 스트림/함수")
+    operational_impact: str = Field(description="스마트 팹 운영 및 수율/생산성에 미치는 영향")
+
+class AmatSemiIntegrationOntology(BaseModel):
+    equipment_solutions: List[EquipmentProcessSolution]
+    automation_standards: List[SemiStandardSpec]
+```
+
+### 5.4 시스템 프롬프트 (Smart Fab Automation & Process Control Rule)
+```markdown
+당신은 반도체 장비 연동 및 팹 자동화(CIM/MES) 온톨로지 지식 엔지니어다.
+주어진 AMAT 핵심 기술 및 SEMI 국제 표준 문서를 분석하여 [팹 자동화 및 첨단 단위공정 제어] 지식을 추출하라.
+
+[핵심 추출 지침]
+1. 팹 자동화 연계성(SEMI 표준) 확보:
+   - 장비가 독립적으로 동작하는 것이 아니라, SECS/GEM(E30), E98(OBEM), E133(APCS)을 통해 어떻게 호스트와 통신하고 FDC/R2R 제어를 받는지를 명확히 규명하라.
+2. 단위공정 물리 한계(AMAT 솔루션) 명시:
+   - CMP의 디싱(Dishing)과 침식(Erosion), 에피택시의 선택적 성장, E-beam의 결함 검출 한계를 장비 메커니즘과 매핑하라.
+3. 설비 효율 지표(E10, E79 OEE)는 생산운영 지식 모델로 정규화하라.
+```
+
+---
+
+## 6. 출처 5: ASML (극자외선 노광 및 광학 물리학)
+
+### 6.1 자료의 형태적 특성
+- **타깃 독자**: 노광 공정 엔지니어, 광학 물리 연구원, 계산 리소그래피(OPC) 알고리즘 엔지니어.
+- **문체 및 포맷**: 엄밀한 광학 물리학 수식(Rayleigh Criterion) 및 하드웨어 메커니즘 백서(LPP 플라즈마, 브래그 다층막, 아나모픽 렌즈).
+- **구조**: **"회절 한계식($CD = k_1 \frac{\lambda}{NA}$) ↔ 광학계 하드웨어(EUV/High-NA 스캐너) ↔ 수학적 보정(OPC/SMO) ↔ 팹 폐루프 계측(YieldStar Overlay)"**.
+- **강점 도메인**: 
+  1. 극자외선(13.5nm) 파장 생성: 주석(Sn) 드롭렛 2단계 레이저 타격 LPP 플라즈마.
+  2. 전반사 진공 광학계: Mo/Si 브래그 다층막 반사경(Bragg Multilayer) 및 CNT 펠리클.
+  3. High-NA EUV(0.55 NA): 마스크 섀도잉 극복을 위한 아나모픽(Anamorphic, 4x/8x) 비대칭 투영계.
+  4. 홀리스틱 리소그래피: TWINSCAN 듀얼 스테이지 + YieldStar 회절 기반 오버레이(DBO) 실시간 폐루프 제어.
+
+### 6.2 필터링 원칙 (취할 것 vs 버릴 것)
+- **취할 것**:
+  1. 광학 물리 정량 수치: 파장(13.5nm), 개구수(0.33 NA → 0.55 NA), 해상도(단일 노광 8nm), 반사율(Mo/Si 쌍당 약 70%).
+  2. 물리적 결함 및 광학 왜곡 현상: 마스크 섀도잉(Mask Shadowing), 회절 왜곡, 패턴 붕괴.
+  3. 수학적 보정 알고리즘: OPC(광학 근접 효과 보정, SBAR), SMO(소스 마스크 동시 최적화).
+  4. 스캐너 팹 연동 파라미터: 오버레이(Overlay) 허용 오차, Throughput(150~220wph).
+- **버릴 것**:
+  1. 지정학적 장비 수출 통제 및 무역 분쟁 뉴스.
+  2. 네덜란드 본사 행사 및 주가/실적 홍보 멘트.
+
+### 6.3 Pydantic 스키마
+```python
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+class OpticalParameter(BaseModel):
+    wavelength_nm: float = Field(description="광원 파장 (예: 13.5nm EUV, 193nm ArFi)")
+    numerical_aperture: float = Field(description="개구수 NA (예: 0.33, 0.55)")
+    k1_factor: float = Field(description="공정 계수 k1")
+    achieved_resolution_nm: float = Field(description="달성 해상도 CD (nm)")
+
+class OpticalHardwareMechanism(BaseModel):
+    subsystem: str = Field(description="광원(LPP), 투영 광학계(Bragg Mirrors), 펠리클, 스테이지")
+    physical_principle: str = Field(description="주석 플라즈마 방출, Mo/Si 원자층 반사, 아나모픽 4x/8x 비대칭 축소")
+    limiting_factor: str = Field(description="빛의 흡수, 마스크 섀도잉, 광량 감쇄 등 물리적 한계")
+
+class ComputationalCorrection(BaseModel):
+    technique: str = Field(description="OPC, SMO, SBAR")
+    distortion_addressed: str = Field(description="회절 왜곡, 모서리 라운딩, 빛의 간섭")
+    mathematical_approach: str = Field(description="사전 역왜곡, 광원 동공 합성")
+
+class ASMLLithographyOntology(BaseModel):
+    platform_generation: str = Field(description="NXE (0.33 NA) vs EXE (0.55 High-NA)")
+    optical_parameters: OpticalParameter
+    hardware_mechanisms: List[OpticalHardwareMechanism]
+    computational_corrections: List[ComputationalCorrection]
+    closed_loop_metrology: dict = Field(description="YieldStar DBO 오버레이 실시간 피드백 루프")
+```
+
+### 6.4 시스템 프롬프트 (Optical Physics & Holistic Lithography Rule)
+```markdown
+당신은 반도체 노광(Lithography) 광학 물리학 및 스캐너 시스템 온톨로지 지식 엔지니어다.
+주어진 ASML 공식 기술 문서와 백서를 분석하여 [극자외선 노광 광학 물리 및 홀리스틱 폐루프] 지식을 추출하라.
+
+[핵심 추출 지침]
+1. 레일리 한계식($CD = k_1 \frac{\lambda}{NA}$)과의 연계성 명시:
+   - 모든 기술(EUV, High-NA, OPC)이 레일리 수식의 어떤 변수(파장 단축, NA 확대, k1 개선)를 공략하는지 반드시 명시하라.
+2. 진공 반사 광학계와 아나모픽 광학 메커니즘 보존:
+   - Mo/Si 브래그 거울 반사율 감쇄, 0.55 NA 마스크 섀도잉 극복을 위한 4x/8x 비대칭 축소 투영 원리를 누락 없이 수록하라.
+3. 홀리스틱 폐루프(스캐너-YieldStar-OPC)를 생산운영 R2R 인터페이스와 매핑하라.
+```
+
+---
+
+## 7. 출처 6: 공인 연구기관 및 공개 학술 논문 (imec, NIST, IEEE, MDPI)
+
+### 7.1 수집 운영 전략: 3-Tier 하이브리드 아키텍처
+학술 논문과 공인 연구 자료는 수백만 편에 달하므로, **"역사적 랜드마크(Tier 1) + 현행 양산 적용 실무(Tier 2) + 온디맨드 딥 다이브(Tier 3)"**의 3-Tier 전략으로 운영한다.
+
+- **Tier 1 (역사적 분수령 랜드마크 논문 / Historical Landmark Papers - 15편 전수 사전 적재)**:
+  - 반도체 산업의 물리적 패러다임을 근본적으로 바꾼 역사적 원조 논문들을 로컬 스냅샷(`sources/research_institutes/`)에 완전 적재.
+  - **영역별 핵심 논문 인벤토리:**
+    1. *트랜지스터 & 로드맵*: FinFET 원조(1999 Hu), High-k/Metal Gate(2007 Intel), GAA MBCFET(2017 IBM/Samsung), CFET(2018 imec), BSPDN(2021 imec).
+    2. *메모리 아키텍처*: BiCS 3D NAND(2007 Toshiba), TCAT CTF V-NAND(2009/2013 Samsung), PUC 4D NAND(2018 SK hynix), HBM 1세대(2014 SK hynix/AMD).
+    3. *첨단 패키징 & 본딩*: Cu-Cu DBI 하이브리드 본딩(2005/2015 Enquist), InFO FOWLP(2016 TSMC), CoWoS 2.5D 인터포저(2013 TSMC).
+    4. *공정 물리 & 수율 물리학*: Cu CMP 디싱/침식 지배 모델(1994 Runnels / 1999 Stine), 극저온 RIE 원조(1988 Tachi), 모델 기반 OPC(1994 Otto), EUV 확률적 결함 물리학(2018 Mack).
+
+- **Tier 2 (현행 양산 실무 및 팹 라인 적용 논문 / Current Fab Production & Applied Papers - 6대 영역 24대 앵커 사전 적재)**:
+  - 역사적 원조 논문은 아니지만, **지금 현재 최첨단 글로벌 양산 팹(삼성, SK하이닉스, TSMC, Intel, Micron 등)의 6대 핵심 영역에서 수율 개선, 결함 제어, 양산 공정 튜닝에 직접 사용되는 실무 공학 앵커 논문 24편**을 사전 적재.
+  - **6대 영역별 24대 앵커 인벤토리 (`sources/research_institutes/tier2_current_production_applied_papers.md`):**
+    1. *선단 로직 & 파운드리 (Pillar 1)*: 3nm/2nm GAA SiGe 선택식각(TED), 2nm GAA S/D 콘택저항($R_c$) 극복 에피택시/실리사이드(IEDM), 저유전율 Inner Spacer(TED), BSPDN Nano-TSV 스트레스 제어(VLSI).
+    2. *초고밀도 메모리 (Pillar 2)*: 1a/1b nm DRAM 정방정계 ZAZ 고유전체 커패시터(TED), 1b/1c nm DRAM 비트라인 에어갭(Air Gap)(IEDM), 300단+ 3D NAND 채널홀 틸팅 방지 극저온 펄스 식각(JVST), 300단+ 워드라인 무불소 저저항 몰리브덴(Mo) ALD(TED).
+    3. *화합물 & 전력 반도체 (Pillar 3)*: SiC 파워 MOSFET 트렌치 게이트 계면 결함($D_{\text{it}}$) 저감 POA 공학(EDL), AI 서버 VRM용 GaN-on-Si HEMT 2DEG 전자이동도 극대화 및 동적 $R_{\text{on}}$ 열화 억제(TED).
+    4. *노광, 세정 및 계면 화학 (Pillar 4)*: EUV 400W+ 고출력용 CNT 펠리클 수소 플라즈마 열화 기구(SPIE JM3), High-NA EUV 금속 산화물 레지스트(MOR)(SPIE), 나노패턴 쓰러짐(Pattern Collapse) 방지 초임계 $CO_2(scCO_2)$ 건조(TSM), 첨단 Cu BEOL 저하중($< 1.0\text{psi}$) BTA 슬러리 화학(ECS JSS).
+    5. *첨단 패키징 & 테스트 (Pillar 5)*: HBM3E/4 Advanced MR-MUF 액상 몰딩 보이드 제어(ECTC), 2.5D CoWoS 실리콘 인터포저 초미세 범프 CUF 유동학(ECTC), Cu-Cu 하이브리드 본딩 나노보이드 소멸 동역학(Acta Mat), HBM KGD 선별용 초고주파 프로브 카드 접촉 신뢰성(ITC).
+    6. *수율·계측·신뢰성 & 팹 인프라 (Pillar 6)*: 전스펙트럼 OES 챔버 드리프트 감지 및 정밀 EPD(TSM), 게이트 절연막 TDDB 및 BTI 열화 가속 수명 모델(IRPS), 네거티브 바이노미얼 수율 예측 및 결함 클러스터링(TSM), 3D 소자 검사용 광대역 플라즈마(BBP) DUV 광학(SPIE), 초순수(UPW) 서브-ppb급 DO/TOC 제막(ECS), 팹 배기 온실가스(PFCs) 99.9% 분해 플라즈마-열 융합 스크러버(STOTEN).
+
+- **Tier 3 (실시간 온디맨드 딥 다이브 / On-Demand RAG Deep-Dive via Dynamic Search)**:
+  - 사용자가 AI 분석실이나 위키 본문 편집 시 특정 세부 파라미터(예: "특정 에칭 가스의 전자 온도 분포", "특정 슬러리의 BTA 유기염 착물 형성 평형 상수", "단일 레시피의 RF 위상각 편차") 같은 심층 공학 질문을 요청할 때, 실시간 외부 학술 API(IEEE Xplore, Google Scholar, Semantic Scholar, MDPI)를 동적 검색하여 인용·검증하는 계층.
+
+### 7.2 Tier 3 $\to$ Tier 2 자율 확장형(Living Archive) 승격 메커니즘
+Tier 2 아카이브는 고정된 완료형이 아니며, 지식 베이스가 스스로 확장되는 순환형 파이프라인으로 동작한다:
+1. **동적 검색 (Tier 3 트리거)**: 사용자 질의에 응답하기 위해 외부 학술 엔진에서 논문 검색 및 파라미터 추출.
+2. **품질 검증 게이트**:
+   - 공인 저널/학회(IEEE, SPIE, ECS, AVS, Nature 등) 피어리뷰 통과 여부 및 DOI 유효성 검증.
+   - 실제 팹 적용 가능한 정량 수치(선택비, 유전율, 저항, 온도, 수율 등) 포함 여부 검증.
+3. **HITL 검토 승인 (W-A03)**: 도메인 전문가/엔지니어가 개념 단위 검토 센터에서 승격 승인 클릭.
+4. **Tier 2 영구 편입 (Self-Promotion)**: `sources/research_institutes/` 로컬 스냅샷 및 `data.js` 온톨로지에 영구 증분 적재되어 차후 질의 시 즉각 응답 데이터로 활용.
+
+### 7.3 자료의 형태적 특성
+- **타깃 독자**: 반도체 물리학자, 선행 R&D 연구원, 첨단 단위 공정/패키징 수율 엔지니어.
+- **문체 및 포맷**: 수식 증명, 통계적 신뢰도 구간, TEM/SEM 단면 실측 이미지 분석, 장기 신뢰성 가속 수명 모델, 화학 반응 동역학 상수.
+- **구조**: **"물리적 한계/가설 ↔ 나노스케일 결함 분석(TEM/EDS) ↔ 단위 공정 최적화 및 팹 실측 데이터 ↔ 산업 양산 적용성"**.
+
+### 7.4 필터링 원칙 (취할 것 vs 버릴 것)
+- **취할 것**:
+  1. 미래 공정 변곡점(Inflection Point): GAA $\to$ CFET 적층, BSPDN 후면 전력 공급, High-NA EUV 루테늄 배선.
+  2. 물리적 지배 방정식 및 지배 모델: 프레스턴 법칙 확장식, 아레니우스 식각 반응 속도식, 포톤 샷 노이즈 확률식.
+  3. 팹 양산 실증 파라미터: 점도($\text{Pa}\cdot\text{s}$), 비유전율($k$), 선택비($> 150:1$), EOT($< 0.45\ \text{nm}$), 보이드 소멸 온도.
+  4. 공인 서지 메타데이터: 저자, 학회/저널명(IEDM, ISSCC, ECTC, TED, SPIE), DOI, 발표 연도.
+- **버릴 것**:
+  1. 연구실 랩 스케일(Lab-scale)의 양산 불가능한 단순 아이디어 논문 (반드시 산업계 파운드리/IDM 적용 가능성이 검증된 로드맵 중심 채택).
+  2. 단순 리뷰 논문 중 정량적 실험 데이터가 결여된 개론성 기고문.
+  3. 학회 등록 안내, 감사 문구(Acknowledgment), 연구비 지원 과제 번호.
+
+### 7.5 Pydantic 스키마
+```python
+from pydantic import BaseModel, Field
+from typing import List, Optional, Literal
+
+class AcademicEvidence(BaseModel):
+    tier: Literal["Tier-1 Landmark", "Tier-2 Fab Applied", "Tier-3 On-Demand"] = Field(description="3-Tier 분류")
+    domain: str = Field(description="트랜지스터, 메모리, 패키징, 공정물리, 수율/FDC")
+    publication_source: str = Field(description="IEEE IEDM/ISSCC/TED/ECTC, SPIE, imec Whitepaper, Acta Materialia")
+    paper_title: str
+    authors: str
+    year: int
+    doi: Optional[str]
+    physical_barrier_or_fab_problem: str = Field(description="해결하고자 한 물리적 한계 또는 팹 양산 수율 병목")
+    core_engineering_mechanism: str = Field(description="실험 및 이론으로 검증된 공학적 핵심 메커니즘")
+    fab_quantitative_parameters: dict = Field(description="양산 검증 수치 (선택비, EOT, 점도, 열전도도, 디싱 깊이 등)")
+    industry_impact: str = Field(description="실제 양산 라인(삼성, SK하이닉스, TSMC 등) 적용 및 상용화 파급력")
+
+class ResearchInstituteOntology(BaseModel):
+    research_body: str = Field(description="imec, NIST, IEEE, SPIE, AVS, ECS")
+    tier_level: str
+    evidence_papers: List[AcademicEvidence]
+```
+
+### 7.6 시스템 프롬프트 (3-Tier Academic Landmark & Fab Applied Rule)
+```markdown
+당신은 반도체 첨단 연구 및 공학 학술 지식 온톨로지 수석 엔지니어다.
+주어진 imec/IEEE/SPIE/AVS/ECS 연구 논문 및 기술 자료를 분석하여 [3-Tier 학술 증거 온톨로지]를 추출하라.
+
+[핵심 추출 지침]
+1. 3-Tier 위계 준수:
+   - Tier 1(산업 패러다임을 바꾼 역사적 분수령 논문): FinFET, HKMG, BiCS, HBM 원조, Cu-Cu DBI, CMP 디싱 모델, 극저온 식각 원조 등.
+   - Tier 2(현행 팹 양산 라인 핵심 적용 논문): HBM MR-MUF 보이드 제어, EUV CNT 펠리클 열화, DRAM ZAZ 커패시터, GAA SiGe 선택식각, Cu CMP BTA 화학, OES FDC 등 팹 라인 실무.
+   - Tier 3(온디맨드 딥 다이브): 특정 미세 파라미터 질의 시 실시간 인용 연결.
+2. 엄격한 정량 공학 파라미터 보존:
+   - 단순 원리 기술에 그치지 않고, 논문에서 증명된 정량 수치(선택비 150:1, EOT 0.42nm, 점도 1.5 Pa·s, 열전도도 2.5 W/m·K 등)를 필수 보존하라.
+3. 정확한 학술 서지 메타데이터 기록:
+   - 저자, 학회/저널명, 연도, DOI를 명시하여 위키 독자가 원문을 직접 검증할 수 있도록 하라.
+```

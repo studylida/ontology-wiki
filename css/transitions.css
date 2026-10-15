@@ -1,0 +1,484 @@
+/**
+ * Transitions.dev 기반 정밀 애니메이션 정의
+ * Reference: https://transitions.dev/ & https://transitions.dev/library.html
+ * 
+ * Included Patterns:
+ * 1. Tabs sliding (tabs-sliding)
+ * 2. Panel reveal (panel-reveal)
+ * 3. Accordion (accordion)
+ * 4. Toast open/close (toast-open-close)
+ * 5. Tooltip open/close (tooltip-open-close)
+ * 6. Streaming text (streaming-text)
+ * 7. Success check (success-check)
+ * 8. Skeleton loader & reveal (skeleton-loader-and-reveal)
+ * 9. Reasoning stream & Matrix dot loader (reasoning-stream & matrix-dot-loader)
+ * 10. Modal open/close (modal-open-close)
+ */
+
+/* ── 1. Tabs Sliding (https://transitions.dev/studio.html?lib=tabs-sliding) ── */
+.sliding-tabs-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  background: var(--bg-surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 4px;
+  gap: 2px;
+}
+
+.sliding-tab-item {
+  position: relative;
+  z-index: 2;
+  padding: 6px 14px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+
+.sliding-tab-item.active {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.sliding-tab-indicator {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 0;
+  z-index: 1;
+  background: var(--bg-surface);
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), width 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+/* ── 2. Panel Reveal (https://transitions.dev/studio.html?lib=panel-reveal) ── */
+.panel-reveal-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 420px;
+  max-width: 90vw;
+  background: var(--bg-surface);
+  border-left: 1px solid var(--border-color);
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.06);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), 
+              opacity 0.25s ease, 
+              visibility 0.32s;
+}
+
+.panel-reveal-drawer.open {
+  transform: translateX(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.3);
+  backdrop-filter: blur(2px);
+  z-index: 99;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s;
+}
+
+.drawer-backdrop.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ── 3. Accordion (https://transitions.dev/studio.html?lib=accordion) ── */
+.accordion-item {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background: var(--bg-surface);
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.accordion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+
+.accordion-header:hover {
+  background: var(--bg-surface-2);
+}
+
+.accordion-chevron {
+  width: 16px;
+  height: 16px;
+  stroke: var(--text-muted);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.accordion-item.open .accordion-chevron {
+  transform: rotate(180deg);
+}
+
+.accordion-body-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.accordion-item.open .accordion-body-wrapper {
+  grid-template-rows: 1fr;
+}
+
+.accordion-content {
+  overflow: hidden;
+  padding: 0 18px;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.accordion-item.open .accordion-content {
+  padding: 4px 18px 18px 18px;
+}
+
+/* ── 4. Toast Open/Close (https://transitions.dev/studio.html?lib=toast-open-close) ── */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast-item {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transform: translateY(20px) scale(0.95);
+  opacity: 0;
+  filter: blur(4px);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.25s ease,
+              filter 0.25s ease;
+}
+
+.toast-item.show {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  filter: blur(0);
+}
+
+.toast-item.toast-success {
+  border-left: 4px solid var(--accent-success);
+}
+
+.toast-item.toast-info {
+  border-left: 4px solid var(--accent-primary);
+}
+
+/* ── 5. Tooltip / Inline Popover (https://transitions.dev/studio.html?lib=tooltip-open-close) ── */
+.inline-concept-tag {
+  display: inline;
+  color: var(--accent-primary);
+  border-bottom: 1.5px dotted var(--accent-primary);
+  cursor: pointer;
+  padding: 0 2px;
+  border-radius: 2px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.inline-concept-tag:hover {
+  background-color: var(--accent-primary-light);
+}
+
+.concept-popover {
+  position: absolute;
+  z-index: 200;
+  width: 320px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.12), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  font-size: 0.8125rem;
+  transform: translateY(8px) scale(0.96);
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.18s ease,
+              visibility 0.22s;
+  pointer-events: none;
+}
+
+.concept-popover.open {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* ── 6. Streaming Text / AI Glow (https://transitions.dev/studio.html?lib=streaming-text) ── */
+.streaming-text-block {
+  opacity: 0;
+  filter: blur(2px);
+  transform: translateY(4px);
+  transition: opacity 0.3s ease, filter 0.3s ease, transform 0.3s ease;
+}
+
+.streaming-text-block.visible {
+  opacity: 1;
+  filter: blur(0);
+  transform: translateY(0);
+}
+
+/* ── 7. Success Check Morph (https://transitions.dev/studio.html?lib=success-check) ── */
+.success-check-icon {
+  width: 24px;
+  height: 24px;
+  stroke: var(--accent-success);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.success-check-path {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  transition: stroke-dashoffset 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
+}
+
+.success-check-icon.active .success-check-path {
+  stroke-dashoffset: 0;
+}
+
+/* ── 8. Skeleton Loader & Reveal (https://transitions.dev/studio.html?lib=skeleton-loader-and-reveal) ── */
+.skeleton-line {
+  height: 14px;
+  background: linear-gradient(90deg, var(--bg-surface-2) 25%, var(--bg-surface-3) 50%, var(--bg-surface-2) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-pulse 1.6s infinite ease-in-out;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+@keyframes skeleton-pulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── 9. Reasoning Stream & Matrix Dot (https://transitions.dev/studio.html?lib=reasoning-stream) ── */
+.reasoning-stream-box {
+  background: var(--bg-surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.matrix-dot-spinner {
+  display: inline-grid;
+  grid-template-columns: repeat(3, 4px);
+  gap: 3px;
+}
+
+.matrix-dot-spinner span {
+  width: 4px;
+  height: 4px;
+  border-radius: 1px;
+  background-color: var(--accent-primary);
+  opacity: 0.3;
+  animation: matrix-dot-fade 1.2s infinite ease-in-out;
+}
+
+.matrix-dot-spinner span:nth-child(1) { animation-delay: 0.1s; }
+.matrix-dot-spinner span:nth-child(2) { animation-delay: 0.2s; }
+.matrix-dot-spinner span:nth-child(3) { animation-delay: 0.3s; }
+.matrix-dot-spinner span:nth-child(4) { animation-delay: 0.4s; }
+.matrix-dot-spinner span:nth-child(5) { animation-delay: 0.5s; }
+.matrix-dot-spinner span:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes matrix-dot-fade {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* ── 10. Modal Open/Close (https://transitions.dev/studio.html?lib=modal-open-close) ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.24s ease, visibility 0.24s;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  max-width: 580px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  transform: scale(0.95) translateY(10px);
+  opacity: 0;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+}
+
+.modal-overlay.open .modal-card {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+/* ── 11. Floating Sticky Bar Slide (https://transitions.dev/studio.html?lib=banner-stacking) ── */
+.sticky-perspective-bar {
+  position: sticky;
+  top: var(--topbar-height);
+  z-index: 40;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  padding: 8px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transform: translateY(-100%);
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease, visibility 0.28s;
+}
+
+.sticky-perspective-bar.visible {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ── 12. Menu Dropdown Morph (https://transitions.dev/studio.html?lib=menu-dropdown) ── */
+.dropdown-menu-surface {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 150;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  padding: 6px;
+  min-width: 180px;
+  transform-origin: top left;
+  transform: scale(0.95);
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.15s ease, visibility 0.2s;
+}
+
+.dropdown-menu-surface.open {
+  transform: scale(1);
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ── 13. Transitions.dev Dynamic Stream & Card Animations ── */
+.fade-slide-up {
+  animation: fadeSlideUp 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+    filter: blur(1px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.editor-crossfade {
+  transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1), transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.investigation-complete-card {
+  padding: 18px 20px;
+  background: var(--bg-surface);
+  border: 1.5px solid #86efac;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(22, 101, 52, 0.08);
+  animation: fadeSlideUp 0.36s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+[data-theme="dark"] .investigation-complete-card {
+  background: var(--bg-surface-2);
+  border-color: #166534;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* ── Accessibility: Prefers Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
