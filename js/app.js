@@ -2486,7 +2486,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // 에이전트 수정 지시(Agent Revision Directive) 처리
-  function handleAgentDirective(directiveText) {
+  async function handleAgentDirective(directiveText) {
     const text = (directiveText || dom.agentDirectiveInput?.value || "").trim();
     if (!text) {
       showToast("에이전트에게 내릴 수정 지시사항을 입력해 주세요.", "info");
@@ -2506,30 +2506,34 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
     }
 
-    setTimeout(() => {
-      if (text.includes("극저온") || text.includes("배기")) {
-        const addition = "\n\n[에이전트 보완 v1.3-R2] 공정 주의사항: 극저온(-60℃) 운전 시 배기 라인 내 불소계 반응 부산물(SiF4/CFx)의 응결 및 배관 폐색 위험이 있으므로, 배기 라인 히팅 자켓(120℃ 이상) 상시 가열 및 질소 퍼지 주기를 30% 단축 관리해야 함.";
-        item.aiMergedDraft += addition;
-        item.diffAdded += " 극저온 배기 라인 결로 방지 히팅 자켓 및 질소 퍼지 관리";
-      } else if (text.includes("출처") || text.includes("Lam") || text.includes("백서")) {
-        item.integrityCheck.evidenceMatch = "Lam Research 2026 Technical Whitepaper 및 SEMI 표준 규격 전수 검증됨 (100%)";
-        item.aiMergedDraft += "\n\n[출처 표기 갱신] Lam Research Technical Whitepaper 및 SEMI 국제 표준 규격에 부합함을 재확인함.";
-      } else if (text.includes("초심자") || text.includes("비유")) {
-        item.aiMergedDraft = "[초심자 입문 풀이] 마치 겨울철 유리창에 성에가 얼어붙듯 식각 가스가 웨이퍼 측면에만 결빙 보호막을 형성하여, 측면 손상 없이 깊은 수직 구멍만 파고드는 물리 원리입니다.\n\n" + item.aiMergedDraft;
-      } else if (text.includes("Scale 2") || text.includes("소자")) {
-        item.aiMergedDraft += "\n\n[물리 스케일 연계: Scale 2] 본 공정의 이방성 한계 극복 결과는 3D V-NAND 300단 메모리 홀뿐 아니라 GAA 나노시트의 멀티 채널 분리 식각(Scale 2: 10nm 패턴)에 직접적 영향을 미칩니다.";
-      } else {
-        item.aiMergedDraft += `\n\n[에이전트 지시 반영] 요구사항('${text}')에 따른 공정 메커니즘 및 파라미터가 초안에 보강되었습니다.`;
+    try {
+      const result = await window.OntologyAgentCore.reviseReviewDraft({
+        conceptId: item.conceptId || "dry-etch",
+        currentDraft: item.aiMergedDraft,
+        directive: text
+      });
+
+      item.aiMergedDraft = result.revisedDraft;
+      item.diffAdded += `\n[지시 반영] ${text}`;
+      if (result.integrityReport) {
+        item.integrityCheck = {
+          evidenceMatch: `공식 출처 전수 검증 (${result.integrityReport.evidence || '100%'})`,
+          ontologyConflict: result.integrityReport.conflict || "없음",
+          impactScope: result.integrityReport.impact || "1건"
+        };
       }
 
       item.status = "초안 재작성됨 (지시 반영)";
       if (dom.agentDirectiveInput) dom.agentDirectiveInput.value = "";
       if (dom.directiveStatusArea) {
-        dom.directiveStatusArea.innerHTML = `<span style="color:var(--accent-success); font-size:0.8125rem; font-weight:700;">✔ 에이전트 지시가 성공적으로 반영되어 초안(v1.3-rev)이 갱신되었습니다.</span>`;
+        dom.directiveStatusArea.innerHTML = `<span style="color:var(--accent-success); font-size:0.8125rem; font-weight:700;">✔ 에이전트 지시가 성공적으로 반영되어 초안이 갱신되었습니다.</span>`;
       }
       renderReviewQueue();
-      showToast("에이전트 수정 지시가 초안에 완벽히 반영되었습니다!", "success");
-    }, 700);
+      showToast(result.changeSummary || "에이전트 수정 지시가 초안에 완벽히 반영되었습니다!", "success");
+    } catch (err) {
+      console.warn("Directive error:", err);
+      showToast("수정 지시 처리 중 오류 발생: " + err.message, "warning");
+    }
   }
 
   dom.btnSendDirective?.addEventListener("click", () => {
@@ -2556,14 +2560,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
     item.status = "게시 완료";
 
-    if (WikiStore.concepts[item.conceptId]) {
-      const c = WikiStore.concepts[item.conceptId];
-      c.version = "v1.3";
+    const targetConceptId = item.conceptId || "dry-etch";
+    if (WikiStore.concepts[targetConceptId]) {
+      const c = WikiStore.concepts[targetConceptId];
+      c.version = "v1.3 (신규 승인 반영)";
       c.summary = item.aiMergedDraft;
-      c.lastReviewed = `2026.10.15 (인간 전문가 검토 승인 완료)`;
+      c.definition = (item.aiMergedDraft.split("###")[1] || item.aiMergedDraft).slice(0, 300) + "...";
+      c.lastReviewed = `2026.10.15 (인간 전문가 HITL 검토 승인 완료)`;
     }
 
     renderReviewQueue();
+
+    // 1번 위키 탭 바로가기 버튼 노출 및 바인딩
+    if (dom.gotoWikiBtn) {
+      dom.gotoWikiBtn.style.display = "inline-flex";
+      dom.gotoWikiBtn.innerHTML = `📖 1번 위키 탭에서 갱신된 v1.3 확인 ➔`;
+      dom.gotoWikiBtn.onclick = () => {
+        window.selectWikiConcept(targetConceptId);
+        showToast(`'${item.conceptTitle}' 문서가 v1.3으로 갱신되었습니다! 본문을 확인하세요.`, "success");
+        // 본문 상단 하이라이트 애니메이션
+        const headerEl = document.querySelector(".concept-header");
+        if (headerEl) {
+          headerEl.style.transition = "background 0.5s ease";
+          headerEl.style.background = "rgba(16, 185, 129, 0.12)";
+          setTimeout(() => { headerEl.style.background = ""; }, 2500);
+        }
+      };
+    }
+
     showToast(`'${item.conceptTitle.split("(")[0]}' 문서가 v1.3으로 공용 위키 및 온톨로지 코어에 정식 반영되었습니다!`, "success");
   });
 
