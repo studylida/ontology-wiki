@@ -687,3 +687,335 @@ interface ConceptDetailResponse {
   ```
 - **예외 처리 (Error)**:
   - `404 Not Found`: 존재하지 않는 ID 요청 시 `{ "code": "EVIDENCE_NOT_FOUND", "message": "출처 'E-99' 상세 정보를 불러올 수 없습니다." }` ➔ 프론트엔드 경고 토스트 출력.
+
+---
+
+### 4.2 [Tab 1] 위키 본문 & 인과 온톨로지 브라우저 API
+
+#### 1. `GET /api/v1/concepts/tree`
+- **화면 맥락**: [프론트 §1.2] 좌측 사이드바 4축 업무 분류 및 계층형 온톨로지 네비게이션 트리.
+  - 사용자는 4대 탭(소자 설계 / 단위 공정 / 수율·품질·설비 / 소재·원천기술)을 전환하고, 아코디언 노드를 클릭하여 하위 개념 계층을 펼치거나 특정 개념을 클릭해 본문을 로드합니다.
+- **사용자 입력 (Request)**:
+  - Query Params:
+    - `facet` (선택, enum: `device` | `unit_process` | `operations` | `materials_infra`): 4대 업무 분류 필터
+    - `expandedId` (선택, string): 기본 활성화할 개념 ID
+- **화면 렌더링용 데이터 (Response 200 OK)**:
+  ```json
+  {
+    "currentFacet": "unit_process",
+    "totalNodes": 148,
+    "tree": [
+      {
+        "id": "cat-packaging",
+        "title": "첨단 패키징 (Advanced Packaging)",
+        "type": "category",
+        "children": [
+          {
+            "id": "concept-tcb",
+            "title": "열압착 본딩",
+            "engName": "Thermo-Compression Bonding",
+            "aliases": ["TCB"],
+            "type": "concept",
+            "scaleLevel": 3,
+            "badge": "L3 공정",
+            "status": "adopted",
+            "hasPerspectives": true,
+            "children": [
+              {
+                "id": "concept-ncf",
+                "title": "비도전성 필름 접합",
+                "engName": "Non-Conductive Film",
+                "type": "concept",
+                "scaleLevel": 4,
+                "badge": "L4 소재",
+                "status": "adopted"
+              }
+            ]
+          },
+          {
+            "id": "concept-mrmuf",
+            "title": "매스 리플로우 몰디드 언더필",
+            "engName": "Mass Reflow Molded Underfill",
+            "aliases": ["MR-MUF"],
+            "type": "concept",
+            "scaleLevel": 3,
+            "badge": "L3 공정",
+            "status": "adopted",
+            "hasPerspectives": true
+          }
+        ]
+      }
+    ]
+  }
+  ```
+- **예외 처리 (Error)**:
+  - 잘못된 `facet` 값 입력 시 `400 Bad Request` `{ "code": "INVALID_FACET", "message": "지원하지 않는 도메인 패싯입니다." }` ➔ 프론트엔드가 기본 패싯(`unit_process`)으로 자동 폴백 렌더링.
+
+#### 2. `GET /api/v1/concepts/{id}`
+- **화면 맥락**: [프론트 §1.1, §1.3] 상단 4단 헤더, 본문 1~3번 섹션(개념 정의, 원리/수식, 한계/트레이드오프), 0ms 인라인 팝오버 프리페치(`preloadedExplainers`), 5번 섹션(적응형 Level 3 실무 카드).
+  - 사용자는 위키 본문을 읽으며 수식, 트레이드오프, 공인 출처(`[E-01]`) 칩, 본문 하단 3개 관점 실무 탭을 전환하여 조회합니다.
+- **사용자 입력 (Request)**:
+  - Path Param:
+    - `id` (필수, string): 개념 고유 ID (예: `"concept-tcb"`)
+  - Query Param:
+    - `perspective` (선택, enum: `yield` | `circuit` | `process`): 5번 섹션에서 초기에 활성화할 실무 관점 (기본값: `yield`)
+- **화면 렌더링용 데이터 (Response 200 OK - `ConceptDetailResponse`)**:
+  ```json
+  {
+    "id": "concept-tcb",
+    "title": "열압착 본딩",
+    "engName": "Thermo-Compression Bonding",
+    "aliases": ["TCB", "열압착 접합"],
+    "domainFacet": "unit_process",
+    "processCategory": "첨단 패키징",
+    "scaleLevel": 3,
+    "scaleName": "L3 단위 공정",
+    "status": "adopted",
+    "lastReviewedBy": "Dr. 김수석 (수율분석팀)",
+    "lastReviewedAt": "2026.02.15",
+    "purpose": "HBM 및 3D IC 적층 시 마이크로범프에 열(Thermal)과 기계적 하중(Pressure)을 동시에 인가하여 Cu-Sn 금속간 화합물(IMC)을 형성하고 전기적·물리적 접합을 구현하는 단위 조립 공정.",
+    "principles": [
+      {
+        "step": 1,
+        "title": "정밀 다이 정렬 및 픽앤플레이스",
+        "content": "비전 얼라인 시스템을 통해 상하부 다이의 마이크로범프 패드를 서브마이크론(±1.0μm) 오차 이내로 정합."
+      },
+      {
+        "step": 2,
+        "title": "열압착 및 IMC 접합",
+        "content": "가열된 본딩 툴(Bonding Head)을 강하하여 250~300°C 온도와 120~180N 하중을 인가, 솔더를 용융시키고 Cu6Sn5 금속간 화합물을 형성.",
+        "formula": "F_{\\text{bonding}} = P_{\\text{tool}} \\times A_{\\text{die}} \\pm \\delta_{\\text{compliance}}"
+      }
+    ],
+    "limitations": [
+      {
+        "title": "16단 이상 고다단 적층 시 누적 열변형(Thermal Warpage)",
+        "description": "다단 칩을 반복 가열/냉각하는 과정에서 열팽창계수(CTE) 불일치로 인한 휨(Warpage) 및 크랙 발생 위험.",
+        "evidenceIds": ["E-01"]
+      },
+      {
+        "title": "택트 타임(Tact-time) 증가에 따른 생산성 저하",
+        "description": "칩 1매당 개별 열압착 및 냉각 사이클(수 초 소요)이 필수적이어서 칩 수가 증가할수록 생산 단가 상승.",
+        "evidenceIds": ["E-02"]
+      }
+    ],
+    "perspectives": [
+      {
+        "id": "case-tcb-yield-01",
+        "facet": "yield",
+        "tabLabel": "수율/품질 관점",
+        "challenge": "12단 HBM3E 적층 공정 중 에지 범프 간 마이크로 브릿지(단락) 발생 및 패키지 휨",
+        "causalPathSummary": "과도한 본딩 하중 인가(180N 초과) ➔ NCF 필름 용융 수지 측방 과유출 ➔ 범프 간 마이크로 브릿지 형성 ➔ 패키지 휨 14μm 초과 및 수율 11.4%p 하락",
+        "compensatingParams": [
+          { "param": "본딩 헤드 인가 하중", "from": "185N", "to": "145N", "effect": "NCF 수지 유출량 35% 억제" },
+          { "param": "본딩 램프업 속도", "from": "50°C/s", "to": "30°C/s", "effect": "열충격 완화" }
+        ],
+        "metrics": [
+          { "label": "패키지 휨(Warpage)", "before": "18.2μm", "after": "9.4μm", "delta": "-48.3%" },
+          { "label": "범프 접합 결함률", "before": "4.2%", "after": "0.3%", "delta": "-92.8%" }
+        ],
+        "author": "Dr. 김수석 (수율분석팀)",
+        "evidenceIds": ["E-01"]
+      },
+      {
+        "id": "case-tcb-circuit-01",
+        "facet": "circuit",
+        "tabLabel": "소자/회로 관점",
+        "challenge": "고주파 I/O 전송 라인에서 마이크로범프 저항 산포 및 기생 용량 증가",
+        "causalPathSummary": "IMC 불균일 계면 성장 ➔ 고주파 인터커넥트 삽입 손실 증가",
+        "compensatingParams": [
+          { "param": "피크 본딩 온도", "from": "280°C", "to": "260°C", "effect": "Cu6Sn5 계면 두께 균일도 확보" }
+        ],
+        "metrics": [
+          { "label": "I/O 신호 감쇠(Insertion Loss)", "before": "-1.8dB", "after": "-0.9dB", "delta": "+50.0%" }
+        ],
+        "author": "박책임 (소자설계팀)",
+        "evidenceIds": ["E-03"]
+      },
+      {
+        "id": "case-tcb-process-01",
+        "facet": "process",
+        "tabLabel": "단위공정 관점",
+        "challenge": "본딩 툴 열팽창 편차로 인한 4개 코너 범프 접합 불균일",
+        "causalPathSummary": "히터 블록 온도 편차 ➔ 코너 범프 미접합 오픈 불량",
+        "compensatingParams": [
+          { "param": "멀티존 히터 개별 PID 제어", "from": "단일 히팅", "to": "4분할 개별 제어", "effect": "면내 온도 산포 ±1.5°C 이내" }
+        ],
+        "metrics": [
+          { "label": "코너 범프 미접합률", "before": "3.1%", "after": "0.05%", "delta": "-98.4%" }
+        ],
+        "author": "최책임 (패키징공정팀)",
+        "evidenceIds": ["E-02"]
+      }
+    ],
+    "preloadedExplainers": {
+      "concept-ncf": {
+        "title": "비도전성 필름 (NCF)",
+        "definition": "마이크로범프 사이를 절연하고 칩을 접착하기 위해 본딩 전 도포하는 접착 필름 소재.",
+        "contextSentence": "본 문서(열압착 본딩)에서는 본딩 헤드가 가압될 때 마이크로범프 간극을 채우며 절연성을 유지하는 핵심 소재로 기능합니다.",
+        "cachedAt": "2026.02.15"
+      },
+      "concept-imc": {
+        "title": "금속간 화합물 (IMC)",
+        "definition": "서로 다른 금속(Cu와 Sn 등)이 고온에서 확산 반응하여 계면에 형성되는 합금층.",
+        "contextSentence": "본 문서에서는 Cu 범프와 Sn 솔더 캡이 열압착될 때 Cu6Sn5를 형성하여 기계적·전기적 신뢰성을 결정하는 접합 계면입니다.",
+        "cachedAt": "2026.02.15"
+      }
+    }
+  }
+  ```
+- **예외 처리 (Error)**:
+  - `404 Not Found`: 존재하지 않는 개념 ID 요청 시 `{ "code": "CONCEPT_NOT_FOUND", "message": "개념 'concept-xyz'를 찾을 수 없습니다." }` ➔ 프론트엔드가 404 전용 빈 상태 카드 노출.
+
+#### 3. `GET /api/v1/concepts/{childId}/contextual-explain`
+- **화면 맥락**: [프론트 §1.1, §4.2 `[P-01]`] 본문 파란색 점선 용어 호버 시 0.2초 내 뜨는 문맥 맞춤 해설 팝오버 (`#concept-popover`).
+  - 사용자가 본문 읽기 중 파란색 점선으로 표시된 전문 용어 위에 마우스를 올렸을 때 호출됩니다.
+  - 본문 조회 시 `preloadedExplainers`에 이미 포함된 용어는 네트워크 호출 없이 즉시(0ms) 표시되며, 프리페치되지 않은 용어 호버 시 본 API를 온디맨드 호출합니다.
+- **사용자 입력 (Request)**:
+  - Path Param:
+    - `childId` (필수, string): 호버된 하위 전문 용어 ID (예: `"concept-imc"`)
+  - Query Param:
+    - `parentConceptId` (필수, string): 현재 읽고 있는 위키 본문의 부모 개념 ID (예: `"concept-tcb"`)
+- **화면 렌더링용 데이터 (Response 200 OK - `ContextualExplanationDTO`)**:
+  ```json
+  {
+    "childConceptId": "concept-imc",
+    "parentConceptId": "concept-tcb",
+    "title": "금속간 화합물 (Intermetallic Compound, IMC)",
+    "definition": "서로 다른 금속(Cu와 Sn) 원자가 고온 확산 반응을 일으켜 계면에 형성되는 단단하고 부서지기 쉬운(brittle) 화학량론적 금속 화합물층.",
+    "contextSentence": "본 문서(열압착 본딩) 맥락에서 IMC는 Cu 범프와 솔더 볼 계면에서 과도 성장할 경우 취성 파괴를 유발하므로 본딩 피크 온도와 시간 제어가 필수적입니다.",
+    "cached": true,
+    "sourceEvidence": {
+      "evidenceId": "E-01",
+      "sourceName": "Samsung Electronics HBM3E 신뢰성 보고서",
+      "quote": "Cu6Sn5 IMC thickness must be maintained under 1.8μm to prevent micro-cracking."
+    },
+    "deepLink": "/wiki/concept-imc"
+  }
+  ```
+- **예외 처리 (Error)**:
+  - `404 Not Found`: 존재하지 않는 자식 용어 ID이거나 문맥 해설 생성 실패 시:
+    ```json
+    {
+      "code": "CONTEXT_EXPLAIN_UNAVAILABLE",
+      "message": "해당 용어의 맞춤 문맥 해설이 아직 인덱싱되지 않았습니다.",
+      "fallbackDefinition": "금속간 화합물(IMC): 서로 다른 금속 간의 확산 반응으로 형성되는 중간상 화합물.",
+      "chatbotShortcut": {
+        "buttonLabel": "💬 AI 챗봇에게 실시간 질문하기 ➔",
+        "prompt": "'열압착 본딩(TCB)' 문맥에서 '금속간 화합물(IMC)'의 역할과 주의점에 대해 설명해줘.",
+        "targetConceptId": "concept-imc",
+        "parentConceptId": "concept-tcb"
+      }
+    }
+    ```
+    ➔ **UI 연동 대책**: 팝오버 창 내부에 기본 사전적 정의(`fallbackDefinition`)와 함께 `[💬 AI 챗봇에게 실시간 질문하기 ➔]` 버튼을 렌더링합니다. 사용자가 이 버튼을 클릭하면 우측 하단 `#floating-chat-widget`이 열리면서 해당 맞춤 질문이 자동 입력·전송되어 백엔드 인과 추론 챗봇이 즉시 실시간 해설을 생성합니다.
+
+#### 4. `GET /api/v1/concepts/{id}/causal-subgraph`
+- **화면 맥락**: [프론트 §1.1, 4번 섹션] 개념 본문 내 D3/Cytoscape 기반 인과 관계망 인터랙티브 캔버스 (`#causal-subgraph-canvas`).
+  - 사용자는 캔버스 상에서 직접 원인/결과 노드를 드래그·줌·팬하고, 관계선(Edge)을 클릭하여 인과 메커니즘 툴팁을 확인하거나 연결된 다른 개념으로 페이지를 전환합니다.
+- **사용자 입력 (Request)**:
+  - Path Param:
+    - `id` (필수, string): 중심 개념 ID (예: `"concept-tcb"`)
+  - Query Params:
+    - `depth` (선택, integer): 인과 체인 탐색 홉(Hop) 수 (기본값: 1, 최대: 2)
+    - `edgeType` (선택, enum: `all` | `positive` | `negative` | `tradeoff`): 인과 관계 유형 필터
+- **화면 렌더링용 데이터 (Response 200 OK)**:
+  ```json
+  {
+    "centralConceptId": "concept-tcb",
+    "graph": {
+      "nodes": [
+        {
+          "id": "concept-tcb",
+          "label": "열압착 본딩 (TCB)",
+          "category": "unit_process",
+          "scaleLevel": 3,
+          "isCenter": true
+        },
+        {
+          "id": "param-bonding-pressure",
+          "label": "본딩 인가 압력/하중 (N)",
+          "category": "process_parameter",
+          "scaleLevel": 3,
+          "isCenter": false
+        },
+        {
+          "id": "defect-micro-bridging",
+          "label": "마이크로 범프 단락 (Short)",
+          "category": "defect",
+          "scaleLevel": 4,
+          "isCenter": false
+        },
+        {
+          "id": "concept-mrmuf",
+          "label": "MR-MUF 공정",
+          "category": "alternative_process",
+          "scaleLevel": 3,
+          "isCenter": false
+        }
+      ],
+      "edges": [
+        {
+          "id": "edge-01",
+          "source": "param-bonding-pressure",
+          "target": "defect-micro-bridging",
+          "relationType": "causes_defect",
+          "polarity": "+",
+          "weight": 0.92,
+          "mechanismLabel": "180N 초과 가압 시 NCF 수지 측방 유출 유발",
+          "evidenceId": "E-01"
+        },
+        {
+          "id": "edge-02",
+          "source": "concept-tcb",
+          "target": "concept-mrmuf",
+          "relationType": "technological_alternative",
+          "polarity": "tradeoff",
+          "weight": 0.88,
+          "mechanismLabel": "16단 고적층 생산성 한계로 인한 공정 대체 관계",
+          "evidenceId": "E-02"
+        }
+      ]
+    }
+  }
+  ```
+- **예외 처리 (Error)**:
+  - 인과 관계 데이터가 없는 고립 노드일 경우 `200 OK` 응답에 `nodes: [{ ...중심노드단독 }]`, `edges: []`를 반환하고, 프론트엔드는 "현재 연결된 인과 관계 노드가 없습니다." 안내 뱃지를 캔버스 중앙에 렌더링.
+
+#### 5. `POST /api/v1/review-tickets` (위키 본문 간이 제안 모달)
+- **화면 맥락**: [프론트 §1.1 본문 하단, §4.3 `[M-05]`] "이 문서의 오류 수정 또는 보완 제안하기" 버튼 클릭 시 열리는 간이 제안 모달.
+  - 사용자는 위키 본문 내용을 확인한 후, 오류 지적이나 수치 보완 의견을 텍스트로 적고 공인 출처 URL/도서명과 함께 제출하여 거버넌스 티켓을 신규 발행합니다.
+- **사용자 입력 (Request Body - `ReviewTicket` 생성)**:
+  ```json
+  {
+    "targetConceptId": "concept-tcb",
+    "suggestedBy": "Dr. 김수석",
+    "department": "수율분석팀",
+    "proposalType": "modification",
+    "targetSection": "limitations",
+    "title": "TCB 16단 적층 시 NCF 필름 유출 한계 하중 수치 보완 제안",
+    "userNote": "최신 2026.01 공인 백서에 따르면 과도 하중 임계치가 180N이 아닌 165N으로 정정되어야 합니다.",
+    "evidencePayload": {
+      "sourceName": "Samsung Electronics HBM3E 패키징 신뢰성 보고서 개정판",
+      "sourceType": "official_whitepaper",
+      "externalUrl": "https://semiconductor.samsung.com/whitepaper/hbm3e-packaging-v2",
+      "quote": "Under high thermal stress in 16-stack configurations, void formation threshold is revised from 180N to 165N."
+    }
+  }
+  ```
+- **화면 렌더링용 데이터 (Response 201 Created)**:
+  ```json
+  {
+    "ticketId": "ticket-2026-0312-001",
+    "status": "pending",
+    "targetConceptId": "concept-tcb",
+    "title": "TCB 16단 적층 시 NCF 필름 유출 한계 하중 수치 보완 제안",
+    "submittedAt": "2026.03.12T14:20:00Z",
+    "message": "수정 제안이 검토 센터(Review Center)에 성공적으로 접수되었습니다. AI 지식 검증 에이전트가 2차 검증을 시작합니다.",
+    "viewUrl": "/review-center/ticket-2026-0312-001"
+  }
+  ```
+- **예외 처리 (Error)**:
+  - 필수 필드(`userNote`, `targetConceptId`) 누락 시 `400 Bad Request` `{ "code": "REQUIRED_FIELDS_MISSING", "message": "제안 내용과 대상 개념 ID는 필수입니다." }` ➔ 모달 내 에러 메시지 빨간색 텍스트 표시.
+  - 존재하지 않는 개념에 대한 제안 시 `404 Not Found` `{ "code": "CONCEPT_NOT_FOUND", "message": "대상 개념이 존재하지 않습니다." }` ➔ 토스트 알림 표시 후 모달 닫기 방지.
+
