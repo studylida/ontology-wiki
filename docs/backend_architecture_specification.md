@@ -57,20 +57,30 @@ interface Concept {
   
   // 🏛️ 업무 분야 4축 & 📐 물리 규모 5단계 매핑
   domainFacet: "device" | "unit_process" | "operations" | "materials_infra";
-  processCategory: string;        // 단위 카테고리 (예: "식각 공정", "3D 적층", "FDC 이상감지")
+  processCategory: string;        // 단위 카테고리 (예: "식각 공정", "첨단 패키징", "FDC 이상감지")
   scaleLevel: 1 | 2 | 3 | 4 | 5;  // 1(<1nm) ~ 5(팹 인프라 1km)
+  scaleName?: string;             // 물리 규모 표기명 (예: "L3 단위 공정")
   
   // 버전 및 상태 거버넌스
   version: string;                // 현재 공식 판본 (예: "v1.2")
   status: "adopted" | "in_review" | "deprecated"; // 채택됨 / 검토중 / 폐기됨
   lastReviewedAt: string;         // 최종 승인 일자 (ISO-8601)
-  lastReviewedBy: string;         // 최종 승인 전문가 식별자 (예: "K팀장")
+  lastReviewedBy: string;         // 최종 승인 전문가 식별자 (예: "Dr. 김수석 (수율분석팀)")
   
   // 5대 표준 섹션 콘텐츠
   summary: string;                // [L1] 백과사전식 기본 정의
   purpose: string;                // [L1] 공정/소자 도입 목적
-  principles: string[];           // [L2] 물리·화학적 메커니즘 리스트 (아코디언)
-  limitations: string[];          // [L2] 미세화 물리 한계 및 결함 위험 리스트
+  principles: Array<{             // [L2] 물리·화학적 메커니즘 단계별 리스트 (아코디언 및 수식 지원)
+    step: number;
+    title: string;
+    content: string;
+    formula?: string;             // LaTeX 수식 문자열
+  }>;
+  limitations: Array<{            // [L2] 미세화 물리 한계 및 트레이드오프 위험 리스트
+    title: string;
+    description: string;
+    evidenceIds: string[];
+  }>;
   
   // 온톨로지 관계 그래프 (Graph Edges)
   relations: {
@@ -237,21 +247,25 @@ interface ComparisonSession {
 ```typescript
 interface ReviewTicket {
   id: string;                     // 티켓 ID (예: "rev-20261016-001")
-  conceptId: string;              // 대상 개념 ID
-  conceptTitle: string;           // 대상 개념명
+  conceptId: string;              // 대상 개념 ID (예: "concept-tcb")
+  conceptTitle: string;           // 대상 개념명 (예: "열압착 본딩 (TCB)")
+  title: string;                  // 티켓 안건 제목 (예: "TCB 16단 적층 시 145N 가압 조건 및 시간 보상 파라미터 추가")
   reviewType: "신규 개념" | "관점 추가" | "파라미터 수정" | "외부 문헌 발굴";
-  author: string;                 // 작성자 (엔지니어명 또는 "AI Contextual Studio", "조사 에이전트")
+  author: string;                 // 작성자 (엔지니어명 또는 "AI 비교 스튜디오", "조사 에이전트")
+  department?: string;            // 소속 부서 (예: "수율분석팀")
+  submittedAt: string;            // 티켓 상신 일시 (ISO-8601)
   status: "pending" | "approved" | "rejected"; // 🌟 pending ➔ 대기 중 탭, approved ➔ 승인 완료 이력 탭
   
   // 🌟 [추가 6: 거버넌스 역링크 지원] 출처 세션 및 유입 경로
-  sourceSessionId?: string;       // 역링크용 비교 세션 ID (예: "sess-20261016-001")
+  sourceSessionId?: string;       // 역링크용 원본 비교/조사 세션 ID (예: "sess-20261016-001", "res-20261016-001")
   originType?: "comparison_studio" | "literature_search" | "manual_expert"; // 유입 경로
   
   // 2-Pane Diff 대조 데이터
   currentVersion: string;         // 기준 위키 판본 (예: "v1.2")
+  targetVersion?: string;         // 승인 시 배포될 예정 판본 (예: "v1.3")
   currentContent: string;         // 좌측 Pane: 현재 위키 본문
   aiMergedDraft: string;          // 우측 Pane: AI 통합 반영 초안
-  humanEdits?: string;            // 전문가가 직접 편집기로 수정한 텍스트 (저장 시)
+  humanEdits?: string | null;     // 전문가가 직접 편집기로 수정한 텍스트 (저장 시)
   // 🌟 [추가 7: 3.4 Directive 지원] 정형 사양 및 온톨로지 관계 패치 페이로드
   structuredPatches?: {
     specsPatch?: Array<{ label: string; oldValue: string; newValue: string; role?: string }>;
@@ -265,22 +279,30 @@ interface ReviewTicket {
   integrityReport: {
     evidenceMatchRate: number;    // 출처 일치도 (예: 1.0 = 100%)
     hasOntologyConflict: boolean; // 온톨로지 충돌 여부 (false)
-    impactScopeCount: number;     // 영향받는 연관 개념 수 (예: 1)
+    impactScopeCount: number;     // 영향받는 연관 개념 수 (예: 2)
     validationDetails: string;
+    conflictDetails?: Array<{     // 충돌 감지 시 상세 원인과 해결 가이드
+      conflictId: string;
+      type: string;
+      description: string;
+      suggestedFix: string;
+    }>;
   };
   
   // 에이전트 초안 보완 지시 이력
   directiveHistory: Array<{
+    directiveId?: string;
     directiveText: string;        // 사용자의 지시문
     targetLayer?: "prose" | "specs" | "relations" | "hybrid"; // 🌟 지시 대상 계층
-    previousDraft: string;
-    revisedDraft: string;
+    previousDraft?: string;
+    revisedDraft?: string;
+    overrideReason?: string;      // 공인 출처 충돌 강제 반영 시 입력한 사유
     timestamp: string;
   }>;
   
   approvedAt?: string;            // 승인 완료 일시 (ISO-8601)
   approvedBy?: string;            // 최종 승인자 ID
-  publishedVersion?: string;      // 발행된 신규 판본 (예: "v1.3")
+  appliedConceptVersion?: string; // 발행된 신규 판본 (예: "v1.3")
 }
 ```
 
@@ -291,17 +313,21 @@ interface ReviewTicket {
 
 ```typescript
 interface EvidenceSource {
-  id: string;                     // 출처 ID (예: "E-01", "src-intel-glass-2026")
+  id: string;                     // 출처 ID (예: "E-01", "E-2026-TGV-01")
   sourceName: string;             // 출처 명칭 (예: "Lam Research 극저온 공정 백서")
-  sourceType: "official_whitepaper" | "standard" | "academic_tier3" | "internal_approved";
+  sourceType: "official_whitepaper" | "international_standard" | "academic_peer_reviewed" | "internal_approved";
   publisher: string;              // 발행 기관 (Samsung, SK hynix, ASML, Lam, Intel, SEMI, IEEE 등)
   publishedDate: string;          // 발행 연월 (예: "2026.01")
   quote: string;                  // 공인 규격/백서 원문 인용문 전문
   sectionContext?: string;        // 🌟 원문 상세 위치 (예: "Section 4.2 Experimental Results, p.14 Table 2")
-  relevanceScore?: number;        // 🌟 질의 및 대상 개념과의 의미적 연관도 점수 (예: 0.94)
+  relevanceScore?: number;        // 🌟 질의 및 대상 개념과의 의미적 연관도 점수 (예: 0.98)
   externalUrl: string;            // DOI 또는 공식 웹페이지 URL
   urlLabel: string;               // 링크 버튼 라벨
   credibilityTier: "Tier 1 (공식 제조사)" | "Tier 2 (국제 표준)" | "Tier 3 (공인 학술)";
+  referencedConcepts?: Array<{    // 본 출처를 인용 중인 온톨로지 개념 목록 (`[D-01]` 드로어 하단 표시)
+    conceptId: string;
+    name: string;
+  }>;
 }
 
 // 🌟 [추가: 3.5 Deep Research 지원] 화면 4-B 지식 후보 카드 DTO
@@ -309,7 +335,7 @@ interface KnowledgeCandidate {
   candidateId: string;            // 후보 고유 식별자 (예: "cand-20261016-01")
   candidateType: "신규 개념" | "관점 추가" | "물리 한계 보완";
   title: string;                  // 후보 카드 표제 (예: "유리기판 관통전극 (TGV)")
-  targetConceptId?: string;       // 관점/한계 보완 시 소속 개념 ID (예: "glass-substrate")
+  targetConceptId?: string | null;// 관점/한계 보완 시 소속 개념 ID (신규 개념일 경우 null)
   summary: string;                // 종합 기술 브리핑 요약
   draftPayload: {                 // 3번 검토 센터 ReviewTicket으로 자동 이관될 페이로드
     content: string;              // 합성된 Markdown 초안
@@ -323,32 +349,38 @@ interface KnowledgeCandidate {
       alternative_to?: string;
     };
   };
-  evidenceIds: string[];          // 인라인 연동된 공인 출처 ID 목록 (["E-01", "E-02"])
+  evidenceIds: string[];          // 인라인 연동된 공인 출처 ID 목록 (["E-2026-TGV-01", "E-2026-TGV-02"])
 }
 
 // 🌟 [추가: 3.6 Contextual Explainer 지원] 인라인 등록 개념 팝오버 문맥 해설 DTO / 캐시 스키마
 interface ContextualExplanationDTO {
-  parentConceptId: string;        // 기준 부모 개념 ID (예: "dry-etch")
-  perspectiveId?: string;         // 적용 맥락 관점 ID (예: "memory-advanced")
-  targetConceptId: string;        // 대상 등록 개념 ID (예: "plasma-discharge")
-  title: string;                  // 대상 개념 표제 (예: "플라즈마 방전 (Plasma Discharge)")
-  aliases?: string[];             // 현장 별칭 (["방전", "Discharge"])
-  contextualExplanation: string;  // "현재 공정 맥락(플라즈마 건식 식각): ..."
-  relatedOntologyNodes: Array<{   // 팝오버 하단 [🔗 연관 온톨로지] 1-hop 칩
+  childConceptId: string;         // 호버된 하위 전문 용어 ID (예: "concept-imc")
+  parentConceptId: string;        // 기준 부모 개념 ID (예: "concept-tcb")
+  perspectiveId?: string;         // 적용 맥락 관점 ID (예: "yield")
+  title: string;                  // 대상 개념 표제 (예: "금속간 화합물 (Intermetallic Compound, IMC)")
+  aliases?: string[];             // 현장 별칭 (["IMC", "금속간 화합물"])
+  definition: string;             // 백과사전식 기본 핵심 정의
+  contextSentence: string;        // 부모 문서 맥락 맞춤 1~2문장 해설
+  cached?: boolean;               // 캐시 적중 여부
+  cachedAt?: string;              // 사전 컴파일 일시 (예: "2026-02-15")
+  sourceEvidence?: {              // 인라인 근거 출처 요약
+    evidenceId: string;
+    sourceName: string;
+    quote: string;
+  };
+  relatedOntologyNodes?: Array<{  // 팝오버 하단 [🔗 연관 온톨로지] 1-hop 칩
     conceptId: string;
     name: string;
     relation: "part_of" | "causes" | "caused_by" | "trade_off" | "is_a";
-    relationLabel: string;        // UI 표기용 (예: "⚡ 에너지원", "⚠️ 결함 리스크")
+    relationLabel: string;
   }>;
-  docLink: string;                // "본문으로 이동 ➔" URL (/wiki/concept-plasma-discharge)
-  compiledAt: string;             // 사전 컴파일 일시 (예: "2026-10-16T10:00:00Z")
+  deepLink: string;               // "본문으로 이동 ➔" URL (/wiki/concept-imc)
 }
 
 // 🌟 [추가: 3.6 Contextual Explainer 지원] 위키 본문 조회 시 0ms 팝오버 프리페치 응답 DTO
-interface ConceptDetailResponse {
-  concept: Concept;
-  perspectiveCases: PerspectiveCase[];
-  preloadedExplainers?: Record<string, ContextualExplanationDTO>; // { [targetConceptId]: ContextualExplanationDTO }
+interface ConceptDetailResponse extends Concept {
+  perspectives: Array<any>;       // 도메인/직무별 적응형 실무 관점 카드 목록
+  preloadedExplainers?: Record<string, Partial<ContextualExplanationDTO>>; // { [childConceptId]: ContextualExplanationDTO }
 }
 ```
 
@@ -515,7 +547,7 @@ interface ConceptDetailResponse {
      - 좌측(현재 위키 v1.2) vs 우측(AI 재작성 초안) 간 단어 단위 Git Diff 산출 및 시각적 하이라이트.
      - 지시문, 수정 전/후 초안, 타깃 계층을 `ReviewTicket.directiveHistory`에 영구 보존하여 완벽한 감사 추적(Audit Trail) 보장.
 - **예외 처리 및 충돌 가드레일 (Conflict Guardrail)**:
-  - **공인 출처 정면 충돌 감지**: 전문가 지시 내용이 공인 백서 실측치와 충돌할 경우, 출처 일치도를 강등하고 `⚠️ 경고: 입력하신 지시 내용이 공인 백서의 실측치와 정면 충돌합니다. 강제 반영하시려면 전문가 사유를 입력해야 합니다.` 확인 모달을 띄워 전문가가 사유를 반드시 남기도록 강제.
+  - **공인 출처 정면 충돌 감지**: 지시 내용이 공인 백서 실측치와 충돌할 경우, 출처 일치도를 강등하고 `⚠️ 경고: 입력하신 지시 내용이 공인 백서의 실측치와 정면 충돌합니다. 강제 반영하시려면 사유를 입력해야 합니다.` 확인 모달을 띄워 사유(`overrideReason`)를 반드시 남기도록 강제.
 
 ### 3.5 공인 문헌 교차 분석 및 초안 합성기 (Deep Research Engine: 공인 지식 발굴기)
 - **동작 화면**: [Tab 4] 외부 문헌·백서 조사의 2단계 분리 화면 전체
@@ -643,11 +675,11 @@ interface ConceptDetailResponse {
     "results": [
       {
         "conceptId": "concept-tcb",
-        "nameKo": "열압착 본딩",
-        "nameEn": "Thermo-Compression Bonding",
+        "title": "열압착 본딩",
+        "engName": "Thermo-Compression Bonding",
         "aliases": ["TCB", "열압착"],
-        "processName": "첨단 패키징",
-        "domainFacet": "제조 단위 공정",
+        "processCategory": "첨단 패키징",
+        "domainFacet": "unit_process",
         "scaleLevel": 3,
         "summary": "마이크로범프에 열과 물리적 압력을 가해 칩을 수직 적층하는 전통적 인터커넥트 접합 기술.",
         "matchHighlight": "<strong>TCB</strong> (열압착 본딩)",
@@ -988,10 +1020,11 @@ interface ConceptDetailResponse {
 - **사용자 입력 (Request Body - `ReviewTicket` 생성)**:
   ```json
   {
-    "targetConceptId": "concept-tcb",
-    "suggestedBy": "Dr. 김수석",
+    "conceptId": "concept-tcb",
+    "author": "Dr. 김수석",
     "department": "수율분석팀",
-    "proposalType": "modification",
+    "reviewType": "파라미터 수정",
+    "originType": "manual_expert",
     "targetSection": "limitations",
     "title": "TCB 16단 적층 시 NCF 필름 유출 한계 하중 수치 보완 제안",
     "userNote": "최신 2026.01 공인 백서에 따르면 과도 하중 임계치가 180N이 아닌 165N으로 정정되어야 합니다.",
@@ -1006,17 +1039,19 @@ interface ConceptDetailResponse {
 - **화면 렌더링용 데이터 (Response 201 Created)**:
   ```json
   {
-    "ticketId": "ticket-2026-0312-001",
+    "ticketId": "rev-20261016-004",
     "status": "pending",
-    "targetConceptId": "concept-tcb",
+    "conceptId": "concept-tcb",
+    "reviewType": "파라미터 수정",
+    "originType": "manual_expert",
     "title": "TCB 16단 적층 시 NCF 필름 유출 한계 하중 수치 보완 제안",
-    "submittedAt": "2026.03.12T14:20:00Z",
+    "submittedAt": "2026-10-16T14:20:00Z",
     "message": "수정 제안이 검토 센터(Review Center)에 성공적으로 접수되었습니다. AI 지식 검증 에이전트가 2차 검증을 시작합니다.",
-    "viewUrl": "/review-center/ticket-2026-0312-001"
+    "viewUrl": "/review-center/rev-20261016-004"
   }
   ```
 - **예외 처리 (Error)**:
-  - 필수 필드(`userNote`, `targetConceptId`) 누락 시 `400 Bad Request` `{ "code": "REQUIRED_FIELDS_MISSING", "message": "제안 내용과 대상 개념 ID는 필수입니다." }` ➔ 모달 내 에러 메시지 빨간색 텍스트 표시.
+  - 필수 필드(`userNote`, `conceptId`) 누락 시 `400 Bad Request` `{ "code": "REQUIRED_FIELDS_MISSING", "message": "제안 내용과 대상 개념 ID는 필수입니다." }` ➔ 모달 내 에러 메시지 빨간색 텍스트 표시.
   - 존재하지 않는 개념에 대한 제안 시 `404 Not Found` `{ "code": "CONCEPT_NOT_FOUND", "message": "대상 개념이 존재하지 않습니다." }` ➔ 토스트 알림 표시 후 모달 닫기 방지.
 
 ---
