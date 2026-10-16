@@ -206,6 +206,48 @@ a {
   font-size: 0.8125rem;
   color: var(--text-muted);
   cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.search-trigger-btn:hover {
+  background: var(--bg-surface);
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
+.settings-trigger-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-surface-2);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.settings-trigger-btn:hover {
+  background: var(--bg-surface);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.settings-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #9ca3af;
+  display: inline-block;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.settings-status-dot.active {
+  background: var(--accent-success, #10b981);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
 }
 
 .kbd-shortcut {

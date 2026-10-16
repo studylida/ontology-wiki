@@ -80,7 +80,14 @@ document.addEventListener("DOMContentLoaded", () => {
     openSuggestModalBtn: document.getElementById("open-suggest-modal-btn"),
     editParamsModal: document.getElementById("edit-params-modal"),
     editParamsForm: document.getElementById("edit-params-form"),
-    // 런타임 모드 세그먼트 스위처 (Transitions.dev sliding-tabs)
+    // 시스템 설정 팝업창 (Settings Modal) & 탑바
+    btnOpenSettings: document.getElementById("btn-open-settings"),
+    settingsModal: document.getElementById("settings-modal"),
+    settingsModalClose: document.getElementById("settings-modal-close"),
+    btnCloseSettingsModal: document.getElementById("btn-close-settings-modal"),
+    topbarSettingsDot: document.getElementById("topbar-settings-dot"),
+    btnOpenHeadlessFromSettings: document.getElementById("btn-open-headless-from-settings"),
+    // 런타임 모드 세그먼트 스위처 (레거시 안전 폴백)
     runtimeModeSwitcher: document.getElementById("runtime-mode-switcher"),
     runtimeModeIndicator: document.getElementById("runtime-mode-indicator"),
     btnModeMock: document.getElementById("btn-mode-mock"),
@@ -3334,6 +3341,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // 3. 상태 뱃지 및 액션 버튼 제어
       const hasAnyKey = keys.hasGoogle || keys.hasOpenAI;
+      if (dom.topbarSettingsDot) {
+        if (hasAnyKey) {
+          dom.topbarSettingsDot.classList.add("active");
+          dom.topbarSettingsDot.title = "API Key 등록 완료 (API 연동 가동 중)";
+        } else {
+          dom.topbarSettingsDot.classList.remove("active");
+          dom.topbarSettingsDot.title = "API Key 미등록";
+        }
+      }
+
       if (hasAnyKey) {
         if (dom.hubKeyStatusBadge) {
           dom.hubKeyStatusBadge.className = "concept-badge badge-verified";
@@ -3367,7 +3384,22 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // D. Transitions.dev 모달 제어 (.modal-overlay.open 표준 준수)
+    // D-1. 시스템 설정 팝업창 제어 (.modal-overlay.open 표준 준수)
+    function openSettingsModal() {
+      if (!dom.settingsModal) return;
+      renderApiKeyBox();
+      dom.settingsModal.classList.add("open");
+    }
+
+    function closeSettingsModal() {
+      if (!dom.settingsModal) return;
+      dom.settingsModal.classList.remove("open");
+      isEditingKeys = false;
+      isGoogleMaskRevealed = false;
+      isOpenAIMaskRevealed = false;
+    }
+
+    // D-2. Transitions.dev 모달 제어 (Headless Simulator)
     function openHeadlessModal() {
       if (!dom.headlessApiModal) return;
       renderApiKeyBox();
@@ -3380,57 +3412,30 @@ document.addEventListener("DOMContentLoaded", () => {
       isEditingKeys = false;
       isGoogleMaskRevealed = false;
       isOpenAIMaskRevealed = false;
-
-      // 닫힐 때 실제 저장된 키가 없으면 스위처 인디케이터를 안전하게 MOCK으로 복귀
-      const keys = window.OntologyAgentCore?.getKeys();
-      const curMode = window.OntologyAgentCore?.getMode();
-      if (!keys?.hasGoogle && !keys?.hasOpenAI) {
-        window.OntologyAgentCore?.setMode("mock");
-        updateModeSwitcherUI("mock");
-      } else {
-        updateModeSwitcherUI(curMode);
-      }
     }
 
-    // E. 탑바 슬라이딩 스위처 이벤트 바인딩
-    dom.btnModeMock?.addEventListener("click", () => {
-      window.OntologyAgentCore?.setMode("mock");
-      updateModeSwitcherUI("mock");
-      if (dom.headlessApiModal?.classList.contains("open")) {
-        closeHeadlessModal();
-      }
-      showToast("⚡ MOCK 모드가 유지됩니다. (37개 온톨로지 데모 데이터 보존, 초고속 인메모리)", "info");
+    // E. 탑바 설정 버튼 및 모달 이벤트 바인딩
+    dom.btnOpenSettings?.addEventListener("click", openSettingsModal);
+    dom.settingsModalClose?.addEventListener("click", closeSettingsModal);
+    dom.btnCloseSettingsModal?.addEventListener("click", closeSettingsModal);
+    dom.settingsModal?.addEventListener("click", (e) => {
+      if (e.target === dom.settingsModal) closeSettingsModal();
     });
-
-    dom.btnModeLive?.addEventListener("click", () => {
+    dom.btnOpenHeadlessFromSettings?.addEventListener("click", () => {
+      closeSettingsModal();
       openHeadlessModal();
-      updateModeSwitcherUI("live");
-      const keys = window.OntologyAgentCore?.getKeys();
-      if (keys?.hasGoogle || keys?.hasOpenAI) {
-        window.OntologyAgentCore?.setMode("live");
-        showToast("🔌 타 프로젝트 API 연동 모드가 가동 중입니다. (키 비식별화 보관됨)", "success");
-      } else {
-        // 최초 클릭 시 키 입력 필드로 포커스 이동
-        setTimeout(() => {
-          if (dom.inputOpenAIKey && dom.inputOpenAIKey.style.display !== "none") {
-            dom.inputOpenAIKey.focus();
-          } else if (dom.inputGoogleKey && dom.inputGoogleKey.style.display !== "none") {
-            dom.inputGoogleKey.focus();
-          }
-        }, 150);
-        showToast("🔑 타 프로젝트 연동을 위해 상용 AI API Key를 등록하거나 아래 시뮬레이터를 테스트하세요.", "info");
-      }
     });
 
-    // F. 모달 닫기 이벤트들 (Transitions.dev 표준: X버튼, 닫기버튼, 배경클릭, Esc키)
+    // F. Headless 모달 닫기 이벤트들 (Transitions.dev 표준: X버튼, 닫기버튼, 배경클릭, Esc키)
     dom.headlessModalClose?.addEventListener("click", closeHeadlessModal);
     dom.btnCloseHeadlessModal?.addEventListener("click", closeHeadlessModal);
     dom.headlessApiModal?.addEventListener("click", (e) => {
       if (e.target === dom.headlessApiModal) closeHeadlessModal();
     });
     window.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && dom.headlessApiModal?.classList.contains("open")) {
-        closeHeadlessModal();
+      if (e.key === "Escape") {
+        if (dom.settingsModal?.classList.contains("open")) closeSettingsModal();
+        if (dom.headlessApiModal?.classList.contains("open")) closeHeadlessModal();
       }
     });
 
