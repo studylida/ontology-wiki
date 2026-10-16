@@ -21,7 +21,13 @@
    - 3.4 지식 무결성 검증 및 초안 재작성 파이프라인 (Directive Engine)
    - 3.5 공인 문헌 교차 분석 및 초안 합성기 (Deep Research Engine)
    - 3.6 인라인 문맥 맞춤 해설 파이프라인 (Contextual Explainer Pipeline)
-4. [3단계: 화면별 REST API 엔드포인트 명세 (작성 예정)](#4-3단계-화면별-rest-api-엔드포인트-명세)
+4. [3단계: 화면별 REST API 엔드포인트 명세](#4-3단계-화면별-rest-api-엔드포인트-명세)
+   - 4.1 시스템 공통 & 전역 서비스 API
+   - 4.2 [Tab 1] 위키 본문 & 인과 온톨로지 브라우저 API
+   - 4.3 [Tab 2] 기술 대안 비교분석 API (Comparison Studio)
+   - 4.4 [Tab 3] 지식 거버넌스 및 검토·승인 센터 API (Review Center)
+   - 4.5 [Tab 4] 외부 문헌·백서 조사 API (Deep Research)
+   - 4.6 전역 플로팅 챗봇 API (Floating Engineering Chatbot)
 5. [4단계: 실시간 동기화, 캐시 및 보안 아키텍처 (작성 예정)](#5-4단계-실시간-동기화-캐시-및-보안-아키텍처)
 
 ---
@@ -558,3 +564,126 @@ interface ConceptDetailResponse {
 - **프롬프트 가드레일 (Context-bridging Prompt)**:
   - 장황한 사전적 정의 서술을 엄격히 금지.
   - 반드시 `"현재 공정 맥락({parentName}):"`으로 시작하여, 부모 공정에서 해당 자식 개념이 물리·화학적으로 어떤 역할을 수행하는지 1~2문장으로 압축 서술 강제.
+
+---
+
+## 4. 3단계: 화면별 REST API 엔드포인트 명세
+
+> **[설계 및 검수 원칙]**:
+> 모든 API는 다음 4단계 체크리스트를 100% 만족하도록 설계되었습니다:
+> 1. **화면 맥락**: 이 화면에서 사용자가 무엇을 누르고 무엇을 보는가?
+> 2. **사용자 입력 (Request)**: 사용자가 고른 조건(검색어, 필터, ID 등)이 정확히 실려 가는가?
+> 3. **화면 렌더링용 데이터 (Response)**: 화면에 표시될 텍스트, 배지, 본문, 링크가 누락 없이 담겨 있는가? (확정 데이터 모델 네이밍 100% 일치)
+> 4. **예외 처리 (Error)**: 0건일 때의 안내 및 에러 코드/메시지가 정의되어 있는가?
+
+### 4.1 시스템 공통 & 전역 서비스 API
+
+#### 1. `GET /api/v1/system/health`
+- **화면 맥락**: [프론트 §1.1] 탑바 우측 `⚙️ 설정` 버튼 옆 상태 인디케이터 닷(Dot) 연동 및 헬스체크.
+- **사용자 입력 (Request)**:
+  - 파라미터 없음 (공개 엔드포인트, 클라이언트 30초 주기 폴링 또는 초기 1회 로드)
+- **화면 렌더링용 데이터 (Response 200 OK)**:
+  ```json
+  {
+    "status": "healthy",
+    "timestamp": "2026-10-16T12:00:00Z",
+    "services": {
+      "database": "connected",
+      "redisCache": "connected",
+      "llmGateway": "ready"
+    },
+    "message": "모든 온톨로지 엔진이 정상 가동 중입니다."
+  }
+  ```
+- **예외 처리 (Error)**:
+  - `503 Service Unavailable`: 서버 장애 발생 시 `{ "status": "unhealthy", "message": "데이터베이스 연결이 일시 중단되었습니다." }` 반환 ➔ 프론트엔드가 설정 아이콘 옆 닷을 **빨간 불**로 전환하고 경고 토스트 출력.
+
+#### 2. `GET /api/v1/system/version`
+- **화면 맥락**: [프론트 §1.2] 시스템 설정 팝업창 (`#settings-modal`) 상단 신규 온톨로지 배포 알림 배너, 메타데이터 표기, 사내 표준 고정 정책(0.35) 확인.
+- **사용자 입력 (Request)**:
+  - Query Params:
+    - `clientVersion` (선택, string): 클라이언트 로컬 캐시 판본 (예: `"v1.2"`)
+- **화면 렌더링용 데이터 (Response 200 OK)**:
+  ```json
+  {
+    "activeVersion": "v1.2",
+    "latestVersion": "v1.3",
+    "isUpdateAvailable": true,
+    "publishedAt": "2026-10-15T18:00:00Z",
+    "totalConcepts": 148,
+    "totalEvidences": 312,
+    "schemaHash": "sha256:7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069",
+    "systemConfig": {
+      "gapThreshold": 0.35,
+      "policyLabel": "사내 표준 고정 정책",
+      "defaultDepth": "L1",
+      "supportedEnvironments": [
+        { "label": "로컬 개발 (localhost:8000)", "url": "http://localhost:8000" },
+        { "label": "사내 스테이징", "url": "https://staging-fab.corp/api" },
+        { "label": "팹 라인 운영망 (Production)", "url": "https://prod-fab.corp/api" }
+      ]
+    }
+  }
+  ```
+- **예외 처리 (Error)**:
+  - `500 Internal Server Error`: 메타 정보 조회 실패 시 프론트엔드가 안전 기본값(`activeVersion: "v1.2"`, `isUpdateAvailable: false`)으로 폴백하여 설정 팝업 정상 작동 유지.
+
+#### 3. `GET /api/v1/search/spotlight`
+- **화면 맥락**: [프론트 §4.3 `[M-01]`] 전역 스포트라이트 검색 모달 (`Cmd+K`). 상단 카운터, 제목, 약어 배지, 공정 분류, 본문 요약, 키보드 선택 지원.
+- **사용자 입력 (Request)**:
+  - Query Params:
+    - `q` (선택, string): 사용자 입력 검색어 (예: `"tcb"`, 빈 문자열 시 추천 8선 반환)
+    - `limit` (선택, integer): 최대 결과 수 (기본값: 10)
+- **화면 렌더링용 데이터 (Response 200 OK)**:
+  ```json
+  {
+    "query": "tcb",
+    "tookMs": 11,
+    "totalIndexedConcepts": 148,
+    "results": [
+      {
+        "conceptId": "concept-tcb",
+        "nameKo": "열압착 본딩",
+        "nameEn": "Thermo-Compression Bonding",
+        "aliases": ["TCB", "열압착"],
+        "processName": "첨단 패키징",
+        "domainFacet": "제조 단위 공정",
+        "scaleLevel": 3,
+        "summary": "마이크로범프에 열과 물리적 압력을 가해 칩을 수직 적층하는 전통적 인터커넥트 접합 기술.",
+        "matchHighlight": "<strong>TCB</strong> (열압착 본딩)",
+        "docLink": "/wiki/concept-tcb"
+      }
+    ],
+    "suggestions": ["EUV", "ALE", "ZAZ", "KGD", "TDDB", "Cryo 식각"]
+  }
+  ```
+- **예외 처리 (Error)**:
+  - **검색 결과 0건 시**: `200 OK` 응답에 `results: []` 빈 배열 반환 및 `suggestions` 추천 약어 칩 제공 ➔ 프론트엔드가 "일치하는 개념을 찾지 못했습니다" 안내와 추천 검색어 칩을 렌더링.
+
+#### 4. `GET /api/v1/evidences/{id}`
+- **화면 맥락**: [프론트 §4.1 `[D-01]`] 근거(Evidence) 원문 리더 슬라이드 드로어 (`#evidence-drawer`). 본문/매트릭스 내 `[E-01]` 칩 클릭 시 우측 슬라이드인 열람.
+- **사용자 입력 (Request)**:
+  - Path Param:
+    - `id` (필수, string): 공인 출처 ID (예: `"E-01"`)
+- **화면 렌더링용 데이터 (Response 200 OK - `EvidenceSource` 엔티티)**:
+  ```json
+  {
+    "id": "E-01",
+    "sourceName": "Samsung Electronics HBM3E 패키징 신뢰성 보고서",
+    "sourceType": "official_whitepaper",
+    "publisher": "Samsung Electronics",
+    "publishedDate": "2026.01",
+    "quote": "In 16-stack HBM3E architectures, conventional TCB exhibits a 42% increase in interfacial warpage and micro-void formation when the mechanical bonding load exceeds 180N under high thermal stress.",
+    "sectionContext": "Section 4.2 Experimental Results, p.14 Table 2",
+    "relevanceScore": 0.98,
+    "externalUrl": "https://semiconductor.samsung.com/whitepaper/hbm3e-packaging",
+    "urlLabel": "Samsung 공식 기술 백서 열람 (PDF)",
+    "credibilityTier": "Tier 1 (공식 제조사)",
+    "referencedConcepts": [
+      { "conceptId": "concept-tcb", "name": "열압착 본딩 (TCB)" },
+      { "conceptId": "concept-mrmuf", "name": "MR-MUF 공정" }
+    ]
+  }
+  ```
+- **예외 처리 (Error)**:
+  - `404 Not Found`: 존재하지 않는 ID 요청 시 `{ "code": "EVIDENCE_NOT_FOUND", "message": "출처 'E-99' 상세 정보를 불러올 수 없습니다." }` ➔ 프론트엔드 경고 토스트 출력.
