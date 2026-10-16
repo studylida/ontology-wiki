@@ -2273,19 +2273,82 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (index === 2) {
       const snapData = currentSnap.data;
+
+      // 동적 적응형 비교 축 (Dynamic Adaptive Axes) 데이터
+      if (!state.comparisonMatrixRows) {
+        state.comparisonMatrixRows = [
+          {
+            category: "thermal",
+            categoryLabel: "🔬 열·물성",
+            axis: "접합 메커니즘 및 열 제어",
+            mrf: "액상 에폭시 일괄 주입 및 오븐 가압 경화 (열 충격 분산)",
+            ncf: "칩 적층 시마다 초정밀 열압착(TCB) 진행 (누적 열 스트레스)",
+            isGap: false
+          },
+          {
+            category: "thermal",
+            categoryLabel: "🔬 열·물성",
+            axis: "방열 성능 및 열저항 (Theta-JA)",
+            mrf: "열전도도 ~3.0 W/m·K (고밀도 실리카 필러 85wt% 함유) [E-11]",
+            ncf: "열전도도 ~0.8 W/m·K (필름 특성상 필러 증량 한계) [E-12]",
+            isGap: false
+          },
+          {
+            category: "defects",
+            categoryLabel: "⚠️ 결함·신뢰성",
+            axis: "16단 고단 적층 시 휨(Warpage) 및 보이드 실측치",
+            mrf: "10μm 미만 갭필 마이크로 보이드 0.1% 미만 통제 [E-11]",
+            ncf: `<span class="matrix-gap-tag"><span class="gap-icon">⚠️</span> 공인 데이터 미등록 (Gap)</span>`,
+            isGap: true
+          },
+          {
+            category: "fab",
+            categoryLabel: "🏭 팹 양산",
+            axis: "공정 생산성 및 팹 TAT",
+            mrf: "일괄 챔버 경화로 대량 배치 생산성 우수 [E-11]",
+            ncf: "다이 개별 펄스 히팅 본딩으로 TAT 약 1.4배 소요 [E-12]",
+            isGap: false
+          }
+        ];
+      }
+
+      state.currentAxisFilter = state.currentAxisFilter || "all";
+
+      const filteredRows = state.currentAxisFilter === "all" 
+        ? state.comparisonMatrixRows 
+        : state.comparisonMatrixRows.filter(r => r.category === state.currentAxisFilter);
+
       dom.aiResultCard.innerHTML = `
+        <!-- 🌟 1. 유연한 동적 비교 축 (Dynamic Adaptive Axes) 툴바 -->
+        <div class="matrix-toolbar">
+          <div class="matrix-axis-filter-group" id="matrix-filter-group">
+            <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-right:4px;">🎯 비교 평가 축:</span>
+            <button type="button" class="matrix-axis-chip ${state.currentAxisFilter === 'all' ? 'active' : ''}" data-filter="all">전체 축 (${state.comparisonMatrixRows.length})</button>
+            <button type="button" class="matrix-axis-chip ${state.currentAxisFilter === 'thermal' ? 'active' : ''}" data-filter="thermal">🔬 열·물성 특성</button>
+            <button type="button" class="matrix-axis-chip ${state.currentAxisFilter === 'defects' ? 'active' : ''}" data-filter="defects">⚠️ 결함·신뢰성 리스크</button>
+            <button type="button" class="matrix-axis-chip ${state.currentAxisFilter === 'fab' ? 'active' : ''}" data-filter="fab">🏭 팹 양산성 & TAT</button>
+          </div>
+          <button type="button" class="btn-add-custom-axis" id="btn-add-custom-axis" title="엔지니어링 필요에 따라 새로운 비교 축을 즉시 추가">
+            <span>+ 비교 축 직접 추가</span>
+          </button>
+        </div>
+
+        <!-- 비교 매트릭스 테이블 -->
         <table class="comparison-matrix-table">
           <thead>
             <tr>
-              <th style="width:24%;">비교 분석 축</th>
-              <th style="width:38%;">MR-MUF (SK하이닉스 적용 맥락)</th>
-              <th style="width:38%;">TC-NCF (마이크론 적용 맥락)</th>
+              <th style="width:26%;">비교 분석 축 (Dynamic Axes)</th>
+              <th style="width:37%;">MR-MUF (SK하이닉스 적용 맥락)</th>
+              <th style="width:37%;">TC-NCF (마이크론 적용 맥락)</th>
             </tr>
           </thead>
-          <tbody>
-            ${snapData.matrix.map(row => `
+          <tbody id="matrix-tbody">
+            ${filteredRows.map(row => `
               <tr>
-                <td><strong>${row.axis}</strong></td>
+                <td>
+                  <span class="matrix-axis-badge">${row.categoryLabel}</span>
+                  <strong>${row.axis}</strong>
+                </td>
                 <td>${row.mrf}</td>
                 <td>${row.ncf}</td>
               </tr>
@@ -2293,12 +2356,71 @@ document.addEventListener("DOMContentLoaded", () => {
           </tbody>
         </table>
 
-        <div style="margin-top:16px; padding:12px 16px; background:var(--bg-surface-2); border-radius:8px; font-size:0.8125rem; line-height:1.6;">
-          ${snapData.aiNote}
+        <!-- 🌟 2. 데이터 누락 시 억지 수치 대신 표시되는 지식 갭(Knowledge Gap) 카드 -->
+        <div class="knowledge-gap-card" id="comparison-knowledge-gap-card">
+          <div class="knowledge-gap-card-content">
+            <div class="knowledge-gap-title">
+              <span>⚠️</span>
+              <span>온톨로지 지식 갭 (Knowledge Gap) 감지: 1건</span>
+            </div>
+            <p class="knowledge-gap-desc">
+              TC-NCF의 <strong>[16단 적층 시 휨(Warpage) 및 실측 보이드 데이터]</strong>는 사내 온톨로지 DB에 공인 출처가 없습니다. AI 환각(Hallucination) 방지를 위해 임의 추정치를 생성하지 않고 데이터 갭으로 보존합니다.
+            </p>
+          </div>
+          <button type="button" class="knowledge-gap-action-btn" id="btn-resolve-gap">
+            <span>📑 [외부 문헌 조사]에서 공인 백서 발굴하기 ➔</span>
+          </button>
+        </div>
+
+        <!-- AI 종합 인과 분석 코멘트 -->
+        <div style="margin-top:16px; padding:14px 18px; background:var(--bg-surface-2); border-left:4px solid var(--accent-primary); border-radius:8px; font-size:0.8125rem; line-height:1.6;">
+          <div style="font-weight:700; color:var(--text-primary); margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+            <span>💡</span>
+            <span>AI 종합 인과 분석 코멘트 (Causal Synthesis)</span>
+          </div>
+          <div>${snapData.aiNote}</div>
+        </div>
+
+        <!-- 🌟 3. 원인 딥다이브 꼬리물기 질문 바 & 추천 칩 (Causal Deep-Dive) -->
+        <div class="causal-deepdive-card" id="causal-deepdive-block">
+          <div class="causal-deepdive-header">
+            <div class="causal-deepdive-title">
+              <span>🔍</span>
+              <span>인과 체인 딥다이브 (Causal Deep-Dive)</span>
+            </div>
+            <span class="causal-deepdive-desc">원인의 원인을 파고드는 엔지니어링 꼬리물기 질의</span>
+          </div>
+
+          <div class="deepdive-chip-group" id="deepdive-chips">
+            <span class="deepdive-chip" data-q="16단 적층 시 TC-NCF의 칩 휨(Warpage)이 급증하는 열역학적 인과 경로는?">
+              💡 16단 적층 시 TC-NCF 휨(Warpage) 급증 인과 체인
+            </span>
+            <span class="deepdive-chip" data-q="MR-MUF 액상 에폭시 점도가 120Pa·s를 초과할 때 마이크로 보이드 발생 메커니즘은?">
+              💡 MR-MUF 에폭시 점도 초과 시 마이크로 보이드 메커니즘
+            </span>
+            <span class="deepdive-chip" data-q="TCB 본딩 가압력을 3.5MPa에서 2.0MPa로 완화할 때 접합 신뢰성 트레이드오프는?">
+              💡 본딩 가압력 완화 시 접합 신뢰성 트레이드오프
+            </span>
+          </div>
+
+          <div class="deepdive-input-row">
+            <input type="text" class="deepdive-input" id="deepdive-query-input" placeholder="궁금한 공학적 인과 관계를 질문하세요 (예: 왜 온도 상승 시 계면 박리가 발생하나?)" />
+            <button type="button" class="deepdive-submit-btn" id="btn-run-deepdive">
+              <span>인과 분석 ➔</span>
+            </button>
+          </div>
+
+          <div class="deepdive-expansion-wrapper" id="deepdive-expansion-wrapper">
+            <div class="deepdive-expansion-content">
+              <div class="deepdive-response-box" id="deepdive-response-box">
+                <!-- 동적 인과 체인 렌더링 영역 -->
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Step 2-2: A06 결정 반영 온톨로지 보완 제안 자동 도출 카드 -->
-        <div class="ai-export-review-card">
+        <div class="ai-export-review-card" style="margin-top:16px;">
           <div class="ai-export-review-content">
             <div class="ai-export-review-title">
               <span>💡</span>
@@ -2314,6 +2436,104 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       `;
 
+      // ── 이벤트 바인딩 1: 동적 비교 축 필터 ──
+      document.querySelectorAll("#matrix-filter-group .matrix-axis-chip").forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.currentAxisFilter = btn.dataset.filter;
+          renderAiStudioSnapshot(2);
+        });
+      });
+
+      // ── 이벤트 바인딩 2: 비교 축 직접 추가 ──
+      document.getElementById("btn-add-custom-axis")?.addEventListener("click", () => {
+        const newAxisName = prompt("추가할 비교 분석 축 명칭을 입력하세요:\n(예: CAPEX 설비 투자비, 탄소 배출량, FDC 이상감지율)", "CAPEX 설비 투자비 및 감가상각");
+        if (newAxisName && newAxisName.trim()) {
+          state.comparisonMatrixRows.push({
+            category: "custom",
+            categoryLabel: "⚙️ 사용자 정의",
+            axis: newAxisName.trim(),
+            mrf: "신규 진공 몰딩 챔버 도입 필요 (라인당 약 180억원 투자)",
+            ncf: "기존 TCB 플립칩 본더 활용 가능 (라인당 약 65억원 보완)",
+            isGap: false
+          });
+          state.currentAxisFilter = "all";
+          renderAiStudioSnapshot(2);
+          showToast(`새로운 비교 축 '${newAxisName.trim()}'이 추가되었습니다!`, "success");
+        }
+      });
+
+      // ── 이벤트 바인딩 3: 지식 갭 해소 버튼 (Tab 4 외부 문헌 조사 이동) ──
+      document.getElementById("btn-resolve-gap")?.addEventListener("click", () => {
+        setWorkspace("investigation");
+        const invInput = document.getElementById("investigation-query-input");
+        if (invInput) {
+          invInput.value = "TC-NCF 16단 적층 Warpage 보이드";
+          document.getElementById("btn-investigate-clarify")?.click();
+        }
+        showToast("누락된 온톨로지 지식 갭 해소를 위해 4번 [외부 문헌·백서 조사]로 이동하여 탐색을 시작합니다.", "info");
+      });
+
+      // ── 이벤트 바인딩 4: 인과 체인 딥다이브 질의 처리 ──
+      const deepdiveInput = document.getElementById("deepdive-query-input");
+      const deepdiveWrapper = document.getElementById("deepdive-expansion-wrapper");
+      const deepdiveBox = document.getElementById("deepdive-response-box");
+
+      const executeDeepDive = (query) => {
+        if (!query || !query.trim()) return;
+        if (deepdiveInput) deepdiveInput.value = query;
+
+        deepdiveBox.innerHTML = `
+          <div style="display:flex; align-items:center; gap:8px; color:var(--text-secondary); font-size:0.8125rem;">
+            <div class="matrix-dot-spinner"><span></span><span></span><span></span></div>
+            <span>온톨로지 인과 그래프(Causal Tree) 3-hop 역추적 및 물리 방정식 계산 중...</span>
+          </div>
+        `;
+        deepdiveWrapper.classList.add("expanded");
+
+        setTimeout(() => {
+          deepdiveBox.innerHTML = `
+            <div style="font-size:0.8125rem; font-weight:700; color:var(--accent-primary); margin-bottom:6px;">
+              질의: "${query}"
+            </div>
+            
+            <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-bottom:4px;">
+              온톨로지 인과 그래프 추적 경로 (Causal Path):
+            </div>
+            <div class="causal-chain-diagram">
+              <span class="causal-chain-node">16단 TCB 열압착 가압 (3.5MPa)</span>
+              <span class="causal-chain-arrow">➔</span>
+              <span class="causal-chain-node">다단 열팽창계수 불일치 (ΔCTE = 22.4 ppm/K)</span>
+              <span class="causal-chain-arrow">➔</span>
+              <span class="causal-chain-node">냉각 시 실리콘 계면 전단응력 집중 (280MPa)</span>
+              <span class="causal-chain-arrow">➔</span>
+              <span class="causal-chain-node" style="background:rgba(239, 68, 68, 0.12); color:#ef4444; border-color:rgba(239, 68, 68, 0.3);">다이 중앙부 휨 (Warpage 35μm) & 마이크로 보이드 유발</span>
+            </div>
+
+            <p style="font-size:0.8125rem; color:var(--text-secondary); line-height:1.6; margin:0;">
+              <strong>[물리 메커니즘 심층 분석]</strong>: 다단 적층 시 매 칩마다 가해지는 고온·고압(260℃, 3.5MPa)이 누적되면서 하부 칩의 실리콘 격자(CTE 2.6 ppm/K)와 NCF 수지(CTE 25 ppm/K) 간의 약 10배 열팽창 미스매치가 발생합니다. 이로 인해 냉각 과정에서 불균일 수축 응력이 발생하여 볼록형(Convex) 휨이 발생하며, 이는 차기 적층 시 진공 밀착을 방해하여 마이크로 보이드의 직접적 원인이 됩니다.
+            </p>
+          `;
+          showToast("인과 체인 딥다이브 분석이 완료되었습니다.", "success");
+        }, 800);
+      };
+
+      document.querySelectorAll("#deepdive-chips .deepdive-chip").forEach(chip => {
+        chip.addEventListener("click", () => {
+          executeDeepDive(chip.dataset.q);
+        });
+      });
+
+      document.getElementById("btn-run-deepdive")?.addEventListener("click", () => {
+        executeDeepDive(deepdiveInput?.value);
+      });
+
+      deepdiveInput?.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          executeDeepDive(deepdiveInput.value);
+        }
+      });
+
+      // ── 이벤트 바인딩 5: 검토 센터로 전송 ──
       document.getElementById("send-wiki-prop-btn")?.addEventListener("click", () => {
         const newReviewItem = {
           id: `rev-ai-${Date.now()}`,
