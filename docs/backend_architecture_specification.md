@@ -2037,6 +2037,151 @@ interface ConceptDetailResponse {
     ➔ **UI 연동**: 중복 티켓 생성을 방지하고, 토스트 안내와 함께 해당 티켓 화면으로 바로 이동할 수 있는 버튼을 제공.
   - `404 Not Found`: 존재하지 않는 후보 ID 시 에러 토스트 출력.
 
+---
+
+### 4.6 전역 플로팅 챗봇 API (Floating Engineering Chatbot)
+
+#### 1. `GET /api/v1/chatbot/context`
+- **화면 맥락**: [프론트 §5.1 우측 하단 고정 FAB & 팝업 대화 위젯 상단] 엔지니어가 화면 우측 하단의 `[💬 플로팅 챗봇 FAB]` 버튼을 클릭하거나 다른 위키 문서로 이동했을 때 위젯 상단 헤더가 열리며 호출. 위젯 상단 배지(`📌 열압착 본딩 (Scale 3)`), 동작 모드 배지(`🟢 Live`), 현재 열람 중인 개념 및 실무 관점에 최적화된 맞춤 퀵 질문 칩 3종 렌더링.
+- **사용자 입력 (Request)**:
+  - Query Params:
+    - `conceptId` (선택, string): 현재 열람 중인 개념 ID (예: `"concept-tcb"`, 없을 시 전역 모드)
+    - `perspective` (선택, enum: `yield` | `circuit` | `process`): 활성화된 실무 렌즈 관점 (기본값: `yield`)
+- **화면 렌더링용 데이터 (Response 200 OK)**:
+  ```json
+  {
+    "conceptId": "concept-tcb",
+    "conceptTitle": "열압착 본딩 (TCB)",
+    "scaleLevel": 3,
+    "scaleBadge": "Scale 3 단위 공정",
+    "engineMode": "live",
+    "engineModeLabel": "🟢 Live (온톨로지 인과 추론 엔진)",
+    "quickQuestionChips": [
+      "💡 16단 적층 시 NCF 필름 유출 방지 한계 가압력은?",
+      "💡 TCB와 MR-MUF의 방열 특성 차이 요약",
+      "💡 마이크로범프 IMC 형성 시 본딩 피크 온도 마진은?"
+    ]
+  }
+  ```
+- **예외 처리 (Error)**:
+  - `conceptId`가 전달되지 않거나 유효하지 않은 경우: `200 OK` 응답에 전역 기본 칩 반환 ➔ `quickQuestionChips: ["HBM 방열 대안 비교", "Cryo 식각 메커니즘", "차세대 유리기판 표준"]`으로 자연스러운 폴백 렌더링.
+
+#### 2. `POST /api/v1/chatbot/messages`
+- **화면 맥락**: [프론트 §5.1 플로팅 챗봇 대화창 내부 & §4.2 `[P-01]` 팝오버 챗봇 숏컷 브릿지] 엔지니어가 퀵 질문 칩을 클릭하거나 대화 입력창에 질문을 입력하고 Enter를 누를 때, 혹은 팝오버에서 `[💬 AI 챗봇에게 실시간 질문하기 ➔]` 버튼을 클릭했을 때 호출. [3.1 Clarifier Mode C (`global_chatbot_router`)]가 3단 라우팅을 수행하여 단답형 사실 답변, 인과 구체화 역질문, 또는 화면 전환 딥링크 카드를 화면에 부드러운 스트리밍 버블로 렌더링.
+- **사용자 입력 (Request)**:
+  - Request Body:
+    ```json
+    {
+      "message": "식각 챔버에서 아킹이 자꾸 튀는데 원인이 뭐야?",
+      "conceptId": "concept-dry-etch",
+      "targetConceptId": null,
+      "perspective": "process",
+      "currentUrlContext": "/wiki/concept-dry-etch"
+    }
+    ```
+    *(팝오버 숏컷 클릭 시 `targetConceptId: "concept-imc"` 전달)*
+- **화면 렌더링용 데이터 (Response 200 OK - 3대 경로 분기형 응답)**:
+
+  **[경로 1: 사실/스펙 단답형 질의 (`factoid`)]**
+  ```json
+  {
+    "pathType": "factoid",
+    "answerMarkdown": "열압착 본딩(TCB)의 표준 최대 인가 하중은 **180N**이며, 16단 HBM3E 고적층 환경에서는 NCF 필름의 수지 측방 유출 방지를 위해 **165N** 이하로 통제할 것을 권장합니다. 장비 한계로 150N 이하 운용 시에는 초음파 인가 시간(2.2s) 보상 파라미터를 병행 적용합니다.",
+    "sourceEvidences": [
+      {
+        "id": "E-01",
+        "sourceName": "Samsung Electronics HBM3E 패키징 신뢰성 보고서 개정판",
+        "quote": "Under high thermal stress in 16-stack configurations, void formation threshold is revised from 180N to 165N.",
+        "credibilityTier": "Tier 1 (공식 제조사)"
+      }
+    ],
+    "suggestedNodes": [],
+    "actionCard": null
+  }
+  ```
+
+  **[경로 2: 모호한 트러블슈팅/인과 질의 (`causal_clarifier`)]**
+  ```json
+  {
+    "pathType": "causal_clarifier",
+    "answerMarkdown": "플라즈마 건식 식각 챔버 내 아킹(Arcing)은 주로 **정전척(ESC) 헬륨 누설**이나 **RF 바이어스 파워 과도 집중**에 의해 유발됩니다. 문제 범위를 좁히기 위해 아래 세부 현상 중 어디에 해당하는지 확인해 주시겠습니까?",
+    "clarificationPrompt": "아킹 발생 시점이 웨이퍼 안착 직후인가요, 아니면 고파워 식각 반응 진행 중인가요?",
+    "suggestedNodes": [
+      {
+        "conceptId": "concept-esc-leak",
+        "name": "정전척(ESC) He 가스 누설",
+        "relationLabel": "⚡ 주원인",
+        "link": "/wiki/concept-esc-leak"
+      },
+      {
+        "conceptId": "concept-rf-matching",
+        "name": "RF 정합기(Matcher) 반사파 이상",
+        "relationLabel": "⚠️ 결함 노드",
+        "link": "/wiki/concept-rf-matching"
+      }
+    ],
+    "sourceEvidences": [],
+    "actionCard": null
+  }
+  ```
+
+  **[경로 3: 화면 액션 트리거 (`action_trigger`)]**
+  ```json
+  {
+    "pathType": "action_trigger",
+    "answerMarkdown": "TCB와 LAB의 열응력 및 양산 TAT 다차원 비교 분석 세션을 생성하여 대조 매트릭스를 열람하시겠습니까?",
+    "sourceEvidences": [],
+    "suggestedNodes": [],
+    "actionCard": {
+      "actionType": "navigate_comparison",
+      "title": "TCB vs LAB 다차원 비교 분석 실행",
+      "description": "3대 공학 분기(다이 휨 vs 보이드 신뢰성 vs 택트타임) 매트릭스 도출",
+      "targetUrl": "/comparison?targetA=concept-tcb&targetB=concept-lab",
+      "buttonLabel": "⚡ 비교 분석 스튜디오로 이동 ➔"
+    }
+  }
+  ```
+- **예외 처리 (Error)**:
+  - `400 Bad Request`: `message` 누락 시 `{ "code": "MESSAGE_EMPTY", "message": "질문 내용을 입력해주세요." }`.
+  - **도메인 범위 이탈 시 (도메인 유사도 < 0.65)**:
+    ```json
+    {
+      "pathType": "out_of_domain",
+      "answerMarkdown": "본 챗봇은 **반도체 공정·소자·패키징 인과 온톨로지 전문 비서**입니다. 반도체 물리 메커니즘, 공정 제약, 트레이드오프와 관련된 질문을 입력해주세요.",
+      "suggestedChips": [
+        "TCB 가압력 한계 수치",
+        "16단 적층 다이 휨 원인",
+        "MR-MUF 언더필 점도 기준"
+      ]
+    }
+    ```
+    ➔ **UI 연동**: 경고 문구 대신 정중한 안내 텍스트와 함께 3종 추천 질문 칩을 대화창에 띄워 질문을 유도.
+  - `504 Gateway Timeout` (AI 인과 추론 지연 시):
+    ```json
+    {
+      "code": "AI_INFERENCE_TIMEOUT",
+      "message": "인과 그래프 추론 엔진 응답이 지연되고 있습니다. 잠시 후 다시 시도해주세요."
+    }
+    ```
+    ➔ **UI 연동**: 말풍선 하단에 `[🔄 다시 질문하기]` 버튼을 노출하여 원클릭 재시도 제공.
+
+#### 3. `DELETE /api/v1/chatbot/messages`
+- **화면 맥락**: [프론트 §5.1 플로팅 챗봇 대화창 우측 상단 컨트롤] 엔지니어가 대화창 우측 상단의 `[대화 비우기/초기화]` 아이콘 버튼을 클릭했을 때 호출. 대화 스레드가 깨끗이 비워지며 초기 환영 메시지와 3대 퀵 질문 칩만 남은 초기 상태로 부드럽게 복귀.
+- **사용자 입력 (Request)**:
+  - Query Params:
+    - `conceptId` (선택, string): 초기화 후 다시 바인딩할 현재 개념 ID
+- **화면 렌더링용 데이터 (Response 200 OK)**:
+  ```json
+  {
+    "cleared": true,
+    "message": "대화 이력이 성공적으로 초기화되었습니다.",
+    "welcomeMessage": "안녕하세요! 현재 열람 중인 '열압착 본딩 (TCB)' 문서의 인과 관계망 및 공인 규격에 대해 무엇이든 질문하세요."
+  }
+  ```
+- **예외 처리 (Error)**:
+  - 세션 초기화는 멱등(Idempotent)하게 항상 성공하며 `200 OK`를 반환.
+
+
 
 
 
