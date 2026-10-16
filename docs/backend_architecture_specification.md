@@ -245,8 +245,15 @@ interface ReviewTicket {
   currentContent: string;         // 좌측 Pane: 현재 위키 본문
   aiMergedDraft: string;          // 우측 Pane: AI 통합 반영 초안
   humanEdits?: string;            // 전문가가 직접 편집기로 수정한 텍스트 (저장 시)
-  diffAdded: string;              // 시각적 하이라이트용 추가 텍스트
-  
+  // 🌟 [추가 7: 3.4 Directive 지원] 정형 사양 및 온톨로지 관계 패치 페이로드
+  structuredPatches?: {
+    specsPatch?: Array<{ label: string; oldValue: string; newValue: string; role?: string }>;
+    relationsPatch?: {
+      addedEdges?: Array<{ targetId: string; relationType: string; polarity?: "+" | "-" }>;
+      removedEdges?: string[];
+    };
+  };
+
   // 실시간 자동 무결성 점검 리포트
   integrityReport: {
     evidenceMatchRate: number;    // 출처 일치도 (예: 1.0 = 100%)
@@ -258,6 +265,7 @@ interface ReviewTicket {
   // 에이전트 초안 보완 지시 이력
   directiveHistory: Array<{
     directiveText: string;        // 사용자의 지시문
+    targetLayer?: "prose" | "specs" | "relations" | "hybrid"; // 🌟 지시 대상 계층
     previousDraft: string;
     revisedDraft: string;
     timestamp: string;
@@ -349,31 +357,51 @@ interface EvidenceSource {
 
 ### 3.3 🌟 AI 파라미터 튜닝 상담 파이프라인 (Advisor Engine: 범용 인과 제약 보상 엔진)
 - **동작 화면**: [Tab 2] 기술 대안 비교분석의 [스냅샷 2: 양산 조건 매핑] 및 `[M-04]` 파라미터 수정 모달
-- **해결 목적**: 특정 공정에 국한되지 않고, 반도체 전 영역(단위공정, 설비, 팹 인프라, FDC 운영 등)에서 엔지니어가 겪는 장비·라인·환경의 물리적 제약($X \downarrow$)이 발생했을 때, 온톨로지 인과 엣지를 역방향으로 순회하여 **위험 노드($Y$)를 자동 감지하고, 이를 방어할 수 있는 대체 조작 변수($Z$, 보상 공정 인자)와 반작용(Trade-off)을 수식·인과 기반으로 역제안**.
+- **해결 목적**: 특정 공정에 국한되지 않고, 반도체 전 영역(단위공정, 설비, 팹 인프라, FDC 운영 등)에서 엔지니어가 겪는 장비·라인·환경의 물리적 제약($X \downarrow$)이 발생했을 때, 온톨로지 인과 엣지를 역방향으로 순회하여 **위험 노드($Y$)를 자동 감지하고, 이를 방어할 수 있는 보상 파라미터($Z$, Compensating Parameters)와 반작용(Trade-off)을 수식·인과 기반으로 역제안**.
 - **인과 그래프 연산 메커니즘 (Causal Math & Traversal)**:
-  $$\text{현장 제약 변수}(X \downarrow) \implies \text{위험 노드 감지}(Y \text{ 악화}) \implies \text{대체 조작 변수 탐색}(\{Z_1, Z_2\} \text{ 보상}) \implies \text{트레이드오프 도출}(W_1, W_2)$$
+  $$\text{현장 제약 변수}(X \downarrow) \implies \text{위험 노드 감지}(Y \text{ 악화}) \implies \text{보상 파라미터 탐색}(\{Z_1, Z_2\} \text{ 보상}) \implies \text{트레이드오프 도출}(W_1, W_2)$$
   1. **현장 제약 변수($X$) 및 목표 지표($Y$) 파싱**:
      - 엔지니어의 자연어 질의 또는 1단계(Clarifier)에서 인계된 제약 컨텍스트(`sessionConstraints`)로부터 조작 불가 한계 변수($X \le \text{Limit}$)와 반드시 지켜야 할 품질 목표($Y_{\text{kpi}}$) 분리.
   2. **위험 노드 자동 감지 (Risk Node Detection)**:
      - 제약 변수 $X$에서 뻗어나가는 인과 엣지(`causalEdges`) 중 극성(Polarity)이 반비례(`'-'`)인 노드 자동 추적.
      - *예: 가압력($P \downarrow$) ➔ 보이드($\text{Void} \uparrow$), RF파워($W \downarrow$) ➔ 식각률($\text{ER} \downarrow$), 샘플링속도($f \downarrow$) ➔ 아킹미감지($\text{Miss} \uparrow$).*
-  3. **대체 조작 변수 탐색 (Alternative Manipulated Variables Finding)**:
+  3. **보상 파라미터 탐색 (Compensating Parameters Finding)**:
      - 위험 노드 $Y$로 유입되는 다른 인과 엣지($Z \rightarrow Y$) 중 엔지니어가 조작 가능한 변수(`role: "control_knob"`) 역방향 탐색.
-     - *예: 보이드를 낮추는 대체 조작 변수 ➔ 초음파 시간($Z_1$), 스테이지 온도($Z_2$); 식각률을 올리는 대체 조작 변수 ➔ $O_2$ 가스비율($Z_1$), 공정시간($Z_2$).*
+     - *예: 보이드를 낮추는 보상 파라미터 ➔ 초음파 시간($Z_1$), 스테이지 온도($Z_2$); 식각률을 올리는 보상 파라미터 ➔ $O_2$ 가스비율($Z_1$), 공정시간($Z_2$).*
   4. **트레이드오프(부작용) 도출 및 2~3대 레시피 세트 생성**:
-     - 대체 조작 변수($Z$)에서 뻗어나가는 2차 엣지($Z \xrightarrow{+} W$)를 추적하여 감수해야 할 공학적 비용 명시.
-     - **[추천안 A]**: 제1 조작 변수 보상 + *TAT 또는 원가 트레이드오프 명시*.
-     - **[추천안 B]**: 제2 조작 변수 보상 + *물리적 스트레스(Warpage, 로딩 등) 트레이드오프 명시*.
+     - 보상 파라미터($Z$)에서 뻗어나가는 2차 엣지($Z \xrightarrow{+} W$)를 추적하여 감수해야 할 공학적 비용 명시.
+     - **[추천안 A]**: 제1 보상 파라미터 조정 + *TAT 또는 원가 트레이드오프 명시*.
+     - **[추천안 B]**: 제2 보상 파라미터 조정 + *물리적 스트레스(Warpage, 로딩 등) 트레이드오프 명시*.
   5. **원클릭 자동 주입 및 스냅샷 3 매트릭스 재계산**:
      - 추천안 클릭 시 전제 수치 폼 자동 기입 및 0.8초 이내 비교 매트릭스 재추론 완료.
 - **예외 처리 및 안전 가드레일 (Safety Margin & Physics Limits)**:
   - **공정 안전 마진(Process Window) 이탈 차단**: 온톨로지의 `ambient_limit` 및 `limitations` 임계치를 대조하여, 파괴선(예: 300℃ 초과 솔더 재용융, 플라즈마 아킹 한계 전압)을 벗어나는 보상값은 거절하고 `⚠️ 공정 안전 마진 위반` 경고와 함께 안전 범위 내로 바운딩(Bounding).
 
-### 3.4 지식 무결성 검증 및 초안 재작성 파이프라인 (Directive Engine)
-- **동작 화면**: [Tab 3] 검토·승인 센터
-- **로직 흐름**:
-  1. 전문가 지시문 반영 시 기존 공인 출처 인용구와 온톨로지 상하위 관계 보존을 강제하는 가드레일 프롬프트 주입.
-  2. 2-Pane Diff 실시간 재계산 및 3대 무결성 지표(출처 일치도, 충돌 여부, 영향 범위) 실시간 산출.
+### 3.4 지식 무결성 검증 및 초안 재작성 파이프라인 (Directive Engine: 다중 계층 거버넌스 엔진)
+- **동작 화면**: [Tab 3] 검토·승인 센터의 2-Pane Diff 화면 및 하단 보완 지시 바
+- **해결 목적**: 전문가의 자연어 보완 지시(Directive)를 충실히 반영하되, 기존 공인 출처 원문 인용구와 온톨로지 무결성 가드레일을 100% 보존하고, 단순 비정형 텍스트뿐만 아니라 **정형 사양(Key-Value Specs)** 및 **온톨로지 관계망(Graph Relations)**까지 다중 계층(Multi-Target)으로 정밀 패치하며 실시간 3대 무결성 지표를 산출.
+- **상세 처리 단계 (End-to-End)**:
+  1. **지시 의도 분류 및 타깃 라우팅 (Directive Intent Classification)**:
+     - 전문가 지시문을 분석하여 처리 계층을 4가지로 자동 라우팅:
+       - `prose`: 본문 설명, 원리, 한계 등 Markdown 줄글 수정
+       - `specs`: `PerspectiveCase.specifications`의 특정 파라미터 수치, 단위, 역할(`role`) 수정
+       - `relations`: `Concept.relations`의 상하위(`is_a`), 경쟁 대안(`alternative_to`), 인과 엣지(`causalEdges`) 수정
+       - `hybrid`: 본문과 정형 사양을 동시에 수정하는 복합 지시
+  2. **불변 제약 앵커링 (Immutability Anchoring & Masking)**:
+     - 현재 초안에 귀속된 공인 출처(`EvidenceSource.quote`)와 온톨로지 핵심 엣지를 '불변 블록'으로 마스킹(Lock).
+     - 시스템 가드레일 프롬프트를 통해 출처 원문의 임의 왜곡·누락(Knowledge Drift)을 원천 차단.
+  3. **다중 계층 제약 패치 생성 (Multi-Target Constrained Patching)**:
+     - 줄글 수정 시에는 2-Pane 우측 초안(`aiMergedDraft`)을 정밀 패치.
+     - 정형 데이터 수정 시에는 `ReviewTicket.structuredPatches` (`specsPatch`, `relationsPatch`)를 함께 생성하여 테이블과 그래프의 정합성을 동시 갱신.
+  4. **3대 실시간 무결성 감사 지표 산출 (3-Pillar Integrity Audit)**:
+     - **출처 일치도 (Evidence Match Rate)**: 신규 문장의 기술적 주장(Assertion)과 `EvidenceSource.quote` 간 NLI(함의/모순 검사) 수행 (100% 달성 목표).
+     - **온톨로지 충돌 여부 (Ontology Conflict)**: 상하위 위계 및 인과 극성(`causalEdges`)과의 물리 법칙 모순 발생 여부 검사 (`충돌 없음`).
+     - **영향 범위 (Impact Scope)**: 본 수정으로 인해 영향을 받는 downstream 온톨로지 개념 개수 산출 (`연관 개념 N건`).
+  5. **2-Pane Git Diff 재계산 및 감사 이력 보존**:
+     - 좌측(현재 위키 v1.2) vs 우측(AI 재작성 초안) 간 단어 단위 Git Diff 산출 및 시각적 하이라이트.
+     - 지시문, 수정 전/후 초안, 타깃 계층을 `ReviewTicket.directiveHistory`에 영구 보존하여 완벽한 감사 추적(Audit Trail) 보장.
+- **예외 처리 및 충돌 가드레일 (Conflict Guardrail)**:
+  - **공인 출처 정면 충돌 감지**: 전문가 지시 내용이 공인 백서 실측치와 충돌할 경우, 출처 일치도를 강등하고 `⚠️ 경고: 입력하신 지시 내용이 공인 백서의 실측치와 정면 충돌합니다. 강제 반영하시려면 전문가 사유를 입력해야 합니다.` 확인 모달을 띄워 전문가가 사유를 반드시 남기도록 강제.
 
 ### 3.5 공인 문헌 교차 분석 및 초안 합성기 (Deep Research Engine)
 - **동작 화면**: [Tab 4] 외부 문헌·백서 조사
