@@ -28,7 +28,12 @@
    - 4.4 [Tab 3] 지식 거버넌스 및 검토·승인 센터 API (Review Center)
    - 4.5 [Tab 4] 외부 문헌·백서 조사 API (Deep Research)
    - 4.6 전역 플로팅 챗봇 API (Floating Engineering Chatbot)
-5. [4단계: 실시간 동기화, 캐시 및 보안 아키텍처 (작성 예정)](#5-4단계-실시간-동기화-캐시-및-보안-아키텍처)
+5. [4단계: 실시간 동기화, 캐시 및 보안 아키텍처](#5-4단계-실시간-동기화-캐시-및-보안-아키텍처)
+   - 5.1 다계층 캐싱 전략 및 0ms 서빙 아키텍처 (Multi-Tier Caching & Invalidation)
+   - 5.2 실시간 이벤트 스트리밍 및 전역 동기화 아키텍처 (Real-Time Streaming & Event Sync)
+   - 5.3 분산 동시성 제어 및 지식 불변 감사 추적 (Concurrency Control & Audit Trail)
+   - 5.4 반도체 데이터 보안 및 권한 거버넌스 (Security & Access Governance: RBAC/ABAC)
+   - 5.5 장애 결함 격리 및 우아한 성능 저하 (Fault Tolerance & Graceful Degradation)
 
 ---
 
@@ -2215,6 +2220,302 @@ interface ConceptDetailResponse extends Concept {
   ```
 - **예외 처리 (Error)**:
   - 세션 초기화는 멱등(Idempotent)하게 항상 성공하며 `200 OK`를 반환.
+
+---
+
+## 5. 4단계: 실시간 동기화, 캐시 및 보안 아키텍처
+
+> **[비기능 아키텍처 목표]**:
+> 1. **초저지연 0ms 체감 속도**: 위키 본문 호버 시 문맥 해설 팝오버(`[P-01]`) 및 스포트라이트 검색(`Cmd+K`)을 지연 없이 서빙.
+> 2. **원자적 캐시 무효화 (Atomic Invalidation)**: 검토 센터에서 신규 판본 승인·배포 시, 캐시 불일치(Stale Data) 없이 연관 지식망을 자동 갱신.
+> 3. **실시간 분산 동기화**: 엔지니어 간 지식 승인 상태 및 비교 세션 이력을 이벤트 브로드캐스트로 동기화.
+> 4. **엄격한 지식 거버넌스 및 기밀 보안**: 기밀 양산 조건(`PerspectiveCase`)의 권한별 격리 및 Append-Only 불변 감사 추적 보장.
+
+### 5.1 다계층 캐싱 전략 및 0ms 서빙 아키텍처 (Multi-Tier Caching & Invalidation)
+
+#### 5.1.1 다계층 캐시 토폴로지 (L1-L2-L3 Cache Topology)
+
+반도체 엔지니어의 고빈도 탐색 요구와 LLM 프롬프트 조립 비용을 최적화하기 위해 시스템은 3계층 다계층 캐시 아키텍처를 채택합니다:
+
+```mermaid
+flowchart TD
+    User["엔지니어 브라우저 (UI Client)"]
+    
+    subgraph L1 ["L1: 브라우저 인메모리 캐시 (0ms)"]
+        L1_Pre["preloadedExplainers 맵<br>(본문 로드 시 15~25개 용어 일괄 주입)"]
+        L1_LRU["Client LRU Store<br>(최근 조회 5개 개념 상세, TTL 5분)"]
+        L1_BC["BroadcastChannel('wiki_cache_sync')<br>(브라우저 다중 탭 간 캐시 무효화 전파)"]
+    end
+    
+    subgraph L2 ["L2: Redis 분산 캐시 클러스터 (<5ms)"]
+        L2_Exp["explainer:{parentId}:{perspId}:{childId}<br>(사전 컴파일 문맥 해설 DTO, 영구 캐시)"]
+        L2_Detail["concept:detail:{id}:{persp}<br>(위키 본문 통합 DTO, zlib 압축, TTL 24h)"]
+        L2_Search["search:spotlight:index<br>(전역 역색인 & 추천 8선, Hash 구조, TTL 1h)"]
+        L2_Session["session:compare:{id}<br>(비교 세션 스냅샷, Hash 구조, TTL 7d)"]
+        L2_Lock["lock:concept:{id}<br>(Redlock 분산 뮤텍스, TTL 3000ms)"]
+    end
+    
+    subgraph L3 ["L3: 영속 저장소 계층 (Persistent DB)"]
+        L3_Graph[("Neo4j Graph DB Cluster<br>(온톨로지 인과 그래프 & 엣지)")]
+        L3_Doc[("PostgreSQL 16 Enterprise<br>(본문 Markdown, 티켓, 출처 백서)")]
+    end
+    
+    User -->|1. 점선 용어 호버| L1_Pre
+    L1_Pre --"Hit (95%)"-->|0ms 팝오버 렌더링| User
+    L1_Pre --"Miss (5%)"-->|2. 온디맨드 요청| L2_Exp
+    L2_Exp --"Hit"-->|5ms 반환| User
+    L2_Exp --"Miss"-->|3. Context-bridging LLM 호출| L3_Graph
+    
+    User -->|위키 본문 조회| L2_Detail
+    L2_Detail --"Miss"--> L3_Doc
+    L1_BC <-->|동일 브라우저 탭 간 동기화| L1_LRU
+```
+
+#### 5.1.2 L1 브라우저 인메모리 캐시 구현 규격
+
+프론트엔드 클라이언트(`js/app.js`)는 단일 페이지 내비게이션 시 불필요한 네트워크 트래픽을 차단하고 0ms 반응성을 달성하기 위해 전역 캐시 싱글톤(`WikiClientCache`)을 구동합니다:
+
+```typescript
+// 프론트엔드 L1 캐시 관리자 규격
+interface L1CacheEntry<T> {
+  data: T;
+  cachedAt: number;        // Epoch 타임스탬프 (ms)
+  ttlMs: number;           // 만료 시간 (기본 300,000ms = 5분)
+}
+
+class WikiClientCache {
+  private static instance: WikiClientCache;
+  private conceptStore = new Map<string, L1CacheEntry<ConceptDetailResponse>>();
+  private explainerStore = new Map<string, ContextualExplanationDTO>(); // 현재 열람 본문 전용
+  private maxConcepts = 10; // 최대 보관 개념 수 (LRU)
+  private broadcastChannel = new BroadcastChannel("wiki_cache_sync");
+
+  constructor() {
+    // 타 탭에서 온톨로지 승인/배포 발생 시 L1 캐시 즉각 비우기
+    this.broadcastChannel.onmessage = (event) => {
+      if (event.data?.type === "INVALIDATE_CONCEPT") {
+        this.conceptStore.delete(event.data.conceptId);
+        this.explainerStore.clear();
+      }
+    };
+  }
+
+  // 본문 진입 시 preloadedExplainers 일괄 로드
+  public setPreloadedExplainers(explainers: Record<string, ContextualExplanationDTO>): void {
+    this.explainerStore.clear();
+    for (const [childId, dto] of Object.entries(explainers)) {
+      this.explainerStore.set(childId, dto);
+    }
+  }
+
+  // 팝오버 호버 시 0ms 동기식 반환
+  public getExplainer(childId: string): ContextualExplanationDTO | null {
+    return this.explainerStore.get(childId) ?? null;
+  }
+}
+```
+
+- **메모리 상한 및 퇴출(Eviction)**: `conceptStore`는 최근 사용 순서(LRU)에 따라 최대 10개(메모리 점유율 약 2.5MB 이내)로 엄격히 제한되며, 초과 시 가장 오래 참조되지 않은 본문 데이터부터 자동 삭제.
+- **다중 탭 캐시 일관성 (Multi-tab Coherence)**: 브라우저 `BroadcastChannel`을 사용하여 탭 A에서 새 판본 승인 알림을 수신하면 탭 B의 로컬 L1 캐시도 즉시 무효화되어 새로고침 없이 최신 상태 유지.
+
+#### 5.1.3 L2 Redis 분산 캐시 클러스터 & 직렬화 압축 정책
+
+| 캐시 영역 | Redis Key 패턴 | 데이터 구조 | 직렬화 및 압축 | TTL (만료 시간) | 설명 |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| **문맥 해설** | `explainer:{parentId}:{perspId}:{childId}` | String | Plain JSON ([`ContextualExplanationDTO`](#25-evidencesource-및-knowledgecandidate-공인-출처-및-지식-후보-dto)) | **영구 (무제한)** | 승인 시 사전 컴파일, 신규 판본 배포 시에만 선택적 `UNLINK` |
+| **위키 본문** | `concept:detail:{conceptId}:{perspective}` | String | **zlib Binary 압축 JSON** ([`ConceptDetailResponse`](#25-evidencesource-및-knowledgecandidate-공인-출처-및-지식-후보-dto)) | **24시간** | 수식/아코디언/프리로드 해설 포함 대용량 DTO (45KB ➔ 8.2KB 압축) |
+| **인과 서브그래프** | `concept:subgraph:{conceptId}:{depth}:{edgeType}` | String | JSON (Nodes & Edges) | **12시간** | Cytoscape/D3 렌더링용 1~2 hop 인과 네트워크 |
+| **스포트라이트 역색인** | `search:spotlight:index` | Hash | Field: `conceptId`, Value: Minified JSON | **1시간** | 전체 148개 핵심 개념의 명칭·약어·태그 역색인 및 추천 8선 |
+| **비교 세션** | `session:compare:{sessionId}` | Hash | Field: `step:{1\|2\|3}`, Value: JSON | **7일** | 3-Step 스냅샷, 파라미터 튜닝 상담 이력, 매트릭스 |
+| **분산 뮤텍스** | `lock:concept:{conceptId}` | String | String (UUID) | **3초** | 캐시 스탬피드 방어용 Redlock 뮤텍스 |
+| **시스템 판본 메타** | `system:version:meta` | String | JSON | **30초** | 현재 배포 판본(`v1.2`), 신규 업데이트 유무, 스키마 해시 |
+
+- **대용량 위키 본문 zlib 바이너리 압축**:
+  - `concept:detail:*` 페이로드는 `preloadedExplainers`를 다수 포함하여 비압축 시 40~60KB에 이름. 백엔드에서 Python `zlib.compress(json_str.encode('utf-8'), level=6)` 처리 후 Redis에 저장함으로써 **네트워크 대역폭 81.8% 절감 (평균 45KB ➔ 8.2KB)** 및 Redis 메모리 비용 대폭 감소.
+- **메모리 고갈 보호 정책 (Maxmemory Policy)**:
+  - Redis 클러스터는 `maxmemory-policy: volatile-lru`로 설정.
+  - TTL이 없는 영구 지식인 `explainer:*` 키는 메모리 고갈 시에도 절대 강제 퇴출되지 않으며, TTL이 지정된 검색 색인 및 본문 캐시부터 안전하게 퇴출.
+
+#### 5.1.4 0ms 팝오버 서빙 메커니즘 (Hover-Intent Prefetching)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Engineer as 엔지니어
+    participant UI as 웹 브라우저 (UI)
+    participant L1 as L1 인메모리 캐시
+    participant API as 백엔드 서버
+    participant Redis as Redis 분산 캐시
+    
+    Note over Engineer, UI: 위키 본문 진입 (최초 1회)
+    UI->>API: GET /api/v1/concepts/concept-tcb
+    API->>Redis: MGET explainer:concept-tcb:*:concept-imc explainer:concept-tcb:*:concept-ncf ...
+    Redis-->>API: 사전 컴파일된 DTO 15건 일괄 반환
+    API-->>UI: 200 OK (본문 + preloadedExplainers 맵)
+    UI->>L1: setPreloadedExplainers(explainers)
+    
+    Note over Engineer, UI: 본문 읽기 중 파란색 점선 용어 호버
+    Engineer->>UI: 마우스 커서 올림 (.concept-link: concept-imc)
+    UI->>L1: getExplainer('concept-imc')
+    L1-->>UI: ContextualExplanationDTO 반환 (0ms)
+    UI-->>Engineer: 즉각 #concept-popover 렌더링 (0ms Latency)
+    
+    Note over Engineer, UI: 프리로드되지 않은 미인덱싱 용어 호버 (Edge Case)
+    Engineer->>UI: 마우스 커서 올림 (미프리로드 용어)
+    UI->>UI: 150ms Hover-intent 디바운스 대기
+    UI->>API: GET /api/v1/concepts/{childId}/contextual-explain
+    API->>Redis: GET explainer:... (캐시 확인)
+    Redis-->>API: Cache Hit (<5ms)
+    API-->>UI: 200 OK
+    UI-->>Engineer: 팝오버 렌더링
+```
+
+- **실제 응답 페이로드 내 `preloadedExplainers` 조립 샘플**:
+  ```json
+  {
+    "id": "concept-tcb",
+    "title": "열압착 본딩",
+    "preloadedExplainers": {
+      "concept-imc": {
+        "childConceptId": "concept-imc",
+        "parentConceptId": "concept-tcb",
+        "perspectiveId": "yield",
+        "title": "금속간 화합물 (Intermetallic Compound, IMC)",
+        "definition": "서로 다른 금속(Cu와 Sn)이 고온 확산 반응하여 계면에 형성되는 합금층.",
+        "contextSentence": "본 문서(열압착 본딩)에서는 Cu 범프와 Sn 솔더 캡이 열압착될 때 Cu6Sn5를 형성하여 접합 신뢰성을 결정하는 핵심 계면입니다.",
+        "cached": true,
+        "deepLink": "/wiki/concept-imc"
+      },
+      "concept-ncf": {
+        "childConceptId": "concept-ncf",
+        "parentConceptId": "concept-tcb",
+        "perspectiveId": "yield",
+        "title": "비도전성 필름 (Non-Conductive Film, NCF)",
+        "definition": "마이크로범프 사이 절연과 칩 접착을 위해 본딩 전 도포하는 절연 수지 필름.",
+        "contextSentence": "본 문서에서는 본딩 헤드 가압 시 범프 사이를 보이드 없이 충진해야 하며, 180N 초과 시 과유출 결함을 유발하는 주요 소재입니다.",
+        "cached": true,
+        "deepLink": "/wiki/concept-ncf"
+      }
+    }
+  }
+  ```
+
+#### 5.1.5 원자적 캐시 무효화 및 사전 컴파일 웜업 파이프라인 (Atomic Invalidation & Pre-compilation)
+
+[Tab 3] 검토·승인 센터에서 신규 판본이 승인 배포(`POST /api/v1/review-tickets/{id}/approve`)될 때, 시스템은 캐시 불일치(Stale Data)를 방지하기 위해 다음 4단계 파이프라인을 트랜잭션 방식으로 실행합니다:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Reviewer as 심의 전문가
+    participant API as 백엔드 거버넌스 API
+    participant GraphDB as Neo4j Graph DB
+    participant Invalidator as 캐시 무효화 엔진
+    participant Redis as Redis 분산 캐시
+    participant Queue as BullMQ 작업 큐
+    participant Worker as 백그라운드 컴파일 워커
+    participant LLM as Context-bridging LLM
+    
+    Reviewer->>API: POST /review-tickets/rev-20261016-001/approve
+    API->>API: 온톨로지 DB 영속화 & 판본 태깅 (v1.2 ➔ v1.3)
+    API->>GraphDB: 1-hop 연관 개념 노드 조회 (Cypher Query)
+    GraphDB-->>API: affectedConceptIds: ["concept-mrmuf", "concept-imc"]
+    
+    API->>Invalidator: 트리거 이벤트 발행 (OntologyApprovedEvent)
+    
+    par 1. 논블로킹 캐시 무효화 (Invalidation)
+        Invalidator->>Redis: UNLINK concept:detail:concept-tcb:*
+        Invalidator->>Redis: UNLINK explainer:*:concept-tcb:* (인과 엣지 관련 키 전수 삭제)
+        Invalidator->>Redis: UNLINK search:spotlight:index
+        Invalidator->>Redis: PUBLISH wiki_broadcast { type: "NEW_VERSION", version: "v1.3" }
+    and 2. 백그라운드 웜업 큐 인큐 (Enqueue Job)
+        Invalidator->>Queue: Enqueue Warm-up Job (concept-tcb, affectedConceptIds)
+    end
+    
+    API-->>Reviewer: 200 OK (배포 완료)
+    
+    Note over Queue, Worker: 비동기 백그라운드 작업 수행 (Latency 격리)
+    Queue->>Worker: Consume Warm-up Job
+    Worker->>LLM: 변경된 공정 맥락 기반 문맥 해설 배치 생성 (10건)
+    LLM-->>Worker: 신규 ContextualExplanationDTO 리스트
+    Worker->>Redis: MSET explainer:concept-tcb:... (캐시 웜업 완료)
+    Worker->>Redis: 스포트라이트 역색인 재구축 (HSET search:spotlight:index)
+```
+
+1. **Neo4j 그래프 역방향 영향 분석 Cypher 쿼리**:
+   - 승인된 개념 노드를 참조하고 있거나 인과 엣지로 묶인 연관 노드를 1~2 hop 깊이로 정밀 탐색:
+     ```cypher
+     MATCH (target:Concept {id: $conceptId})
+     OPTIONAL MATCH (target)<-[:causes|caused_by|alternative_to|part_of*1..2]-(affected:Concept)
+     RETURN target.id AS updatedId, collect(DISTINCT affected.id) AS affectedIds;
+     ```
+2. **비동기 이벤트 페이로드 (`OntologyApprovedEvent`) 스키마**:
+   ```typescript
+   interface OntologyApprovedEvent {
+     eventId: string;             // "evt-20261016-appr-01"
+     ticketId: string;            // "rev-20261016-001"
+     conceptId: string;           // "concept-tcb"
+     oldVersion: string;          // "v1.2"
+     newVersion: string;          // "v1.3"
+     affectedConceptIds: string[];// ["concept-mrmuf", "concept-imc", "defect-warpage"]
+     approvedBy: string;          // "Dr. 김수석"
+     approvedAt: string;          // "2026-10-16T15:30:00Z"
+   }
+   ```
+3. **작업 큐(Worker Queue) 재시도 및 실패 격리**:
+   - BullMQ / Redis Streams 워커는 백그라운드에서 LLM 배치를 가동하며, LLM 응답 실패 시 **지수 백오프 (Exponential Backoff: 1초, 2초, 4초, 최대 3회 재시도)** 후 실패 건은 Dead Letter Queue (DLQ)로 격리하여 시스템 다운을 원천 방지.
+
+#### 5.1.6 캐시 스탬피드 및 동시성 방어 (Redlock & XFetch 알고리즘)
+
+- **문제 상황**: 팹 라인 정기 점검 직후 수백 명의 엔지니어가 동시에 접속하여 스포트라이트 검색이나 특정 핫스팟 개념(`concept-tcb`)을 호출할 때, 캐시 만료 시 DB/LLM으로 트래픽이 일시 집중되는 현상(Cache Stampede)을 원천 차단합니다.
+- **분산 뮤텍스 락 (Redis Distributed Mutex - Redlock) 의사코드**:
+  ```python
+  import time, uuid
+
+  def get_concept_detail_with_lock(concept_id: str, perspective: str):
+      cache_key = f"concept:detail:{concept_id}:{perspective}"
+      lock_key = f"lock:concept:{concept_id}"
+      lock_token = str(uuid.uuid4())
+      
+      # 1. 캐시 조회
+      cached_data = redis_client.get(cache_key)
+      if cached_data:
+          return decompress_zlib_json(cached_data)
+      
+      # 2. 캐시 미스 시 분산 락 획득 시도 (3초 TTL)
+      acquired = redis_client.set(lock_key, lock_token, nx=True, px=3000)
+      
+      if acquired:
+          try:
+              # 최초 1개 스레드만 무거운 DB 조회 및 DTO 패킹 실행
+              db_data = fetch_from_graph_and_doc_db(concept_id, perspective)
+              compressed = compress_zlib_json(db_data)
+              redis_client.setex(cache_key, 86400, compressed) # 24시간 보관
+              return db_data
+          finally:
+              # 본인이 획득한 락만 안전하게 해제 (Lua Script)
+              release_lock_lua(lock_key, lock_token)
+      else:
+          # 락을 획득하지 못한 나머지 스레드는 50ms 대기 후 캐시에서 읽기 (최대 3회 스핀)
+          for _ in range(3):
+              time.sleep(0.05)
+              cached_data = redis_client.get(cache_key)
+              if cached_data:
+                  return decompress_zlib_json(cached_data)
+          
+          # 타임아웃 시 읽기 전용 읽기 폴백 DB 조회
+          return fetch_from_read_replica(concept_id, perspective)
+  ```
+
+- **XFetch 확률적 조기 갱신 (Probabilistic Early Expiration) 알고리즘**:
+  - 캐시 만료 직전 자연스럽게 백그라운드에서 캐시를 사전 갱신하여 캐시 미스를 0에 가깝게 유지합니다:
+  \[
+  -\beta \cdot \delta \cdot \ln(\text{rand()}) > \text{TTL}_{\text{remaining}}
+  \]
+  - \(\delta\): DTO를 생성하는 데 소요된 계산 시간 (초 단위, 평균 0.35초).
+  - \(\beta\): 갱신 공격성 가중치 계수 (\(\beta = 1.2\)).
+  - \(\text{rand()}\): \((0, 1]\) 범위의 균등 난수.
+  - 잔여 유효 시간(\(\text{TTL}_{\text{remaining}}\))이 확률적 임계치보다 작아질 경우, 요청을 처리하는 스레드가 사용자에게는 현재 캐시를 0ms로 즉각 서빙하고 백그라운드 비동기 태스크로 Redis 캐시를 갱신합니다.
 
 
 
