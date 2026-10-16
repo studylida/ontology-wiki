@@ -279,8 +279,8 @@ interface ReviewTicket {
 
 ---
 
-### 2.5 `EvidenceSource` (공식 출처 및 원문 근거 엔티티)
-- **역할**: `[D-01]` 근거 드로어 및 [Tab 4] 외부 문헌 조사에서 공인 출처 신뢰성을 보증.
+### 2.5 `EvidenceSource` 및 `KnowledgeCandidate` (공인 출처 및 지식 후보 DTO)
+- **역할**: `[D-01]` 근거 드로어, [Tab 4] 외부 문헌 조사에서 공인 출처 신뢰성을 보증하고, 화면 4-B에서 3번 검토 센터로 이관되기 전의 지식 후보 카드를 정형화.
 
 ```typescript
 interface EvidenceSource {
@@ -290,9 +290,33 @@ interface EvidenceSource {
   publisher: string;              // 발행 기관 (Samsung, SK hynix, ASML, Lam, Intel, SEMI, IEEE 등)
   publishedDate: string;          // 발행 연월 (예: "2026.01")
   quote: string;                  // 공인 규격/백서 원문 인용문 전문
+  sectionContext?: string;        // 🌟 원문 상세 위치 (예: "Section 4.2 Experimental Results, p.14 Table 2")
+  relevanceScore?: number;        // 🌟 질의 및 대상 개념과의 의미적 연관도 점수 (예: 0.94)
   externalUrl: string;            // DOI 또는 공식 웹페이지 URL
   urlLabel: string;               // 링크 버튼 라벨
   credibilityTier: "Tier 1 (공식 제조사)" | "Tier 2 (국제 표준)" | "Tier 3 (공인 학술)";
+}
+
+// 🌟 [추가: 3.5 Deep Research 지원] 화면 4-B 지식 후보 카드 DTO
+interface KnowledgeCandidate {
+  candidateId: string;            // 후보 고유 식별자 (예: "cand-20261016-01")
+  candidateType: "신규 개념" | "관점 추가" | "물리 한계 보완";
+  title: string;                  // 후보 카드 표제 (예: "유리기판 관통전극 (TGV)")
+  targetConceptId?: string;       // 관점/한계 보완 시 소속 개념 ID (예: "glass-substrate")
+  summary: string;                // 종합 기술 브리핑 요약
+  draftPayload: {                 // 3번 검토 센터 ReviewTicket으로 자동 이관될 페이로드
+    content: string;              // 합성된 Markdown 초안
+    specifications?: Array<{      // 정형 사양 (Key-Value & Role)
+      label: string;
+      value: string;
+      role?: "control_knob" | "kpi_target" | "ambient_limit";
+    }>;
+    relations?: {                 // 추천 온톨로지 관계 엣지
+      is_a?: string;
+      alternative_to?: string;
+    };
+  };
+  evidenceIds: string[];          // 인라인 연동된 공인 출처 ID 목록 (["E-01", "E-02"])
 }
 ```
 
@@ -403,9 +427,30 @@ interface EvidenceSource {
 - **예외 처리 및 충돌 가드레일 (Conflict Guardrail)**:
   - **공인 출처 정면 충돌 감지**: 전문가 지시 내용이 공인 백서 실측치와 충돌할 경우, 출처 일치도를 강등하고 `⚠️ 경고: 입력하신 지시 내용이 공인 백서의 실측치와 정면 충돌합니다. 강제 반영하시려면 전문가 사유를 입력해야 합니다.` 확인 모달을 띄워 전문가가 사유를 반드시 남기도록 강제.
 
-### 3.5 공인 문헌 교차 분석 및 초안 합성기 (Deep Research Engine)
-- **동작 화면**: [Tab 4] 외부 문헌·백서 조사
-- **로직 흐름**:
-  1. 비공인 웹을 배제하고 5대 선도사 백서, SEMI 표준, IEEE 논문 풀 스캔.
-  2. 핵심 실측 인용구 추출(화면 4-A) ➔ 종합 기술 브리핑 및 온톨로지 지식 후보 2~3건 카드 합성(화면 4-B).
-  3. 원클릭으로 3번 검토 센터 큐에 등록.
+### 3.5 공인 문헌 교차 분석 및 초안 합성기 (Deep Research Engine: 공인 지식 발굴기)
+- **동작 화면**: [Tab 4] 외부 문헌·백서 조사의 2단계 분리 화면 전체
+  - [화면 4-A]: 발굴된 공인 문헌 및 핵심 근거 피드 (Evidence Feed)
+  - [화면 4-B]: 문헌 종합 분석 리포트 & 지식 후보 카드 열람 (Synthesis Report & Candidates)
+- **해결 목적**: 온톨로지에 없는 신규 공정·소자 기술을 다룰 때, 비공인 블로그나 커뮤니티 루머를 배제하고 **도메인 평판 타깃팅 웹 검색(Domain-Reputation Search)**을 통해 공인된 1차 출처(Tier 1~3)를 교차 분석하여, 위키 데이터 모델 스키마에 100% 부합하는 **정형 지식 후보 카드(KnowledgeCandidate)** 2~3건을 합성하여 검토 센터로 안전하게 이관.
+- **상세 처리 단계 (End-to-End)**:
+  1. **도메인 평판 타깃팅 정밀 웹 검색 (Domain-Reputation Targeted Web Search)**:
+     - 일반 검색을 차단하는 것이 아니라, 검색 쿼리에 학술 포털(`ieeexplore.ieee.org`, `nature.com`, `spie.org`), 국제 표준(`semi.org`, `jedec.org`), 글로벌 톱티어 제조사(`samsung.com`, `skhynix.com`, `asml.com`, `lamresearch.com`, `intel.com`) 화이트리스트 도메인을 강제 결합하여 비공인 찌라시 유입 차단.
+  2. **핵심 실측 인용구 추출 및 티어링 (Assertion & Metric Extraction Engine)**:
+     - 수백 페이지 PDF/HTML 원문에서 서론, 면책 조항, 마케팅 문구를 배제하고 `Results`, `Discussion`, `Data Table` 섹션만 구조적 청킹(1,000토큰).
+     - 반도체 물리 단위(온도 ℃, 압력 MPa, 점도 Pa·s, 열팽창 ppm/K, 수율 %) 패턴 매칭(NER/RegEx).
+     - [전제 조건 ➔ 조작 수치 ➔ 결과 현상]이 완결된 핵심 문단을 추출하여 `EvidenceSource` 엔티티(인용구 `quote`, 상세 위치 `sectionContext`, 연관도 `relevanceScore`, `credibilityTier`) 생성 ➔ [화면 4-A]에 실시간 카드 피드 렌더링.
+  3. **다중 출처 교차 대조 및 종합 기술 브리핑 합성 (Cross-Source Synthesis)**:
+     - 2개 이상의 독립된 출처를 대조하여 2축 매트릭스로 분석:
+       - **공통 합의점 (Consensus)**: 다수 출처가 일치하게 보고한 물리적 물성 및 효과 ➔ `공인 팩트`로 확정.
+       - **상충점 및 미해결 과제 (Tension / Gap)**: 공정 조건에 따른 결함 모드나 측정치 차이 ➔ `온톨로지 한계점 보완 과제`로 도출.
+     - 출처 인라인 인용(`[E-01]`, `[E-02]`)이 포함된 마크다운 종합 기술 브리핑 생성 ➔ [화면 4-B] 상단 렌더링.
+  4. **온톨로지 정형 지식 후보 2~3건 합성 (KnowledgeCandidate Generation)**:
+     - 온톨로지 위키 스키마와 1:1로 호환되는 정형 `KnowledgeCandidate` 객체 3종 자동 생성:
+       - **후보 1: [신규 개념 제안]** 개념 정의, 원리, 한계점, 추천 관계망(`is_a`, `alternative_to`)
+       - **후보 2: [적응형 실무 사례 제안]** 특정 팹/장비 가공 사양 (`specifications`에 `role` 메타데이터 바인딩)
+       - **후보 3: [물리 한계 보완 제안]** 가공 취성 결함 등 한계점 패치
+     - ➔ [화면 4-B] 하단에 2~3대 카드로 렌더링.
+  5. **원클릭 거버넌스 이관 (Escalation to Review Center)**:
+     - 엔지니어가 후보 카드에서 `[✍️ 이 후보를 검토 센터로 전송]` 클릭 시, `ReviewTicket`으로 즉시 1:1 변환(`originType: "literature_search"`, `evidenceIds`)되어 3번 [Tab 3] 검토 센터의 '대기 중' 큐로 즉각 등록.
+- **환각 차단 및 신뢰성 가드레일 (Anti-Hallucination Guardrail)**:
+  - **출처 미보증 텍스트 합성 금지**: 생성되는 모든 지식 후보 카드의 문장은 반드시 Step 2에서 수집된 `EvidenceSource.quote`에 앵커링되어야 하며, 출처가 없거나 신뢰 티어(Tier 1~3)를 통과하지 못한 텍스트는 지식 후보에서 제외.
