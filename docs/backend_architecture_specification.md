@@ -1463,4 +1463,331 @@ interface ConceptDetailResponse {
   - `400 Bad Request`: 필수 전달 필드 누락 시 에러 반환.
   - `404 Not Found`: 대상 세션이나 대상 개념이 없는 경우 에러 토스트 출력.
 
+---
+
+### 4.4 [Tab 3] 지식 거버넌스 및 검토·승인 센터 API (Review Center)
+
+#### 1. `GET /api/v1/review-tickets`
+- **화면 맥락**: [프론트 §3.3 좌측 사이드바 2-Segment 큐] 엔지니어가 좌측 사이드바 상단의 `[대기 중 (Pending)]` 또는 `[승인 완료 이력 (Approved)]` 세그먼트 탭을 전환하여 티켓 목록을 열람. 각 티켓 카드에는 개념명, 제안 유형(파라미터 수정, 신규 개념 등), 작성자, 제출일시, 요약문, 출처 일치도 배지가 표시됨.
+- **사용자 입력 (Request)**:
+  - Query Params:
+    - `status` (선택, enum: `pending` | `approved` | `rejected`, 기본값: `pending`): 2-Segment 탭 상태
+    - `category` (선택, string): 공정 분류 필터
+    - `limit` (선택, integer): 페이지당 조회 수 (기본값: 15)
+- **화면 렌더링용 데이터 (Response 200 OK)**:
+  ```json
+  {
+    "currentSegment": "pending",
+    "counts": {
+      "pendingCount": 3,
+      "approvedCount": 42
+    },
+    "tickets": [
+      {
+        "id": "rev-20261016-001",
+        "conceptId": "concept-tcb",
+        "conceptTitle": "열압착 본딩 (TCB)",
+        "reviewType": "파라미터 수정",
+        "title": "TCB 16단 적층 시 NCF 필름 유출 한계 하중 수치 보완 제안",
+        "author": "Dr. 김수석",
+        "department": "수율분석팀",
+        "submittedAt": "2026-10-16T14:20:00Z",
+        "status": "pending",
+        "originType": "comparison_studio",
+        "sourceSessionId": "sess-20261016-001",
+        "summary": "16단 고적층 가압력 한계 수치를 180N에서 165N으로 하향 보완하고 초음파 보상 파라미터 규격을 추가 반영 요청.",
+        "integrityBadge": {
+          "evidenceMatchRate": 1.0,
+          "hasOntologyConflict": false,
+          "label": "출처 부합율 100% (검증 완료)"
+        }
+      },
+      {
+        "id": "rev-20261016-002",
+        "conceptId": "concept-glass-tgv",
+        "conceptTitle": "유리기판 관통전극 (TGV)",
+        "reviewType": "신규 개념",
+        "title": "차세대 패키징 유리기판 TGV 공정 및 물성 표준 규격 신규 등록",
+        "author": "조사 에이전트 (AI Deep Research)",
+        "department": "선행패키징연구소",
+        "submittedAt": "2026-10-16T11:00:00Z",
+        "status": "pending",
+        "originType": "literature_search",
+        "sourceSessionId": "res-20261016-01",
+        "summary": "글로벌 선도사 기술 백서 및 IEEE 논문 교차 검증을 통해 추출된 유리기판 TGV 핵심 사양 신규 등재 요청.",
+        "integrityBadge": {
+          "evidenceMatchRate": 0.95,
+          "hasOntologyConflict": false,
+          "label": "출처 부합율 95% (검증 완료)"
+        }
+      }
+    ]
+  }
+  ```
+- **예외 처리 (Error)**:
+  - 해당 세그먼트에 티켓이 0건인 경우 `tickets: []` 빈 배열 반환 ➔ 사이드바에 "대기 중인 검토 티켓이 없습니다." 빈 상태 일러스트 노출.
+
+#### 2. `GET /api/v1/review-tickets/{id}`
+- **화면 맥락**: [프론트 §3.3 메인 검토 화면 (2-Pane Diff & 컨트롤 헤더)] 사이드바에서 특정 티켓을 클릭했을 때 메인 화면 전체를 로드. 상단 헤더의 메타데이터 및 4대 액션 버튼(`✏️ 직접 편집 모드`, `👁️ 반영될 위키 페이지 미리보기`, `📖 반영된 위키 문서 바로가기`, `승인 및 공용 위키에 즉시 게시`), 3대 실시간 무결성 점검 바(출처 일치도, 온톨로지 충돌 여부, 영향 범위), 2-Pane Diff(좌측: 현재 위키 v1.2 vs 우측: AI 통합 반영 초안 + 하이라이트), 하단 초안 보완 지시 바와 추천 지시 칩 4종 렌더링.
+- **사용자 입력 (Request)**:
+  - Path Param:
+    - `id` (필수, string): 티켓 ID (예: `"rev-20261016-001"`)
+- **화면 렌더링용 데이터 (Response 200 OK - `ReviewTicket` 엔티티)**:
+  ```json
+  {
+    "id": "rev-20261016-001",
+    "conceptId": "concept-tcb",
+    "conceptTitle": "열압착 본딩 (TCB)",
+    "reviewType": "파라미터 수정",
+    "title": "TCB 16단 적층 시 NCF 필름 유출 한계 하중 수치 보완 제안",
+    "author": "Dr. 김수석",
+    "department": "수율분석팀",
+    "submittedAt": "2026-10-16T14:20:00Z",
+    "status": "pending",
+    "sourceSessionId": "sess-20261016-001",
+    "originType": "comparison_studio",
+    "currentVersion": "v1.2",
+    "targetVersion": "v1.3",
+    "currentContent": "### 3. 한계 및 트레이드오프\n- **16단 이상 고다단 적층 시 누적 열변형(Thermal Warpage)**:\n  다단 칩을 반복 가열/냉각하는 과정에서 NCF 필름에 과도한 하중(180N 초과)이 인가되면 수지 유출 및 단락이 발생함. [E-01]",
+    "aiMergedDraft": "### 3. 한계 및 트레이드오프\n- **16단 이상 고다단 적층 시 누적 열변형(Thermal Warpage)**:\n  다단 칩을 반복 가열/냉각하는 과정에서 NCF 필름에 과도한 하중(<mark class=\"diff-modified\">165N 초과</mark>)이 인가되면 수지 유출 및 단락이 발생함. [E-01]\n  <mark class=\"diff-added\">장비 가압력 한계(150N 이하) 환경에서는 초음파 인가 시간(2.2s) 보상 파라미터를 적용하여 마진을 확보함.</mark> [E-02]",
+    "humanEdits": null,
+    "structuredPatches": {
+      "specsPatch": [
+        { "label": "NCF 유출 임계 하중", "oldValue": "180N", "newValue": "165N", "role": "ambient_limit" }
+      ],
+      "relationsPatch": {
+        "addedEdges": [
+          { "targetId": "concept-tsv", "relationType": "coupled_with", "polarity": "+" }
+        ],
+        "removedEdges": []
+      }
+    },
+    "integrityReport": {
+      "evidenceMatchRate": 1.0,
+      "hasOntologyConflict": false,
+      "impactScopeCount": 1,
+      "validationDetails": "인용 출처(Samsung Tech Whitepaper E-01 개정판)와 실측치(165N)가 100% 일치하며 상하위 온톨로지 충돌이 없습니다. 영향받는 연관 개념: 1건(concept-ncf)."
+    },
+    "directiveHistory": [],
+    "quickDirectiveChips": [
+      "극저온 배기 한계 추가",
+      "출처 표기 공식화",
+      "초심자 비유 보강",
+      "Scale 2 실리콘 관통전극(TSV) 계면 연계 추가"
+    ],
+    "approvedBy": null,
+    "approvedAt": null,
+    "appliedConceptVersion": null
+  }
+  ```
+- **예외 처리 (Error)**:
+  - `404 Not Found`: 존재하지 않는 티켓 ID 요청 시 `{ "code": "TICKET_NOT_FOUND", "message": "해당 검토 티켓을 찾을 수 없습니다." }` ➔ 사이드바 목록으로 이동 및 토스트 출력.
+
+#### 3. `POST /api/v1/review-tickets/{id}/directive`
+- **화면 맥락**: [프론트 §3.3 하단 초안 보완 지시 바 (Directive Box)] 전문가가 자연어 지시 입력창에 지시문(예: `"Scale 2 실리콘 관통전극(TSV) 계면 응력 연계를 추가해줘"`)을 입력하거나 빠른 요청 칩을 클릭한 후 `🚀 수정 지시 전송` 버튼을 누름. 백엔드의 [3.4 Directive Engine]이 공인 출처 불변 제약을 보존하면서 초안(`aiMergedDraft`)과 정형 사양/관계망을 재작성하고, 우측 Pane의 텍스트와 3대 무결성 점검 지표가 즉시 갱신(Transitions.dev).
+- **사용자 입력 (Request)**:
+  - Path Param: `id` (필수, string)
+  - Request Body:
+    ```json
+    {
+      "directiveText": "Scale 2 실리콘 관통전극(TSV) 계면 응력 연계를 한계 섹션에 추가해줘.",
+      "overrideReason": null
+    }
+    ```
+    *(공인 출처 충돌 경고 발생 시 강제 반영 사유 문자열을 함께 전송 가능)*
+- **화면 렌더링용 데이터 (Response 200 OK)**:
+  ```json
+  {
+    "ticketId": "rev-20261016-001",
+    "directiveText": "Scale 2 실리콘 관통전극(TSV) 계면 응력 연계를 한계 섹션에 추가해줘.",
+    "targetLayer": "hybrid",
+    "revisedDraft": "### 3. 한계 및 트레이드오프\n- **16단 이상 고다단 적층 시 누적 열변형(Thermal Warpage)**:\n  다단 칩을 반복 가열/냉각하는 과정에서 NCF 필름에 과도한 하중(165N 초과)이 인가되면 수지 유출 및 단락이 발생함. [E-01]\n  장비 가압력 한계(150N 이하) 환경에서는 초음파 인가 시간(2.2s) 보상 파라미터를 적용하여 마진을 확보함. [E-02]\n  <mark class=\"diff-added\">- **Scale 2 TSV 계면 응력 집중**: 16단 적층 시 상하 TSV 구리 필러와 실리콘 다이 간 열팽창계수 불일치로 마이크로 크랙 전파 위험이 병행 발생함. [E-03]</mark>",
+    "structuredPatches": {
+      "specsPatch": [
+        { "label": "NCF 유출 임계 하중", "oldValue": "180N", "newValue": "165N", "role": "ambient_limit" }
+      ],
+      "relationsPatch": {
+        "addedEdges": [
+          { "targetId": "concept-tsv", "relationType": "causes_stress_on", "polarity": "+" }
+        ],
+        "removedEdges": []
+      }
+    },
+    "integrityReport": {
+      "evidenceMatchRate": 1.0,
+      "hasOntologyConflict": false,
+      "impactScopeCount": 2,
+      "validationDetails": "공인 출처(E-01, E-02, E-03)와 100% 부합하며 온톨로지 충돌 없음. 영향받는 연관 개념: 2건(concept-ncf, concept-tsv)."
+    },
+    "addedDirective": {
+      "directiveText": "Scale 2 실리콘 관통전극(TSV) 계면 응력 연계를 한계 섹션에 추가해줘.",
+      "targetLayer": "hybrid",
+      "timestamp": "2026-10-16T14:25:00Z"
+    }
+  }
+  ```
+- **예외 처리 (Error)**:
+  - `400 Bad Request`: `directiveText` 누락 시 에러 반환.
+  - `422 Unprocessable Entity` (공인 백서 실측치와 정면 충돌 시):
+    ```json
+    {
+      "code": "EVIDENCE_CONFLICT_WARNING",
+      "message": "입력하신 수치(140N)는 공인 백서 E-01의 실측치(165N)와 정면 충돌합니다. 강제 반영하시려면 사유를 입력해야 합니다.",
+      "requiresOverride": true
+    }
+    ```
+    ➔ **UI 연동**: 경고 모달을 띄워 엔지니어가 사유를 작성하고 재전송하도록 유도.
+
+#### 4. `PUT /api/v1/review-tickets/{id}/human-edits`
+- **화면 맥락**: [프론트 §3.3 우측 Pane 전문가 직접 편집기 (In-Place Editor)] 전문가가 상단 `✏️ 직접 편집 모드` 토글을 켜면 우측 초안 Pane이 `Textarea` 에디터로 전환됨. 문구를 직접 수정한 후 `💾 수정 내용 초안에 반영` 버튼을 클릭하면 수정한 텍스트가 저장되고 3대 무결성 점검 지표가 실시간 재산출.
+- **사용자 입력 (Request)**:
+  - Path Param: `id` (필수, string)
+  - Request Body:
+    ```json
+    {
+      "editedContent": "### 3. 한계 및 트레이드오프\n- **16단 이상 고다단 적층 시 누적 열변형(Thermal Warpage)**:\n  다단 칩을 반복 가열/냉각하는 과정에서 NCF 필름에 과도한 하중(165N 초과)이 인가되면 수지 유출 및 단락이 발생함. [E-01]\n  (전문가 직접 수정 문구 반영)"
+    }
+    ```
+- **화면 렌더링용 데이터 (Response 200 OK)**:
+  ```json
+  {
+    "ticketId": "rev-20261016-001",
+    "humanEdits": "### 3. 한계 및 트레이드오프\n- **16단 이상 고다단 적층 시 누적 열변형(Thermal Warpage)**:\n  다단 칩을 반복 가열/냉각하는 과정에서 NCF 필름에 과도한 하중(165N 초과)이 인가되면 수지 유출 및 단락이 발생함. [E-01]\n  (전문가 직접 수정 문구 반영)",
+    "integrityReport": {
+      "evidenceMatchRate": 1.0,
+      "hasOntologyConflict": false,
+      "impactScopeCount": 1,
+      "validationDetails": "전문가 수동 편집본 기준 출처 정합성 유지 확인 완료."
+    },
+    "updatedAt": "2026-10-16T14:27:00Z"
+  }
+  ```
+- **예외 처리 (Error)**:
+  - 본문이 공백인 경우 `400 Bad Request` 에러 반환.
+
+#### 5. `GET /api/v1/review-tickets/{id}/wiki-preview`
+- **화면 맥락**: [프론트 §3.3 상단 버튼 ➔ §4.4 `[M-02]` 위키 페이지 승인 반영 실시간 미리보기 모달] 전문가가 상단의 `👁️ 반영될 위키 페이지 미리보기` 버튼을 누르면 대형 모달이 열림. 최종 승인 시 1번 [Tab 1] 공용 위키 페이지가 어떻게 변경되는지를 ✨ 변경 항목 하이라이트 토글(추가분 초록, 수정분 노랑)과 함께 완벽한 형태의 위키 본문(정의, 수식, 한계, 실무 사례 카드)으로 미리 확인.
+- **사용자 입력 (Request)**:
+  - Path Param: `id` (필수, string)
+  - Query Param:
+    - `highlightChanges` (선택, boolean, 기본값: `true`)
+- **화면 렌더링용 데이터 (Response 200 OK)**:
+  ```json
+  {
+    "ticketId": "rev-20261016-001",
+    "conceptId": "concept-tcb",
+    "targetVersion": "v1.3",
+    "previewConcept": {
+      "id": "concept-tcb",
+      "title": "열압착 본딩",
+      "engName": "Thermo-Compression Bonding",
+      "aliases": ["TCB", "열압착 접합"],
+      "domainFacet": "unit_process",
+      "processCategory": "첨단 패키징",
+      "scaleLevel": 3,
+      "scaleName": "L3 단위 공정",
+      "status": "preview",
+      "lastReviewedBy": "Dr. 김수석 (수율분석팀)",
+      "lastReviewedAt": "2026.10.16 (승인 대기 중)",
+      "purpose": "HBM 및 3D IC 적층 시 마이크로범프에 열과 압력을 인가하여 Cu-Sn 금속간 화합물을 형성하는 접합 공정.",
+      "limitations": [
+        {
+          "title": "16단 이상 고다단 적층 시 누적 열변형(Thermal Warpage)",
+          "description": "다단 칩을 반복 가열/냉각하는 과정에서 NCF 필름에 과도한 하중(<mark class=\"diff-modified\">165N 초과</mark>)이 인가되면 수지 유출 및 단락이 발생함.",
+          "evidenceIds": ["E-01"]
+        },
+        {
+          "title": "장비 가압력 한계(150N 이하) 환경에서의 보상 파라미터 규격",
+          "description": "<mark class=\"diff-added\">초음파 인가 시간(2.2s) 보상 파라미터를 적용하여 접합 마진을 확보함.</mark>",
+          "evidenceIds": ["E-02"]
+        }
+      ]
+    },
+    "diffSummary": {
+      "addedCount": 1,
+      "modifiedCount": 1,
+      "deletedCount": 0
+    }
+  }
+  ```
+- **예외 처리 (Error)**:
+  - `404 Not Found`: 동료가 이미 승인 또는 삭제하여 해당 티켓이 데이터베이스에 존재하지 않을 때 ➔ 빈 깡통 모달이 열리지 않도록 차단하고, 화면 우측 하단에 `"이미 승인되었거나 삭제된 티켓입니다."` 경고 토스트 알림을 띄운 뒤 사이드바 목록 새로고침.
+
+#### 6. `POST /api/v1/review-tickets/{id}/approve`
+- **화면 맥락**: [프론트 §3.3 상단 버튼 ➔ §4.5 `[M-03]` 승인 성공 확인 모달] 전문가가 최종 검토를 마치고 `승인 및 공용 위키에 즉시 게시` 버튼을 클릭. 백엔드가 공식 위키에 `v1.3`으로 즉시 배포하고 티켓을 `approved`로 확정. 화면에는 체크 애니메이션과 함께 `[M-03] 승인 성공 확인 모달`이 열리며 사이드바의 [대기 중] 큐에서 티켓이 제거되고 [승인 완료 이력]으로 자동 이동. 헤더의 `📖 반영된 위키 문서 바로가기` 버튼 활성화.
+- **사용자 입력 (Request)**:
+  - Path Param: `id` (필수, string)
+  - Request Body:
+    ```json
+    {
+      "approvedBy": "Dr. 김수석",
+      "department": "수율분석팀",
+      "approvalComment": "최신 2026.01 공인 백서 실측치 부합 확인 및 16단 양산 한계 반영 정식 승인."
+    }
+    ```
+- **화면 렌더링용 데이터 (Response 200 OK)**:
+  ```json
+  {
+    "ticketId": "rev-20261016-001",
+    "status": "approved",
+    "conceptId": "concept-tcb",
+    "conceptTitle": "열압착 본딩 (TCB)",
+    "appliedConceptVersion": "v1.3",
+    "approvedBy": "Dr. 김수석",
+    "approvedAt": "2026-10-16T14:30:00Z",
+    "publishedUrl": "/wiki/concept-tcb",
+    "successMessage": "위키 문서가 'v1.3' 정식 버전으로 공용 위키에 즉시 배포되었습니다.",
+    "modalData": {
+      "title": "승인 및 배포 완료",
+      "versionNotice": "버전 v1.3 배포 완료",
+      "auditId": "audit-20261016-tcb-v13",
+      "wikiLink": "/wiki/concept-tcb",
+      "wikiLinkLabel": "📖 반영된 위키 문서 바로가기 ➔"
+    }
+  }
+  ```
+- **예외 처리 (Error)**:
+  - `409 Conflict` (미해결 온톨로지 충돌 존재 시):
+    ```json
+    {
+      "code": "INTEGRITY_CONFLICT_UNRESOLVED",
+      "message": "본딩 온도(295°C)가 하위 연결 소재인 'NCF 필름'의 열분해 한계(260°C)를 초과합니다.",
+      "conflictDetails": {
+        "conflictingConceptId": "concept-ncf",
+        "conflictingParam": "열분해 한계 온도",
+        "limitValue": "260°C",
+        "proposedValue": "295°C"
+      },
+      "suggestedFix": "온도를 260°C 이하로 낮추거나 초음파 인가 시간(2.2s) 보상 파라미터를 적용하세요."
+    }
+    ```
+    ➔ **UI 연동**: 승인 버튼을 비활성화하고, 모달 창에 충돌 원인과 해결 추천 팁(`suggestedFix`)을 띄워 AI 지시문이나 직접 편집으로 해결하도록 안내.
+
+#### 7. `POST /api/v1/review-tickets/{id}/reject`
+- **화면 맥락**: [프론트 §3.3 메인 검토 화면 (보조 액션)] 전문가가 제안된 초안이 사내 공정 기준에 부합하지 않거나 오류가 심각하여 기각하기 위해 `반려 (Reject)` 버튼을 클릭하고 사유를 입력. 티켓 상태가 `rejected`로 변경되어 큐에서 종결되며 제안자에게 반려 사유 전달.
+- **사용자 입력 (Request)**:
+  - Path Param: `id` (필수, string)
+  - Request Body:
+    ```json
+    {
+      "rejectedBy": "Dr. 김수석",
+      "department": "수율분석팀",
+      "rejectReason": "해당 제안의 가압력 조건은 당사 HBM3E 신뢰성 기준에 미달하여 반영 불가합니다."
+    }
+    ```
+- **화면 렌더링용 데이터 (Response 200 OK)**:
+  ```json
+  {
+    "ticketId": "rev-20261016-001",
+    "status": "rejected",
+    "rejectedBy": "Dr. 김수석",
+    "rejectedAt": "2026-10-16T14:32:00Z",
+    "rejectReason": "해당 제안의 가압력 조건은 당사 HBM3E 신뢰성 기준에 미달하여 반영 불가합니다.",
+    "message": "해당 검토 티켓이 공식 반려 처리되었습니다."
+  }
+  ```
+- **예외 처리 (Error)**:
+  - `400 Bad Request`: `rejectReason` 누락 시 `{ "code": "REJECT_REASON_REQUIRED", "message": "반려 사유는 필수 입력 사항입니다." }`.
+
+
 
