@@ -208,7 +208,7 @@ interface ComparisonSession {
       
       aiCausalNote: string;       // AI 종합 인과 분석 코멘트
       
-      // 🌟 [추가 5: 3.2 Comparison 지원] 인과 체인 딥다이브 질의 이력 영구 보존
+      // 🌟 [추가 5: 3.2 Comparison 지원] 꼬리질문 이력 영구 보존
       deepDiveHistory?: Array<{
         query: string;            // 사용자가 던진 꼬리물기 질문
         causalPath: string[];     // ["가압력 누적", "CTE 미스매치", "전단응력", "다이 휨"]
@@ -416,11 +416,8 @@ interface KnowledgeCandidate {
 - **신공정 편측 결손 감지**: 비교 대상 중 한쪽이 온톨로지에 부재한 신기술인 경우, [Tab 4] Deep Research Engine과 연계하여 외부 공인 백서에서 대조군 후보를 발굴하도록 유도.
 
 ### 3.2 다차원 기술 대안 비교 매트릭스 생성기 (Comparison Engine)
-- **동작 화면 및 다중 활용 영역 (Cross-Workspace Scope)**:
-  - **[주 활용]**: [Tab 2] 화면 2-B (비교 결과 리포트 - 동적 적응형 축 매핑 및 지식 갭 격리)
-  - **[다중 활용 1]**: [Tab 3] 검토 센터 (비교 도출 지식의 2-Pane 대조 심사)
-  - **[다중 활용 2]**: [Tab 1] 위키 본문 (현재 열람 중인 개념과 경쟁 대안 기술 간 1:1 대조 미니 위젯)
-- **해결 목적**: 대상 A와 B의 공통점과 차이점을 편향이나 추정치 없이 온톨로지 인과 그래프와 공인 출처에 기반해 대조하며, 고정된 축 대신 도메인/스케일에 맞는 **동적 적응형 비교 축(Dynamic Adaptive Axes)**을 제공하고, 출처 없는 데이터는 **환각 없이 지식 갭(Gap)으로 정직하게 격리**하며, 엔지니어의 **인과 체인 딥다이브(Causal Deep-Dive)** 꼬리물기 질의를 지원.
+- **동작 화면**: [Tab 2] 기술 대안 비교분석의 [화면 2-B: 비교 결과 리포트]
+- **해결 목적**: 대상 A와 B의 공통점과 차이점을 편향이나 추정치 없이 온톨로지 인과 그래프와 공인 출처에 기반해 대조하며, 고정된 축 대신 도메인/스케일에 맞는 **동적 적응형 비교 축(Dynamic Adaptive Axes)**을 제공하고, 출처 없는 데이터는 **환각 없이 지식 갭(Gap)으로 정직하게 격리**하며, 엔지니어의 **꼬리질문**을 지원.
 - **상세 처리 단계 (End-to-End)**:
   1. **서브그래프 정렬 및 동적 비교 축(Dynamic Adaptive Axes) 도출**:
      - 대상 A와 B의 `domainFacet`(소자, 공정, 운영, 소재) 및 `scaleLevel`(1~5)을 분석.
@@ -434,8 +431,8 @@ interface KnowledgeCandidate {
      - 최종 결과는 `ComparisonSession.snapshots[2].matrix`에 `evidenceA`, `evidenceB`, `isGap`, `axisCategory`를 포함하여 영구 보존.
   4. **AI 종합 인과 분석 코멘트 합성 (Causal Synthesis Note)**:
      - 온톨로지 상충 엣지(`trade_off`, `causes`)를 기반으로 한쪽 기술을 택했을 때의 이점과 물리적 한계 비용(트레이드오프 방정식)을 정밀 요약.
-  5. **인과 체인 딥다이브 서브 파이프라인 (Causal Deep-Dive Sub-Engine)**:
-     - 엔지니어가 결과 코멘트를 보고 "왜 16단에서 휨(Warpage)이 급증하나?" 같은 꼬리물기 질의 입력 시,
+  5. **꼬리질문 (Tail Question)**:
+     - 엔지니어가 결과 코멘트를 보고 "왜 16단에서 휨(Warpage)이 급증하나?" 같은 꼬리질문 입력 시,
      - 온톨로지 인과 그래프의 3-hop 역방향/정방향 인과 경로(`가압력 누적 ➔ 열팽창계수 미스매치 ➔ 계면 전단응력 집중 ➔ 다이 휨 & 보이드`)를 그래프 순회로 추적.
      - 구조화된 `causalPath: string[]` 다이어그램 노드와 물리 화학적 메커니즘 해설을 즉시 스트리밍 반환하며, 이 질의 이력은 `ComparisonSession.snapshots[2].deepDiveHistory`에 자동 영구 보존.
   6. **거버넌스 연동 역링크 보장**:
