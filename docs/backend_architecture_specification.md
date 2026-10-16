@@ -340,25 +340,80 @@ interface KnowledgeCandidate {
 ## 3. 2단계: AI 에이전트 & 인과 추론 파이프라인 아키텍처
 
 ### 3.1 대화형 질문 구체화 파이프라인 (Clarifier Engine)
-- **동작 화면 및 다중 활용 영역 (Cross-Workspace Scope)**:
-  - **[주 활용]**: [Tab 2] 기술 대안 비교분석의 첫 화면 (화면 2-A: 조사·분석 요청실 - 3대 공학 분기 도출)
-  - **[다중 활용 1]**: [Tab 4] 외부 문헌 조사실 (화면 4-A: Search Clarifier 대화 - 신규 출처 발굴 탐색 범위 구체화)
-  - **[다중 활용 2]**: 상단 글로벌 검색 바 / 지능형 챗봇 (엔지니어의 모호한 검색 질의를 온톨로지 개념·도메인으로 구조화)
-- **해결 목적**: 현장 엔지니어의 모호하고 현상 중심인 질의(예: "HBM 열 문제 어떻게 잡지?")를 온톨로지 인과 그래프를 기반으로 분석하여, 실제 엔지니어링 의사결정이 가능한 3대 공학 비교 분기 카드(Causal Tension Branches)로 구체화.
-- **상세 처리 단계 (End-to-End)**:
-  1. **온톨로지 엔티티 매핑 (Entity Extraction & Traversal)**:
-     - `text-embedding-005`와 도메인 사전을 통해 사용자 질의에서 온톨로지 핵심 노드(예: HBM3E, 열저항, 본딩 방식) 추출 및 매핑.
-     - **사용자 현장 제약 조건 파싱**: 초기 질문에 장비/라인 제약(예: "600W 이하 조건에서", "150N 제한")이 포함되어 있을 경우 이를 감지하여 `ComparisonSession.contextParams.constraints`에 즉시 구조화 바인딩.
-  2. **경쟁 대안 엣지 및 인과적 긴장(Causal Tension) 분석**:
-     - `Concept.relations.alternative_to` 엣지를 1차 조회하여 공통 목표(`commonGoal`)를 공유하는 검증된 대안 기술 쌍을 도출.
-     - 매핑된 노드를 중심으로 그래프의 `causes`, `caused_by`, `trade_off` 관계 엣지를 2-hop까지 순회하여 상충하는 3대 기술 경로 도출.
-  3. **구조화된 3대 분기 카드 JSON 생성**:
-     - `recognizedIntent`, `branches[3]` (`branchId`, `title`, `description`, `targetA`, `targetB`, `domain`)의 고정 스키마 JSON 생성.
-  4. **프론트엔드 자동 바인딩 및 화면 전환**:
-     - 엔지니어가 분기 카드 클릭 시 `targetA`, `targetB`, `domain`, `constraints`가 세션에 자동 주입되며 즉시 [화면 2-B] 비교 결과 리포트로 전환.
-- **예외 처리 및 가드레일 (Fallback)**:
-  - 온톨로지 범위를 벗어난 질의(유사도 < 0.65): 도메인 특화 안내 메시지 반환.
-  - 신공정 등 온톨로지 편측 결손: [Tab 4] Deep Research Engine과 연계하여 외부 공인 백서에서 대조군 후보 실시간 발굴.
+- **해결 목적**: 현장 엔지니어의 모호하거나 광범위한 자연어 입력을 온톨로지 지식 그래프 및 의도 분류(Intent Routing)를 통해 정밀 분석하여, 각 화면의 목적에 부합하는 **동적 의사결정 분기, 문헌 검색 범위 필터, 또는 공인 출처 기반 즉각 답변**으로 구조화.
+- **아키텍처 구조**: 공통 코어(Shared Core Engine)를 기반으로 화면 맥락에 맞춘 3가지 특화 동작 모드(Mode A, B, C)로 분기.
+
+#### 1) 공통 코어 메커니즘 (Shared Core Logic)
+- **온톨로지 엔티티 매핑**: `text-embedding-005`와 반도체 공학 사전(Fab, Packaging, Material, Defect)을 통해 입력 질의에서 핵심 온톨로지 노드(`Concept.id`) 식별.
+- **현장 제약 조건 파싱**: 질의에 포함된 장비/공정 한계(예: "600W 이하", "150N 제한")를 감지하여 `ComparisonSession.contextParams.constraints`에 구조화 바인딩.
+- **모호성 및 의도 평가 (Intent & Ambiguity Routing)**: 질의의 구체성, 연결된 온톨로지 인과 엣지 수, 사용자 의도를 평가하여 즉답(Direct Answer) / 구체화 역질문(Clarification) / 화면 전환 액션(Action Trigger) 여부를 1차 판별.
+
+#### 2) 화면별 특화 동작 모드 (Screen-Specific Modes)
+
+##### [모드 A: `comparison_clarifier`] [Tab 2] 기술 대안 비교 전용
+- **호출 화면**: [Tab 2] 화면 2-A (기술 대안 비교분석 - 조사·분석 요청실)
+- **입력 (Input)**:
+  ```typescript
+  interface ComparisonClarifierInput {
+    query: string;               // 예: "HBM3E 16단 적층에서 TCB랑 LAB 어떻게 달라?"
+    baseConceptId?: string;      // 기준 대상 개념 ID (옵션)
+    customAxes?: string[];       // 엔지니어가 직접 지정한 초기 관심 축 (옵션)
+  }
+  ```
+- **특화 처리 로직 (동적 적응형 축 연동)**:
+  - `Concept.relations.alternative_to` 엣지를 조회하여 두 기술의 공통 목적(예: 16단 마이크로범프 접합)과 상충하는 공학적 긴장점(CTE 열팽창 미스매치 vs 택트타임)을 탐색.
+  - **정적 3개 고정을 탈피한 동적 축 확장 체계**:
+    1. **1차 추천 3대 대표 분기 카드 (Quick-start Presets)**: 가장 격차가 큰 3대 대표 축(예: 열·기계 한계 vs 결함·신뢰성 vs 설비 개조비용)을 프리셋 카드로 즉시 제안.
+    2. **동적 후보 축 태그 풀 (Dynamic Axis Pool)**: 온톨로지 스펙 카테고리(`thermal`, `defects`, `fab`)에서 도출된 추가 후보 축(예: `[+ 휨 변형률]`, `[+ 보이드 발생률]`, `[+ N2 퍼지 유량]`)을 태그 칩으로 노출하여 엔지니어가 자유롭게 토글 선택 가능.
+    3. **사용자 정의 커스텀 축(Custom Axis) 주입**: 엔지니어가 입력창에 직접 작성한 관심 지표(예: "단위 소모 전력")를 `customAxes` 파라미터로 즉시 흡수.
+- **출력 (Output)**:
+  - `recognizedIntent`: 인식된 비교 의도 요약
+  - `branches[3]`: 3대 대표 분기 카드 (`branchId`, `title`, `description`, `targetA`, `targetB`, `domain`)
+  - `dynamicAxesPool`: 카테고리별 추가 추천 축 태그 목록 (`axisId`, `label`, `category`)
+  - `clarificationQuestions[3]`: 양산 타깃 조건, 우선순위 지표, 팹 환경 제약 선택 칩
+- **다운스트림 연동**: 분기 카드 또는 사용자 설정 확정 시 `ComparisonSession`을 생성하고, 선택된 축 목록(`selectedAxes` + `customAxes`)을 [3.2 Comparison Engine]으로 직결 전달.
+
+##### [모드 B: `research_clarifier`] [Tab 4] 공인 백서 조사 전용
+- **호출 화면**: [Tab 4] 화면 4-A (외부 문헌·백서 조사실 - Search Clarifier 대화창)
+- **입력 (Input)**:
+  ```typescript
+  interface ResearchClarifierInput {
+    searchTopic: string;         // 예: "하이브리드 본딩 표면 플라즈마 활성화 보이드 방지"
+    preferredTier?: string[];    // 선호 신뢰도 티어 (Tier 1, Tier 2, Tier 3)
+  }
+  ```
+- **특화 처리 로직**:
+  - 입력된 기술의 산업 계층(Packaging level, Wafer fab, Material vendor)을 온톨로지에서 분류.
+  - 비공인 웹 문서나 마케팅 블로그 유입을 원천 차단하기 위해, **조사 대상 소자 세대(HBM4 vs 3D Logic), 공정 온도 범위, 선호 공인 기관(IEEE, SEMI, Samsung, TSMC 등)을 한정하는 구체화 질문** 생성.
+- **출력 (Output)**:
+  - `scopeFilters`: 추천 검색 범위 필터 (소자 세대, 공정 임계치, 발행 연도 프리셋)
+  - `targetInstitutions`: 타깃팅할 공인 학회/기업 태그 목록 (`["IEEE", "SEMI", "ECTC", "Samsung Tech Day"]`)
+  - `negativeKeywords`: 마케팅/루머 배제용 제외 키워드 세트 (`["news", "stock", "rumor", "blog"]`)
+- **다운스트림 연동**: 엔지니어가 필터를 확정하면 [3.5 Deep Research Engine] Step 1의 타깃 웹 검색 파라미터(`searchParams`)로 주입.
+
+##### [모드 C: `global_chatbot_router`] 상단 글로벌 검색 바 & 지능형 챗봇 전용
+- **호출 화면**: 상단 글로벌 헤더 검색창 및 우측 플로팅 지능형 엔지니어링 챗봇
+- **입력 (Input)**:
+  ```typescript
+  interface GlobalChatbotInput {
+    utterance: string;           // 엔지니어의 자연어 입력
+    currentUrlContext?: string;  // 현재 사용자가 머물고 있는 화면/탭 컨텍스트
+  }
+  ```
+- **특화 처리 로직 (`Intent Router` 기반 3단 분기)**:
+  - **경로 1: 사실/스펙 단답형 질의 (Direct Factoid Q&A)**:
+    - *트리거*: "TCB 최대 가압력 스펙이 얼마야?", "HBM3E 높이 규격은?" 등 정형 사실 질의.
+    - *동작*: 역질문 없이 온톨로지 정형 스펙(`specifications`) 및 요약 텍스트를 즉시 매칭하여 **"TCB의 최대 가압력은 150N (공정 마진 120~180N)입니다. [출처: Samsung Tech Whitepaper E-01]"** 처럼 **정확한 수치 단답 + 공인 출처 배지**를 즉각 반환.
+  - **경로 2: 모호한 트러블슈팅/인과 질의 (Ambiguous Causal Clarifier)**:
+    - *트리거*: "식각 챔버에서 아킹이 자꾸 튀어요", "패키징 수율이 급락했습니다" 등 단답이 불가능한 현상 질의.
+    - *동작*: 온톨로지 인과 엣지(`causes`, `caused_by`)를 역추적하여 **1~2문장의 정중한 공학 역질문(`clarificationPrompt`) + 온톨로지 추천 노드 링크 2~3개**를 반환하여 문제 범위를 좁힘.
+  - **경로 3: 화면 액션 트리거 (Action Trigger)**:
+    - *트리거*: "TCB랑 LAB 장단점 비교해줘", "하이브리드 본딩 최신 백서 찾아줘" 등 작업 실행 의도.
+    - *동작*: 챗봇 내에서 긴 답변 대신 **[Tab 2 비교 분석 바로가기]** 또는 **[Tab 4 백서 조사 바로가기]** 원클릭 딥링크 카드를 띄워 세션 생성 및 화면 전환 유도.
+
+#### 3) 예외 처리 및 가드레일 (Fallback)
+- **온톨로지 범위 이탈 질의 (유사도 < 0.65)**: 비반도체/범용 질의 유입 시 도메인 특화 안내 메시지 반환.
+- **신공정 편측 결손 감지**: 비교 대상 중 한쪽이 온톨로지에 부재한 신기술인 경우, [Tab 4] Deep Research Engine과 연계하여 외부 공인 백서에서 대조군 후보를 발굴하도록 유도.
 
 ### 3.2 다차원 기술 대안 비교 매트릭스 생성기 (Comparison Engine)
 - **동작 화면 및 다중 활용 영역 (Cross-Workspace Scope)**:
