@@ -1019,3 +1019,448 @@ interface ConceptDetailResponse {
   - 필수 필드(`userNote`, `targetConceptId`) 누락 시 `400 Bad Request` `{ "code": "REQUIRED_FIELDS_MISSING", "message": "제안 내용과 대상 개념 ID는 필수입니다." }` ➔ 모달 내 에러 메시지 빨간색 텍스트 표시.
   - 존재하지 않는 개념에 대한 제안 시 `404 Not Found` `{ "code": "CONCEPT_NOT_FOUND", "message": "대상 개념이 존재하지 않습니다." }` ➔ 토스트 알림 표시 후 모달 닫기 방지.
 
+---
+
+### 4.3 [Tab 2] 기술 대안 비교분석 API (Comparison Studio)
+
+#### 1. `GET /api/v1/comparison-sessions`
+- **화면 맥락**: [프론트 §2.2 좌측 사이드바] 엔지니어가 좌측 사이드바를 열었을 때, 상단 `⭐ 즐겨찾기(Pinned) 세션` 목록과 하단 `🕒 최근 비교 분석 히스토리` 목록을 폴더별로 구분하여 렌더링.
+- **사용자 입력 (Request)**:
+  - Query Params:
+    - `isPinned` (선택, boolean): 즐겨찾기 고정 세션만 필터링
+    - `limit` (선택, integer): 최대 조회 개수 (기본값: 20)
+- **화면 렌더링용 데이터 (Response 200 OK)**:
+  ```json
+  {
+    "totalSessions": 12,
+    "pinnedSessions": [
+      {
+        "id": "sess-20261016-001",
+        "title": "HBM3E 방열 대안: SK하이닉스 MR-MUF vs 마이크론 TC-NCF",
+        "targetA": "SK하이닉스 (MR-MUF)",
+        "targetB": "마이크론 (TC-NCF)",
+        "isPinned": true,
+        "folderId": "folder-hbm3e",
+        "folderName": "HBM3E 양산성 검토",
+        "updatedAt": "2026-10-16T14:05:00Z"
+      }
+    ],
+    "recentSessions": [
+      {
+        "id": "sess-20261015-004",
+        "title": "Cryo 저온 식각 vs 고온 플라즈마 HARC 프로파일 비교",
+        "targetA": "Cryo 식각 (-60°C)",
+        "targetB": "고온 플라즈마 식각 (60°C)",
+        "isPinned": false,
+        "folderId": null,
+        "folderName": null,
+        "updatedAt": "2026-10-15T18:20:00Z"
+      }
+    ]
+  }
+  ```
+- **예외 처리 (Error)**:
+  - 세션 이력이 전혀 없는 경우: `200 OK` 응답에 `pinnedSessions: []`, `recentSessions: []` 반환 ➔ 사이드바에 "비교 분석 이력이 없습니다. 새로운 분석을 시작해보세요." 빈 상태 안내 렌더링.
+
+#### 2. `POST /api/v1/comparison/clarify`
+- **화면 맥락**: [프론트 §2.1 화면 2-A: 조사·분석 요청실] 엔지니어가 질문 입력창에 모호한 고민(예: `"HBM3E 16단 적층에서 TCB랑 LAB 어떻게 달라?"`)을 입력하고 `💬 대화로 질문 구체화` 버튼을 클릭. 화면에는 백엔드가 온톨로지 인과 그래프를 조회하여 도출한 3대 공학 분기 카드, 카테고리별 동적 후보 축 태그 풀(`dynamicAxesPool`), 추천 질문 칩 3종이 즉시 렌더링.
+- **사용자 입력 (Request)**:
+  - Request Body:
+    ```json
+    {
+      "query": "HBM3E 16단 적층에서 TCB랑 LAB 어떻게 달라?",
+      "baseConceptId": "concept-tcb",
+      "customAxes": ["단위 소모 전력"]
+    }
+    ```
+- **화면 렌더링용 데이터 (Response 200 OK)**:
+  ```json
+  {
+    "recognizedIntent": "HBM3E 16단 고적층 인터커넥트 공정에서 열압착 본딩(TCB)과 레이저 어시스트 본딩(LAB)의 공학적 상충 비교",
+    "branches": [
+      {
+        "branchId": "branch-thermal-stress",
+        "title": "열 피로 및 다이 휨(Warpage) 한계 비교",
+        "description": "국소 순간 가열(LAB) vs 전체 열압착(TCB) 간 누적 열응력 및 휨 특성 중심 비교",
+        "targetA": "열압착 본딩 (TCB)",
+        "targetB": "레이저 어시스트 본딩 (LAB)",
+        "domain": "첨단 패키징"
+      },
+      {
+        "branchId": "branch-void-reliability",
+        "title": "마이크로 보이드 및 접합 신뢰성 비교",
+        "description": "NCF 수지 유출 및 솔더 계면 금속간 화합물(IMC) 두께 균일도 중심 비교",
+        "targetA": "열압착 본딩 (TCB)",
+        "targetB": "레이저 어시스트 본딩 (LAB)",
+        "domain": "수율/품질"
+      },
+      {
+        "branchId": "branch-tact-time-capex",
+        "title": "양산 택트타임(TAT) 및 설비 개조비용 비교",
+        "description": "다이당 접합 시간(초 단위) 단축 효과 vs 신규 레이저 헤드 도입 CAPEX 비교",
+        "targetA": "열압착 본딩 (TCB)",
+        "targetB": "레이저 어시스트 본딩 (LAB)",
+        "domain": "팹 양산성"
+      }
+    ],
+    "dynamicAxesPool": [
+      { "axisId": "axis-thermal", "label": "다이 중앙부 휨(Warpage) 변형량", "category": "thermal", "categoryLabel": "🔬 열·물성" },
+      { "axisId": "axis-defect", "label": "마이크로 보이드 발생률 (%)", "category": "defects", "categoryLabel": "⚠️ 결함·신뢰성" },
+      { "axisId": "axis-tat", "label": "다이 1매당 접합 소요 시간 (초)", "category": "fab", "categoryLabel": "🏭 팹 양산성" },
+      { "axisId": "axis-custom-power", "label": "단위 소모 전력 (W/die)", "category": "custom", "categoryLabel": "📐 사용자 정의" }
+    ],
+    "clarificationQuestions": [
+      "16단 적층 시 허용 가능한 최대 다이 휨(Warpage) 한계 기준이 있으신가요?",
+      "기존 TCB 본더의 챔버 개조(Retrofit)를 고려 중이신가요, 전용 라인 신설인가요?",
+      "적층 시 적용되는 절연 소재가 NCF인가요, Non-NCF(플럭스리스)인가요?"
+    ]
+  }
+  ```
+- **예외 처리 (Error)**:
+  - `400 Bad Request`: `query` 누락 시 `{ "code": "QUERY_EMPTY", "message": "비교 질문을 2자 이상 입력해주세요." }`.
+  - **도메인 범위 이탈 시 (유사도 < 0.65)**: `{ "code": "OUT_OF_DOMAIN_QUERY", "message": "입력하신 내용은 반도체 소자·공정 온톨로지 범위를 벗어납니다.", "suggestedKeywords": ["HBM 방열 대안", "Cryo 식각 vs 고온 식각", "TCB vs MR-MUF"] }` ➔ 질문창 하단에 추천 검색어 칩을 띄워 엔지니어의 재입력 유도.
+
+#### 3. `POST /api/v1/comparison-sessions`
+- **화면 맥락**: [프론트 §2.1 화면 2-A ➔ §2.2 화면 2-B 전환] 사용자가 분기 카드를 선택하거나 `⚡ 비교 분석 실행 (결과 보기 ➔)` 버튼 클릭 시 새 세션을 생성하고 화면 2-B로 전환(Transitions.dev). 상단 서브 네비게이션 바, 3-Step 스냅샷 타임라인, 다차원 비교 매트릭스 테이블, 지식 갭 카드, AI 종합 인과 코멘트, 꼬리질문 추천 칩 3종 렌더링.
+- **사용자 입력 (Request)**:
+  - Request Body:
+    ```json
+    {
+      "userId": "eng-kim-01",
+      "title": "HBM3E 방열 대안: SK하이닉스 MR-MUF vs 마이크론 TC-NCF",
+      "query": "HBM3E 16단 적층에서 TCB랑 LAB 어떻게 달라?",
+      "contextParams": {
+        "targetA": "SK하이닉스 (MR-MUF)",
+        "targetB": "마이크론 (TC-NCF)",
+        "domain": "첨단 패키징",
+        "releaseVersion": "2026.10",
+        "constraints": [
+          { "param": "본딩 가압력", "operator": "<=", "limitValue": "150N", "source": "user_prompt" }
+        ]
+      },
+      "selectedAxes": ["axis-thermal", "axis-defect", "axis-tat"]
+    }
+    ```
+- **화면 렌더링용 데이터 (Response 201 Created - `ComparisonSession` 엔티티)**:
+  ```json
+  {
+    "id": "sess-20261016-001",
+    "userId": "eng-kim-01",
+    "title": "HBM3E 방열 대안: SK하이닉스 MR-MUF vs 마이크론 TC-NCF",
+    "isPinned": false,
+    "folderId": null,
+    "contextParams": {
+      "targetA": "SK하이닉스 (MR-MUF)",
+      "targetB": "마이크론 (TC-NCF)",
+      "domain": "첨단 패키징",
+      "releaseVersion": "2026.10",
+      "constraints": [
+        { "param": "본딩 가압력", "operator": "<=", "limitValue": "150N", "source": "user_prompt" }
+      ]
+    },
+    "snapshots": [
+      {
+        "step": 1,
+        "title": "공학 질문 확정",
+        "branchData": { "branchId": "branch-thermal-stress", "title": "열 피로 및 다이 휨 한계 비교" }
+      },
+      {
+        "step": 2,
+        "title": "양산 조건 매핑",
+        "conditions": { "targetStack": "16-stack", "maxLoad": "150N", "epoxyViscosity": "12Pa·s" },
+        "constraintGaps": [
+          {
+            "param": "본딩 가압력",
+            "standardValue": "180N",
+            "constraintValue": "150N",
+            "riskNote": "가압력 150N 이하 제한 시 범프 접촉 면적 부족으로 보이드 발생 위험 2.8배 증가"
+          }
+        ]
+      },
+      {
+        "step": 3,
+        "title": "다차원 비교 분석 완료",
+        "matrix": [
+          {
+            "axis": "열전도도 및 방열 계수",
+            "axisCategory": "thermal",
+            "categoryLabel": "🔬 열·물성",
+            "valA": "2.5 W/m·K (에폭시 몰딩 언더필 일체화)",
+            "valB": "0.8 W/m·K (NCF 필름 개별 도포)",
+            "evidenceA": "E-01",
+            "evidenceB": "E-02",
+            "isGap": false
+          },
+          {
+            "axis": "16단 고적층 시 다이 중앙부 휨(Warpage) 및 마이크로 보이드",
+            "axisCategory": "defects",
+            "categoryLabel": "⚠️ 결함·신뢰성",
+            "valA": "8.2μm / 보이드율 0.05% 이하",
+            "valB": "공인 실측 데이터 미등록 (사내 DB 결손)",
+            "evidenceA": "E-01",
+            "evidenceB": null,
+            "isGap": true
+          },
+          {
+            "axis": "칩 1매당 양산 본딩 택트타임(TAT)",
+            "axisCategory": "fab",
+            "categoryLabel": "🏭 팹 양산성",
+            "valA": "0.3초 (매스 리플로우 일괄 처리)",
+            "valB": "2.5초 (칩당 개별 열압착 가열/냉각)",
+            "evidenceA": "E-02",
+            "evidenceB": "E-03",
+            "isGap": false
+          }
+        ],
+        "knowledgeGapCard": {
+          "hasGap": true,
+          "missingTopic": "마이크론 16단 TC-NCF 휨/보이드 실측치",
+          "gapNotice": "사내 온톨로지 DB에 공인 출처가 등록되지 않은 항목입니다. AI 환각 수치를 제공하지 않고 안전 격리되었습니다.",
+          "researchButtonLabel": "📑 [외부 문헌 조사]에서 공인 백서 발굴하기 ➔",
+          "researchQuery": "Micron 16-stack TC-NCF warpage micro-void measurement reliability whitepaper"
+        },
+        "aiCausalNote": "MR-MUF는 액상 에폭시 주입을 통해 열전도도를 3배 이상 개선하고 16단 일괄 경화로 TAT를 88% 단축하나, 언더필 점도 제어 실패 시 미충전 보이드 위험이 상존합니다. 반면 TC-NCF는 칩별 정밀 제어가 가능하나 누적 열응력으로 인한 휨(Warpage) 제어가 핵심 병목입니다.",
+        "tailQuestionSuggestions": [
+          "💡 16단 적층 시 TC-NCF 휨(Warpage) 급증 인과 체인",
+          "💡 MR-MUF 에폭시 점도 초과 시 마이크로 보이드 메커니즘",
+          "💡 본딩 가압력 완화 시 접합 신뢰성 트레이드오프"
+        ]
+      }
+    ],
+    "updatedAt": "2026-10-16T14:00:00Z"
+  }
+  ```
+- **예외 처리 (Error)**:
+  - `400 Bad Request`: 필수 비교 대상(`targetA`, `targetB`) 누락 시 `{ "code": "TARGET_REQUIRED", "message": "비교 대상 A와 B가 모두 지정되어야 합니다." }`.
+
+#### 4. `GET /api/v1/comparison-sessions/{id}`
+- **화면 맥락**: [프론트 §2.2 화면 2-B] 엔지니어가 좌측 사이드바 히스토리/즐겨찾기 목록에서 특정 세션을 클릭했을 때 호출. 1년 전에 실행했더라도 당시의 질문, 양산 전제 수치, 다차원 매트릭스, 꼬리질문 이력이 100% 동일한 스냅샷 불변 데이터로 화면에 복원 렌더링.
+- **사용자 입력 (Request)**:
+  - Path Param:
+    - `id` (필수, string): 세션 ID (예: `"sess-20261016-001"`)
+- **화면 렌더링용 데이터 (Response 200 OK - `ComparisonSession`)**:
+  - `POST /api/v1/comparison-sessions` 응답과 동일한 `ComparisonSession` 엔티티 전체 반환.
+- **예외 처리 (Error)**:
+  - `404 Not Found`: 존재하지 않는 세션 ID 요청 시 `{ "code": "SESSION_NOT_FOUND", "message": "비교 세션을 찾을 수 없습니다." }` ➔ 세션 목록 화면으로 자동 리다이렉트 및 토스트 알림.
+
+#### 5. `PATCH /api/v1/comparison-sessions/{id}`
+- **화면 맥락**: [프론트 §2.2 화면 2-B 상단 서브 네비게이션 바] 엔지니어가 상단 바의 즐겨찾기(⭐) 버튼을 클릭하여 좌측 사이드바에 세션을 고정하거나, 세션 제목 수정 또는 폴더 이동 시 호출.
+- **사용자 입력 (Request)**:
+  - Path Param: `id` (필수, string)
+  - Request Body:
+    ```json
+    {
+      "isPinned": true,
+      "title": "HBM3E 16단 방열 대안 분석 (최종 확정본)",
+      "folderId": "folder-hbm3e"
+    }
+    ```
+- **화면 렌더링용 데이터 (Response 200 OK)**:
+  ```json
+  {
+    "id": "sess-20261016-001",
+    "title": "HBM3E 16단 방열 대안 분석 (최종 확정본)",
+    "isPinned": true,
+    "folderId": "folder-hbm3e",
+    "updatedAt": "2026-10-16T14:05:00Z"
+  }
+  ```
+- **예외 처리 (Error)**:
+  - `404 Not Found`: 유효하지 않은 세션 ID 시 `{ "code": "SESSION_NOT_FOUND", "message": "수정할 세션이 존재하지 않습니다." }`.
+
+#### 6. `POST /api/v1/comparison-sessions/{id}/matrix`
+- **화면 맥락**: [프론트 §2.2 화면 2-B 매트릭스 툴바] 엔지니어가 매트릭스 상단 필터 칩(`전체`, `🔬 열·물성`, `⚠️ 결함·신뢰성`, `🏭 팹 양산성`)을 누르거나, `+ 비교 축 직접 추가` 버튼을 눌러 새 축(예: `"CAPEX 설비 개조비"`)을 추가했을 때 매트릭스 테이블 즉시 재구성.
+- **사용자 입력 (Request)**:
+  - Path Param: `id` (필수, string)
+  - Request Body:
+    ```json
+    {
+      "selectedCategories": ["thermal", "defects"],
+      "addedCustomAxis": {
+        "name": "CAPEX 설비 개조비",
+        "description": "기존 TCB 본더 활용 가능 여부 및 라인 전환 비용"
+      }
+    }
+    ```
+- **화면 렌더링용 데이터 (Response 200 OK)**:
+  ```json
+  {
+    "sessionId": "sess-20261016-001",
+    "matrix": [
+      {
+        "axis": "열전도도 및 방열 계수",
+        "axisCategory": "thermal",
+        "categoryLabel": "🔬 열·물성",
+        "valA": "2.5 W/m·K (에폭시 몰딩 언더필 일체화)",
+        "valB": "0.8 W/m·K (NCF 필름 개별 도포)",
+        "evidenceA": "E-01",
+        "evidenceB": "E-02",
+        "isGap": false
+      },
+      {
+        "axis": "16단 고적층 시 다이 중앙부 휨(Warpage) 및 마이크로 보이드",
+        "axisCategory": "defects",
+        "categoryLabel": "⚠️ 결함·신뢰성",
+        "valA": "8.2μm / 보이드율 0.05% 이하",
+        "valB": "공인 실측 데이터 미등록 (사내 DB 결손)",
+        "evidenceA": "E-01",
+        "evidenceB": null,
+        "isGap": true
+      },
+      {
+        "axis": "CAPEX 설비 개조비",
+        "axisCategory": "custom",
+        "categoryLabel": "📐 사용자 정의",
+        "valA": "기존 리플로우 퍼니스 인프라 활용 가능 (개조비 낮음)",
+        "valB": "초정밀 툴 헤드 및 진공 챔버 전용 설비 신규 도입 필수 (CAPEX 높음)",
+        "evidenceA": "E-02",
+        "evidenceB": "E-03",
+        "isGap": false
+      }
+    ],
+    "aiCausalNote": "열·물성 및 결함 관점에서 MR-MUF는 방열 특성이 월등하나, 설비 개조 측면에서는 기존 리플로우 설비를 재활용할 수 있어 CAPEX 방어에 유리합니다."
+  }
+  ```
+- **예외 처리 (Error)**:
+  - `400 Bad Request`: 추가하려는 커스텀 축 이름이 공백인 경우 에러 반환.
+
+#### 7. `POST /api/v1/comparison-sessions/{id}/tune-advisor`
+- **화면 맥락**: [프론트 §2.2 스냅샷 2 타임라인 바 ➔ §4.6 `[M-04]` 파라미터 수정 및 AI 튜닝 상담 모달] 엔지니어가 스냅샷 2에서 `[✏️ 전제 수치 수정]`을 클릭하면 모달이 열림. 자연어로 설비 제약을 질문하거나 접이식 인풋 필드에서 숫자를 직접 수정. AI 상담관이 온톨로지 물리 인과 모델 기반 위험 노드 감지 및 보상 파라미터(추천안 A, B) 역제안. `[👉 이 수치 세트로 자동 반영 & 재실행]` 클릭 시 세션 전제 조건이 업데이트되고 스냅샷 3 매트릭스가 즉시 재계산되어 테이블에 반영.
+- **사용자 입력 (Request)**:
+  - Path Param: `id` (필수, string)
+  - Request Body:
+    ```json
+    {
+      "userPrompt": "우리 라인 장비 한계로 본딩 가압력을 150N 이상 못 주는데 어떻게 조정하지?",
+      "applyCompensation": "A",
+      "manualConditions": null
+    }
+    ```
+    *(엔지니어가 수동으로 수치를 조정한 경우 `applyCompensation: null`, `manualConditions: { "maxLoad": "140N", "ultrasonicTime": "2.5s" }` 전달)*
+- **화면 렌더링용 데이터 (Response 200 OK)**:
+  ```json
+  {
+    "userPrompt": "우리 라인 장비 한계로 본딩 가압력을 150N 이상 못 주는데 어떻게 조정하지?",
+    "riskDetected": "본딩 가압력 150N 제한 시 마이크로범프 접촉 면적 부족으로 계면 보이드율이 4.2%까지 급증 위험 감지 (허용치: 0.1% 이하)",
+    "advisorRecommendation": {
+      "compensationA": {
+        "title": "초음파 진동 인가 시간 보상안",
+        "description": "기계적 압력 부족분을 초음파 캐비테이션 마찰 에너지로 치환하여 접합 면적을 확보합니다.",
+        "compensatingParams": [
+          { "param": "초음파 인가 시간 (Ultrasonic Duration)", "from": "1.0s", "to": "2.2s" },
+          { "param": "본딩 가압력", "from": "180N", "to": "145N (장비 한계 충족)" }
+        ],
+        "tradeOff": "다이 1매당 택트타임(TAT) 1.2초 증가로 시간당 생산량(UPH) 약 18% 감소",
+        "processWindowNotice": "공정 안전 마진(Normal Window) 이내 충족"
+      },
+      "compensationB": {
+        "title": "본딩 헤드 피크 온도 상향 보상안",
+        "description": "솔더 용융 점도를 낮추어 낮은 압력에서도 젖음성(Wetting)을 극대화합니다.",
+        "compensatingParams": [
+          { "param": "본딩 툴 피크 온도", "from": "270°C", "to": "295°C" },
+          { "param": "본딩 가압력", "from": "180N", "to": "150N (장비 한계 충족)" }
+        ],
+        "tradeOff": "열팽창계수(CTE) 미스매치로 인한 다이 휨(Warpage)이 1.5μm 추가 증가할 위험",
+        "processWindowNotice": "주의 마진(Marginal Window) - 300°C 초과 시 솔더 재용융 파괴 위험"
+      }
+    },
+    "appliedResult": {
+      "appliedPlan": "compensationA",
+      "updatedConditions": {
+        "maxLoad": "145N",
+        "ultrasonicTime": "2.2s",
+        "peakTemp": "270°C"
+      },
+      "updatedMatrix": [
+        {
+          "axis": "칩 1매당 양산 본딩 택트타임(TAT)",
+          "axisCategory": "fab",
+          "categoryLabel": "🏭 팹 양산성",
+          "valA": "0.3초 (매스 리플로우 일괄 처리)",
+          "valB": "3.7초 (초음파 인가 시간 2.2초 반영)",
+          "evidenceA": "E-02",
+          "evidenceB": "E-03",
+          "isGap": false
+        }
+      ]
+    }
+  }
+  ```
+- **예외 처리 (Error)**:
+  - `422 Unprocessable Entity` (물리 안전 한계선 파괴 시):
+    ```json
+    {
+      "code": "PROCESS_WINDOW_VIOLATION",
+      "message": "요청하신 온도 상향(325°C)은 솔더 재용융 한계선(300°C)을 초과하여 인접 범프 쇼트 파괴를 유발합니다.",
+      "boundedSafeValue": "최대 허용 상한선 295°C로 제한하여 역제안을 산출합니다."
+    }
+    ```
+    ➔ **UI 연동**: 모달 내 경고 배너를 띄우고 위험 수치 입력을 차단하며, 안전 상한치(`boundedSafeValue`)로 자동 보정하여 보여줍니다.
+
+#### 8. `POST /api/v1/comparison-sessions/{id}/tail-question`
+- **화면 맥락**: [프론트 §2.2 화면 2-B 하단: 꼬리질문 대화형 블록] 엔지니어가 추천 질문 칩(예: `💡 16단 적층 시 TC-NCF 휨(Warpage) 급증 인과 체인`)을 누르거나 질의 입력창에 꼬리질문 입력 후 `인과 분석 ➔` 버튼 클릭 시 온톨로지 인과 그래프 3-hop 역추적 경로 다이어그램(`causalPath`)과 물리 화학적 메커니즘 심층 해설이 펼쳐지며 렌더링되고 세션에 영구 보존.
+- **사용자 입력 (Request)**:
+  - Path Param: `id` (필수, string)
+  - Request Body:
+    ```json
+    {
+      "query": "16단 적층 시 TC-NCF 휨(Warpage) 급증 인과 체인"
+    }
+    ```
+- **화면 렌더링용 데이터 (Response 200 OK)**:
+  ```json
+  {
+    "query": "16단 적층 시 TC-NCF 휨(Warpage) 급증 인과 체인",
+    "causalPath": [
+      "16단 고적층 가압력 및 반복 열이력 누적",
+      "실리콘 다이(3ppm/K)와 NCF 수지(30ppm/K) 간 열팽창계수(CTE) 미스매치",
+      "다이 외곽 및 범프 접합 계면에 열응력(Thermal Shear Stress) 집중",
+      "다이 중앙부 휨(Warpage 14μm 초과) 및 미세 크랙/보이드 형성"
+    ],
+    "explanation": "16단 적층 구조에서는 칩을 한 층씩 쌓을 때마다 하부 칩들이 반복적인 가열·냉각 사이클을 겪습니다. 실리콘 웨이퍼 다이와 NCF 절연 필름 간의 10배에 달하는 열팽창계수 차이로 인해 냉각 시 수축 응력이 중심부로 집중되며, 180N 이상의 과도 하중이 가해질 경우 NCF 수지가 측방으로 과유출되면서 가장자리 지지력이 약화되어 패키지 전반의 휨 변형이 기하급수적으로 증가합니다.",
+    "governingEquation": "\\sigma_{\\text{shear}} = \\frac{G \\cdot \\Delta \\alpha \\cdot \\Delta T \\cdot L}{2t_{\\text{NCF}}}",
+    "sourceEvidences": [
+      {
+        "evidenceId": "E-01",
+        "sourceName": "Samsung Electronics HBM3E 패키징 신뢰성 보고서",
+        "quote": "In 16-stack architectures, cumulative CTE mismatch induces warpage exceedance above 180N bonding load."
+      }
+    ],
+    "timestamp": "2026-10-16T14:10:00Z"
+  }
+  ```
+- **예외 처리 (Error)**:
+  - `404 Not Found`: 인과 관계망 상에서 연결 경로를 찾을 수 없는 경우 `{ "code": "CAUSAL_PATH_NOT_FOUND", "message": "해당 질문에 대한 공인 인과 체인이 온톨로지에 등록되어 있지 않습니다.", "suggestedDeepResearchQuery": "16-stack TC-NCF warpage mechanism CTE mismatch whitepaper" }` ➔ 온톨로지 인과 경로 미등록 안내와 함께 [Tab 4 외부 문헌 조사에서 공인 백서 발굴하기] 버튼 칩 노출.
+
+#### 9. `POST /api/v1/comparison-sessions/{id}/export-ticket`
+- **화면 맥락**: [프론트 §2.2 화면 2-B 최하단: 거버넌스 연동 배너] 비교 분석 중 사내 온톨로지에 누락된 신규 규격이나 결함 데이터가 발견되었을 때, 엔지니어가 배너의 `✍️ 이 분석 결과를 검토 센터로 전송하여 온톨로지에 반영하기 ➔` 버튼 클릭 시 [Tab 3] 검토·승인 센터의 [대기 중] 큐에 `ReviewTicket`이 생성되고 해당 티켓 화면으로 즉시 전환.
+- **사용자 입력 (Request)**:
+  - Path Param: `id` (필수, string)
+  - Request Body:
+    ```json
+    {
+      "conceptId": "concept-tcb",
+      "targetSection": "limitations",
+      "userNote": "비교분석 결과: 16단 적층 시 가압력 150N 제한 조건 하에서 초음파 인가 시간 2.2초 보상 파라미터 규격을 위키 한계 섹션에 반영 제안."
+    }
+    ```
+- **화면 렌더링용 데이터 (Response 201 Created)**:
+  ```json
+  {
+    "id": "rev-20261016-002",
+    "sourceSessionId": "sess-20261016-001",
+    "conceptId": "concept-tcb",
+    "conceptTitle": "열압착 본딩 (TCB)",
+    "reviewType": "파라미터 수정",
+    "originType": "comparison_studio",
+    "status": "pending",
+    "title": "비교분석 도출: TCB 16단 적층 초음파 보상 파라미터 규격 보완",
+    "message": "검토 센터(Review Center) 큐에 성공적으로 등록되었습니다.",
+    "redirectUrl": "/review-center/rev-20261016-002"
+  }
+  ```
+- **예외 처리 (Error)**:
+  - `400 Bad Request`: 필수 전달 필드 누락 시 에러 반환.
+  - `404 Not Found`: 대상 세션이나 대상 개념이 없는 경우 에러 토스트 출력.
+
+
