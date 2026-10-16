@@ -439,9 +439,7 @@ interface KnowledgeCandidate {
      - 3번 검토 센터로 지식 제안 이관 시, 생성되는 `ReviewTicket`에 현재 `sourceSessionId: session.id`와 `originType: "comparison_studio"`를 주입하여 심사관의 원천 비교 맥락 역추적을 보장.
 
 ### 3.3 🌟 AI 파라미터 튜닝 상담 파이프라인 (Advisor Engine: 범용 인과 제약 보상 엔진)
-- **동작 화면 및 다중 활용 영역 (Cross-Workspace Scope)**:
-  - **[주 활용]**: [Tab 2] 기술 대안 비교의 [스냅샷 2: 양산 조건 매핑] 및 `[M-04]` 파라미터 수정 모달
-  - **[다중 활용]**: [Tab 1] 위키 본문 3번 실무 레시피 카드 (현장 라인 제약에 따른 파라미터 민감도 즉석 시뮬레이션)
+- **동작 화면**: [Tab 2] 기술 대안 비교분석의 [스냅샷 2: 양산 조건 매핑] 및 `[M-04]` 파라미터 수정 모달
 - **해결 목적**: 특정 공정에 국한되지 않고, 반도체 전 영역(단위공정, 설비, 팹 인프라, FDC 운영 등)에서 엔지니어가 겪는 장비·라인·환경의 물리적 제약($X \downarrow$)이 발생했을 때, 온톨로지 인과 엣지를 역방향으로 순회하여 **위험 노드($Y$)를 자동 감지하고, 이를 방어할 수 있는 보상 파라미터($Z$, Compensating Parameters)와 반작용(Trade-off)을 수식·인과 기반으로 역제안**.
 - **인과 그래프 연산 메커니즘 (Causal Math & Traversal)**:
   $$\text{현장 제약 변수}(X \downarrow) \implies \text{위험 노드 감지}(Y \text{ 악화}) \implies \text{보상 파라미터 탐색}(\{Z_1, Z_2\} \text{ 보상}) \implies \text{트레이드오프 도출}(W_1, W_2)$$
