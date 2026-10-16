@@ -1789,5 +1789,254 @@ interface ConceptDetailResponse {
 - **예외 처리 (Error)**:
   - `400 Bad Request`: `rejectReason` 누락 시 `{ "code": "REJECT_REASON_REQUIRED", "message": "반려 사유는 필수 입력 사항입니다." }`.
 
+---
+
+### 4.5 [Tab 4] 외부 문헌·백서 조사 API (Deep Research)
+
+#### 1. `GET /api/v1/research/sessions`
+- **화면 맥락**: [프론트 §3.4 좌측 사이드바 과거 조사 로그 목록] 엔지니어가 좌측 사이드바에서 과거 외부 문헌 조사 히스토리를 확인하고 특정 세션을 클릭하여 복원할 때 사용. 조사 주제, 발굴된 공인 문헌 수, 생성된 지식 후보 수, 조사 일시가 카드 목록으로 표시됨.
+- **사용자 입력 (Request)**:
+  - Query Params:
+    - `limit` (선택, integer): 최대 조회 개수 (기본값: 15)
+- **화면 렌더링용 데이터 (Response 200 OK)**:
+  ```json
+  {
+    "totalSessions": 8,
+    "sessions": [
+      {
+        "id": "res-20261016-01",
+        "searchTopic": "차세대 유리기판 TGV 공정 및 물성 표준 규격",
+        "evidenceCount": 4,
+        "candidateCount": 2,
+        "createdAt": "2026-10-16T11:00:00Z"
+      },
+      {
+        "id": "res-20261015-02",
+        "searchTopic": "High-NA EUV용 탄소나노튜브(CNT) 펠리클 열적 내구성",
+        "evidenceCount": 3,
+        "candidateCount": 1,
+        "createdAt": "2026-10-15T15:30:00Z"
+      }
+    ]
+  }
+  ```
+- **예외 처리 (Error)**:
+  - 조사 이력이 없을 때 `200 OK` 응답에 `sessions: []` 빈 배열 반환 ➔ 사이드바에 "과거 조사 이력이 없습니다." 빈 상태 안내 렌더링.
+
+#### 2. `POST /api/v1/research/clarify`
+- **화면 맥락**: [프론트 §3.4 화면 4-A: 문헌 발굴 및 근거 피드 상단] 엔지니어가 기술 주제 입력창에 키워드(예: `"유리기판 TGV"`)를 입력하거나 빠른 추천 검색어 칩 3종(`차세대 유리기판 TGV`, `High-NA CNT 펠리클`, `극저온 저탄소 대체 가스`) 중 하나를 클릭했을 때 호출. 비공인 마케팅 블로그 유입을 차단하기 위한 신뢰 출처 풀 안내 배너(삼성, SK하이닉스, ASML, Lam, Intel, SEMI, IEEE 등 5대 기관), 추천 소자 세대 필터, 타깃팅 기관 칩, 마케팅 루머 배제용 제외 키워드 목록 렌더링.
+- **사용자 입력 (Request)**:
+  - Request Body:
+    ```json
+    {
+      "searchTopic": "차세대 유리기판 TGV 공정 및 물성 표준 규격",
+      "preferredTier": ["Tier 1 (공식 제조사)", "Tier 2 (국제 표준)"]
+    }
+    ```
+- **화면 렌더링용 데이터 (Response 200 OK)**:
+  ```json
+  {
+    "searchTopic": "차세대 유리기판 TGV 공정 및 물성 표준 규격",
+    "trustPoolNotice": "인터넷의 비공인 웹 문서를 배제하고, 삼성/SK하이닉스 기술자료, ASML 백서, Lam/AMAT 핸드북, SEMI 국제 표준, IEEE 학술 논문 등 검증된 5대 기관 출처 풀만을 대상으로 조사합니다.",
+    "scopeFilters": [
+      { "filterId": "gen-ai-package", "label": "AI 가속기 2.5D/3D 패키징", "selected": true },
+      { "filterId": "thickness-100um", "label": "유리 기판 두께 100μm 이하", "selected": true }
+    ],
+    "targetInstitutions": ["Intel Foundry", "IEEE ECTC", "SEMI 3D Packaging", "Samsung Tech Day"],
+    "negativeKeywords": ["stock", "rumor", "news", "investment", "blog"],
+    "suggestedChips": [
+      "차세대 유리기판 TGV",
+      "High-NA CNT 펠리클",
+      "극저온 저탄소 대체 가스"
+    ]
+  }
+  ```
+- **예외 처리 (Error)**:
+  - `400 Bad Request`: `searchTopic`이 공백이거나 2자 미만인 경우 에러 메시지 반환.
+
+#### 3. `POST /api/v1/research/discover`
+- **화면 맥락**: [프론트 §3.4 화면 4-A: 발굴된 공인 문헌 카드 피드] 엔지니어가 조사 조건을 확인하고 `🔍 문헌 발굴` 버튼을 클릭. 백엔드의 [3.5 Deep Research Engine]이 신뢰 도메인 화이트리스트 웹 검색 및 실측 인용구 추출을 수행하고, 화면에 3~4건의 핵심 공인 문헌 카드 피드(Evidence Feed) 렌더링. 문서명, 발행일, 출처 유형 배지(`공식 제조사 백서`, `Tier 2 국제 표준`, `Tier 3 공인 학술`), 핵심 인용구(Quote), 외부 DOI/공식 웹사이트 직행 링크 표시.
+- **사용자 입력 (Request)**:
+  - Request Body:
+    ```json
+    {
+      "searchTopic": "차세대 유리기판 TGV 공정 및 물성 표준 규격",
+      "targetInstitutions": ["Intel Foundry", "IEEE ECTC", "SEMI 3D Packaging"],
+      "preferredTier": ["Tier 1 (공식 제조사)", "Tier 2 (국제 표준)"]
+    }
+    ```
+- **화면 렌더링용 데이터 (Response 200 OK - `EvidenceSource` 배열)**:
+  ```json
+  {
+    "sessionId": "res-20261016-01",
+    "searchTopic": "차세대 유리기판 TGV 공정 및 물성 표준 규격",
+    "totalEvidencesFound": 3,
+    "evidenceFeed": [
+      {
+        "id": "E-21",
+        "sourceName": "Intel Glass Substrate Technology Architecture Whitepaper",
+        "sourceType": "official_whitepaper",
+        "publisher": "Intel Corporation",
+        "publishedDate": "2025.12",
+        "quote": "Glass core substrates achieve a 50% reduction in pattern distortion and support an interconnect pitch down to 10μm, though micro-crack initiation during laser-assisted TGV etching remains a critical yield boundary when aspect ratios exceed 10:1.",
+        "sectionContext": "Section 3.1 Material Properties & Aspect Ratio Limits, p.8",
+        "relevanceScore": 0.98,
+        "externalUrl": "https://download.intel.com/newsroom/2025/glass-substrate-whitepaper.pdf",
+        "urlLabel": "Intel 공식 백서 열람 (PDF)",
+        "credibilityTier": "Tier 1 (공식 제조사)"
+      },
+      {
+        "id": "E-22",
+        "sourceName": "IEEE Transactions on Advanced Packaging - Glass Core Interconnects",
+        "sourceType": "academic_peer_reviewed",
+        "publisher": "IEEE",
+        "publishedDate": "2026.01",
+        "quote": "Thermal expansion coefficient of glass (3.2 ppm/K) closely matches silicon die (2.8 ppm/K), completely eliminating the interfacial shear stress observed in traditional organic flip-chip packages under 1000 thermal cycles.",
+        "sectionContext": "Section 4 Thermal Stress Cycle Analysis, p.112 Table 3",
+        "relevanceScore": 0.95,
+        "externalUrl": "https://doi.org/10.1109/TADVP.2026.0112",
+        "urlLabel": "IEEE 논문 DOI 직행",
+        "credibilityTier": "Tier 3 (공인 학술)"
+      },
+      {
+        "id": "E-23",
+        "sourceName": "SEMI Standard 3D-0925: Specification for Through Glass Via (TGV) Metrology",
+        "sourceType": "international_standard",
+        "publisher": "SEMI",
+        "publishedDate": "2025.10",
+        "quote": "TGV taper angle must be maintained at 88.5° ± 0.5° with a sidewall roughness Ra < 25nm to prevent void entrapment during subsequent copper electroplating.",
+        "sectionContext": "Clause 5.2 Geometric Tolerances, p.14",
+        "relevanceScore": 0.96,
+        "externalUrl": "https://www.semi.org/standards/3d-0925",
+        "urlLabel": "SEMI 표준 문서 열람",
+        "credibilityTier": "Tier 2 (국제 표준)"
+      }
+    ],
+    "synthesisReady": true,
+    "ctaButtonLabel": "📊 이 문헌들로 종합 분석 리포트 생성 (리포트 보기 ➔)"
+  }
+  ```
+- **예외 처리 (Error)**:
+  - 신뢰 출처 풀에서 공인 문헌이 검색되지 않은 경우: HTTP 에러 대신 `200 OK` 응답에 `evidenceFeed: []`, `suggestedKeywords` 반환 ➔ 프론트엔드가 에러 창을 터뜨리지 않고 "공인 5대 기관 출처 풀에서 문헌을 찾지 못했습니다" 안내와 함께 추천 검색어 칩을 안전하게 렌더링.
+
+#### 4. `POST /api/v1/research/sessions/{id}/synthesize`
+- **화면 맥락**: [프론트 §3.4 화면 4-A ➔ 화면 4-B 전환] 엔지니어가 화면 4-A의 `📊 이 문헌들로 종합 분석 리포트 생성 (리포트 보기 ➔)` 버튼을 누름. 백엔드가 수집된 공인 출처들을 교차 대조하여 종합 기술 브리핑을 작성하고, 위키 스키마에 부합하는 신규 지식 후보 카드 2~3건(`KnowledgeCandidate`)을 자동 정형화. 화면 4-A가 닫히고 화면 4-B로 이동하여 상단 서브 네비게이션 바, Full-width 종합 분석 리포트, 하단 지식 후보 카드가 펼쳐짐.
+- **사용자 입력 (Request)**:
+  - Path Param: `id` (필수, string): 세션 ID (예: `"res-20261016-01"`)
+  - Request Body:
+    ```json
+    {
+      "selectedEvidenceIds": ["E-21", "E-22", "E-23"]
+    }
+    ```
+- **화면 렌더링용 데이터 (Response 200 OK)**:
+  ```json
+  {
+    "sessionId": "res-20261016-01",
+    "searchTopic": "차세대 유리기판 TGV 공정 및 물성 표준 규격",
+    "synthesisReport": {
+      "title": "차세대 유리기판 TGV 공정 및 인프라 표준 종합 분석",
+      "narrativeMarkdown": "### 1. 기술 도입 배경 및 물성적 이점\n유리기판은 기존 유기(Organic) 기판 대비 열팽창계수(CTE 3.2 ppm/K)가 실리콘 다이와 유사하여 1000 사이클 이상의 열충격 시험에서도 계면 전단응력으로 인한 휨(Warpage)이 거의 발생하지 않습니다. [E-22]\n\n### 2. 양산 수율 한계 및 공정 병목\n레이저 유도 식각(Laser-Assisted Etching)을 이용한 TGV 홀 형성 시 종횡비(Aspect Ratio)가 10:1을 초과하면 미세 크랙이 발생하기 쉬우며 [E-21], 구리 도금 시 보이드 방지를 위해 비아 테이퍼 각도를 88.5° ± 0.5°로 정밀 제어해야 합니다. [E-23]",
+      "consensusFacts": [
+        "실리콘과의 CTE 미스매치 해소로 고다단 적층 시 휨 방어 탁월 (공통 합의)",
+        "10μm 이하의 초미세 인터커넥트 범프 피치 구현 가능"
+      ],
+      "tensionGaps": [
+        "유리의 고유 취성(Brittleness)으로 인한 기계적 드릴링 시 미세 크랙 및 치핑 결함 위험"
+      ]
+    },
+    "candidates": [
+      {
+        "candidateId": "cand-20261016-01",
+        "candidateType": "신규 개념",
+        "title": "유리기판 관통전극 (Through Glass Via, TGV)",
+        "summary": "AI 가속기용 2.5D/3D 패키징에서 유기 코어 기판을 대체하여 실리콘 수준의 열팽창계수 정합과 초미세 배선을 제공하는 유리 관통 전극 기술.",
+        "draftPayload": {
+          "content": "### 1. 기술 정의\n유리기판 내부에 레이저 및 화학 식각으로 미세 비아홀을 뚫고 구리를 전기도금하여 상하 칩 간 전기 신호를 연결하는 단위 인터커넥트 기술.",
+          "specifications": [
+            { "label": "유리 열팽창계수 (CTE)", "value": "3.2 ppm/K", "role": "ambient_limit" },
+            { "label": "TGV 비아 테이퍼 각도", "value": "88.5° ± 0.5°", "role": "kpi_target" },
+            { "label": "최대 종횡비 (Aspect Ratio)", "value": "10:1 이하", "role": "ambient_limit" }
+          ],
+          "relations": {
+            "is_a": "concept-interconnect",
+            "alternative_to": "concept-tsv"
+          }
+        },
+        "evidenceIds": ["E-21", "E-22", "E-23"]
+      },
+      {
+        "candidateId": "cand-20261016-02",
+        "candidateType": "물리 한계 보완",
+        "title": "유리기판 TGV 레이저 식각 시 취성 크랙 전파 한계 규격",
+        "summary": "종횡비 10:1 초과 및 레이저 에너지 밀도 과다 시 발생하는 측벽 치핑 방지 가이드라인.",
+        "draftPayload": {
+          "content": "### 3. 물리적 한계\n레이저 변질층 제거 공정에서 불산(HF) 계열 식각액 농도가 과도할 경우 측벽 조도(Ra)가 25nm를 초과하여 구리 도금 시 보이드 트랩이 형성됨. [E-23]",
+          "specifications": [
+            { "label": "측벽 표면 조도 (Ra)", "value": "< 25nm", "role": "kpi_target" }
+          ]
+        },
+        "evidenceIds": ["E-21", "E-23"]
+      }
+    ]
+  }
+  ```
+- **예외 처리 (Error)**:
+  - `400 Bad Request` (선택된 문헌 0건 시): `{ "code": "NO_EVIDENCES_SELECTED", "message": "종합 분석을 생성할 공인 문헌을 1건 이상 선택해주세요." }` ➔ 화면 내 안내 뱃지 출력.
+  - `404 Not Found`: 존재하지 않는 조사 세션 ID 시 에러 토스트 출력.
+
+#### 5. `GET /api/v1/research/sessions/{id}`
+- **화면 맥락**: [프론트 §3.4 화면 4-B] 엔지니어가 좌측 사이드바 히스토리에서 과거 조사 로그(예: `res-20261016-01`)를 클릭했을 때 호출. 종합 분석 리포트 내용과 도출된 지식 후보 카드들이 불변 보존된 스냅샷으로 화면 4-B에 즉시 복원 렌더링.
+- **사용자 입력 (Request)**:
+  - Path Param:
+    - `id` (필수, string): 세션 ID
+- **화면 렌더링용 데이터 (Response 200 OK)**:
+  - `POST /api/v1/research/sessions/{id}/synthesize` 응답과 동일한 전체 리포트 및 지식 후보 데이터 반환.
+- **예외 처리 (Error)**:
+  - `404 Not Found`: 세션이 삭제되었거나 존재하지 않는 경우 `{ "code": "RESEARCH_SESSION_NOT_FOUND", "message": "해당 조사 세션을 찾을 수 없습니다." }` ➔ 사이드바 목록으로 이동.
+
+#### 6. `POST /api/v1/research/candidates/{candidateId}/export-ticket`
+- **화면 맥락**: [프론트 §3.4 화면 4-B 하단: 지식 후보 카드 액션] 엔지니어가 지식 후보 카드(예: `cand-20261016-01`) 하단의 `[ ✍️ 검토 센터 큐에 등록 ]` 버튼을 누름. 백엔드가 해당 지식 후보를 3번 [Tab 3] 검토 센터의 `ReviewTicket`으로 즉시 1:1 변환 등록(`originType: "literature_search"`, `status: "pending"`)하고 등록 완료 토스트 알림을 제공. 등록 후 카드 하단 버튼은 `[ 📖 등록된 검토 티켓 열람 ➔ ]` 상태로 변경되어 중복 생성을 방지.
+- **사용자 입력 (Request)**:
+  - Path Param:
+    - `candidateId` (필수, string): 후보 식별자 (예: `"cand-20261016-01"`)
+  - Request Body:
+    ```json
+    {
+      "sessionId": "res-20261016-01",
+      "author": "Dr. 김수석",
+      "department": "선행패키징연구소",
+      "userNote": "Intel/SEMI 공인 백서 교차 검증을 통해 합성된 유리기판 TGV 신규 개념 검토 요청."
+    }
+    ```
+- **화면 렌더링용 데이터 (Response 201 Created)**:
+  ```json
+  {
+    "id": "rev-20261016-003",
+    "conceptId": "concept-glass-tgv",
+    "conceptTitle": "유리기판 관통전극 (TGV)",
+    "reviewType": "신규 개념",
+    "originType": "literature_search",
+    "sourceSessionId": "res-20261016-01",
+    "status": "pending",
+    "submittedAt": "2026-10-16T14:40:00Z",
+    "message": "검토 센터(Review Center)의 [대기 중] 큐에 성공적으로 등록되었습니다.",
+    "viewUrl": "/review-center/rev-20261016-003"
+  }
+  ```
+- **예외 처리 (Error)**:
+  - `409 Conflict` (이미 이관 등록된 후보 재클릭 시):
+    ```json
+    {
+      "code": "CANDIDATE_ALREADY_EXPORTED",
+      "message": "해당 지식 후보는 이미 검토 센터 큐에 등록되었습니다.",
+      "existingTicketId": "rev-20261016-003",
+      "viewUrl": "/review-center/rev-20261016-003"
+    }
+    ```
+    ➔ **UI 연동**: 중복 티켓 생성을 방지하고, 토스트 안내와 함께 해당 티켓 화면으로 바로 이동할 수 있는 버튼을 제공.
+  - `404 Not Found`: 존재하지 않는 후보 ID 시 에러 토스트 출력.
+
+
 
 
