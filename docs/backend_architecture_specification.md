@@ -319,6 +319,31 @@ interface KnowledgeCandidate {
   };
   evidenceIds: string[];          // 인라인 연동된 공인 출처 ID 목록 (["E-01", "E-02"])
 }
+
+// 🌟 [추가: 3.6 Contextual Explainer 지원] 인라인 등록 개념 팝오버 문맥 해설 DTO / 캐시 스키마
+interface ContextualExplanationDTO {
+  parentConceptId: string;        // 기준 부모 개념 ID (예: "dry-etch")
+  perspectiveId?: string;         // 적용 맥락 관점 ID (예: "memory-advanced")
+  targetConceptId: string;        // 대상 등록 개념 ID (예: "plasma-discharge")
+  title: string;                  // 대상 개념 표제 (예: "플라즈마 방전 (Plasma Discharge)")
+  aliases?: string[];             // 현장 별칭 (["방전", "Discharge"])
+  contextualExplanation: string;  // "현재 공정 맥락(플라즈마 건식 식각): ..."
+  relatedOntologyNodes: Array<{   // 팝오버 하단 [🔗 연관 온톨로지] 1-hop 칩
+    conceptId: string;
+    name: string;
+    relation: "part_of" | "causes" | "caused_by" | "trade_off" | "is_a";
+    relationLabel: string;        // UI 표기용 (예: "⚡ 에너지원", "⚠️ 결함 리스크")
+  }>;
+  docLink: string;                // "본문으로 이동 ➔" URL (/wiki/concept-plasma-discharge)
+  compiledAt: string;             // 사전 컴파일 일시 (예: "2026-10-16T10:00:00Z")
+}
+
+// 🌟 [추가: 3.6 Contextual Explainer 지원] 위키 본문 조회 시 0ms 팝오버 프리페치 응답 DTO
+interface ConceptDetailResponse {
+  concept: Concept;
+  perspectiveCases: PerspectiveCase[];
+  preloadedExplainers?: Record<string, ContextualExplanationDTO>; // { [targetConceptId]: ContextualExplanationDTO }
+}
 ```
 
 ---
@@ -515,21 +540,21 @@ interface KnowledgeCandidate {
   - **출처 미보증 텍스트 합성 금지**: 생성되는 모든 지식 후보 카드의 문장은 반드시 Step 2에서 수집된 `EvidenceSource.quote`에 앵커링되어야 하며, 출처가 없거나 신뢰 티어(Tier 1~3)를 통과하지 못한 텍스트는 지식 후보에서 제외.
 
 ### 3.6 🌟 인라인 문맥 맞춤 해설 파이프라인 (Contextual Explainer Pipeline)
-- **동작 화면 및 다중 활용 영역 (Cross-Workspace Scope)**:
-  - **[주 활용]**: [Tab 1] 위키 본문 등록 개념 팝오버 (`💡 문맥 맞춤 해설`)
-  - **[다중 활용 1]**: [Tab 2] 비교 매트릭스 테이블 내 공학 용어 툴팁
-  - **[다중 활용 2]**: [Tab 3] 검토 센터 2-Pane Diff 내 신규 용어 설명 툴팁
+- **동작 화면**: [Tab 1] 위키 본문 등록 개념 팝오버 (`#concept-popover`: `💡 문맥 맞춤 해설`)
 - **해결 목적**: 단순 백과사전식 기본 정의만 출력하는 것이 아니라, **현재 엔지니어가 읽고 있는 부모 문서의 맥락(Parent Concept & Perspective)과 마우스 올린 자식 용어의 인과적 관계**를 1~2줄로 맞춤 해설.
-- **상세 처리 단계 (End-to-End)**:
-  1. **문맥 튜플 수신**:
-     - `currentConceptId` (현재 열람 중인 부모 개념)
-     - `currentPerspectiveId` (현재 적용 중인 실무 관점)
-     - `targetConceptId` (마우스 호버 또는 클릭된 자식 용어)
-  2. **온톨로지 1-hop 인과 경로 조회**:
-     - 부모 개념과 대상 용어 간의 그래프 관계 엣지(`is_a`, `part_of`, `caused_by`, `causes`, `causalEdges`) 조회.
-     - *예: 부모="플라즈마 건식 식각", 자식="플라즈마 방전" ➔ 식각 챔버 내에서 활성 라디칼과 반응성 이온을 생성하는 물리적 에너지 공급원 맥락 포착.*
-  3. **초저지연 맞춤 해설 반환**:
-     - 1~2문장의 정밀한 문맥 해설 텍스트 생성:
-     - *출력 예시: "현재 공정 맥락: 챔버 내 주입된 공정 가스를 전리로 분해하여 실리콘 웨이퍼 표면을 비등방성으로 식각할 수 있는 반응성 이온과 라디칼을 공급하는 핵심 물리 방전 현상입니다."*
-- **초저지연(<50ms) 달성 아키텍처 개요 (추후 상세 논의 예정)**:
-  - 마우스 호버 시마다 매번 실시간 거대 LLM API를 왕복 호출(TTFT 500ms+)하면 팝오버가 뚝뚝 끊기므로, **온톨로지 주요 개념 쌍(Concept Pair) 간의 1-hop 인과 관계 해설 텍스트를 지식 승인(Tab 3 Publish) 시점에 사전 컴파일(Pre-computed Edge Caching)하여 메모리/Redis 캐시에서 50ms 이내에 즉시 서빙**하고, 미등록 신규 조합에 대해서만 경량 모델(Flash-Lite)로 스트리밍 처리하는 2단계 하이브리드 캐싱 아키텍처를 채택. (구체적인 지연시간 단축 및 프리컴파일 전략은 4단계 비기능 아키텍처에서 심층 검토 예정)
+- **아키텍처 구조 (3단계 하이브리드 서빙)**:
+  1. **[오프라인] Tab 3 지식 승인·배포 시점 사전 컴파일 (Pre-computed Edge Caching)**:
+     - 승인된 기술 문서 내에 포함된 모든 등록 개념 링크(`.concept-link`)를 정규식으로 전수 파싱 (문서당 평균 10~25개).
+     - 온톨로지 인과 엣지(`is_a`, `part_of`, `caused_by`, `causes`, `causalEdges`)를 1-hop 순회하여 배경 그래프 조립.
+     - 컨텍스트 브릿징(Context-bridging) LLM 배치를 가동하여 1~2문장의 정밀 해설을 일괄 생성한 뒤 **Redis 캐시에 영구 보존**.
+     - `Redis Key`: `explainer:{parentConceptId}:{perspectiveId}:{targetConceptId}`
+     - `Redis Value`: `ContextualExplanationDTO` JSON.
+  2. **[온라인] Tab 1 본문 로드 시 0ms 프리페칭 (Document-level Prefetch)**:
+     - 위키 본문 조회 API(`GET /api/v1/concepts/{id}`) 호출 시, 해당 본문 내 모든 자식 개념의 `ContextualExplanationDTO`를 `preloadedExplainers` 맵으로 일괄 패킹하여 전달.
+     - 엔지니어가 본문을 읽다가 마우스를 올리면 **네트워크 왕복(HTTP Latency) 없이 클라이언트 로컬 메모리에서 0ms로 즉각 팝오버 렌더링**.
+  3. **[온라인 폴백] 미캐시 동적 조합 온디맨드 스트리밍 (On-demand Fallback)**:
+     - 신규 초안 열람 등으로 캐시 미스(Cache Miss) 발생 시, 150ms hover-intent 디바운스를 거쳐 `GET /api/v1/concepts/{childId}/contextual-explain` 호출.
+     - 초경량 모델(Gemini Flash-Lite 등)을 온디맨드로 호출하여 스켈레톤 로더와 함께 스트리밍 서빙하고, 생성된 결과는 Redis에 즉시 자동 캐싱.
+- **프롬프트 가드레일 (Context-bridging Prompt)**:
+  - 장황한 사전적 정의 서술을 엄격히 금지.
+  - 반드시 `"현재 공정 맥락({parentName}):"`으로 시작하여, 부모 공정에서 해당 자식 개념이 물리·화학적으로 어떤 역할을 수행하는지 1~2문장으로 압축 서술 강제.
