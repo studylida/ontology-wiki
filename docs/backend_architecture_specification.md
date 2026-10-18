@@ -33,7 +33,7 @@
    - 5.2 실시간 이벤트 스트리밍 및 전역 동기화 아키텍처 (Real-Time Streaming & Event Sync)
    - 5.3 분산 동시성 제어 및 지식 불변 감사 추적 (Concurrency Control & Audit Trail)
    - 5.4 반도체 데이터 보안 및 권한 거버넌스 (Security & Access Governance: RBAC/ABAC)
-   - 5.5 장애 결함 격리 및 우아한 성능 저하 (Fault Tolerance & Graceful Degradation)
+   - 5.5 결함 감내 및 우아한 성능 저하 (Fault Tolerance & Graceful Degradation)
 
 ---
 
@@ -633,7 +633,7 @@ interface ConceptDetailResponse extends Concept {
   }
   ```
 - **예외 처리 (Error)**:
-  - `503 Service Unavailable`: 서버 장애 발생 시 `{ "status": "unhealthy", "message": "데이터베이스 연결이 일시 중단되었습니다." }` 반환 ➔ 프론트엔드가 설정 아이콘 옆 닷을 **빨간 불**로 전환하고 경고 토스트 출력.
+  - `503 Service Unavailable`: 서버 장애 발생 시 `{ "status": "unhealthy", "message": "데이터베이스 연결이 일시 중단되었습니다." }` 반환 ➔ 프론트엔드가 설정 아이콘 옆 닷을 **검은색 인디케이터(⚫ 계획된 점검 및 안전 정지 상태)**로 전환하고 차분한 점검 안내 토스트 출력.
 
 #### 2. `GET /api/v1/system/version`
 - **화면 맥락**: [프론트 §1.2] 시스템 설정 팝업창 (`#settings-modal`) 상단 신규 온톨로지 배포 알림 배너, 메타데이터 표기, 사내 표준 고정 정책(0.35) 확인.
@@ -1682,9 +1682,11 @@ interface ConceptDetailResponse extends Concept {
 - **화면 맥락**: [프론트 §3.3 우측 Pane 전문가 직접 편집기 (In-Place Editor)] 전문가가 상단 `✏️ 직접 편집 모드` 토글을 켜면 우측 초안 Pane이 `Textarea` 에디터로 전환됨. 문구를 직접 수정한 후 `💾 수정 내용 초안에 반영` 버튼을 클릭하면 수정한 텍스트가 저장되고 3대 무결성 점검 지표가 실시간 재산출.
 - **사용자 입력 (Request)**:
   - Path Param: `id` (필수, string)
+  - Headers: `If-Match` (선택/권장, string): 동시 수정 충돌 방지용 판본 해시 (예: `"v1.2-rev04"`, [5.3.1절](#531-이중-동시성-방어-아키텍처-pessimistic-presence--optimistic-versioning) 참조)
   - Request Body:
     ```json
     {
+      "ticketVersion": 4,
       "editedContent": "### 3. 한계 및 트레이드오프\n- **16단 이상 고다단 적층 시 누적 열변형(Thermal Warpage)**:\n  다단 칩을 반복 가열/냉각하는 과정에서 NCF 필름에 과도한 하중(165N 초과)이 인가되면 수지 유출 및 단락이 발생함. [E-01]\n  (전문가 직접 수정 문구 반영)"
     }
     ```
@@ -1692,6 +1694,7 @@ interface ConceptDetailResponse extends Concept {
   ```json
   {
     "ticketId": "rev-20261016-001",
+    "ticketVersion": 5,
     "humanEdits": "### 3. 한계 및 트레이드오프\n- **16단 이상 고다단 적층 시 누적 열변형(Thermal Warpage)**:\n  다단 칩을 반복 가열/냉각하는 과정에서 NCF 필름에 과도한 하중(165N 초과)이 인가되면 수지 유출 및 단락이 발생함. [E-01]\n  (전문가 직접 수정 문구 반영)",
     "integrityReport": {
       "evidenceMatchRate": 1.0,
@@ -1704,6 +1707,7 @@ interface ConceptDetailResponse extends Concept {
   ```
 - **예외 처리 (Error)**:
   - 본문이 공백인 경우 `400 Bad Request` 에러 반환.
+  - `409 Conflict` (`VERSION_CONFLICT`): 타 전문가가 먼저 수정을 반영하여 `ticketVersion`(`If-Match`)이 어긋난 경우 `{ "code": "VERSION_CONFLICT", "latestVersion": 5, "currentContent": "..." }` 반환 ➔ [수정 충돌 해결 2-Pane Diff 모달](#531-이중-동시성-방어-아키텍처-pessimistic-presence--optimistic-versioning) 노출.
 
 #### 5. `GET /api/v1/review-tickets/{id}/wiki-preview`
 - **화면 맥락**: [프론트 §3.3 상단 버튼 ➔ §4.4 `[M-02]` 위키 페이지 승인 반영 실시간 미리보기 모달] 전문가가 상단의 `👁️ 반영될 위키 페이지 미리보기` 버튼을 누르면 대형 모달이 열림. 최종 승인 시 1번 [Tab 1] 공용 위키 페이지가 어떻게 변경되는지를 ✨ 변경 항목 하이라이트 토글(추가분 초록, 수정분 노랑)과 함께 완벽한 형태의 위키 본문(정의, 수식, 한계, 실무 사례 카드)으로 미리 확인.
@@ -1757,12 +1761,15 @@ interface ConceptDetailResponse extends Concept {
 - **화면 맥락**: [프론트 §3.3 상단 버튼 ➔ §4.5 `[M-03]` 승인 성공 확인 모달] 전문가가 최종 검토를 마치고 `승인 및 공용 위키에 즉시 게시` 버튼을 클릭. 백엔드가 공식 위키에 `v1.3`으로 즉시 배포하고 티켓을 `approved`로 확정. 화면에는 체크 애니메이션과 함께 `[M-03] 승인 성공 확인 모달`이 열리며 사이드바의 [대기 중] 큐에서 티켓이 제거되고 [승인 완료 이력]으로 자동 이동. 헤더의 `📖 반영된 위키 문서 바로가기` 버튼 활성화.
 - **사용자 입력 (Request)**:
   - Path Param: `id` (필수, string)
+  - Headers: `If-Match` (선택/권장, string): 동시 승인 및 버전 충돌 방지용 판본 해시 ([5.3.1절](#531-이중-동시성-방어-아키텍처-pessimistic-presence--optimistic-versioning) 참조)
   - Request Body:
     ```json
     {
+      "ticketVersion": 5,
       "approvedBy": "Dr. 김수석",
       "department": "수율분석팀",
-      "approvalComment": "최신 2026.01 공인 백서 실측치 부합 확인 및 16단 양산 한계 반영 정식 승인."
+      "approvalComment": "최신 2026.01 공인 백서 실측치 부합 확인 및 16단 양산 한계 반영 정식 승인.",
+      "overrideReason": null
     }
     ```
 - **화면 렌더링용 데이터 (Response 200 OK)**:
@@ -1787,7 +1794,7 @@ interface ConceptDetailResponse extends Concept {
   }
   ```
 - **예외 처리 (Error)**:
-  - `409 Conflict` (미해결 온톨로지 충돌 존재 시):
+  - `409 Conflict` (`INTEGRITY_CONFLICT_UNRESOLVED` - 미해결 온톨로지 충돌 존재 시):
     ```json
     {
       "code": "INTEGRITY_CONFLICT_UNRESOLVED",
@@ -1802,6 +1809,7 @@ interface ConceptDetailResponse extends Concept {
     }
     ```
     ➔ **UI 연동**: 승인 버튼을 비활성화하고, 모달 창에 충돌 원인과 해결 추천 팁(`suggestedFix`)을 띄워 AI 지시문이나 직접 편집으로 해결하도록 안내.
+  - `409 Conflict` (`VERSION_CONFLICT` - 동시 편집/승인 버전 불일치 시): 타 전문가가 먼저 티켓을 수정했거나 이미 승인한 경우 `{ "code": "VERSION_CONFLICT", "latestVersion": 6 }` 반환 ➔ 최신 상태 동기화 및 Diff 확인 안내.
 
 #### 7. `POST /api/v1/review-tickets/{id}/reject`
 - **화면 맥락**: [프론트 §3.3 메인 검토 화면 (보조 액션)] 전문가가 제안된 초안이 사내 공정 기준에 부합하지 않거나 오류가 심각하여 기각하기 위해 `반려 (Reject)` 버튼을 클릭하고 사유를 입력. 티켓 상태가 `rejected`로 변경되어 큐에서 종결되며 제안자에게 반려 사유 전달.
@@ -2243,7 +2251,7 @@ flowchart TD
     
     subgraph L1 ["L1: 브라우저 인메모리 캐시 (0ms)"]
         L1_Pre["preloadedExplainers 맵<br>(본문 로드 시 15~25개 용어 일괄 주입)"]
-        L1_LRU["Client LRU Store<br>(최근 조회 5개 개념 상세, TTL 5분)"]
+        L1_LRU["Client LRU Store<br>(최근 조회 10개 개념 상세, TTL 5분)"]
         L1_BC["BroadcastChannel('wiki_cache_sync')<br>(브라우저 다중 탭 간 캐시 무효화 전파)"]
     end
     
@@ -2332,6 +2340,8 @@ class WikiClientCache {
 
 - **대용량 위키 본문 zlib 바이너리 압축**:
   - `concept:detail:*` 페이로드는 `preloadedExplainers`를 다수 포함하여 비압축 시 40~60KB에 이름. 백엔드에서 Python `zlib.compress(json_str.encode('utf-8'), level=6)` 처리 후 Redis에 저장함으로써 **네트워크 대역폭 81.8% 절감 (평균 45KB ➔ 8.2KB)** 및 Redis 메모리 비용 대폭 감소.
+- **권한 오염 방지 런타임 마스킹 필터 (Post-Cache RBAC Filter)**:
+  - 공용 L2 Redis 캐시에 권한별로 중복 데이터를 저장하지 않고 **원본(Canonical Raw) DTO 1벌만 압축 보관**하되, 백엔드 API가 Redis에서 데이터를 압축 해제한 직후 **인메모리 런타임 마스킹 필터(`apply_rbac_tier3_masking`)**를 통과시켜 요청자의 JWT 권한에 따라 [5.4.1절 Tier 3 양산 수치](#541-반도체-지식-자산-3단계-데이터-등급-분류-및-격리-정책-data-classification)를 0.1ms 내에 동적 마스킹(경향성은 공개, 절대값은 보호)하여 반환합니다. 이를 통해 심의 전문가가 먼저 조회한 캐시가 일반 엔지니어에게 유출되는 **캐시 권한 오염(Cache RBAC Leak)을 원천 차단**합니다.
 - **메모리 고갈 보호 정책 (Maxmemory Policy)**:
   - Redis 클러스터는 `maxmemory-policy: volatile-lru`로 설정.
   - TTL이 없는 영구 지식인 `explainer:*` 키는 메모리 고갈 시에도 절대 강제 퇴출되지 않으며, TTL이 지정된 검색 색인 및 본문 캐시부터 안전하게 퇴출.
@@ -2427,7 +2437,7 @@ sequenceDiagram
         Invalidator->>Redis: UNLINK concept:detail:concept-tcb:*
         Invalidator->>Redis: UNLINK explainer:*:concept-tcb:* (인과 엣지 관련 키 전수 삭제)
         Invalidator->>Redis: UNLINK search:spotlight:index
-        Invalidator->>Redis: PUBLISH wiki_broadcast { type: "NEW_VERSION", version: "v1.3" }
+        Invalidator->>Redis: PUBLISH wiki:broadcast { "type": "WIKI_VERSION_RELEASED", "newVersion": "v1.3" }
     and 2. 백그라운드 웜업 큐 인큐 (Enqueue Job)
         Invalidator->>Queue: Enqueue Warm-up Job (concept-tcb, affectedConceptIds)
     end
@@ -2472,26 +2482,27 @@ sequenceDiagram
   ```python
   import time, uuid
 
-  def get_concept_detail_with_lock(concept_id: str, perspective: str):
+  def get_concept_detail_with_lock(concept_id: str, perspective: str, user_role: str):
       cache_key = f"concept:detail:{concept_id}:{perspective}"
       lock_key = f"lock:concept:{concept_id}"
       lock_token = str(uuid.uuid4())
       
-      # 1. 캐시 조회
+      # 1. 캐시 조회 후 인메모리 런타임 권한 마스킹(Post-Cache RBAC Filter) 적용
       cached_data = redis_client.get(cache_key)
       if cached_data:
-          return decompress_zlib_json(cached_data)
+          raw_dto = decompress_zlib_json(cached_data)
+          return apply_rbac_tier3_masking(raw_dto, user_role)
       
       # 2. 캐시 미스 시 분산 락 획득 시도 (3초 TTL)
       acquired = redis_client.set(lock_key, lock_token, nx=True, px=3000)
       
       if acquired:
           try:
-              # 최초 1개 스레드만 무거운 DB 조회 및 DTO 패킹 실행
+              # 최초 1개 스레드만 무거운 DB 조회 및 원본(Raw) DTO 패킹 실행
               db_data = fetch_from_graph_and_doc_db(concept_id, perspective)
               compressed = compress_zlib_json(db_data)
               redis_client.setex(cache_key, 86400, compressed) # 24시간 보관
-              return db_data
+              return apply_rbac_tier3_masking(db_data, user_role)
           finally:
               # 본인이 획득한 락만 안전하게 해제 (Lua Script)
               release_lock_lua(lock_key, lock_token)
@@ -2501,10 +2512,12 @@ sequenceDiagram
               time.sleep(0.05)
               cached_data = redis_client.get(cache_key)
               if cached_data:
-                  return decompress_zlib_json(cached_data)
+                  raw_dto = decompress_zlib_json(cached_data)
+                  return apply_rbac_tier3_masking(raw_dto, user_role)
           
-          # 타임아웃 시 읽기 전용 읽기 폴백 DB 조회
-          return fetch_from_read_replica(concept_id, perspective)
+          # 타임아웃 시 읽기 전용 폴백 DB 조회
+          fallback_data = fetch_from_read_replica(concept_id, perspective)
+          return apply_rbac_tier3_masking(fallback_data, user_role)
   ```
 
 - **XFetch 확률적 조기 갱신 (Probabilistic Early Expiration) 알고리즘**:
@@ -2582,7 +2595,7 @@ Access-Control-Allow-Origin: *
 - **Nginx 버퍼링 차단**: Nginx 또는 기업용 리버스 프록시 뒤에 위치할 경우 `X-Accel-Buffering: no`를 명시하여 프록시가 청크를 쥐고 있지 않고 즉시 클라이언트로 바이패스(Bypass)하도록 강제.
 - **인증 토큰 유출 방지 (fetch-event-source)**: 브라우저 표준 `EventSource`는 커스텀 헤더를 지원하지 않아 쿼리스트링(`?token=...`)에 인증키를 노출하기 쉽습니다. 시스템은 사내 프록시 로그에 토큰이 기록되는 취약점을 차단하기 위해 `@microsoft/fetch-event-source` 패턴을 채택하여 정식 `Authorization: Bearer <JWT>` 헤더로 전송.
 
-##### 2. [Tab 4] 외부 문헌 조사 실시간 이벤트 스트림 (`GET /api/v1/deep-research/sessions/{id}/stream`)
+##### 2. [Tab 4] 외부 문헌 조사 실시간 이벤트 스트림 (`GET /api/v1/research/sessions/{id}/stream`)
 조사 세션이 시작되면 백엔드 에이전트가 탐색 과정을 단계별 이벤트로 방출합니다:
 
 ```text
@@ -2630,6 +2643,7 @@ event: done
 id: chk-05
 data: {"finishReason": "stop", "promptTokens": 320, "completionTokens": 78}
 ```
+- **청크 경계 가명화 토큰 절단 방지 (Bracket-Aware Lookahead Buffer)**: [5.4.3절의 구간 인지형 가명화 토큰](#구간별-비선형-물리-법칙을-보존하는-작동-영역regime-aware-가명화-및-역치환-파이프라인)(예: `[PARAM_TEMP_RECOMMEND]`)이 실시간 스트리밍 도중 `"[PA"`, `"RAM_"`, `"TEMP_RECOMMEND]"`처럼 여러 청크로 쪼개져 생성될 때 화면에 가명화 기호가 날것으로 노출되지 않도록, 백엔드 SSE 송출단은 **대괄호 감지 슬라이딩 버퍼**를 가동합니다. 스트림 내 여는 대괄호(`[`)가 감지되면 닫는 대괄호(`]`)가 도착할 때까지(최대 30자) 버퍼에 홀딩한 뒤, 임시 세션 사전(`Dict`)에서 실제 엔지니어링 수치(`280℃`)로 완결 역치환하여 단일 `token` 청크로 방출합니다.
 
 ##### 4. 네트워크 단절 시 `Last-Event-ID` 무손실 복구 메커니즘
 - 팹 라인 이동 중 일시적 Wi-Fi 패킷 드랍 발생 시, 브라우저 `EventSource`는 백엔드에 자동 재연결하며 헤더에 `Last-Event-ID: evt-002`를 전송합니다.
@@ -3008,7 +3022,7 @@ flowchart TD
 | **위키 간이 제안** | `POST /review-tickets` | ✅ 허용 | ✅ 허용 | ✅ 허용 | 누구나 오류 수정 제안 가능 |
 | **비교 분석 스튜디오**| `POST /comparison-sessions/*` | ✅ 허용 | ✅ 허용 | ✅ 허용 | 자유로운 기술 대안 비교 실행 |
 | **비교 결과 이관** | `POST /comparison-sessions/{id}/export-ticket` | ✅ 허용 | ✅ 허용 | ✅ 허용 | 검토 센터 큐로 티켓 발행 |
-| **외부 문헌 조사** | `POST /deep-research/*` | ✅ 허용 | ✅ 허용 | ✅ 허용 | 공인 문헌 발굴 및 후보 이관 |
+| **외부 문헌 조사** | `POST /research/*` | ✅ 허용 | ✅ 허용 | ✅ 허용 | 공인 문헌 발굴 및 후보 이관 |
 | **플로팅 챗봇** | `POST /chatbot/messages/*` | ✅ 허용 | ✅ 허용 | ✅ 허용 | AI 실시간 질의응답 |
 | **티켓 목록/상세** | `GET /review-tickets/*` | ✅ 허용 | ✅ 허용 | ✅ 허용 | 대기 중 / 승인 이력 열람 |
 | **AI 초안 보완 지시** | `POST /review-tickets/{id}/directive` | ❌ 차단 | ✅ 허용 | ✅ 허용 | 심의 전문가 이상만 지시 가능 |
@@ -3083,6 +3097,115 @@ sequenceDiagram
 2. **보안 및 정밀성 보장 효과**:
    - 사내 AI 모델에는 기업의 절대 기밀 세팅값(`145N`)이 단 한 번도 노출되지 않아 **보안성 100%**를 유지합니다.
    - 동시에 AI는 공정이 어느 물리 영역에 속해 있는지 정확히 인지하므로, 비선형 구간에 최적화된 **정밀한 공학 보상 로직 100%**를 적용하여 엔지니어에게 실제 팹 단위(`280℃`)로 결과를 회신합니다.
+
+---
+
+### 5.5 결함 감내 (Fault Tolerance) 및 우아한 성능 저하 (Graceful Degradation)
+
+외부 LLM API 호출 지연, 사내 온프레미스 AI 클러스터의 일시적 OOM, 네트워크 파티션, 분산 캐시 장애 등 예기치 않은 시스템 결함이 발생하더라도, 반도체 엔지니어의 핵심 업무가 중단되지 않도록 보장하는 **다계층 결함 감내 및 우아한 성능 저하(Graceful Degradation) 아키텍처**입니다.
+
+#### 5.5.1 고가용성 및 복원력 기본 원칙
+
+1. **에러 화면(500 Internal Server Error) 노출 원천 금지**: AI 추론 엔진이 다운되더라도 엔지니어는 위키 문서 열람, 수식 대조, 기본 정의 확인을 100% 정상 수행할 수 있어야 합니다.
+2. **결함 격리 (Fault Compartmentalization)**: 특정 기능(예: [Tab 4] 외부 문헌 조사)의 장애가 [Tab 1] 위키 브라우저나 [Tab 2] 비교 스튜디오 등 다른 독립 화면으로 전파(Cascading Failure)되지 않도록 서킷 브레이커로 격리합니다.
+3. **투명한 서비스 상태 안내 (Self-Explaining UI)**: 장애 발생 시 불친절한 에러 코드 대신, 현재 "안전 성능 저하 모드(Degraded Mode)"가 가동 중임을 탑바 인디케이터와 노란색 안내 배너로 명확히 고지합니다.
+
+---
+
+#### 5.5.2 서킷 브레이커 (Circuit Breaker) 상태 전이 아키텍처
+
+AI 게이트웨이 및 외부 학술 API 호출 구간에 **Resilience4j / pybreaker 기반 서킷 브레이커**를 배치하여 백엔드 스레드 풀 고갈을 방지합니다:
+
+```mermaid
+stateDiagram-v2
+    [*] --> Closed : 시스템 기동 (정상 가동)
+
+    Closed --> Open : 최근 20회 요청 중 실패율 ≥ 50%<br>또는 슬로우 콜(>3,000ms) 비율 ≥ 50%
+    note right of Open
+        [차단 상태: 초기 30초 유지]
+        AI 호출을 즉시 차단하고,
+        0ms로 정적 룰베이스 폴백 반환
+    end note
+
+    Open --> HalfOpen : 30초 경과 후 복구 시험 가동 (5회 Trial Probe)
+
+    HalfOpen --> Closed : 5회 시험 호출 전원 성공 (100% 성공)<br>➔ 정상 복구 (Closed 전이)
+    HalfOpen --> Open : 5회 중 1회라도 실패 발생<br>➔ 차단 연장 (Open 60초 재적용)
+```
+
+- **서킷 브레이커 세부 파라미터 설정**:
+  - `slidingWindowSize`: 최근 20개 호출.
+  - `failureRateThreshold`: 50% (10회 이상 실패 시 즉시 OPEN).
+  - `slowCallRateThreshold`: 50% (응답 시간 3,000ms 초과 시 슬로우 콜로 간주, 10회 이상 지연 시 즉시 OPEN).
+  - `waitDurationInOpenState`: 초기 30초 (차단 지속 시간, Half-Open 복구 시험 실패 시 60초로 자동 연장).
+  - `permittedNumberOfCallsInHalfOpenState`: 5회 (복구 시험 호출 수 - 5회 전원 성공 시에만 정상 복구, 1회라도 실패 시 차단 연장).
+
+---
+
+#### 5.5.3 4대 기능별 정적 온톨로지 룰베이스 폴백 매트릭스
+
+AI 엔진이나 외부망이 차단되었을 때, 시스템은 기저장된 온톨로지 지식 그래프와 룰베이스를 활용하여 다음과 같이 매끄럽게 폴백(Fallback)합니다:
+
+| 화면 기능 | AI 정상 가동 시 (`CLOSED`) | AI 장애 시 우아한 성능 저하 (`OPEN`) | UI 안내 및 대책 |
+| :--- | :--- | :--- | :--- |
+| **[Tab 1] 문맥 맞춤 해설 팝오버 (`#concept-popover`)** | 부모 공정 맥락에 맞춤화된 1~2문장 실시간 AI 해설 스트리밍 | Redis 사전 컴파일 캐시 우선 서빙 ➔ 캐시 미스 시 온톨로지 코어 DB의 **기본 사전적 정의([`fallbackDefinition`](#3-get-apiv1conceptschildidcontextual-explain)) 및 1-hop 연관 칩** 즉시 렌더링 | 팝오버 하단에 `[⚠️ AI 맞춤 해설 점검 중 (기본 정의 표시)]` 뱃지 노출 |
+| **[Tab 2] AI 파라미터 튜닝 상담 (`#tuning-advisor-card`)** | 온톨로지 인과 모델 기반 추천안 A/B 및 트레이드오프 수치 실시간 생성 | `PerspectiveCase.specifications`에 기등록된 **정적 표준 보상 파라미터 표**를 즉각 매핑하여 서빙 | "AI 실시간 추천이 일시 지연 중입니다. 사내 표준 가이드 레시피를 제안합니다." 안내 |
+| **[Tab 2] 비교 매트릭스 종합 인과 분석 (`aiCausalNote`)** | 다차원 축 간 물리적 상충관계 및 종합 결함 리스크 심층 해설 | AI 줄글 코멘트만 비우고, **온톨로지 실측 수치 대조표 및 공인 출처 칩([`[E-01]`](#25-evidencesource-및-knowledgecandidate-공인-출처-및-지식-후보-dto))은 100% 정상 렌더링** | 매트릭스 상단에 `[ℹ️ 실측 데이터 정상 표기 중]` 배너 노출 |
+| **[Tab 4] 외부 문헌 실시간 조사 (`[화면 4-A]`)** | IEEE, SEMI, 제조사 백서 타깃팅 실시간 웹 크롤링 및 인용구 추출 | 외부 웹 요청 차단 시, 사내 DB에 이미 구축된 **312건의 공인 출처 로컬 백서 아카이브(`EvidenceSource`)** 내 유사도 검색으로 즉시 전환 | "외부 학술망 접속이 원활하지 않아 사내 공인 백서 아카이브 검색 결과(N건)를 표시합니다." |
+
+---
+
+#### 5.5.4 분산 캐시(Redis) 및 그래프 DB 장애 격리
+
+백엔드 인프라의 핵심 저장소에 결함이 발생했을 때의 계층별 안전망입니다:
+
+1. **Redis 캐시 클러스터 다운 시**:
+   - **위키 본문 조회 우회**: 백엔드는 Redis 연결 실패 감지 즉시 서킷을 열고, **PostgreSQL 16 Read-Replica(읽기 전용 복제본)**로 직접 쿼리하여 서비스 연속성을 유지합니다.
+   - **클라이언트 L1 캐시 수명 자동 연장**: 프론트엔드는 시스템 상태 헤더(`X-Cache-Degraded: true`)를 수신하고, **L1 브라우저 캐시(`WikiClientCache`)의 TTL을 기존 5분에서 60분으로 자동 연장**하여 클라이언트 메모리 기반으로 백엔드 트래픽을 자체 분산 완충합니다.
+   - **동시성 제어 및 가명화 사전 무중단 폴백**:
+     - [5.3.1절](#531-이중-동시성-방어-아키텍처-pessimistic-presence--optimistic-versioning)의 Redis 기반 1계층 UI Presence Lock이 일시 비활성화되더라도, **2계층 RDBMS 낙관적 버전 검증(`If-Match` / `ticket_version` 원자적 CAS)**이 100% 독립 작동하여 동시 편집 덮어쓰기 결함을 원천 방어합니다.
+     - [5.4.3절](#구간별-비선형-물리-법칙을-보존하는-작동-영역regime-aware-가명화-및-역치환-파이프라인)의 임시 가명화 세션 사전(`Redis Ephemeral Dict`)은 즉시 **백엔드 워커 프로세스 로컬 인메모리(`Local Ephemeral Map`)**로 자동 전환되어 AI 추론 시 기밀 가명화 및 역치환이 중단 없이 수행됩니다.
+2. **Neo4j Graph DB 장애 시**:
+   - 복잡한 다중 홉 인과 경로 탐색(`GET /causal-subgraph`)에 데드락이나 타임아웃 발생 시, 백엔드는 PostgreSQL에 주기적으로 동기화 저장되는 **단순 1-hop 인과 엣지 스냅샷 테이블(`causal_edges_snapshot`)**을 읽어 Cytoscape 캔버스에 중심 노드와 1-hop 인접 노드를 정상 렌더링합니다.
+
+---
+
+#### 5.5.5 시스템 상태 인디케이터 및 통합 헬스체크 연동
+
+전역 탑바 우측의 `⚙️ 설정` 버튼 옆 상태 인디케이터 닷(Dot)은 4.1.1절 [`GET /api/v1/system/health`](#1-get-apiv1systemhealth) API와 연동되어 시스템의 가동 상태를 직관적인 3단계 인디케이터로 엔지니어에게 알립니다:
+
+```mermaid
+flowchart LR
+    subgraph Statuses ["3단계 시스템 가동 상태"]
+        Green["🟢 정상 가동 (Healthy)<br>모든 서비스 & AI 게이트웨이 정상"]
+        Yellow["🟡 성능 저하 모드 (Degraded)<br>AI 오프라인, 정적 룰베이스 폴백 가동 중"]
+        Black["⚫ 계획된 점검 및 정지 (Maintenance)<br>불안감을 유발하는 빨간색 대신 차분한 검은색으로 표시"]
+    end
+```
+
+> **[UI 색상 심리학 및 현장 신뢰성 가드레일]**:
+> 반도체 라인 대시보드에서 빨간색 점멸은 긴급 비상 화재/폭발 알람과 혼동되어 불필요한 공포와 불신을 유발할 수 있습니다. 따라서 심각한 장애나 점검 상태일지라도 시스템이 통제 하에 조용히 안전 정지되어 있음을 나타내기 위해 **차분하고 신뢰성 있는 검은색 인디케이터(⚫ Maintenance / Controlled Standby)**를 채택합니다.
+
+- **`degraded` 상태 시 헬스체크 응답 샘플 (HTTP 200 OK)**:
+  ```json
+  {
+    "status": "degraded",
+    "timestamp": "2026-10-19T08:35:00Z",
+    "services": {
+      "database": "connected",
+      "redisCache": "connected",
+      "llmGateway": "offline (circuit_open)"
+    },
+    "message": "AI 추론 엔진 점검 중입니다. 온톨로지 정적 지식 및 기본 정의 모드로 안전하게 서비스 중입니다.",
+    "activeFallbacks": [
+      "contextual_explainer: rule_based_definition",
+      "tuning_advisor: static_recipe_table",
+      "deep_research: internal_archive_only"
+    ]
+  }
+  ```
+  ➔ **UI 연동**: 탑바 닷이 **노란색**으로 전환되며, 엔지니어가 클릭 시 열리는 설정 모달에 *"현재 AI 실시간 분석이 점검 중이며, 검증된 정적 온톨로지 지식으로 안전하게 서비스되고 있습니다"* 안내 배너가 표시되어 현장 혼란을 원천 예방합니다.
+
 
 
 
