@@ -2517,6 +2517,252 @@ sequenceDiagram
   - \(\text{rand()}\): \((0, 1]\) 범위의 균등 난수.
   - 잔여 유효 시간(\(\text{TTL}_{\text{remaining}}\))이 확률적 임계치보다 작아질 경우, 요청을 처리하는 스레드가 사용자에게는 현재 캐시를 0ms로 즉각 서빙하고 백그라운드 비동기 태스크로 Redis 캐시를 갱신합니다.
 
+---
+
+### 5.2 실시간 이벤트 스트리밍 및 전역 동기화 아키텍처 (Real-Time Streaming & Event Sync)
+
+반도체 팹 라인과 R&D 연구소 환경에서는 수백 명의 엔지니어가 동시에 온톨로지 지식을 참조하고 비교 분석하며 지식을 거버넌스합니다. 시스템은 **단방향 AI 추론 스트리밍**과 **전역 지식 승인 브로드캐스트**를 효율적으로 분리 지원하기 위해 **SSE(Server-Sent Events)와 WebSocket/Redis Pub-Sub을 결합한 하이브리드 실시간 아키텍처**를 채택합니다.
+
+#### 5.2.1 실시간 통신 토폴로지 및 이원화 프로토콜 전략
+
+```mermaid
+flowchart TD
+    subgraph Clients ["엔지니어 클라이언트 계층"]
+        UI_Tab4["[Tab 4] 외부 문헌 조사 화면<br>(근거 카드 피드 실시간 수신)"]
+        UI_Chat["우측 하단 플로팅 챗봇<br>(AI 토큰 단위 타이핑 스트리밍)"]
+        UI_TopBar["전역 탑바 & 설정 모달<br>(신규 온톨로지 배포 닷 점멸)"]
+        UI_Review["[Tab 3] 검토·승인 센터<br>(전문가 편집 중 Presence 잠금)"]
+    end
+
+    subgraph Gateway ["Nginx Ingress & API Gateway"]
+        SSE_Route["SSE 스트리밍 라우터<br>(HTTP/2, chunked transfer)"]
+        WS_Route["WebSocket 게이트웨이<br>(WSS, 양방향 전이중)"]
+    end
+
+    subgraph Backend ["백엔드 분산 서비스 클러스터"]
+        App_Research["Deep Research 엔진<br>(공인 도메인 크롤링/추출)"]
+        App_Chatbot["챗봇 추론 엔진<br>(Context-bridging LLM)"]
+        App_Governance["검토·승인 거버넌스 API<br>(POST /approve 완료 시)"]
+        Redis_Bus[("Redis Pub/Sub Event Bus<br>(channel:wiki:broadcast)")]
+    end
+
+    App_Research -->|1. 문헌 발굴 실시간 이벤트| SSE_Route
+    App_Chatbot -->|2. 토큰 델타 스트림| SSE_Route
+    SSE_Route -->|단방향 SSE 스트림| UI_Tab4
+    SSE_Route -->|단방향 SSE 스트림| UI_Chat
+
+    App_Governance -->|3. 승인 완료 이벤트 발행| Redis_Bus
+    Redis_Bus -->|4. Fan-out 브로드캐스트| WS_Route
+    WS_Route <-->|5. 양방향 실시간 동기화| UI_TopBar
+    WS_Route <-->|6. 편집자 Presence 동기화| UI_Review
+```
+
+- **이원화 프로토콜 선정 사유**:
+  1. **단방향 스트리밍 (SSE - Server-Sent Events)**:
+     - **적용 대상**: [Tab 4] 외부 문헌 실시간 수집 피드(`[화면 4-A]`), 플로팅 챗봇 토큰 스트리밍.
+     - **선정 이유**: 클라이언트에서 서버로의 역방향 메시징이 필요 없는 순수 수신 스트림이며, 기존 HTTP/HTTPS 포트(80/443)를 그대로 사용하여 팹 사내 방화벽 프록시 통과가 완벽히 보장됨. 브라우저 내장 `EventSource`의 자동 재연결(Auto-reconnect with `Last-Event-ID`)을 무상으로 활용 가능.
+  2. **전역 브로드캐스트 및 협업 (WebSocket + Redis Pub-Sub)**:
+     - **적용 대상**: 신규 온톨로지 판본 배포 알림(탑바 배너), 검토 센터 편집 중 동시성 Presence 알림.
+     - **선정 이유**: 다중 백엔드 노드 환경에서 모든 연결된 클라이언트로의 즉각적인 1:N Fan-out 및 양방향 Heartbeat 핑퐁이 필수적이므로 전이중(Full-duplex) WebSocket을 채택.
+
+---
+
+#### 5.2.2 [단방향 스트리밍] SSE 기반 문헌 조사 및 챗봇 토큰 스트리밍 규격
+
+##### 1. 전송 계층 헤더 및 Nginx 프록시 설정
+SSE 스트림의 중간 버퍼링으로 인한 체감 지연(Latency)과 보안 유출을 원천 방지하기 위해 다음 응답 헤더 및 인증 방식을 필수 적용합니다:
+```http
+HTTP/1.1 200 OK
+Content-Type: text/event-stream; charset=utf-8
+Cache-Control: no-cache, no-transform
+Connection: keep-alive
+X-Accel-Buffering: no
+Access-Control-Allow-Origin: *
+```
+- **Nginx 버퍼링 차단**: Nginx 또는 기업용 리버스 프록시 뒤에 위치할 경우 `X-Accel-Buffering: no`를 명시하여 프록시가 청크를 쥐고 있지 않고 즉시 클라이언트로 바이패스(Bypass)하도록 강제.
+- **인증 토큰 유출 방지 (fetch-event-source)**: 브라우저 표준 `EventSource`는 커스텀 헤더를 지원하지 않아 쿼리스트링(`?token=...`)에 인증키를 노출하기 쉽습니다. 시스템은 사내 프록시 로그에 토큰이 기록되는 취약점을 차단하기 위해 `@microsoft/fetch-event-source` 패턴을 채택하여 정식 `Authorization: Bearer <JWT>` 헤더로 전송.
+
+##### 2. [Tab 4] 외부 문헌 조사 실시간 이벤트 스트림 (`GET /api/v1/deep-research/sessions/{id}/stream`)
+조사 세션이 시작되면 백엔드 에이전트가 탐색 과정을 단계별 이벤트로 방출합니다:
+
+```text
+event: progress
+id: evt-001
+data: {"step": "domain_search", "percent": 25, "activeDomain": "ieeexplore.ieee.org", "message": "IEEE Xplore 공인 학술 문헌 탐색 중..."}
+
+event: evidence_discovered
+id: evt-002
+data: {"evidenceId": "E-2026-TGV-01", "sourceName": "Intel Glass Substrate Reliability Whitepaper", "sourceType": "official_whitepaper", "publisher": "Intel Corporation", "publishedDate": "2026.01", "quote": "In 500μm thick glass cores, TGV thermal expansion mismatch induces micro-cracking at aspect ratios exceeding 10:1.", "sectionContext": "Section 3.1 Failure Mechanisms, p.8 Table 1", "relevanceScore": 0.96, "externalUrl": "https://www.intel.com/content/www/us/en/newsroom/news/glass-substrates-breakthrough.html", "credibilityTier": "Tier 1 (공식 제조사)"}
+
+event: progress
+id: evt-003
+data: {"step": "cross_synthesis", "percent": 80, "message": "다중 출처 3건 교차 대조 및 지식 갭 분석 중..."}
+
+event: candidate_ready
+id: evt-004
+data: {"candidateId": "cand-20261019-01", "candidateType": "신규 개념", "title": "유리기판 관통전극 (TGV)", "summary": "차세대 유리기판 인터포저에서 TSV를 대체하여 미세 피치 전기적 인터커넥트를 형성하는 레이저 가공 관통 배선 기술.", "evidenceIds": ["E-2026-TGV-01"]}
+
+event: complete
+id: evt-005
+data: {"status": "success", "totalEvidences": 4, "totalCandidates": 2, "tookMs": 3420}
+```
+
+##### 3. [플로팅 챗봇] 토큰 단위 타이핑 스트림 (`POST /api/v1/chatbot/messages/stream`)
+엔지니어의 질문에 대해 LLM의 인과 추론 토큰을 실시간으로 내려보냅니다:
+```text
+event: token
+id: chk-01
+data: {"delta": "열압착 본딩(TCB) 공정에서 "}
+
+event: token
+id: chk-02
+data: {"delta": "본딩 헤드의 가압력이 **180N을 초과**할 경우, "}
+
+event: token
+id: chk-03
+data: {"delta": "NCF 수지 측방 과유출로 인해 마이크로 브릿지(단락) 위험이 급증합니다."}
+
+event: action_card
+id: chk-04
+data: {"actionType": "navigate_comparison", "title": "TCB vs LAB 다차원 비교 분석 실행", "targetUrl": "/comparison?targetA=concept-tcb&targetB=concept-lab"}
+
+event: done
+id: chk-05
+data: {"finishReason": "stop", "promptTokens": 320, "completionTokens": 78}
+```
+
+##### 4. 네트워크 단절 시 `Last-Event-ID` 무손실 복구 메커니즘
+- 팹 라인 이동 중 일시적 Wi-Fi 패킷 드랍 발생 시, 브라우저 `EventSource`는 백엔드에 자동 재연결하며 헤더에 `Last-Event-ID: evt-002`를 전송합니다.
+- 백엔드 Redis의 스트림 캐시(`stream:session:{id}`)에서 `evt-002` 이후의 누락된 이벤트를 찾아 즉시 재전송(Replay)함으로써 화면 누락 없는 무손실 복원력을 제공합니다.
+
+---
+
+#### 5.2.3 [전역 브로드캐스트] WebSocket & Redis Pub-Sub 배포 동기화 클러스터
+
+##### 1. 분산 환경의 WebSocket & Redis Pub-Sub 구조 및 보안 가드레일
+다중 백엔드 Pod/인스턴스 환경에서 클라이언트가 각각 다른 서버에 WebSocket으로 물려 있더라도, 전역 이벤트가 누락 없이 모든 클라이언트에 전달되도록 Redis Pub-Sub 버스를 중계자로 둡니다:
+
+- **웹소켓 보안 가드레일 (CSWSH & 커넥션 DoS 방어)**:
+  - **Origin 화이트리스트 검증**: 인가된 사내 도메인(`*.corp`, `localhost:8000`) 외의 외부 웹사이트에서 발생한 웹소켓 핸드셰이크 요청은 즉시 차단(HTTP 403 Forbidden)하여 크로스사이트 웹소켓 하이재킹(CSWSH)을 원천 방어.
+  - **1회용 단기 티켓 토큰 (Ticket Auth)**: 웹소켓 연결 시 URL 파라미터로 직접 영구 토큰을 넘기지 않고, REST API로 사전 발급받은 30초 유효한 1회용 티켓(`wss://.../ws/v1/events?ticket=ws_ticket_xxx`)으로 핸드셰이크 검증.
+  - **계정당 커넥션 상한 (Rate Limit)**: 사번 계정 및 IP당 최대 동시 연결 수(5개)를 초과할 경우 신규 소켓 연결을 차단하여 자원 고갈(DoS) 방어.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Admin as 심의 전문가/관리자
+    participant Pod1 as 백엔드 인스턴스 A
+    participant RedisPubSub as Redis Pub/Sub (channel:wiki:broadcast)
+    participant Pod2 as 백엔드 인스턴스 B
+    actor EngA as 엔지니어 A (Pod 1 접속)
+    actor EngB as 엔지니어 B (Pod 2 접속)
+    
+    EngA->>Pod1: WSS /ws/v1/events 연결 수립
+    EngB->>Pod2: WSS /ws/v1/events 연결 수립
+    
+    Admin->>Pod1: POST /api/v1/review-tickets/rev-001/approve (v1.3 승인)
+    Pod1->>RedisPubSub: PUBLISH wiki:broadcast { "type": "WIKI_VERSION_RELEASED", "newVersion": "v1.3" }
+    
+    par Redis Fan-out 전파
+        RedisPubSub-->>Pod1: 메시지 디스패치
+        RedisPubSub-->>Pod2: 메시지 디스패치
+    end
+    
+    par 클라이언트 실시간 브로드캐스트
+        Pod1-->>EngA: WebSocket 프레임 전송 (WIKI_VERSION_RELEASED)
+        Pod2-->>EngB: WebSocket 프레임 전송 (WIKI_VERSION_RELEASED)
+    end
+    
+    Note over EngA, EngB: 탑바 ⚙️ 설정 아이콘 옆 닷(Dot) 즉시 점멸 & 설정 모달 배너 갱신
+```
+
+##### 2. 전역 브로드캐스트 메시지 스키마
+
+- **신규 판본 배포 브로드캐스트 (`WIKI_VERSION_RELEASED`)**:
+  ```json
+  {
+    "type": "WIKI_VERSION_RELEASED",
+    "timestamp": "2026-10-19T08:15:00Z",
+    "payload": {
+      "oldVersion": "v1.2",
+      "newVersion": "v1.3",
+      "approvedConceptId": "concept-tcb",
+      "approvedConceptTitle": "열압착 본딩 (TCB)",
+      "releaseSummary": "TCB 16단 적층 시 145N 가압 조건 및 시간 보상 파라미터 개정",
+      "approvedBy": "Dr. 김수석 (수율분석팀)",
+      "totalConcepts": 148,
+      "requiresRefresh": false,
+      "bannerMessage": "온톨로지 v1.3이 공식 배포되었습니다. 최신 규격이 반영되었습니다."
+    }
+  }
+  ```
+  ➔ **UI 연동**: 탑바 우측 `⚙️ 설정` 버튼 옆 상태 인디케이터가 **노란색/초록색 점멸**로 변경되며, 클릭 시 열리는 설정 모달(`#settings-modal`) 상단에 `[신규 온톨로지 v1.3 배포 알림 배너]`가 렌더링됩니다.
+
+- **[Tab 3] 티켓 실시간 편집 중 Presence 감지 (`TICKET_LOCK_PRESENCE`)**:
+  ```json
+  {
+    "type": "TICKET_LOCK_PRESENCE",
+    "timestamp": "2026-10-19T08:15:30Z",
+    "payload": {
+      "ticketId": "rev-20261016-001",
+      "status": "locked",
+      "lockedBy": "최책임 (패키징공정팀)",
+      "lockedUntil": "2026-10-19T08:25:30Z",
+      "message": "현재 최책임님이 직접 편집기로 수정 중입니다. (동시 수정 충돌 방지)"
+    }
+  }
+  ```
+  ➔ **UI 연동**: 다른 전문가가 동일 티켓의 `[✏️ 직접 편집 모드]` 버튼을 누르려 할 때 버튼이 비활성화되며 `"현재 최책임님이 편집 중입니다"` 툴팁이 노출되어 편집 충돌을 사전 차단합니다.
+
+---
+
+#### 5.2.4 네트워크 단절 복구, 하트비트 및 백프레셔(Backpressure) 제어
+
+##### 1. 팹 라인 음영 구역 대응 Ping/Pong 하트비트 규격
+- 반도체 클린룸 내부 챔버 사이 이동 시 무선 패킷 유실을 감지하기 위해 서버와 클라이언트는 30초 주기로 WebSocket Ping/Pong 프레임을 교환합니다:
+  - 서버 ➔ 클라이언트: `{"type": "PING", "ts": 1792364000000}`
+  - 클라이언트 ➔ 서버: `{"type": "PONG", "ts": 1792364000100}`
+- **자동 재연결(Exponential Backoff)**: 2회 연속 PING 실패(60초 타임아웃) 시 소켓을 능동 종료하고, 클라이언트는 `min(1000 * 2^attempt, 15000)` ms 주기의 지수 백오프로 무음 재연결을 시도합니다.
+
+##### 2. 클라이언트 렌더링 백프레셔(Backpressure) 제어 의사코드
+초당 80~100 토큰이 고속으로 유입될 때 브라우저 메인 스레드가 DOM 리플로우(Reflow)로 멈칫거리는 현상(Jank)을 방지하기 위해 `requestAnimationFrame`(RAF) 배치 큐를 적용합니다:
+
+```javascript
+// 프론트엔드 토큰 렌더링 백프레셔 완충 버퍼 (js/app.js)
+class StreamingTokenBuffer {
+  constructor(targetElement) {
+    this.target = targetElement;
+    this.tokenQueue = [];
+    this.isRendering = false;
+  }
+
+  // SSE 온메시지 수신 시 큐에 적재 (비차단)
+  public push(tokenDelta) {
+    this.tokenQueue.push(tokenDelta);
+    if (!this.isRendering) {
+      this.isRendering = true;
+      requestAnimationFrame(() => this.flush());
+    }
+  }
+
+  // 16.6ms(60fps) 주기로 모인 토큰을 한 번에 DOM에 플러시
+  private flush() {
+    if (this.tokenQueue.length > 0) {
+      const batchText = this.tokenQueue.join("");
+      this.tokenQueue = [];
+      this.target.textContent += batchText;
+      // 자동 하단 스크롤 동기화
+      this.target.scrollTop = this.target.scrollHeight;
+    }
+    if (this.tokenQueue.length > 0) {
+      requestAnimationFrame(() => this.flush());
+    } else {
+      this.isRendering = false;
+    }
+  }
+}
+```
+
 
 
 
