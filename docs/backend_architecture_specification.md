@@ -2943,6 +2943,147 @@ flowchart LR
    - 애플리케이션 메모리에서 버전을 확인(Check)하고 DB에 반영(Use)하는 사이 수 밀리초(ms)의 틈을 노린 동시성 경쟁(Time-of-Check to Time-of-Use) 취약점을 배제합니다.
    - `SELECT` 후 메모리 비교가 아닌, 데이터베이스 트랜잭션 엔진이 단일 CPU 사이클 수준에서 직렬성을 보장하는 **원자적 단일 쿼리 (`UPDATE ... WHERE ticket_version = :expectedVersion`)**만을 강제하여 버전 우회 저장을 물리적으로 차단합니다.
 
+---
+
+### 5.4 반도체 데이터 보안 및 권한 거버넌스 (Security & Access Governance: RBAC/ABAC)
+
+반도체 기업의 공정 레시피와 불량 메커니즘은 국가 핵심 기술이자 기업의 명운을 가르는 1급 영업 비밀입니다. 따라서 시스템은 **업계 공용 학술 지식은 전사 개방**하되, **특정 고객사·팹 라인의 양산 조건은 철저히 격리**하는 데이터 등급 체계와 **엄격한 3단계 역할 기반 접근 제어(RBAC)**, 그리고 **사내 폐쇄망 온프레미스 LLM Gateway 가드레일**을 확립합니다.
+
+#### 5.4.1 반도체 지식 자산 3단계 데이터 등급 분류 및 격리 정책 (Data Classification)
+
+시스템에 저장되는 모든 온톨로지 엔티티는 기밀도에 따라 3개 등급으로 엄격히 분리 관리됩니다:
+
+```mermaid
+flowchart TD
+    subgraph Tier1 ["Tier 1: 전사 공개 학술 지식 (Public/Enterprise-wide)"]
+        T1_Data["Concept 엔티티<br>(물리 메커니즘, 화학 반응식, 학술적 한계, 상하위 위계)"]
+        T1_Access["인가 대상: 전사 모든 엔지니어 / 연구원 (Read-All)"]
+    end
+
+    subgraph Tier2 ["Tier 2: 사내 대외비 표준 규격 (Internal Restricted)"]
+        T2_Data["EvidenceSource (사내 백서) & ComparisonSession<br>(단위 공정 표준 레시피, 공학 비교 축 매트릭스)"]
+        T2_Access["인가 대상: 반도체 개발/제조 유관 부서 엔지니어"]
+    end
+
+    subgraph Tier3 ["Tier 3: 극비 양산 레시피 (Top-Secret Fab Recipe)"]
+        T3_Data["PerspectiveCase.specifications<br>(A사/B사 라인 챔버별 실제 가압력, 램프업 속도, 에폭시 물성)"]
+        T3_Access["인가 대상: 해당 팹 라인/프로젝트 담당 엔지니어 및 승인 전문가만 인가"]
+    end
+```
+
+- **행 단위 보안 (Row-Level Security - RLS) 및 동적 마스킹**:
+  - PostgreSQL 16의 RLS 정책을 활성화하여, `PerspectiveCase` 조회 시 미인가 부서 엔지니어에게는 절대 세팅값 수치가 동적 마스킹 처리되어 반환됩니다.
+- **미인가 엔지니어 정보 퀄리티 보존 대책 (Dual-Layer Abstraction & Trend Preservation)**:
+  - 수치를 완전히 가려버릴 경우(Black-box), 신입 연구원이나 타 부서 설계자가 공정 맥락을 이해하지 못해 **정보 사일로화 및 엔지니어링 퀄리티 저하**가 발생합니다.
+  - 이를 방지하기 위해 **"절대 세팅값은 보호하되, 지배 물리 법칙과 상대적 경향성(Delta %)은 100% 공개"**하는 이중 추상화 기법을 적용합니다:
+  ```json
+  {
+    "label": "본딩 헤드 인가 하중",
+    "value": "[RESTRICTED: 수율분석팀 인가 필요]",
+    "relativeTrend": "기준 공인 레시피(185N) 대비 약 -21.6% 감압 조정 권장",
+    "underlyingMechanism": "NCF 수지 용융 측방 유출 억제 및 Cu-Sn IMC 취성 파괴 완화",
+    "expectedImpact": "패키지 휨(Warpage) 48.3% 개선, 범프 접합 결함률 92.8% 감소",
+    "role": "control_knob",
+    "isMasked": true,
+    "accessRequest": {
+      "requiresApproval": true,
+      "approverRole": "수율분석팀장",
+      "buttonLabel": "🔑 이 관점 상세 절대 수치 열람 권한 신청 ➔"
+    }
+  }
+  ```
+  ➔ **효과**: 미인가 엔지니어도 반도체 물리 원리와 트레이드오프 인사이트를 100% 온전히 학습할 수 있으며, 실제 양산 라인 설비에 직접 입력하는 절대 수치만 안전하게 보호됩니다.
+
+---
+
+#### 5.4.2 3단계 역할 기반 접근 제어 (RBAC) 매트릭스
+
+시스템의 접근 권한은 명확한 3대 엔지니어링 역할로 구분되며, JWT 페이로드의 `role` 클레임(`roles: string[]`)을 기반으로 인가(Authorization)를 판정합니다:
+
+| API 기능 그룹 | 엔드포인트 | 일반 엔지니어<br>(`line_engineer`) | 심의 전문가<br>(`chief_reviewer`) | 거버넌스 관리자<br>(`ontology_admin`) | 비고 |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| **시스템 & 검색** | `GET /system/*`, `GET /search/*` | ✅ 허용 | ✅ 허용 | ✅ 허용 | 전사 공통 서비스 |
+| **위키 본문 열람** | `GET /concepts/*` | ✅ 허용 | ✅ 허용 | ✅ 허용 | 미인가 시 Tier 3 사양 마스킹 (경향성은 공개) |
+| **근거 출처 열람** | `GET /evidences/*` | ✅ 허용 | ✅ 허용 | ✅ 허용 | Tier 1~2 출처 원문 |
+| **위키 간이 제안** | `POST /review-tickets` | ✅ 허용 | ✅ 허용 | ✅ 허용 | 누구나 오류 수정 제안 가능 |
+| **비교 분석 스튜디오**| `POST /comparison-sessions/*` | ✅ 허용 | ✅ 허용 | ✅ 허용 | 자유로운 기술 대안 비교 실행 |
+| **비교 결과 이관** | `POST /comparison-sessions/{id}/export-ticket` | ✅ 허용 | ✅ 허용 | ✅ 허용 | 검토 센터 큐로 티켓 발행 |
+| **외부 문헌 조사** | `POST /deep-research/*` | ✅ 허용 | ✅ 허용 | ✅ 허용 | 공인 문헌 발굴 및 후보 이관 |
+| **플로팅 챗봇** | `POST /chatbot/messages/*` | ✅ 허용 | ✅ 허용 | ✅ 허용 | AI 실시간 질의응답 |
+| **티켓 목록/상세** | `GET /review-tickets/*` | ✅ 허용 | ✅ 허용 | ✅ 허용 | 대기 중 / 승인 이력 열람 |
+| **AI 초안 보완 지시** | `POST /review-tickets/{id}/directive` | ❌ 차단 | ✅ 허용 | ✅ 허용 | 심의 전문가 이상만 지시 가능 |
+| **전문가 직접 편집** | `PUT /review-tickets/{id}/human-edits` | ❌ 차단 | ✅ 허용 | ✅ 허용 | 위키 본문 직접 수정 권한 |
+| **최종 승인 / 반려** | `POST /review-tickets/{id}/approve`, `/reject` | ❌ 차단 | ✅ 허용 | ✅ 허용 | 신규 판본 배포 결정 권한 |
+| **충돌 강제 승인** | `overrideReason` 동반 승인 | ❌ 차단 | ✅ 허용 | ✅ 허용 | 공인 출처 충돌 시 사유 필수 |
+| **전역 시스템 정책 설정** | `PUT /system/config` | ❌ 차단 | ❌ 차단 | ✅ 허용 | 사내 표준 고정 정책(0.35) 설정 |
+| **온톨로지 판본 롤백** | `POST /system/rollback` | ❌ 차단 | ❌ 차단 | ✅ 허용 | 긴급 롤백 및 감사 로그 전수 검사 |
+
+---
+
+#### 5.4.3 사내 폐쇄망 온프레미스 LLM Gateway 연동 및 기밀 유출 방지(DLP)
+
+반도체 양산 조건(온도, 가압력, 가스비)이 외부 상용 클라우드 AI(OpenAI, Anthropic 등)의 학습 데이터로 유입되는 보안 사고를 원천 차단하기 위해 **사내 전용 폐쇄망 온프레미스 LLM Gateway 아키텍처**를 구축합니다:
+
+```mermaid
+flowchart TD
+    subgraph Fab_VPC ["사내 팹 라인 폐쇄망 (Air-Gapped VPC)"]
+        Backend_App["온톨로지 백엔드 코어 (FastAPI)"]
+        DLP_Filter["사전 프롬프트 DLP 마스킹 엔진<br>(공정 장비 식별자 & 절대 레시피 가명화)"]
+        
+        subgraph OnPrem_LLM ["사내 온프레미스 AI 클러스터 (vLLM / Triton)"]
+            Model_Fast["초경량 모델 (Gemini-Flash-Lite / Qwen-7B)<br>(0ms 팝오버 문맥 해설, 단답 챗봇 서빙)"]
+            Model_Deep["고성능 추론 모델 (Llama-3-70B-Instruct)<br>(파라미터 튜닝 상담, 심층 브리핑 합성)"]
+        end
+    end
+
+    subgraph External ["외부 퍼블릭 인터넷"]
+        Public_AI["외부 공용 상용 LLM<br>(ChatGPT, Claude 등)"]
+    end
+
+    Backend_App -->|1. AI 추론 요청| DLP_Filter
+    DLP_Filter -->|2. 가명화된 안전 프롬프트| Model_Fast
+    DLP_Filter -->|2. 가명화된 안전 프롬프트| Model_Deep
+    DLP_Filter x-- "외부 송신 원천 차단 (Port Blocked)" --x Public_AI
+    Model_Fast -->|3. 스트리밍 토큰 반환| Backend_App
+    Model_Deep -->|3. 인과 추론 결과 반환| Backend_App
+```
+
+##### 구간별 비선형 물리 법칙을 보존하는 작동 영역(Regime-Aware) 가명화 및 역치환 파이프라인
+반도체 물리 공학은 수치 구간에 따라 지배하는 결함 모드와 물리 방정식이 비선형적으로 완전히 바뀝니다. 단순히 숫자를 가리기만 하면 AI가 공정 영역을 오판하여 잘못된 보상 로직을 적용할 위험이 있습니다.
+
+시스템은 **수치의 절대값은 숨기되, 해당 수치가 속한 물리적 작동 구간(Operating Regime) 메타데이터를 온톨로지 기반으로 자동 추출하여 함께 주입**하는 3단계 가명화/역치환 파이프라인을 가동합니다:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Engineer as 엔지니어
+    participant Backend as 백엔드 (DLP & 탈감작 엔진)
+    participant Dict as 임시 세션 사전 (Redis Ephemeral)
+    participant LLM as 사내 온프레미스 LLM
+    
+    Engineer->>Backend: 질문: "우리 라인 TCB 가압력이 145N인데, 보이드 억제를 위해 온도를 어떻게 보상하지?"
+    
+    Note over Backend, Dict: Step 1. 구간 인지형 가명화 (Regime-Aware Tokenization)
+    Backend->>Backend: 온톨로지 임계치 평가: 145N ➔ [완화 제어 구간 (Controlled Yield Window)]
+    Backend->>Dict: 매핑 기록: { "[PARAM_FORCE_01]": { "raw": "145N", "regime": "controlled_yield_window", "refDelta": "-21.6%" } }
+    Backend->>LLM: 프롬프트 전달: "TCB 가압력이 [PARAM_FORCE_01](물리 영역: Controlled Yield Window, 기준 대비 -21.6% 감압)일 때 적용할 온도 보상 파라미터 수식은?"
+    
+    Note over LLM: Step 2. 구간별 비선형 물리 로직 추론 (절대 수치는 모름)
+    LLM-->>Backend: 추론 결과: "완화 제어 구간이므로 다이 크랙 위험은 낮으며, 접합 계면 활성화를 위해 온도를 기준선 대비 +15℃ 보상한 [PARAM_TEMP_RECOMMEND]로 제어해야 합니다."
+    
+    Note over Backend, Dict: Step 3. 엔지니어링 단위 역치환 (De-tokenization)
+    Backend->>Dict: [PARAM_TEMP_RECOMMEND] 역치환 계산: 기준 265℃ + 15℃ = "280℃"
+    Backend-->>Engineer: 최종 응답: "가압력이 145N인 완화 제어 조건에서는 온도를 280℃(+15℃)로 보상하여 접합 신뢰성을 확보하십시오."
+```
+
+1. **온톨로지 물리 구간(Regime) 자동 분류 기준표**:
+   - **극저하중 임계 구간 (Sub-critical Regime, <110N)**: 접합 에너지 부족 ➔ 미접합(Non-wetting/Open) 지배 ➔ *초음파 진폭 및 가압 시간 연장 로직 분기*.
+   - **적정 완화 구간 (Controlled Yield Window, 120N ~ 160N)**: NCF 과유출 억제 ➔ 휨 제어 지배 ➔ *미세 온도 램프업 PID 보상 로직 분기*.
+   - **과가압 파괴 구간 (Over-force Limit, >180N)**: NCF 측방 유출 ➔ 다이 크랙 및 범프 간 단락 지배 ➔ *온도 제어 불능, 하중 강제 하향 제한 로직 분기*.
+2. **보안 및 정밀성 보장 효과**:
+   - 사내 AI 모델에는 기업의 절대 기밀 세팅값(`145N`)이 단 한 번도 노출되지 않아 **보안성 100%**를 유지합니다.
+   - 동시에 AI는 공정이 어느 물리 영역에 속해 있는지 정확히 인지하므로, 비선형 구간에 최적화된 **정밀한 공학 보상 로직 100%**를 적용하여 엔지니어에게 실제 팹 단위(`280℃`)로 결과를 회신합니다.
+
 
 
 
