@@ -2763,6 +2763,186 @@ class StreamingTokenBuffer {
 }
 ```
 
+---
+
+### 5.3 분산 동시성 제어 및 지식 불변 감사 추적 (Concurrency Control & Audit Trail)
+
+반도체 엔지니어링 온톨로지는 수천억 원 규모의 웨이퍼 수율과 패키징 신뢰성을 좌우하는 핵심 기준선(Baseline)입니다. 따라서 **동일 개념/티켓에 대한 동시 수정 충돌을 100% 방지**하고, 승인 과정에서 발생한 모든 기술적 판단과 **사유(`overrideReason`)를 사후에 절대로 조작·인멸할 수 없는 불변 감사 추적(Immutable Audit Trail)** 구조를 확립해야 합니다.
+
+#### 5.3.1 이중 동시성 방어 아키텍처 (Pessimistic Presence + Optimistic Versioning)
+
+시스템은 UI 레벨의 **실시간 비관적 잠금(5.2절 Presence Lock)**과 DB 저장소 레벨의 **낙관적 락(Optimistic Locking with Versioning)**을 결합한 2계층 방어 체계를 가동합니다:
+
+```mermaid
+flowchart TD
+    subgraph Layer1 ["1계층: UI 비관적 선점 (Presence Lock)"]
+        A["전문가 A가 [✏️ 직접 편집 모드] 클릭"] -->|WSS 브로드캐스트| B["락 선점 (status: locked, 10분 TTL)"]
+        B --> C["전문가 B 화면의 편집 버튼 비활성화"]
+    end
+
+    subgraph EdgeCase ["네트워크 단절 / 세션 타임아웃 예외"]
+        C -.->|단절 중 우회 저장 시도| Layer2
+    end
+
+    subgraph Layer2 ["2계층: DB 낙관적 락 (Optimistic Versioning)"]
+        D["전문가 A 저장 요청<br>(If-Match: v1.2 / version: 2)"] --> E{"DB 버전 일치 여부 검증"}
+        E --"일치 (version == expected)"--> F["트랜잭션 커밋 & version = 3 증분"]
+        E --"불일치 (version != expected)"--> G["409 Conflict 발생<br>(충돌 모달 & 2-Pane Diff 제공)"]
+    end
+```
+
+##### 1. HTTP `If-Match` 헤더 및 낙관적 락 트랜잭션 로직
+엔지니어가 티켓 직접 편집 내용을 저장하거나(`PUT /api/v1/review-tickets/{id}/human-edits`), 승인을 단행할 때(`POST /api/v1/review-tickets/{id}/approve`), 클라이언트는 반드시 자신이 마지막으로 확인한 판본 해시(`If-Match`) 또는 버전을 실어 보냅니다:
+
+```http
+PUT /api/v1/review-tickets/rev-20261016-001/human-edits HTTP/1.1
+Host: wiki-api.fab.corp
+Authorization: Bearer <JWT>
+If-Match: "v1.2-rev04"
+Content-Type: application/json
+
+{
+  "ticketVersion": 4,
+  "humanEdits": "본딩 인가 하중 임계치를 145N으로 재설정하고, 초음파 시간 보상 수치를 +120ms로 명시."
+}
+```
+
+- **백엔드 트랜잭션 갱신 SQL (원자적 CAS 연산)**:
+  ```sql
+  -- 동시 수정 시 0 rows updated가 발생하여 충돌을 감지
+  UPDATE review_tickets
+  SET human_edits = :humanEdits,
+      ticket_version = ticket_version + 1,
+      updated_at = NOW()
+  WHERE id = :ticketId
+    AND ticket_version = :expectedVersion;
+  ```
+
+##### 2. `409 Conflict` 발생 시 시퀀스 및 UI 연동 대책
+만약 타 전문가가 먼저 수정을 반영하여 버전이 어긋난 경우, 백엔드는 즉시 `409 Conflict`를 반환하며 최신 스냅샷을 함께 내려줍니다:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor ReviewerB as 전문가 B (수정 시도)
+    participant API as 백엔드 서버
+    participant DB as 온톨로지 DB
+    
+    ReviewerB->>API: PUT /human-edits (ticketVersion: 4)
+    API->>DB: UPDATE review_tickets WHERE ticket_version = 4
+    DB-->>API: 0 rows updated (현재 DB ticket_version: 5)
+    
+    API-->>ReviewerB: 409 Conflict { "code": "VERSION_CONFLICT", "latestVersion": 5, "currentContent": "..." }
+    
+    Note over ReviewerB: UI 연동 대책: [수정 충돌 해결 모달] 팝업 노출
+    Note over ReviewerB: 좌측: 내가 작성한 수정안 vs 우측: 최책임님이 먼저 반영한 최신안 (Diff)
+    Note over ReviewerB: 선택지: [내 수정안 덮어쓰기 (재승인 필요)] or [최신안 기반으로 다시 편집]
+```
+
+---
+
+#### 5.3.2 불변 지식 거버넌스 감사 추적 (Immutable Audit Trail & WORM)
+
+반도체 팹 라인에서는 *"누가, 언제, 어떤 공인 출처에 근거하여, 왜(사유) 이 가압력 수치를 변경했는가?"*를 사후 10년 이상 법적·품질적으로 소명할 수 있어야 합니다.
+
+##### 1. 감사 추적 4대 핵심 불변 필드
+검토 센터에서 승인(`POST /approve`) 또는 반려(`POST /reject`) 시 다음 4개 항목이 영구 동결(Snapshot Freeze)됩니다:
+1. **승인 전/후 텍스트 Diff (Before/After Raw Markdown)**: 위키 본문 v1.2와 승인된 v1.3의 완전한 원문 스냅샷.
+2. **에이전트 초안 보완 지시 이력 (`directiveHistory`)**: 전문가가 AI에게 내린 지시문과 AI가 수정한 차수별 초안 전문.
+3. **공인 출처 충돌 시 입력한 사유 (`overrideReason`)**: 3.4절/4.4.3절 가드레일에 의해 공인 백서 수치와 충돌함에도 전문가가 강제 반영한 구체적 엔지니어링 근거.
+4. **무결성 점검 리포트 스냅샷 (`integrityReport`)**: 출처 일치도, 온톨로지 충돌 유무, 영향 범위 카운트.
+
+##### 2. `AuditLogEntry` 엔티티 스키마
+```typescript
+interface AuditLogEntry {
+  auditId: string;                // "aud-20261019-tcb-001"
+  ticketId: string;               // "rev-20261016-001"
+  conceptId: string;              // "concept-tcb"
+  actionType: "TICKET_APPROVED" | "TICKET_REJECTED" | "DIRECTIVE_OVERRIDE";
+  
+  // 행위자 메타데이터
+  actor: {
+    userId: string;               // "EMP-91823"
+    userName: string;             // "Dr. 김수석"
+    department: "수율분석팀";
+    ipAddress: string;            // "10.24.112.55 (팹 라인 내부망)"
+    role: "chief_reviewer";
+  };
+  
+  // 거버넌스 스냅샷 (불변)
+  governanceSnapshot: {
+    previousVersion: string;      // "v1.2"
+    publishedVersion: string;     // "v1.3"
+    overrideReason?: string;      // 충돌 강제 승인 시 사유 (예: "2026.02 최신 파일럿 팹 실측 결과 반영")
+    evidenceMatchRate: number;    // 0.98 (98%)
+    diffPatch: string;            // Unified Git Diff 형식의 패치 문자열
+  };
+
+  // 암호화 무결성 서명 (해시 체이닝)
+  previousLogHash: string;        // 직전 감사 로그의 SHA-256 해시값 (초기: "00000000...0000")
+  entryHash: string;              // SHA-256(auditId + timestamp + actor + snapshot + previousLogHash)
+  digitalSignature: string;       // 감사 서버 비대칭 개인키(RSA-4096) 전자 서명
+  timestamp: string;              // "2026-10-19T08:20:00.123Z"
+}
+```
+
+##### 3. Append-Only WORM(Write Once, Read Many) 저장소 격리
+- **DB 권한 분리**: 애플리케이션 백엔드 DB 계정은 `audit_logs` 테이블에 대해 **오직 `INSERT` 권한만 부여**받으며, `UPDATE`, `DELETE`, `DROP` 권한은 원천 박탈됩니다.
+- **테이블 파티셔닝**: `audit_logs`는 연월 단위(`audit_logs_y2026m10`)로 파티셔닝되며, 파티션 마감 시 읽기 전용 테이블스페이스(`READ ONLY TABLESPACE`)로 동결되어 물리적 변조를 차단합니다.
+
+---
+
+#### 5.3.3 블록체인급 무결성을 위한 암호학적 해시 체이닝 (Cryptographic Hash Chain)
+
+감사 데이터베이스 관리자(DBA)나 인프라 관리자라 할지라도 감사 로그를 사후에 임의 조작하거나 중간 레코드를 삭제할 수 없도록, 비트코인 블록 헤더와 유사한 **단방향 머클 해시 체이닝(Merkle Hash Chaining)**을 적용합니다:
+
+```mermaid
+flowchart LR
+    subgraph Log1 ["감사 로그 #101"]
+        H1["entryHash: e3b0c442..."]
+        P1["previousLogHash: a1b2c3..."]
+    end
+
+    subgraph Log2 ["감사 로그 #102 (TCB 승인)"]
+        P2["previousLogHash: e3b0c442...<br>(로그 #101의 entryHash 참조)"]
+        Payload2["Payload: { concept-tcb, overrideReason: '...' }"]
+        H2["entryHash: 7f83b165...<br>SHA256(P2 + Payload2)"]
+    end
+
+    subgraph Log3 ["감사 로그 #103"]
+        P3["previousLogHash: 7f83b165...<br>(로그 #102의 entryHash 참조)"]
+        H3["entryHash: 9b2d88a1..."]
+    end
+
+    Log1 -->|해시 포인터| Log2
+    Log2 -->|해시 포인터| Log3
+```
+
+- **해시 계산 알고리즘**:
+  \[
+  H_n = \text{HMAC-SHA256}\Big(K_{\text{audit}}, \, H_{n-1} \,\|\, \text{auditId} \,\|\, \text{timestamp} \,\|\, \text{actorId} \,\|\, \text{canonicalJSON}(\text{payload})\Big)
+  \]
+- **정기 무결성 검증 백그라운드 워커 (Audit Integrity Verifier)**:
+  - 매일 새벽 02:00, 독립된 보안 감사 워커가 `audit_logs` 테이블의 전 레코드를 1번부터 N번까지 순차 탐색하며 직전 해시(\(H_{n-1}\))와 현재 해시(\(H_n\))의 수학적 연쇄를 재계산합니다.
+  - 만에 하나 단 한 글자라도 위조되거나 중간 레코드가 삭제된 경우, **해시 불일치(Broken Chain)** 경보가 발령되고 사내 보안관제센터(SOC)로 비상 차단 웹훅을 전송합니다.
+
+#### 5.3.4 감사 무결성 및 암호키 보안 가드레일 (Audit Security Guardrails)
+
+불변 감사 저장소와 암호학적 해시 체이닝을 운영할 때 발생할 수 있는 4대 보안 위협을 원천 차단하기 위해 다음 기술 가드레일을 강제합니다:
+
+1. **KMS / HSM 하드웨어 암호키 격리 (Key Compromise Defense)**:
+   - 감사 서명용 비밀키(\(K_{\text{audit}}\))는 애플리케이션 서버의 파일시스템이나 환경변수(`.env`)에 평문으로 보관하지 않습니다.
+   - 사내 하드웨어 보안 모듈(HSM) 또는 클라우드 **KMS(Key Management Service)** 내부 격리 엔클레이브(Enclave)에서만 HMAC-SHA256 연산을 수행하도록 통제하여, 서버 인스턴스가 루트 탈취(Host Compromise)당하더라도 서명키 자체의 물리적 유출을 원천 방지합니다.
+2. **시간 조작 방어 단조 증가 검증 (Monotonic Clock Enforcement)**:
+   - 서버의 시스템 시간을 임의로 되돌려 과거 시점에 불법 승인을 단행한 것처럼 알리바이를 조작하는 행위(Time Travel Attack)를 방어합니다.
+   - DB 트리거 및 비즈니스 로직 레벨에서 신규 감사 로그의 생성 일시(\(t_n\))가 반드시 직전 감사 로그의 일시(\(t_{n-1}\))보다 미래여야만 저장을 승인합니다 (\(t_n \ge t_{n-1}\)). 시간 역전 발생 시 트랜잭션이 즉시 롤백되며 감사 변조 침해 경보가 발행됩니다.
+3. **불변 저장소 내 시크릿 사전 마스킹 (Pre-Commit DLP Filter)**:
+   - WORM(Write Once, Read Many) 저장소는 한 번 기록되면 삭제가 불가능하므로, 전문가 지시문(`directiveHistory`)이나 본문 Diff 내에 사내 API 키, 데이터베이스 패스워드, 엔지니어 개인식별정보(PII)가 실수로 포함될 경우 보안 규정(개인정보보호법/GDPR)을 위반할 위험이 있습니다.
+   - 감사 레코드를 영속화하기 직전, 백엔드 정규식 기반 **DLP(Data Loss Prevention) 필터**가 동작하여 패스워드 패턴, JWT 토큰, 주민등록번호, 기밀 네트워크 IP 대역을 감지하고 `[MASKED_SECRET]`으로 자동 마스킹 후 해싱 및 보존합니다.
+4. **찰나의 경쟁 상태 차단 (TOCTOU Defense via Atomic CAS)**:
+   - 애플리케이션 메모리에서 버전을 확인(Check)하고 DB에 반영(Use)하는 사이 수 밀리초(ms)의 틈을 노린 동시성 경쟁(Time-of-Check to Time-of-Use) 취약점을 배제합니다.
+   - `SELECT` 후 메모리 비교가 아닌, 데이터베이스 트랜잭션 엔진이 단일 CPU 사이클 수준에서 직렬성을 보장하는 **원자적 단일 쿼리 (`UPDATE ... WHERE ticket_version = :expectedVersion`)**만을 강제하여 버전 우회 저장을 물리적으로 차단합니다.
+
 
 
 
