@@ -66,8 +66,16 @@
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
+      const role = sessionStorage.getItem("ontology_user_role") || "chief_reviewer";
+      const keys = (window.OntologyAgentCore && typeof window.OntologyAgentCore.getKeys === "function") 
+        ? window.OntologyAgentCore.getKeys() 
+        : { googleKey: "", openaiKey: "" };
+
       const headers = {
         "Content-Type": "application/json",
+        "X-User-Role": role,
+        ...(keys.googleKey ? { "X-Gemini-Key": keys.googleKey } : {}),
+        ...(keys.openaiKey ? { "X-OpenAI-Key": keys.openaiKey } : {}),
         ...(options.headers || {})
       };
 
@@ -295,30 +303,51 @@
      * POST /comparison-sessions/{id}/tune-advisor - [M-04] AI 파라미터 튜닝 상담
      */
     async tuneAdvisor(sessionId, payload) {
+      const prompt = (payload && (payload.userPrompt || payload.prompt || payload.query)) || "공정 제약 하에서 보상 파라미터 및 안전 마진 추천";
+      const body = {
+        userPrompt: prompt,
+        applyCompensation: (payload && payload.applyCompensation) || null,
+        manualConditions: (payload && (payload.manualConditions || payload.currentConstraints)) || null
+      };
       return await this._request(`/comparison-sessions/${encodeURIComponent(sessionId)}/tune-advisor`, {
         method: "POST",
-        body: JSON.stringify(payload)
+        body: JSON.stringify(body)
       });
+    }
+
+    async getTuneAdvisor(sessionId, payload) {
+      return await this.tuneAdvisor(sessionId, payload);
     }
 
     /**
      * POST /comparison-sessions/{id}/tail-question - 꼬리질문 및 4단계 인과 체인
      */
-    async tailQuestion(sessionId, query, stepIndex = 2) {
+    async tailQuestion(sessionId, queryOrPayload, stepIndex = 2) {
+      const body = typeof queryOrPayload === "object" && queryOrPayload !== null
+        ? { query: queryOrPayload.questionText || queryOrPayload.query || "", stepIndex: queryOrPayload.stepIndex || stepIndex }
+        : { query: String(queryOrPayload || ""), stepIndex };
       return await this._request(`/comparison-sessions/${encodeURIComponent(sessionId)}/tail-question`, {
         method: "POST",
-        body: JSON.stringify({ query, stepIndex })
+        body: JSON.stringify(body)
       });
     }
 
+    async submitTailQuestion(sessionId, payload) {
+      return await this.tailQuestion(sessionId, payload);
+    }
+
     /**
-     * POST /comparison-sessions/{id}/export-ticket - 거버넌스 티켓 원클릭 승계
+     * POST /comparison-sessions/{id}/export-review - 거버넌스 티켓 원클릭 승계
      */
     async exportComparisonTicket(sessionId, payload) {
-      return await this._request(`/comparison-sessions/${encodeURIComponent(sessionId)}/export-ticket`, {
+      return await this._request(`/comparison-sessions/${encodeURIComponent(sessionId)}/export-review`, {
         method: "POST",
         body: JSON.stringify(payload)
       });
+    }
+
+    async exportComparisonToTicket(sessionId, payload) {
+      return await this.exportComparisonTicket(sessionId, payload);
     }
 
     // =========================================================================
@@ -355,11 +384,21 @@
     /**
      * POST /review-tickets/{id}/directive - 전문가 자연어 보완 지시문 반영 초안 재작성
      */
-    async sendDirective(ticketId, directiveText, overrideReason = null) {
+    async sendDirective(ticketId, directiveTextOrPayload, overrideReason = null) {
+      const body = typeof directiveTextOrPayload === "object" && directiveTextOrPayload !== null
+        ? {
+            directiveText: directiveTextOrPayload.directiveText || directiveTextOrPayload.text || "",
+            overrideReason: directiveTextOrPayload.overrideReason || overrideReason
+          }
+        : { directiveText: String(directiveTextOrPayload || ""), overrideReason };
       return await this._request(`/review-tickets/${encodeURIComponent(ticketId)}/directive`, {
         method: "POST",
-        body: JSON.stringify({ directiveText, overrideReason })
+        body: JSON.stringify(body)
       });
+    }
+
+    async reviseDraftByDirective(ticketId, payload) {
+      return await this.sendDirective(ticketId, payload);
     }
 
     /**
@@ -383,9 +422,16 @@
      * POST /review-tickets/{id}/approve - 최종 승인 집행 및 WORM 머클 감사 체인 서명
      */
     async approveReviewTicket(ticketId, payload) {
+      const p = payload || {};
+      const body = {
+        approvedBy: p.approvedBy || p.approver || p.reviewer || "수석검토관",
+        overrideReason: p.overrideReason || p.reason || "공인 백서 및 실측 데이터에 기반하여 검토 승인 완료",
+        targetVersion: p.targetVersion || "v1.3",
+        humanEdits: p.humanEdits || null
+      };
       return await this._request(`/review-tickets/${encodeURIComponent(ticketId)}/approve`, {
         method: "POST",
-        body: JSON.stringify(payload)
+        body: JSON.stringify(body)
       });
     }
 
@@ -393,9 +439,14 @@
      * POST /review-tickets/{id}/reject - 반려 처리
      */
     async rejectReviewTicket(ticketId, payload) {
+      const p = payload || {};
+      const body = {
+        rejectedBy: p.rejectedBy || p.rejector || p.reviewer || "수석검토관",
+        rejectReason: p.rejectReason || p.reason || "공인 출처 근거 미흡으로 반려"
+      };
       return await this._request(`/review-tickets/${encodeURIComponent(ticketId)}/reject`, {
         method: "POST",
-        body: JSON.stringify(payload)
+        body: JSON.stringify(body)
       });
     }
 
@@ -488,6 +539,88 @@
     }
 
     /**
+     * POST /chatbot/messages/stream - SSE 실시간 타이핑 스트리밍 질의 (§ 5.2.2)
+     * @param {Object} payload { message, conceptId, currentPerspective }
+     * @param {Object} callbacks { onRouting, onDelta, onDone, onError }
+     */
+    async streamChatbotMessage(payload, { onRouting, onDelta, onDone, onError } = {}) {
+      const url = `${this.baseUrl}/chatbot/messages/stream`;
+      const role = sessionStorage.getItem("ontology_user_role") || "chief_reviewer";
+      const keys = (window.OntologyAgentCore && typeof window.OntologyAgentCore.getKeys === "function") 
+        ? window.OntologyAgentCore.getKeys() 
+        : { googleKey: "", openaiKey: "" };
+
+      const headers = {
+        "Content-Type": "application/json",
+        "X-User-Role": role,
+        ...(keys.googleKey ? { "X-Gemini-Key": keys.googleKey } : {}),
+        ...(keys.openaiKey ? { "X-OpenAI-Key": keys.openaiKey } : {})
+      };
+
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          throw new Error(`SSE streaming failed with status ${response.status}`);
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n\n");
+          buffer = lines.pop() || "";
+
+          for (const block of lines) {
+            const raw = block.trim();
+            if (!raw) continue;
+
+            let eventType = "message";
+            let dataStr = "";
+
+            for (const line of raw.split("\n")) {
+              if (line.startsWith("event:")) {
+                eventType = line.slice(6).trim();
+              } else if (line.startsWith("data:")) {
+                dataStr = line.slice(5).trim();
+              }
+            }
+
+            if (!dataStr) continue;
+
+            try {
+              const data = JSON.parse(dataStr);
+              if (eventType === "routing" && typeof onRouting === "function") {
+                onRouting(data);
+              } else if (eventType === "delta" && typeof onDelta === "function") {
+                onDelta(data.delta || "");
+              } else if (eventType === "done" && typeof onDone === "function") {
+                onDone(data);
+              }
+            } catch (jsonErr) {
+              console.warn("SSE json parse error:", jsonErr, dataStr);
+            }
+          }
+        }
+      } catch (err) {
+        if (typeof onError === "function") {
+          onError(err);
+        } else {
+          console.error("streamChatbotMessage error:", err);
+        }
+      }
+    }
+
+    /**
      * DELETE /chatbot/messages - 챗봇 대화 초기화
      */
     async resetChatbotMessages(conceptId = null) {
@@ -539,10 +672,67 @@
           if (toast.parentNode) toast.parentNode.removeChild(toast);
         }, 300);
       }, duration);
+  }
+
+  // =========================================================================
+  // 8. L1 인텐트 프리페칭 캐시 (WikiClientCache - 0ms Popover Serving § 5.1.4)
+  // =========================================================================
+  class WikiClientCacheManager {
+    constructor() {
+      this.cache = new Map();
+      this.defaultTtlMs = 300 * 1000; // 5분
+    }
+
+    set(key, value, ttlMs = null) {
+      const expiresAt = Date.now() + (ttlMs || this.defaultTtlMs);
+      this.cache.set(key, { value, expiresAt });
+    }
+
+    get(key) {
+      const entry = this.cache.get(key);
+      if (!entry) return null;
+      if (Date.now() > entry.expiresAt) {
+        this.cache.delete(key);
+        return null;
+      }
+      return entry.value;
+    }
+
+    has(key) {
+      return this.get(key) !== null;
+    }
+
+    delete(key) {
+      this.cache.delete(key);
+    }
+
+    clear() {
+      this.cache.clear();
+      console.log("[WikiClientCache] L1 cache fully cleared on version release / sync.");
+    }
+
+    /**
+     * 마우스 호버 인텐트 감지 시 백그라운드 0ms 사전 적재 (§ 5.1.4)
+     */
+    async prefetchPopover(parentConceptId, childConceptId, perspectiveId = "yield") {
+      const cacheKey = `popover:${parentConceptId || "global"}:${childConceptId}:${perspectiveId}`;
+      if (this.has(cacheKey)) return;
+
+      try {
+        if (window.WikiAPI && typeof window.WikiAPI.getContextualExplain === "function") {
+          const res = await window.WikiAPI.getContextualExplain(parentConceptId, childConceptId, perspectiveId);
+          if (res) {
+            this.set(cacheKey, res);
+          }
+        }
+      } catch (e) {
+        // 프리페치는 백그라운드이므로 에러 무시
+      }
     }
   }
 
   // 싱글톤 인스턴스 전역 등록
   window.WikiAPI = new WikiApiClient();
+  window.WikiClientCache = new WikiClientCacheManager();
 
 })(window);

@@ -50,6 +50,7 @@ class Settings(BaseSettings):
 
     # 5. AI 인과 추론 엔진
     GEMINI_API_KEY: str = ""
+    OPENAI_API_KEY: str = ""
     LLM_MODEL: str = "gemini-2.5-flash"
     CIRCUIT_BREAKER_FAILURE_THRESHOLD: int = 3
     CIRCUIT_BREAKER_RECOVERY_TIME_SECONDS: int = 30

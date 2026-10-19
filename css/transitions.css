@@ -230,14 +230,15 @@
 }
 
 .concept-popover {
-  position: absolute;
-  z-index: 200;
-  width: 320px;
+  position: fixed;
+  z-index: 2100;
+  width: 340px;
+  max-width: calc(100vw - 32px);
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 16px;
-  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.12), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.18), 0 4px 10px -2px rgba(0, 0, 0, 0.08);
   font-size: 0.8125rem;
   transform: translateY(8px) scale(0.96);
   opacity: 0;
@@ -246,6 +247,7 @@
               opacity 0.18s ease,
               visibility 0.22s;
   pointer-events: none;
+  box-sizing: border-box;
 }
 
 .concept-popover.open {

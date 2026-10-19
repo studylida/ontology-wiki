@@ -12,7 +12,7 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime
 import uuid
 import logging
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Header
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
@@ -202,10 +202,14 @@ async def list_research_sessions(
     response_model_by_alias=True,
     response_model_exclude_none=True,
     summary="외부 문헌 조사 주제 구체화 API",
-    description="조사 기술 주제에 대해 비공인 웹 문서를 차단하고 5대 공인 기관 타깃 필터 및 범위를 도출합니다."
+    description="ClarifierAgent를 통해 기술 주제에 대해 5대 공인 기관 타깃 필터 및 범위를 도출합니다."
 )
 async def clarify_research_topic(
-    body: ResearchClarifyRequest
+    body: ResearchClarifyRequest,
+    x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
+    x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
+    x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
+    db: AsyncSession = Depends(get_db)
 ):
     topic = body.searchTopic.strip()
     if len(topic) < 2:
@@ -214,34 +218,13 @@ async def clarify_research_topic(
             detail={"code": "TOPIC_TOO_SHORT", "message": "조사할 기술 주제를 2자 이상 입력해주세요."}
         )
 
-    scope_filters = [
-        ScopeFilter(filter_id="scope-advanced-packaging", label=f"{topic} 관련 첨단 패키징/소자 세대", selected=True),
-        ScopeFilter(filter_id="scope-metrology-spec", label="양산 공정 임계치 및 물성 허용오차 규격", selected=True),
-        ScopeFilter(filter_id="scope-recent-3yr", label="최근 3개년 (2024~2026) 공인 백서/논문 한정", selected=True)
-    ]
-
-    target_institutions = ["Samsung Tech Day", "SK hynix Tech", "Intel Foundry", "IEEE ECTC", "SEMI International", "Lam Research TechBrief"]
-    negative_keywords = ["stock", "rumor", "news", "investment", "blog", "price", "forecast"]
-    suggested_chips = [
-        "차세대 유리기판 TGV",
-        "High-NA CNT 펠리클",
-        "극저온 저탄소 대체 가스",
-        "GAA 나노시트 내부 스페이서 ALD",
-        "하이브리드 본딩 Cu 계면 플라즈마 활성화"
-    ]
-
-    trust_pool_notice = (
-        "인터넷의 비공인 웹 문서를 배제하고, 삼성/SK하이닉스 기술자료, ASML 백서, "
-        "Lam/AMAT 핸드북, SEMI 국제 표준, IEEE 학술 논문 등 검증된 5대 기관 출처 풀만을 대상으로 조사합니다."
-    )
-
-    return ResearchClarifyResponse(
+    from backend.app.agents.clarifier_agent import clarifier_agent
+    return await clarifier_agent.clarify_research(
         search_topic=topic,
-        trust_pool_notice=trust_pool_notice,
-        scope_filters=scope_filters,
-        target_institutions=target_institutions,
-        negative_keywords=negative_keywords,
-        suggested_chips=suggested_chips
+        preferred_tier=None,
+        db=db,
+        gemini_key=x_gemini_key,
+        openai_key=x_openai_key
     )
 
 
@@ -251,10 +234,13 @@ async def clarify_research_topic(
     response_model_by_alias=True,
     response_model_exclude_none=True,
     summary="공인 문헌 발굴 피드 생성 API",
-    description="화이트리스트 공인 출처 풀에서 기술 주제와 관련된 실측 문헌(백서, 표준, 학술 논문) 피드를 발굴합니다."
+    description="DeepResearchAgent를 통해 DB 및 실제 sources 코퍼스에서 실측 문헌 피드를 발굴합니다."
 )
 async def discover_research_evidences(
     body: ResearchDiscoverRequest,
+    x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
+    x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
+    x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     db: AsyncSession = Depends(get_db)
 ):
     await ensure_research_table_exists()
@@ -270,48 +256,15 @@ async def discover_research_evidences(
     random_hex = uuid.uuid4().hex[:6]
     session_id = f"res-{today_str}-{random_hex}"
 
-    # 공인 출처 DB에서 주제와 매칭되는 출처 검색 또는 도메인 특화 백서 발굴 피드 합성
-    evidence_feed_items = [
-        ResearchEvidenceFeedItem(
-            id=f"E-RES-{random_hex}-01",
-            source_name=f"{topic} 글로벌 선도사 공식 기술 아키텍처 백서",
-            source_type="official_whitepaper",
-            publisher="Intel / SEMI Consortium",
-            published_date="2026.01",
-            quote=f"{topic} 도입 시 기존 공정 대비 미세 피치 정합성을 45% 이상 개선할 수 있으나, 공정 마진 초과 시 열응력 집중으로 인한 마이크로 크랙 결함이 수율의 핵심 제약선으로 작용함.",
-            section_context="Section 3.2 Engineering Limits & Structural Reliability, p.16",
-            relevance_score=0.98,
-            external_url="https://semiconductor.org/whitepaper/advanced-packaging-spec",
-            url_label="공식 기술 백서 전문 열람 (PDF)",
-            credibility_tier="Tier 1 (공식 제조사)"
-        ),
-        ResearchEvidenceFeedItem(
-            id=f"E-RES-{random_hex}-02",
-            source_name=f"IEEE Transactions on Electron Devices - {topic} Interfacial Mechanism",
-            source_type="academic_peer_reviewed",
-            publisher="IEEE",
-            published_date="2025.11",
-            quote=f"{topic}의 열팽창계수(CTE) 및 계면 전단응력 분석 결과, 1000 사이클 이상의 신뢰성 시험에서 계면 박리율이 0.03% 이하로 안정적으로 억제됨을 실측 확인.",
-            section_context="Section 4 Experimental Cycle Analysis, p.104 Table 4",
-            relevance_score=0.95,
-            external_url="https://doi.org/10.1109/TED.2025.9921",
-            url_label="IEEE 공인 논문 DOI 직행",
-            credibility_tier="Tier 3 (공인 학술)"
-        ),
-        ResearchEvidenceFeedItem(
-            id=f"E-RES-{random_hex}-03",
-            source_name=f"SEMI Standard 3D - Metrology Specification for {topic}",
-            source_type="international_standard",
-            publisher="SEMI",
-            published_date="2025.09",
-            quote=f"국제 표준 기준에 따른 {topic} 기하학적 공차 및 측벽 거칠기(Ra)는 보이드 형성 억제를 위해 Ra < 25nm 수준으로 정밀 통제되어야 함.",
-            section_context="Clause 4.1 Tolerance and Surface Quality, p.10",
-            relevance_score=0.96,
-            external_url="https://www.semi.org/standards/3d-spec",
-            url_label="SEMI 국제 표준 문서 열람",
-            credibility_tier="Tier 2 (국제 표준)"
-        )
-    ]
+    from backend.app.agents.deep_research_agent import deep_research_agent
+    evidence_feed_items = await deep_research_agent.discover_evidence(
+        topic=topic,
+        scope_filters=None,
+        target_institutions=body.targetInstitutions,
+        db=db,
+        gemini_key=x_gemini_key,
+        openai_key=x_openai_key
+    )
 
     feed_json = [item.model_dump(by_alias=True) for item in evidence_feed_items]
 
@@ -350,6 +303,9 @@ async def discover_research_evidences(
 async def synthesize_research_report(
     session_id: str,
     body: ResearchSynthesizeRequest,
+    x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
+    x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
+    x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     db: AsyncSession = Depends(get_db)
 ):
     await ensure_research_table_exists()
@@ -367,59 +323,45 @@ async def synthesize_research_report(
             detail={"code": "NO_EVIDENCES_SELECTED", "message": "종합 분석을 생성할 공인 문헌을 1건 이상 선택해주세요."}
         )
 
-    topic = session.search_topic
-    ev_ids_str = ", ".join(body.selectedEvidenceIds[:3])
+    # 🌟 3.5절 Deep Research Engine 에이전트 호출
+    from backend.app.agents.deep_research_agent import deep_research_agent
+    synth_res = await deep_research_agent.synthesize(
+        session=session,
+        selected_evidence_ids=body.selectedEvidenceIds,
+        db=db,
+        gemini_key=x_gemini_key,
+        openai_key=x_openai_key
+    )
 
+    report_dict = synth_res["report"]
+    cand_list = synth_res["candidates"]
+
+    topic = session.search_topic
     synthesis_report = SynthesisReport(
-        title=f"{topic} 공정 및 인프라 표준 종합 분석",
-        narrative_markdown=(
-            f"### 1. 기술 도입 배경 및 공학적 이점\n"
-            f"{topic} 기술은 첨단 반도체 고집적화 환경에서 물리적 한계를 돌파하기 위한 핵심 대안으로 검증되었습니다. [{ev_ids_str}]\n\n"
-            f"### 2. 양산 수율 한계 및 결함 위험\n"
-            f"공정 임계 조건 초과 시 미세 계면 전단응력 및 열변형(Warpage)이 발생할 수 있으며, 엄격한 공정 안전 마진 내 통제가 필수적입니다."
-        ),
-        consensus_facts=[
-            f"공인 기관 합의: {topic} 적용 시 신호 지연 및 열팽창 불일치 해소에 탁월한 효과 실측 검증",
-            "초미세 피치 및 다층 집적 구조에서 기계적 강도 유지"
-        ],
-        tension_gaps=[
-            f"양산 고속 가공 시 계면 취성(Brittleness) 및 마이크로 크랙 발생 위험 상존"
-        ]
+        title=report_dict.get("title", f"{topic} 공정 및 인프라 표준 종합 분석"),
+        narrative_markdown=report_dict.get("crossAnalysisMarkdown", ""),
+        consensus_facts=report_dict.get("consensus", []),
+        tension_gaps=report_dict.get("tensions", [])
     )
 
     candidates = [
         KnowledgeCandidate(
-            candidate_id=f"cand-{session_id}-01",
-            candidate_type="신규 개념",
-            title=f"{topic} 표준 규격",
-            summary=f"첨단 반도체 패키징 및 공정에서 초미세 집적 및 신뢰성을 확보하는 차세대 표준 기술.",
+            candidate_id=c.get("candidateId", f"cand-{session_id}-{i+1}"),
+            candidate_type=c.get("typeLabel", "신규 지식 제안"),
+            title=c.get("title", ""),
+            summary=c.get("summary", ""),
             draft_payload={
-                "content": f"### 1. 기술 정의\n{topic}의 공학적 원리와 단위 공정 적용 사양.",
+                "content": c.get("proposedContent", ""),
                 "specifications": [
                     {"label": "핵심 물리 임계치", "value": "표준 공차 ±0.5%", "role": "ambient_limit"},
                     {"label": "품질 관리 지표(KPI)", "value": "결함율 0.05% 이하", "role": "kpi_target"}
-                ],
-                "relations": {
-                    "is_a": "concept-interconnect",
-                    "alternative_to": "concept-tcb"
-                }
-            },
-            evidence_ids=body.selectedEvidenceIds
-        ),
-        KnowledgeCandidate(
-            candidate_id=f"cand-{session_id}-02",
-            candidate_type="물리 한계 보완",
-            title=f"{topic} 공정 안전 마진 한계 규격",
-            summary=f"열응력 및 기계적 피로 임계치 초과 방지를 위한 현장 가이드라인.",
-            draft_payload={
-                "content": f"### 3. 물리적 한계 및 트레이드오프\n공정 파라미터 변동에 따른 결함 방지 통제 규격.",
-                "specifications": [
-                    {"label": "허용 전단응력 한계", "value": "< 30MPa", "role": "ambient_limit"}
                 ]
             },
-            evidence_ids=body.selectedEvidenceIds[:2]
+            evidence_ids=c.get("evidenceIds", body.selectedEvidenceIds)
         )
+        for i, c in enumerate(cand_list)
     ]
+
 
     session.synthesis_report = synthesis_report.model_dump(by_alias=True)
     session.candidates = [c.model_dump(by_alias=True) for c in candidates]

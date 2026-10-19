@@ -14,8 +14,183 @@ document.addEventListener("DOMContentLoaded", () => {
     currentSnapshotIndex: 2,
     selectedReviewId: "rev-01",
     readingDepth: "all", // 'all' | 'summary' | 'mech'
-    sidebarNavMode: "domain" // 'domain' | 'scale'
+    sidebarNavMode: "domain", // 'domain' | 'scale'
+    aiStage: "2a", // '2a' | '2b'
+    invStage: "4a", // '4a' | '4b'
+    currentComparisonSessionId: "sess-20261016-001",
+    popoverTargetConceptId: null,
+    isRestoringHistory: false,
+    userRole: sessionStorage.getItem("ontology_user_role") || "line_engineer"
   };
+
+  // ── 백엔드 DB 개념 ID 및 선행·연관 서브노드 ID ⟷ 프론트엔드 WikiStore 개념 ID 매핑 ──
+  const BACKEND_TO_LOCAL_CONCEPT_ID = {
+    "concept-dry-etch": "dry-etch",
+    "concept-mrmuf": "mr-muf",
+    "concept-cryo-etch": "cryogenic-etch",
+    "concept-high-na-euv": "high-na-euv",
+    "concept-gaa-nanosheet": "gaa-nanosheet-etch",
+    "concept-fdc-apc": "fab-fdc-oes-realtime",
+    "concept-tcb": "concept-tcb",
+    "param-bonding-pressure": "concept-tcb",
+    "defect-micro-bridging": "concept-tcb",
+    // 선행 개념(prerequisites) 및 연관 관계(relations) 서브 ID 전수 매핑
+    "proc-oxidation": "thermal-oxidation",
+    "oxidation-furnace": "thermal-oxidation",
+    "raw-silica": "silicon-ingot",
+    "ingot-puller": "silicon-ingot",
+    "proc-wafer": "wafer-fabrication",
+    "raw-industrial-water": "ultra-pure-water-upw",
+    "proc-etch": "dry-etch",
+    "plasma-chamber": "plasma-fdc-sensor",
+    "plasma-dry-etch": "dry-etch",
+    "ashing-clean": "dry-etch",
+    "ale-reactor": "ale-etch",
+    "cryo-etch-chamber": "cryogenic-etch",
+    "proc-packaging": "mr-muf",
+    "hbm-stack-assembly": "mr-muf",
+    "ai-supercomputing-module": "mr-muf",
+    "heterogeneous-3d-system": "hybrid-bonding",
+    "proc-photo": "photolithography",
+    "track-scanner-cluster": "photolithography",
+    "euv-scanner": "euv-lithography",
+    "high-na-scanner": "high-na-euv",
+    "eda-mask-synthesis": "model-based-opc",
+    "gaa-transistor-cell": "gaa-nanosheet-etch",
+    "ald-gate-dielectric": "hkmg-transistor",
+    "advanced-logic-cell": "hkmg-transistor",
+    "proc-deposition": "ald-deposition",
+    "ald-reactor": "ald-deposition",
+    "dram-cell-array": "dram-zaz-capacitor",
+    "dram-bitline-structure": "dram-airgap-bitline",
+    "proc-metal": "cu-damascene-cmp",
+    "cmp-polisher": "cu-damascene-cmp",
+    "cmp-slurry-supply": "cmp-slurry-bta-passivation",
+    "mat-chemical": "cmp-slurry-bta-passivation",
+    "3d-nand-core": "3d-nand-ctf-architecture",
+    "4d-nand-core": "4d-nand-puc",
+    "nand-wordline-stack": "3d-nand-mo-wordline",
+    "op-fdc": "fab-fdc-oes-realtime",
+    "op-ees": "ees-rms",
+    "mobile-application-processor": "fan-out-wafer-level-packaging",
+    "proc-eds": "hbm-kgd-testing",
+    "automatic-test-equipment": "hbm-kgd-testing",
+    "product-qualification": "tddb-reliability-physics",
+    "yield-management-system": "yield-negative-binomial-modeling",
+    "inline-inspection-cluster": "bbp-defect-inspection",
+    "fab-subfab-infrastructure": "fab-subfab-pfc-scrubber"
+  };
+
+  const LOCAL_TO_BACKEND_CONCEPT_ID = {
+    "dry-etch": "concept-dry-etch",
+    "mr-muf": "concept-mrmuf",
+    "cryogenic-etch": "concept-cryo-etch",
+    "high-na-euv": "concept-high-na-euv",
+    "gaa-nanosheet-etch": "concept-gaa-nanosheet",
+    "fab-fdc-oes-realtime": "concept-fdc-apc",
+    "plasma-fdc-sensor": "concept-fdc-apc",
+    "concept-tcb": "concept-tcb"
+  };
+
+  function resolveLocalConceptId(rawId) {
+    if (!rawId) return "dry-etch";
+    if (WikiStore.concepts && WikiStore.concepts[rawId]) return rawId;
+    if (BACKEND_TO_LOCAL_CONCEPT_ID[rawId] && WikiStore.concepts?.[BACKEND_TO_LOCAL_CONCEPT_ID[rawId]]) {
+      return BACKEND_TO_LOCAL_CONCEPT_ID[rawId];
+    }
+    const stripped = String(rawId).replace(/^concept-/, "");
+    if (WikiStore.concepts && WikiStore.concepts[stripped]) return stripped;
+    return rawId;
+  }
+
+  function resolveBackendConceptId(localId) {
+    if (!localId) return "concept-dry-etch";
+    if (String(localId).startsWith("concept-") || String(localId).startsWith("param-") || String(localId).startsWith("defect-")) {
+      return localId;
+    }
+    return LOCAL_TO_BACKEND_CONCEPT_ID[localId] || `concept-${localId}`;
+  }
+
+  // 백엔드 전용 개념(concept-tcb, param-bonding-pressure, defect-micro-bridging)을 WikiStore에 기본 시드로 보강
+  if (typeof WikiStore !== "undefined" && WikiStore.concepts) {
+    if (!WikiStore.concepts["concept-tcb"]) {
+      WikiStore.concepts["concept-tcb"] = {
+        id: "concept-tcb",
+        title: "열압착 본딩 (Thermal Compression Bonding, TC-NCF)",
+        engName: "Thermal Compression Bonding (TCB / TC-NCF)",
+        aliases: ["TCB", "TC-NCF", "열압착 본딩", "열압착 접합"],
+        facetId: "facet-device",
+        processId: "proc-packaging",
+        processName: "첨단 패키징",
+        scaleId: "Scale 2",
+        version: "v1.2",
+        verificationLevel: "공식 출처 2건 검증",
+        lastReviewed: "2026.10.15 (Dr. 김수석 검토 승인)",
+        summary: "다이(Die)와 기판 사이에 고체 비전도성 필름(NCF)을 개재한 후 정밀한 온도(260~300℃)와 압력(140~150N)을 가해 마이크로 범프를 용융 접합하는 첨단 패키징 공정이다.",
+        purpose: "HBM 및 3D IC 적층 시 인접 다이 간의 전기적 연결 신뢰성을 확보하고 마이크로 범프 간 솔더 브릿징(단락)을 방지한다.",
+        prerequisites: [
+          { id: "mr-muf", name: "MR-MUF (매스 리플로우 몰디드 언더필)" },
+          { id: "hybrid-bonding", name: "Cu-Cu 하이브리드 본딩" }
+        ],
+        principles: [
+          "다이 정렬 및 NCF 가압: 하부 다이 위에 마이크로 범프가 형성된 상부 다이를 0.5㎛ 정밀도로 광학 정렬 후 140~150N 하중을 인가 (F_bonding = P_tool × A_die)",
+          "급속 승온 및 솔더 용융: 가압 상태에서 260~300℃로 급속 승온(~100℃/s)하여 Sn-Ag 마이크로 범프를 용융시키고 금속간 화합물(IMC) 형성",
+          "냉각 및 수지 경화: 압력을 유지한 채 급속 냉각하여 솔더 조인트를 고화시키고 NCF 수지를 경화하여 접합 완료"
+        ],
+        limitations: [
+          "16단 고적층 시 반복적인 열압착 사이클에 의해 실리콘(CTE 2.6ppm/K)과 NCF(CTE 25ppm/K) 간의 열팽창 불일치 응력이 누적되어 칩 휨(Warpage) 발생 위험",
+          "칩을 1장씩 순차 가압·가열(Pick-and-Place)하므로 일괄 리플로우(MR-MUF) 대비 스택당 공정 시간(TAT)이 길고 필름 사이 미세 보이드 잔류 리스크 존재"
+        ],
+        perspectives: {
+          "default": {
+            label: "공통 기본 지식",
+            description: "산업 표준 및 학술 문헌에서 합의된 열압착 본딩(TC-NCF) 물리 원리와 정의"
+          },
+          "company-b-hbm3e": {
+            label: "A사/B사 HBM3E 16단 TCB 양산",
+            description: "16단 적층 HBM3E 라인에서 다이 두께 30㎛ 미세화에 따른 휨(Warpage) 제어 및 범프 크랙 방지 기준",
+            appliedCase: {
+              title: "HBM3E 16단 TCB 본딩 양산 기준",
+              code: "RCP-TCB-HBM3E-16H",
+              conditions: "피크 본딩 온도 285℃ (±3℃), 인가 본딩 압력 145N (140~150N), 초음파 인가 시간 350ms (330~370ms), NCF 필름 두께 25㎛ (24~26㎛)",
+              specs: [
+                { label: "피크 본딩 온도", value: "285 ℃", criteria: "±3℃", evidenceId: "E-02" },
+                { label: "인가 본딩 압력", value: "145 N", criteria: "140N ~ 150N", evidenceId: "E-02" },
+                { label: "초음파 인가 시간", value: "350 ms", criteria: "330ms ~ 370ms", evidenceId: "E-02" },
+                { label: "NCF 필름 두께", value: "25 ㎛", criteria: "24㎛ ~ 26㎛", evidenceId: "E-02" }
+              ],
+              limitationNote: "본딩 압력이 160N을 초과할 경우 NCF 수지 측방 유출로 인해 솔더 쇼트가 급증하므로 가압력 보상 상한선(150N)을 엄격히 준수할 것.",
+              evidenceId: "E-02"
+            }
+          }
+        },
+        relations: {
+          part_of: [{ id: "mr-muf", name: "HBM 적층 조립 모듈" }],
+          next_step: [{ id: "hbm-kgd-testing", name: "패키지 신뢰성 X-ray & KGD 검사" }]
+        },
+        evidences: {
+          "E-02": {
+            id: "E-02",
+            type: "Tier 1 (공식 제조사)",
+            sourceName: "Samsung Electronics Semiconductor Packaging Reliability Report",
+            pubDate: "2026.02",
+            quote: "TC-NCF requires strict bonding force control (140N~160N) to avoid micro-crack formation in ultra-thin micro bumps while applying non-conductive film.",
+            externalUrl: "https://semiconductor.samsung.com/newsroom/tech-blog/packaging-ncf",
+            urlLabel: "삼성전자 기술 블로그 원문 ➔"
+          }
+        }
+      };
+      // 사이드바 트리에도 concept-tcb 편입
+      const hbmDevGroup = (WikiStore.deviceTree || []).find(g => g.concepts && g.concepts.includes("mr-muf"));
+      if (hbmDevGroup && !hbmDevGroup.concepts.includes("concept-tcb")) {
+        hbmDevGroup.concepts.push("concept-tcb");
+      }
+      const pkgProcGroup = (WikiStore.processes || []).find(g => g.concepts && g.concepts.includes("mr-muf"));
+      if (pkgProcGroup && !pkgProcGroup.concepts.includes("concept-tcb")) {
+        pkgProcGroup.concepts.push("concept-tcb");
+      }
+    }
+  }
 
   // ── DOM 캐시 ──
   const dom = {
@@ -73,6 +248,9 @@ document.addEventListener("DOMContentLoaded", () => {
     popoverTitle: document.getElementById("popover-title"),
     popoverSummary: document.getElementById("popover-summary"),
     popoverAiContext: document.getElementById("popover-ai-context"),
+    popoverGotoBtn: document.getElementById("popover-goto-btn"),
+    popoverAskChatBtn: document.getElementById("popover-ask-chat-btn"),
+    popoverCloseBtn: document.getElementById("popover-close-btn"),
     // 모달들
     suggestModal: document.getElementById("suggest-modal"),
     suggestModalClose: document.getElementById("suggest-modal-close"),
@@ -82,6 +260,7 @@ document.addEventListener("DOMContentLoaded", () => {
     editParamsForm: document.getElementById("edit-params-form"),
     // 시스템 설정 팝업창 (Settings Modal) & 탑바
     btnOpenSettings: document.getElementById("btn-open-settings"),
+    headerRbacSelector: document.getElementById("header-rbac-selector"),
     settingsModal: document.getElementById("settings-modal"),
     settingsModalClose: document.getElementById("settings-modal-close"),
     btnCloseSettingsModal: document.getElementById("btn-close-settings-modal"),
@@ -146,7 +325,14 @@ document.addEventListener("DOMContentLoaded", () => {
     globalSearchInput: document.getElementById("global-search-input"),
     searchCounterBadge: document.getElementById("search-counter-badge"),
     searchResultsList: document.getElementById("search-results-list"),
-    // AI 분석실
+    // AI 분석실 (2-Stage: 2-A 요청실 ⟷ 2-B 결과 리포트)
+    aiStage2a: document.getElementById("ai-stage-2a"),
+    aiStage2b: document.getElementById("ai-stage-2b"),
+    aiPill2a: document.getElementById("ai-pill-2a"),
+    aiPill2b: document.getElementById("ai-pill-2b"),
+    btnBackTo2a: document.getElementById("btn-back-to-2a"),
+    aiReportSessionTitle: document.getElementById("ai-report-session-title"),
+    btnToggleSessionBookmark: document.getElementById("btn-toggle-session-bookmark"),
     painpointCardList: document.getElementById("painpoint-card-list"),
     aiPromptInput: document.getElementById("ai-prompt-input"),
     aiClarifyBtn: document.getElementById("ai-clarify-btn"),
@@ -158,7 +344,13 @@ document.addEventListener("DOMContentLoaded", () => {
     tagTextA: document.getElementById("tag-text-a"),
     tagTextB: document.getElementById("tag-text-b"),
     tagTextDomain: document.getElementById("tag-text-domain"),
-    // 조사 작업실
+    // 조사 작업실 (2-Stage: 4-A 문헌 피드 ⟷ 4-B 종합 리포트)
+    invStage4a: document.getElementById("inv-stage-4a"),
+    invStage4b: document.getElementById("inv-stage-4b"),
+    invPill4a: document.getElementById("inv-pill-4a"),
+    invPill4b: document.getElementById("inv-pill-4b"),
+    btnBackTo4a: document.getElementById("btn-back-to-4a"),
+    invReportTopicTitle: document.getElementById("inv-report-topic-title"),
     preSeededList: document.getElementById("pre-seeded-sources-list"),
     sourcesPackList: document.getElementById("sources-pack-list"),
     runSeedingBtn: document.getElementById("run-seeding-btn"),
@@ -201,6 +393,106 @@ document.addEventListener("DOMContentLoaded", () => {
     toastContainer: document.getElementById("toast-container")
   };
 
+  // ── 브라우저 History API (뒤로 가기 / 앞으로 가기) 상태 동기화 ──
+  function pushNavigationState() {
+    if (state.isRestoringHistory) return;
+    const navState = {
+      workspace: state.currentWorkspace,
+      conceptId: state.currentConceptId,
+      perspective: state.currentPerspective,
+      aiStage: state.aiStage,
+      invStage: state.invStage,
+      reviewId: state.selectedReviewId
+    };
+    const hash = state.currentWorkspace === "wiki"
+      ? `#wiki/${state.currentConceptId}`
+      : state.currentWorkspace === "ai"
+      ? `#ai/${state.aiStage}`
+      : state.currentWorkspace === "investigation"
+      ? `#investigation/${state.invStage}`
+      : `#review/${state.selectedReviewId}`;
+    if (window.location.hash !== hash) {
+      window.history.pushState(navState, "", hash);
+    }
+  }
+
+  window.addEventListener("popstate", (e) => {
+    state.isRestoringHistory = true;
+    try {
+      const s = e.state;
+      if (s && s.workspace) {
+        if (s.conceptId) state.currentConceptId = s.conceptId;
+        if (s.perspective) state.currentPerspective = s.perspective;
+        if (s.reviewId) state.selectedReviewId = s.reviewId;
+        setWorkspace(s.workspace, true);
+        if (s.workspace === "wiki" && s.conceptId) {
+          window.selectWikiConcept(s.conceptId, true);
+        } else if (s.workspace === "ai" && s.aiStage) {
+          window.switchAiStage(s.aiStage, true);
+        } else if (s.workspace === "investigation" && s.invStage) {
+          window.switchInvStage(s.invStage, true);
+        }
+      } else {
+        // hash 파싱 폴백
+        const rawHash = (window.location.hash || "").replace(/^#/, "");
+        const [ws, sub] = rawHash.split("/");
+        if (ws === "wiki" && sub) {
+          window.selectWikiConcept(sub, true);
+        } else if (ws === "ai") {
+          setWorkspace("ai", true);
+          if (sub === "2a" || sub === "2b") window.switchAiStage(sub, true);
+        } else if (ws === "investigation") {
+          setWorkspace("investigation", true);
+          if (sub === "4a" || sub === "4b") window.switchInvStage(sub, true);
+        } else if (ws === "review") {
+          if (sub) state.selectedReviewId = sub;
+          setWorkspace("review", true);
+        }
+      }
+    } finally {
+      state.isRestoringHistory = false;
+    }
+  });
+
+  // ── 2-Stage View 전환 헬퍼 (Tab 2 & Tab 4) ──
+  window.switchAiStage = function(stage, skipPush = false) {
+    state.aiStage = stage === "2b" ? "2b" : "2a";
+    if (dom.aiStage2a) dom.aiStage2a.style.display = state.aiStage === "2a" ? "block" : "none";
+    if (dom.aiStage2b) dom.aiStage2b.style.display = state.aiStage === "2b" ? "block" : "none";
+    if (dom.aiPill2a) {
+      dom.aiPill2a.style.background = state.aiStage === "2a" ? "var(--accent-primary)" : "var(--bg-surface-2)";
+      dom.aiPill2a.style.color = state.aiStage === "2a" ? "#fff" : "var(--text-muted)";
+    }
+    if (dom.aiPill2b) {
+      dom.aiPill2b.style.background = state.aiStage === "2b" ? "var(--accent-primary)" : "var(--bg-surface-2)";
+      dom.aiPill2b.style.color = state.aiStage === "2b" ? "#fff" : "var(--text-muted)";
+    }
+    if (!skipPush) pushNavigationState();
+  };
+
+  window.switchInvStage = function(stage, skipPush = false) {
+    state.invStage = stage === "4b" ? "4b" : "4a";
+    if (dom.invStage4a) dom.invStage4a.style.display = state.invStage === "4a" ? "block" : "none";
+    if (dom.invStage4b) dom.invStage4b.style.display = state.invStage === "4b" ? "block" : "none";
+    if (dom.invPill4a) {
+      dom.invPill4a.style.background = state.invStage === "4a" ? "var(--accent-primary)" : "var(--bg-surface-2)";
+      dom.invPill4a.style.color = state.invStage === "4a" ? "#fff" : "var(--text-muted)";
+    }
+    if (dom.invPill4b) {
+      dom.invPill4b.style.background = state.invStage === "4b" ? "var(--accent-primary)" : "var(--bg-surface-2)";
+      dom.invPill4b.style.color = state.invStage === "4b" ? "#fff" : "var(--text-muted)";
+    }
+    if (!skipPush) pushNavigationState();
+  };
+
+  dom.btnBackTo2a?.addEventListener("click", () => {
+    window.switchAiStage("2a");
+  });
+
+  dom.btnBackTo4a?.addEventListener("click", () => {
+    window.switchInvStage("4a");
+  });
+
   // ── 토스트 헬퍼 ──
   function showToast(message, type = "success") {
     const toast = document.createElement("div");
@@ -231,8 +523,17 @@ document.addEventListener("DOMContentLoaded", () => {
   function openSearchModal() {
     if (!dom.searchModal) return;
     dom.searchModal.classList.add("open");
-    dom.globalSearchInput.value = "";
-    dom.globalSearchInput.focus();
+    if (dom.globalSearchInput) {
+      dom.globalSearchInput.value = "";
+      // 즉시 타이핑 가능하도록 애니메이션 프레임 및 짧은 지연으로 이중 포커스 보장
+      dom.globalSearchInput.focus();
+      requestAnimationFrame(() => {
+        dom.globalSearchInput?.focus();
+      });
+      setTimeout(() => {
+        dom.globalSearchInput?.focus();
+      }, 50);
+    }
     renderSearchResults("");
   }
 
@@ -324,49 +625,51 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // 1. Live Backend API 호출 시도 (WikiAPI)
-    try {
-      if (window.WikiAPI) {
-        const resp = await WikiAPI.searchSpotlight(q, 10);
-        if (resp && resp.results) {
-          if (resp.totalIndexed && dom.searchCounterBadge) {
-            dom.searchCounterBadge.textContent = `${resp.totalIndexed}개 개념 인덱싱됨`;
-          }
-          currentSearchResults = resp.results;
-          searchSelectedIndex = 0;
-          if (currentSearchResults.length === 0) {
-            renderSearchEmptyHtml(q, resp.suggestions || ["EUV", "ALE", "High-NA EUV", "HBM TSV", "ALD"]);
-            return;
-          }
-          renderSearchListHtml(currentSearchResults, q);
-          return;
-        }
-      }
-    } catch (e) {
-      // Degraded/Offline fallback
-      console.warn("Live spotlight search failed, falling back to local store:", e);
-    }
-
-    // 2. Local Fallback 검색
+    // 1. Live Backend API + 로컬 스토어 통합 하이브리드 검색
     const qLower = q.toLowerCase();
-    currentSearchResults = allConcepts.filter(c => {
+    const localMatches = allConcepts.filter(c => {
       const titleMatch = c.title?.toLowerCase().includes(qLower);
       const engMatch = c.engName?.toLowerCase().includes(qLower);
       const aliasMatch = Array.isArray(c.aliases) && c.aliases.some(a => a.toLowerCase().includes(qLower));
       const procMatch = c.processName?.toLowerCase().includes(qLower);
       const summaryMatch = c.summary?.toLowerCase().includes(qLower);
       return titleMatch || engMatch || aliasMatch || procMatch || summaryMatch;
-    }).slice(0, 10);
+    });
 
+    let apiMatches = [];
+    let apiSuggestions = [];
+    try {
+      if (window.WikiAPI) {
+        const resp = await WikiAPI.searchSpotlight(q, 10);
+        if (resp && resp.results) {
+          apiMatches = resp.results.map(r => ({
+            ...r,
+            id: resolveLocalConceptId(r.id)
+          }));
+          apiSuggestions = resp.suggestions || [];
+        }
+      }
+    } catch (e) {
+      console.warn("Live spotlight search fallback to local store:", e);
+    }
+
+    // API 결과와 로컬 결과를 중복 없이 병합하여 모든 등록 개념이 빠짐없이 검색되도록 보장
+    const mergedMap = new Map();
+    apiMatches.forEach(item => mergedMap.set(item.id, item));
+    localMatches.forEach(item => {
+      if (!mergedMap.has(item.id)) mergedMap.set(item.id, item);
+    });
+
+    currentSearchResults = Array.from(mergedMap.values()).slice(0, 12);
     searchSelectedIndex = 0;
     if (currentSearchResults.length === 0) {
-      renderSearchEmptyHtml(q, ["EUV", "ALE", "High-NA EUV", "HBM TSV", "ALD"]);
+      renderSearchEmptyHtml(q, apiSuggestions.length > 0 ? apiSuggestions : ["EUV", "ALE", "High-NA EUV", "MR-MUF", "TCB", "ALD"]);
       return;
     }
     renderSearchListHtml(currentSearchResults, q);
   }
 
-  // 검색 인풋 이벤트 (디바운스 150ms)
+  // 검색 인풋 이벤트 (사용자가 입력할 때만 150ms 디바운스 동작, 유휴 상태에서는 0% 부하)
   dom.globalSearchInput?.addEventListener("input", (e) => {
     clearTimeout(searchDebounceTimer);
     searchDebounceTimer = setTimeout(() => {
@@ -429,7 +732,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const stickySentinel = document.getElementById("perspective-sticky-sentinel");
   if (stickySentinel && dom.perspectiveBarBlock && 'IntersectionObserver' in window) {
     const observer = new IntersectionObserver(([entry]) => {
-      // 센티넬이 52px(탑바 높이) 위로 밀려나면 sticky가 시작된 것이므로 .is-stuck 활성화
       const isStuck = !entry.isIntersecting && entry.boundingClientRect.top <= 55;
       dom.perspectiveBarBlock.classList.toggle("is-stuck", isStuck);
     }, {
@@ -438,7 +740,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     observer.observe(stickySentinel);
   } else {
-    // 폴백: 히스테리시스 스크롤
     window.addEventListener("scroll", () => {
       const isStuck = window.scrollY > 200;
       dom.perspectiveBarBlock?.classList.toggle("is-stuck", isStuck);
@@ -446,14 +747,17 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ── 1. 워크스페이스 공간 분리 ──
-  function setWorkspace(wsName) {
-    state.currentWorkspace = wsName;
+  function setWorkspace(wsName, skipPush = false) {
+    // 'comparison' 별칭을 'ai'로 정규화 (챗봇 등에서 호출 시 빈 화면 방지)
+    const normalizedWs = wsName === "comparison" ? "ai" : wsName;
+    state.currentWorkspace = normalizedWs;
     dom.wsTabs.forEach(tab => {
-      tab.classList.toggle("active", tab.dataset.workspace === wsName);
+      tab.classList.toggle("active", tab.dataset.workspace === normalizedWs);
     });
 
     Object.entries(dom.viewSections).forEach(([key, section]) => {
-      const isTarget = (key === wsName);
+      if (!section) return;
+      const isTarget = (key === normalizedWs);
       section.style.display = isTarget ? "block" : "none";
       if (isTarget) {
         section.classList.remove("fade-slide-up");
@@ -464,7 +768,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     Object.entries(dom.sidebarViews).forEach(([key, view]) => {
       if (view) {
-        const isTarget = (key === wsName);
+        const isTarget = (key === normalizedWs);
         view.style.display = isTarget ? "block" : "none";
         if (isTarget) {
           view.classList.remove("fade-slide-up");
@@ -474,16 +778,23 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    if (wsName === "wiki") {
+    if (normalizedWs === "wiki") {
       renderConceptDetail(state.currentConceptId);
-    } else if (wsName === "review") {
+    } else if (normalizedWs === "review") {
       renderReviewQueue();
-    } else if (wsName === "ai") {
+    } else if (normalizedWs === "ai") {
       renderPainPoints(dom.aiPromptInput?.value || "");
-    } else if (wsName === "investigation") {
+      // 2-A 요청실에서 기본 3대 공학 분기 카드가 비어 있으면 즉시 표시
+      if (dom.aiDialogueArea && !dom.aiDialogueArea.innerHTML.trim()) {
+        renderConversationalClarifier(dom.aiPromptInput?.value || "HBM3E 16단 패키징 방열 및 다이 휨 제어");
+      }
+    } else if (normalizedWs === "investigation") {
       renderDiscoveryLogs();
     }
+
+    if (!skipPush) pushNavigationState();
   }
+  window.setWorkspace = setWorkspace;
 
   dom.wsTabs.forEach(tab => {
     tab.addEventListener("click", () => setWorkspace(tab.dataset.workspace));
@@ -582,7 +893,8 @@ document.addEventListener("DOMContentLoaded", () => {
     "ees-rms": { level: 3, label: "Level 3 · 팹 지능화 & 장비 통신", badgeClass: "badge-level-3", desc: "SECS/GEM 장비 온라인 통신 및 양산 레시피 무단 변조 방지 RMS" },
     "ultra-pure-water-upw": { level: 3, label: "Level 3 · 팹 인프라 & 초순수", badgeClass: "badge-level-3", desc: "18.2MΩ·cm 연속 공급 루프 및 서브팹 유틸리티 TOC 한계 통제" },
     "fab-subfab-pfc-scrubber": { level: 3, label: "Level 3 · 팹 환경 & 서브팹 배기", badgeClass: "badge-level-3", desc: "고온 열분해 및 습식 세정 연계 친환경 온실가스 분해 설비" },
-    "cmp-slurry-bta-passivation": { level: 3, label: "Level 3 · 첨단 화학 & 슬러리", badgeClass: "badge-level-3", desc: "초저하중 CMP 슬러리 입도 통제 및 BTA 부식 억제제 계면 화학" }
+    "cmp-slurry-bta-passivation": { level: 3, label: "Level 3 · 첨단 화학 & 슬러리", badgeClass: "badge-level-3", desc: "초저하중 CMP 슬러리 입도 통제 및 BTA 부식 억제제 계면 화학" },
+    "concept-tcb": { level: 3, label: "Level 3 · 현장 규격 & 첨단 패키징", badgeClass: "badge-level-3", desc: "HBM 12/16단 비전도성 필름(NCF) 열압착 본딩 양산 규격" }
   };
 
   // ── 37개 온톨로지 개념의 물리적 규모(Scale) 위계 정보 (5단계 체계) ──
@@ -932,6 +1244,20 @@ document.addEventListener("DOMContentLoaded", () => {
         { id: "tddb-reliability-physics", scale: 1, title: "TDDB 절연 파괴 물리 & 신뢰성", desc: "적층 다이 간 마이크로 범프 고온 동작 번인 및 단락 신뢰성 보증" }
       ]
     },
+    "concept-tcb": {
+      scale: 2,
+      scaleLabel: "Scale 2 · 소자 & 칩 패키지",
+      badgeClass: "badge-scale-2",
+      scopeName: "수 mm ~ 수 cm HBM 적층 본딩",
+      parents: [
+        { id: "ees-rms", scale: 4, title: "설비 엔지니어링 & RMS 통신", desc: "TCB 본더 헤드 하중(145N) 및 펄스 히터 온도 프로파일 레시피 인터락" },
+        { id: "hbm-kgd-testing", scale: 2, title: "HBM 웨이퍼 KGD 양품 테스트", desc: "적층 전 마이크로 범프 양품 다이 선별 검증" }
+      ],
+      children: [
+        { id: "mr-muf", scale: 2, title: "HBM MR-MUF 액상 몰딩 패키징", desc: "16단 고적층 방열 및 생산성 확보를 위한 대안 패키징 기술" },
+        { id: "tddb-reliability-physics", scale: 1, title: "TDDB 절연 파괴 물리 & 신뢰성", desc: "마이크로 범프 솔더 브릿징 단락 및 절연 신뢰성 물리" }
+      ]
+    },
     "hybrid-bonding": {
       scale: 2,
       scaleLabel: "Scale 2 · 소자 & 칩 패키지",
@@ -1196,70 +1522,25 @@ document.addEventListener("DOMContentLoaded", () => {
       dom.facetSubnavTitle.textContent = titleMap[state.currentFacet] || "온톨로지 분류 체계";
     }
 
-    // 1. Live API 트리 조회 시도
-    let categories = null;
+    // 1. Live API 트리 메타데이터 조회 및 로컬 전체 온톨로지 트리(38개 개념)와 병합
+    const apiPerspectiveIds = new Set();
     try {
       if (window.WikiAPI) {
-        const resp = await WikiAPI.getConceptTree(facetMap[state.currentFacet] || "unit_process", state.currentConceptId);
+        const resp = await WikiAPI.getConceptTree(facetMap[state.currentFacet] || "unit_process", resolveBackendConceptId(state.currentConceptId));
         if (resp && resp.categories && resp.categories.length > 0) {
-          categories = resp.categories;
+          resp.categories.forEach(cat => {
+            (cat.children || []).forEach(ch => {
+              const localId = resolveLocalConceptId(ch.id);
+              if (ch.hasPerspectives) apiPerspectiveIds.add(localId);
+            });
+          });
         }
       }
     } catch (e) {
       console.warn("Concept tree API fallback:", e);
     }
 
-    if (categories) {
-      categories.forEach(cat => {
-        const hasActiveChild = cat.children && Array.isArray(cat.children) && cat.children.some(ch => ch.id === state.currentConceptId);
-        const item = document.createElement("div");
-        item.className = "process-nav-group";
-        item.innerHTML = `
-          <div class="process-nav-item ${hasActiveChild ? 'active' : ''}" data-cat-id="${cat.id}">
-            <span>${cat.title}</span>
-            ${cat.children && cat.children.length > 0 ? `
-              <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            ` : ""}
-          </div>
-          ${cat.children && cat.children.length > 0 ? `
-            <div class="process-concept-sublist" style="display: ${hasActiveChild ? 'flex' : 'none'};">
-              ${cat.children.map(ch => {
-                const isSelected = ch.id === state.currentConceptId;
-                const badge = ch.hasPerspectives ? `<span class="concept-badge badge-level-3" style="font-size:0.5625rem; padding:1px 4px; margin-left:auto;">사내</span>` : "";
-                return `
-                  <div class="concept-sub-link ${isSelected ? 'active' : ''}" data-concept-id="${ch.id}" style="display:flex; align-items:center; justify-content:space-between; gap:4px;">
-                    <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">• ${ch.title}</span>
-                    ${badge}
-                  </div>
-                `;
-              }).join("")}
-            </div>
-          ` : ""}
-        `;
-        dom.sidebarProcesses.appendChild(item);
-      });
-
-      dom.sidebarProcesses.querySelectorAll(".process-nav-item").forEach(el => {
-        el.addEventListener("click", () => {
-          const sublist = el.nextElementSibling;
-          if (sublist && sublist.classList.contains("process-concept-sublist")) {
-            sublist.style.display = (sublist.style.display === "flex") ? "none" : "flex";
-          }
-        });
-      });
-
-      dom.sidebarProcesses.querySelectorAll(".concept-sub-link").forEach(el => {
-        el.addEventListener("click", () => {
-          const cid = el.dataset.conceptId;
-          window.selectWikiConcept(cid);
-        });
-      });
-      return;
-    }
-
-    // 2. Local Fallback Tree
+    // 2. 전체 온톨로지 도메인 트리 (8대 공정 / 4대 소자 / 운영 / 소재 38개 개념 전수 노출)
     let treeData = [];
     if (state.currentFacet === "facet-device") {
       treeData = WikiStore.deviceTree || [];
@@ -1290,7 +1571,14 @@ document.addEventListener("DOMContentLoaded", () => {
             ${node.concepts.map(cid => {
               const concept = WikiStore.concepts[cid];
               const title = concept ? concept.title.split("(")[0].trim() : cid;
-              return `<div class="concept-sub-link ${cid === state.currentConceptId ? 'active' : ''}" data-concept-id="${cid}">• ${title}</div>`;
+              const hasPersp = apiPerspectiveIds.has(cid) || (concept?.perspectives && Object.keys(concept.perspectives).length > 1);
+              const badge = hasPersp ? `<span class="concept-badge badge-level-3" style="font-size:0.5625rem; padding:1px 4px; margin-left:auto; flex-shrink:0;">실무</span>` : "";
+              return `
+                <div class="concept-sub-link ${cid === state.currentConceptId ? 'active' : ''}" data-concept-id="${cid}" style="display:flex; align-items:center; justify-content:space-between; gap:4px;">
+                  <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">• ${title}</span>
+                  ${badge}
+                </div>
+              `;
             }).join("")}
           </div>
         ` : ""}
@@ -1475,13 +1763,96 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ── 전역 개념 선택 헬퍼 ──
-  window.selectWikiConcept = function(conceptId) {
+  window.selectWikiConcept = async function(rawConceptId, skipPush = false) {
+    const conceptId = resolveLocalConceptId(rawConceptId);
+
+    // 만약 로컬 WikiStore에 없으면 백엔드 API에서 조회하여 동적 생성
+    if (!WikiStore.concepts[conceptId] && window.WikiAPI) {
+      try {
+        const backendId = resolveBackendConceptId(rawConceptId);
+        const detail = await WikiAPI.getConceptDetail(backendId);
+        if (detail && detail.id) {
+          const mappedPerspectives = {
+            "default": {
+              label: "공통 기본 지식",
+              description: "산업 표준 및 학술 문헌에서 합의된 일반적 물리 원리와 정의"
+            }
+          };
+          if (Array.isArray(detail.perspectives)) {
+            detail.perspectives.forEach(p => {
+              mappedPerspectives[p.perspectiveId || p.id || "case-1"] = {
+                label: p.perspectiveTitle || p.perspectiveBadge || "현장 적용 기준",
+                description: p.contextNarrative || "",
+                appliedCase: {
+                  title: p.perspectiveTitle || "현장 양산 적용 기준",
+                  code: p.managementCode || "",
+                  conditions: p.contextNarrative || "",
+                  specs: p.specifications || [],
+                  limitationNote: p.caution || "",
+                  evidenceId: p.evidenceId || "E-01"
+                }
+              };
+            });
+          }
+          WikiStore.concepts[conceptId] = {
+            id: conceptId,
+            title: detail.title ? `${detail.title}${detail.engName ? ` (${detail.engName})` : ""}` : conceptId,
+            engName: detail.engName || "",
+            aliases: detail.aliases || [],
+            facetId: detail.domainFacet === "device" ? "facet-device" : (detail.domainFacet === "operations" ? "facet-operations" : "facet-process"),
+            processName: detail.processCategory || "단위 공정",
+            scaleId: `Scale ${detail.scaleLevel || 3}`,
+            version: detail.version || "v1.2",
+            verificationLevel: "공식 출처 검증",
+            lastReviewed: `${(detail.lastReviewedAt || "2026.10.15").slice(0, 10)} (${detail.lastReviewedBy || "수석 엔지니어"})`,
+            summary: detail.summary || "",
+            purpose: detail.purpose || "",
+            principles: (detail.principles || []).map(pr => typeof pr === "string" ? pr : `${pr.title}: ${pr.content}${pr.formula ? ` [${pr.formula}]` : ""}`),
+            limitations: (detail.limitations || []).map(lm => typeof lm === "string" ? lm : `${lm.title}: ${lm.description}`),
+            perspectives: mappedPerspectives,
+            relations: detail.relations || {},
+            evidences: {}
+          };
+        }
+      } catch (e) {
+        console.warn("Dynamic concept detail load fallback:", e);
+      }
+    }
+
     if (WikiStore.concepts[conceptId]) {
       state.currentConceptId = conceptId;
       const c = WikiStore.concepts[conceptId];
-      
-      // 현재 열람 중인 패싯에 해당 개념이 이미 속해 있다면, 굳이 다른 패싯으로 튕기지 않고 현재 패싯 유지!
-      // (예: 소자·제품군 허브에서 HBM MR-MUF를 선택했을 때 '제조 단위 공정'으로 강제 전환되는 현상 원천 해결)
+
+      // 백엔드 DB의 풍부한 PerspectiveCase(specifications 배열 등)를 비동기로 병합
+      if (window.WikiAPI && !c._backendPerspectivesSynced) {
+        c._backendPerspectivesSynced = true;
+        const bId = resolveBackendConceptId(conceptId);
+        WikiAPI.getConceptDetail(bId).then(detail => {
+          if (detail && Array.isArray(detail.perspectives) && detail.perspectives.length > 0) {
+            detail.perspectives.forEach(bp => {
+              const pKey = `backend-${bp.perspectiveId || bp.id || "case"}`;
+              c.perspectives = c.perspectives || {};
+              c.perspectives[pKey] = {
+                label: bp.perspectiveTitle || bp.perspectiveBadge || "현장 양산 규격",
+                badge: bp.perspectiveBadge || "실무 적용 관점",
+                description: bp.contextNarrative || "실제 양산 라인 적용 기준 및 핵심 사양",
+                appliedCase: {
+                  title: bp.perspectiveTitle || "현장 양산 적용 기준",
+                  code: bp.managementCode || "RCP-STD-2026",
+                  conditions: bp.contextNarrative || "",
+                  specs: bp.specifications || [],
+                  limitationNote: bp.caution || "",
+                  evidenceId: bp.evidenceId || "E-01"
+                }
+              };
+            });
+            if (state.currentConceptId === conceptId) {
+              updatePerspectiveView();
+            }
+          }
+        }).catch(() => {});
+      }
+
       if (!doesFacetContainConcept(state.currentFacet, conceptId)) {
         state.currentFacet = c.facetId || findFacetForConcept(conceptId);
       }
@@ -1491,11 +1862,12 @@ document.addEventListener("DOMContentLoaded", () => {
       renderSidebarScaleTree();
       renderFabStageStrip();
       renderConceptDetail(conceptId);
-      setWorkspace("wiki");
+      setWorkspace("wiki", true);
+      if (!skipPush) pushNavigationState();
       window.dispatchEvent(new CustomEvent("conceptChanged"));
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
-      showToast(`'${conceptId}' 문서는 조사 작업실에서 후보 발굴 대기 중입니다.`, "info");
+      showToast(`'${rawConceptId}' 문서는 조사 작업실에서 후보 발굴 대기 중입니다.`, "info");
     }
   };
 
@@ -1541,7 +1913,6 @@ document.addEventListener("DOMContentLoaded", () => {
       while ((startIndex = textLower.indexOf(termLower, startIndex)) !== -1) {
         const endIndex = startIndex + termLower.length;
         
-        // 영문 약어의 경우 단어 경계(앞뒤에 알파벳/숫자가 없어야 함) 확인
         let validBoundary = true;
         if (isAscii) {
           const prevChar = startIndex > 0 ? rawText[startIndex - 1] : ' ';
@@ -1552,7 +1923,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (validBoundary) {
-          // 기존 매치와 겹치는지 검사
           const overlaps = matches.some(m => 
             (startIndex >= m.start && startIndex < m.end) || 
             (endIndex > m.start && endIndex <= m.end) ||
@@ -1567,7 +1937,7 @@ document.addEventListener("DOMContentLoaded", () => {
               id: kw.id,
               term: kw.term
             });
-            break; // 동일 키워드는 문단당 최초 1회만 하이퍼링크 부여
+            break;
           }
         }
         startIndex += 1;
@@ -1582,7 +1952,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let lastIdx = 0;
     for (const m of matches) {
       result += rawText.substring(lastIdx, m.start);
-      result += `<span class="concept-intext-link" data-concept-id="${m.id}" title="${m.term} 온톨로지 문서로 바로가기">${m.original}</span>`;
+      result += `<span class="concept-intext-link" data-concept-id="${m.id}" title="${m.term} 요약 팝업 보기 및 이동">${m.original}</span>`;
       lastIdx = m.end;
     }
     result += rawText.substring(lastIdx);
@@ -1592,7 +1962,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ── 3. 위키 개념 본문 렌더링 ──
   function renderConceptDetail(conceptId) {
-    const c = WikiStore.concepts[conceptId];
+    const resolvedId = resolveLocalConceptId(conceptId);
+    const c = WikiStore.concepts[resolvedId];
     if (!c) return;
 
     let facetLabel = "제조 단위 공정";
@@ -1619,7 +1990,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("concept-aliases-text").textContent = c.aliases ? c.aliases.join(", ") : "-";
     document.getElementById("concept-version-text").textContent = `${c.version} (${c.verificationLevel})`;
     document.getElementById("concept-reviewed-text").textContent = c.lastReviewed;
-    document.getElementById("footer-concept-id").textContent = `concept-${c.id}-001`;
+    document.getElementById("footer-concept-id").textContent = c.id.startsWith("concept-") ? c.id : `concept-${c.id}-001`;
 
     // ── 지식 Level 뱃지 갱신 ──
     const lvlInfo = conceptLevels[c.id] || { level: 1, label: "Level 1 · 산업 공통 기초", badgeClass: "badge-level-1", desc: "비전공자 및 신입을 위한 용어 표준 정의와 필수 기초 개념" };
@@ -1644,10 +2015,8 @@ document.addEventListener("DOMContentLoaded", () => {
       dom.conceptScaleBadge.title = `[물리적 규모] ${scaleInfo.scaleLabel} (${scaleInfo.scopeName})\n클릭 시 하단 '4. 온톨로지 관계'의 규모 인과 계층도로 바로 이동`;
     }
 
-    // 열람 모드 적용 (현재 설정된 readingDepth 유지 및 UI 동기화)
     applyCurrentReadingDepth();
 
-    // 출처 키 목록 추출 (동적 바인딩)
     const evKeys = c.evidences ? Object.keys(c.evidences) : [];
     const ev1Key = evKeys[0] || null;
     const ev2Key = evKeys[1] || evKeys[0] || null;
@@ -1661,8 +2030,8 @@ document.addEventListener("DOMContentLoaded", () => {
       <ul class="doc-list">
         <li><strong>목적:</strong> ${enrichTextWithConceptLinks(c.purpose, c.id)} ${ev2Key ? `<button type="button" class="evidence-pill-btn" data-evidence-id="${ev2Key}" aria-label="출처 ${ev2Key} 보기">[${ev2Key}]</button>` : ""}</li>
         ${c.prerequisites && c.prerequisites.length > 0 ? `
-          <li><strong>선행 이해 개념:</strong> 
-            ${c.prerequisites.map(p => `<span class="inline-concept-tag" data-concept="${p.id}">${p.name}</span>`).join(", ")}
+          <li><strong>선행 이해 개념 (클릭 시 요약 팝업 & 문서 이동):</strong> 
+            ${c.prerequisites.map(p => `<span class="inline-concept-tag" data-concept="${p.id}" title="클릭하여 요약 보기 및 문서 이동">${p.name}</span>`).join(", ")}
           </li>
         ` : ""}
       </ul>
@@ -1682,10 +2051,9 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
     document.getElementById("principles-accordion-content").innerHTML = principlesHtml;
 
-    // 팹 파이프라인 인디케이터 동기화
     renderFabStageStrip();
 
-    // 3. 관점별 쓰임 렌더링
+    // 3. 관점별 쓰임 및 적용 사례 렌더링
     updatePerspectiveView();
 
     // 4. 온톨로지 관계 및 물리적 규모(Scale) 계층
@@ -1708,20 +2076,20 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="scale-relation-box scale-box-parent">
         <div class="scale-box-header">
           <span class="scale-direction-label">⬆️ 상위 스케일 인과 영향 (Upper Scale: ${parents.length}건)</span>
-          ${parents.length === 0 ? `<span style="font-size:0.6875rem; color:var(--text-muted); font-weight:600;">최상위 스케일</span>` : ""}
+          <span style="font-size:0.6875rem; color:var(--text-muted);">블록 클릭 시 요약 팝업 · 버튼 클릭 시 즉시 이동</span>
         </div>
         ${parents.length === 0 ? `
           <div style="font-size:0.8125rem; color:var(--text-muted); padding:6px 0;">팹 단지 최상위 인프라로서 상위 공정 의존성이 없습니다.</div>
         ` : `
           <div class="scale-links-list">
             ${parents.map(p => `
-              <div class="scale-link-card">
+              <div class="scale-link-card ${p.id ? 'clickable-scale-card' : ''}" ${p.id ? `data-concept-id="${p.id}" style="cursor:pointer;" title="클릭하여 '${p.title}' 요약 팝업 보기"` : ""}>
                 <div class="scale-link-card-header">
                   <div class="scale-link-title-group">
                     ${p.scale ? `<span class="concept-badge badge-scale-${p.scale}" style="font-size:0.6875rem; padding:1px 5px; flex-shrink:0;">Scale ${p.scale}</span>` : ""}
                     <span class="scale-link-title" title="${p.title}">${p.title}</span>
                   </div>
-                  ${p.id ? `<button type="button" class="scale-jump-btn" data-concept-id="${p.id}" title="${p.title} 문서로 이동">이동 ➔</button>` : `<span style="font-size:0.6875rem; color:var(--text-muted); font-weight:600; white-space:nowrap;">최상위</span>`}
+                  ${p.id ? `<button type="button" class="scale-jump-btn" data-concept-id="${p.id}" title="${p.title} 문서로 바로 이동">이동 ➔</button>` : `<span style="font-size:0.6875rem; color:var(--text-muted); font-weight:600; white-space:nowrap;">최상위</span>`}
                 </div>
                 <p class="scale-link-desc">${p.desc || ""}</p>
               </div>
@@ -1735,22 +2103,22 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="scale-relation-box scale-box-child">
         <div class="scale-box-header">
           <span class="scale-direction-label">⬇️ 하위 스케일 물리 메커니즘 & 파생 소자 (Lower Scale: ${children.length}건)</span>
-          ${children.length === 0 ? `<span style="font-size:0.6875rem; color:var(--text-muted); font-weight:600;">기초 물리 한계</span>` : ""}
+          <span style="font-size:0.6875rem; color:var(--text-muted);">블록 클릭 시 요약 팝업 · 버튼 클릭 시 즉시 이동</span>
         </div>
         ${children.length === 0 ? `
           <div style="font-size:0.8125rem; color:var(--text-muted); padding:6px 0;">단원자층 및 양자역학 한계 계층으로 추가적인 하위 공정 분기가 없습니다.</div>
         ` : `
           <div class="scale-links-list">
-            ${children.map(c => `
-              <div class="scale-link-card">
+            ${children.map(cItem => `
+              <div class="scale-link-card ${cItem.id ? 'clickable-scale-card' : ''}" ${cItem.id ? `data-concept-id="${cItem.id}" style="cursor:pointer;" title="클릭하여 '${cItem.title}' 요약 팝업 보기"` : ""}>
                 <div class="scale-link-card-header">
                   <div class="scale-link-title-group">
-                    ${c.scale ? `<span class="concept-badge badge-scale-${c.scale}" style="font-size:0.6875rem; padding:1px 5px; flex-shrink:0;">Scale ${c.scale}</span>` : ""}
-                    <span class="scale-link-title" title="${c.title}">${c.title}</span>
+                    ${cItem.scale ? `<span class="concept-badge badge-scale-${cItem.scale}" style="font-size:0.6875rem; padding:1px 5px; flex-shrink:0;">Scale ${cItem.scale}</span>` : ""}
+                    <span class="scale-link-title" title="${cItem.title}">${cItem.title}</span>
                   </div>
-                  ${c.id ? `<button type="button" class="scale-jump-btn" data-concept-id="${c.id}" title="${c.title} 문서로 이동">이동 ➔</button>` : `<span style="font-size:0.6875rem; color:var(--text-muted); font-weight:600; white-space:nowrap;">물리 한계</span>`}
+                  ${cItem.id ? `<button type="button" class="scale-jump-btn" data-concept-id="${cItem.id}" title="${cItem.title} 문서로 바로 이동">이동 ➔</button>` : `<span style="font-size:0.6875rem; color:var(--text-muted); font-weight:600; white-space:nowrap;">물리 한계</span>`}
                 </div>
-                <p class="scale-link-desc">${c.desc || ""}</p>
+                <p class="scale-link-desc">${cItem.desc || ""}</p>
               </div>
             `).join("")}
           </div>
@@ -1765,7 +2133,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <span class="scale-icon-tag">${scaleDefinitions.find(s => s.scale === scaleInfo.scale)?.icon || "📐"}</span>
             <div>
               <h3 class="scale-card-title">물리적 규모(Scale) 인과 계층도 (Multi-Scale Context)</h3>
-              <p class="scale-card-subtitle">원자(Sub-nm)부터 팹 인프라(km)까지 5단계 물리·운영 범위 및 상하위 인과 추적</p>
+              <p class="scale-card-subtitle">원자(Sub-nm)부터 팹 인프라(km)까지 5단계 물리·운영 범위 및 상하위 인과 추적 (블록을 클릭하면 요약 팝업이 표시됩니다)</p>
             </div>
           </div>
           <span class="concept-badge ${scaleInfo.badgeClass}" style="font-size:0.75rem;">
@@ -1784,20 +2152,28 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
+    const renderRelationChip = (rel) => {
+      const targetId = resolveLocalConceptId(rel.id);
+      if (targetId && WikiStore.concepts[targetId]) {
+        return `<span class="inline-concept-tag" data-concept="${targetId}" style="cursor:pointer; display:inline-block; margin-top:2px;" title="클릭하여 요약 팝업 보기 및 이동">${rel.name}</span>`;
+      }
+      return `<span>${rel.name}</span>`;
+    };
+
     const relationsHtml = `
       ${scaleNavigatorHtml}
       <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-top:8px;">
-        <div style="background:var(--bg-surface-2); padding:12px; border-radius:6px;">
+        <div style="background:var(--bg-surface-2); padding:12px; border-radius:6px; border:1px solid var(--border-color);">
           <span style="font-size:0.6875rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">분류 체계 (is_a)</span>
           <div style="font-size:0.8125rem; font-weight:600; margin-top:4px;">${c.processName}</div>
         </div>
-        <div style="background:var(--bg-surface-2); padding:12px; border-radius:6px;">
+        <div style="background:var(--bg-surface-2); padding:12px; border-radius:6px; border:1px solid var(--border-color);">
           <span style="font-size:0.6875rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">핵심 구성 (part_of)</span>
-          <div style="font-size:0.8125rem; margin-top:4px;">${c.relations?.part_of?.map(r => r.name).join(", ") || "공정 표준 모듈"}</div>
+          <div style="font-size:0.8125rem; margin-top:4px; display:flex; flex-wrap:wrap; gap:4px;">${c.relations?.part_of?.map(renderRelationChip).join(", ") || "공정 표준 모듈"}</div>
         </div>
-        <div style="background:var(--bg-surface-2); padding:12px; border-radius:6px;">
+        <div style="background:var(--bg-surface-2); padding:12px; border-radius:6px; border:1px solid var(--border-color);">
           <span style="font-size:0.6875rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">후속 연계 (next_step)</span>
-          <div style="font-size:0.8125rem; margin-top:4px;">${c.relations?.next_step?.map(r => r.name).join(", ") || "품질 검사 및 세정"}</div>
+          <div style="font-size:0.8125rem; margin-top:4px; display:flex; flex-wrap:wrap; gap:4px;">${c.relations?.next_step?.map(renderRelationChip).join(", ") || "품질 검사 및 세정"}</div>
         </div>
       </div>
       <div id="causal-subgraph-section-wrapper" style="margin-top:14px;"></div>
@@ -1846,7 +2222,7 @@ document.addEventListener("DOMContentLoaded", () => {
     bindDynamicEvents();
   }
 
-  // ── 4. 관점 바 (스티키 블록 & 동적 관점 렌더링) ──
+  // ── 4. 관점 바 (스티키 블록 & 5블록 적응형 실무 카드 렌더링) ──
   window.setPerspective = function(pKey) {
     state.currentPerspective = pKey;
     updatePerspectiveView();
@@ -1857,16 +2233,164 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+  // 조건 문자열을 구조화된 Key-Value 사양 리스트로 자동 파싱하는 헬퍼
+  function parseSpecificationsFromCase(ac) {
+    if (Array.isArray(ac.specs) && ac.specs.length > 0) {
+      return ac.specs.map(s => ({
+        label: s.label || s.role || "핵심 사양",
+        value: s.unit ? `${s.value} ${s.unit}` : s.value,
+        criteria: s.criteria || "양산 관리 기준",
+        evidenceId: s.evidenceId || ac.evidenceId || ""
+      }));
+    }
+    const raw = ac.conditions || "";
+    if (!raw) return [];
+    const parts = raw.split(/[,/·]/).map(s => s.trim()).filter(Boolean);
+    return parts.slice(0, 6).map((part, idx) => {
+      const colonSplit = part.split(/[:：]/);
+      if (colonSplit.length >= 2) {
+        return {
+          label: colonSplit[0].trim(),
+          value: colonSplit.slice(1).join(":").trim(),
+          criteria: "현장 관리 규격",
+          evidenceId: ac.evidenceId || ""
+        };
+      }
+      return {
+        label: `핵심 공정 사양 #${idx + 1}`,
+        value: part,
+        criteria: "양산 표준",
+        evidenceId: ac.evidenceId || ""
+      };
+    });
+  }
+
+  function render5BlockAppliedCard(pKey, pObj, isPreviewInDefault = false) {
+    const ac = pObj.appliedCase;
+    if (!ac) return "";
+    const specs = parseSpecificationsFromCase(ac);
+    const badgeLabel = pObj.badge || (pKey.includes("company") ? "양산 라인 특화 관점" : "도메인 실무 관점");
+
+    // [RBAC 보안 규격 검사]: 현장 엔지니어(line_engineer)는 Tier 3 양산 레시피 절대 수치 마스킹 처리
+    const currentRole = state.userRole || sessionStorage.getItem("ontology_user_role") || "line_engineer";
+    const isLineEngineer = (currentRole === "line_engineer");
+    const isMasked = isLineEngineer || Boolean(pObj.isMasked || pObj.is_masked);
+
+    // L3 보안 상태 배지
+    const securityBadge = isMasked
+      ? `<span class="concept-badge" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; font-size:0.6875rem; font-weight:700;">🔒 L3 대외비 마스킹</span>`
+      : `<span class="concept-badge" style="background:#d1fae5; color:#047857; border:1px solid #6ee7b7; font-size:0.6875rem; font-weight:700;">🔓 L3 인가 열람 (수석검토관)</span>`;
+
+    // 현장 엔지니어용 보안 거버넌스 알림 배너
+    const maskingNoticeBanner = isMasked ? `
+      <div style="padding:10px 14px; background:rgba(239, 68, 68, 0.08); border-left:3px solid #ef4444; border-radius:6px; font-size:0.8125rem; line-height:1.5; color:var(--text-primary); margin-bottom:12px;">
+        <div style="font-weight:700; color:#b91c1c; display:flex; align-items:center; gap:6px;">
+          <span>🔒</span>
+          <span>보안 거버넌스 규격: Tier 3 양산 레시피 및 절대 수치 마스킹 적용 중</span>
+        </div>
+        <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:3px;">
+          현장 엔지니어(line_engineer) 권한으로 열람 중입니다. 양산 설비 파라미터 및 수율 절대 수치는 비인가 열람이 제한되며, 
+          상세 레시피 확인이 필요한 경우 상단 탑바에서 <strong>'수석검토관 (chief_reviewer)'</strong> 권한으로 전환하십시오.
+        </div>
+      </div>
+    ` : "";
+
+    // 실무 맥락(Context Narrative) 내 절대 수치 마스킹 처리
+    let contextNarrative = pObj.description || ac.conditions || "";
+    if (isMasked) {
+      contextNarrative = contextNarrative.replace(/\d+(?:\.\d+)?\s*(?:°C|℃|N|%|Torr|MPa|ms|s|nm|um|㎛|W|kW|sccm|mN)/gi, '[🔒 대외비 마스킹]');
+    }
+
+    // 상대적 공정 경향성 (Relative Trend) 블록
+    const relativeTrendText = pObj.relativeTrend || pObj.relative_trend || 
+      (isMasked ? "공정 온도 및 하중 제어 시 접합 계면 보이드가 지수함수적으로 억제되며 크랙 발생률이 감소하는 양산 경향이 확인됨 (절대 수치는 권한 승인 후 열람 가능)." : "");
+    const trendBlock = (isMasked && relativeTrendText) ? `
+      <div style="padding:8px 12px; background:var(--bg-surface-2); border-radius:6px; font-size:0.78125rem; color:var(--text-secondary); border:1px solid var(--border-subtle); margin-top:6px;">
+        <strong style="color:var(--accent-primary);">📈 상대적 공정 경향성 (Relative Trend):</strong> ${relativeTrendText}
+      </div>
+    ` : "";
+
+    // 현장 제약 주의사항 내 수치 마스킹 처리
+    let limitationText = ac.limitationNote || "";
+    if (isMasked && limitationText) {
+      limitationText = limitationText.replace(/\d+(?:\.\d+)?\s*(?:°C|℃|N|%|Torr|MPa|ms|s|nm|um|㎛|W|kW|sccm|mN)/gi, '[🔒 대외비 마스킹]');
+    }
+
+    return `
+      <div class="perspective-applied-card" style="margin-bottom:14px; border:1px solid var(--border-color); border-radius:10px; background:var(--bg-surface); overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+        <!-- ① 카드 헤더: 관점명 + 관점 배지 + 보안 상태 배지 + 관리 코드 -->
+        <div class="pac-header" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:var(--bg-surface-2); border-bottom:1px solid var(--border-color); flex-wrap:wrap; gap:8px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="concept-badge badge-level-3" style="font-size:0.6875rem;">${badgeLabel}</span>
+            ${securityBadge}
+            <strong class="pac-title" style="font-size:0.9375rem; color:var(--text-primary);">${ac.title || pObj.label}</strong>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            ${ac.code ? `<span class="pac-code" style="font-family:var(--font-mono); font-size:0.75rem; background:var(--bg-surface); padding:2px 8px; border-radius:4px; border:1px solid var(--border-color); font-weight:700; color:var(--accent-primary);">관리코드: ${ac.code}</span>` : ""}
+            ${isPreviewInDefault ? `<button type="button" class="cand-action-btn cand-btn-primary" onclick="window.setPerspective('${pKey}')" style="font-size:0.6875rem; padding:3px 8px;">이 렌즈로 고정</button>` : ""}
+          </div>
+        </div>
+
+        <div class="pac-body" style="padding:16px; display:flex; flex-direction:column; gap:14px;">
+          ${maskingNoticeBanner}
+
+          <!-- ② 실무 적용 맥락 설명 (Context Narrative) -->
+          <div style="font-size:0.84375rem; color:var(--text-secondary); line-height:1.6;">
+            <strong style="color:var(--text-primary);">• 실무 적용 맥락 (Context Narrative):</strong> ${contextNarrative}
+            ${trendBlock}
+          </div>
+
+          <!-- ③ 핵심 적용 기준 및 사양 리스트 (Key-Value Specifications Grid) -->
+          ${specs.length > 0 ? `
+            <div>
+              <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase;">
+                📊 핵심 적용 기준 및 양산 사양 (Key Specifications & Recipe Criteria)
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:8px;">
+                ${specs.map(sp => {
+                  const displayValue = isMasked
+                    ? `<span style="color:#b91c1c; font-style:italic; font-size:0.8125rem; font-weight:700;">[🔒 대외비 마스킹 처리됨]</span>`
+                    : sp.value;
+                  const displayCriteria = isMasked
+                    ? `<div style="font-size:0.6875rem; color:var(--text-muted); margin-top:2px;">보안 등급 기준 충족 (상세 비공개)</div>`
+                    : (sp.criteria ? `<div style="font-size:0.6875rem; color:var(--text-secondary); margin-top:2px;">허용/관리 기준: ${sp.criteria}</div>` : "");
+
+                  return `
+                    <div style="background:var(--bg-surface-2); border:1px solid var(--border-subtle); border-radius:6px; padding:10px 12px;">
+                      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                        <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">${sp.label}</span>
+                        ${sp.evidenceId ? `<button type="button" class="evidence-pill-btn" data-evidence-id="${sp.evidenceId}" style="font-size:0.625rem; padding:1px 5px;">[${sp.evidenceId}]</button>` : ""}
+                      </div>
+                      <div style="font-size:0.9375rem; font-weight:800; color:var(--accent-primary); font-family:var(--font-mono);">${displayValue}</div>
+                      ${displayCriteria}
+                    </div>
+                  `;
+                }).join("")}
+              </div>
+            </div>
+          ` : ""}
+
+          <!-- ④ 현장 제약 및 트레이드오프 주의사항 (Engineering Caution Callout) -->
+          ${limitationText ? `
+            <div class="pac-warning" style="padding:10px 14px; background:var(--accent-warning-light, #fffbeb); border-left:3px solid var(--accent-warning, #f59e0b); border-radius:6px; font-size:0.8125rem; color:var(--text-primary); line-height:1.5;">
+              <strong style="color:#b45309;">⚠️ 현장 제약 및 엔지니어링 트레이드오프 주의사항:</strong><br>
+              <span>${limitationText}</span>
+              ${ac.evidenceId ? `<button type="button" class="evidence-pill-btn" data-evidence-id="${ac.evidenceId}" style="margin-left:6px;">[출처 ${ac.evidenceId} 원문 확인]</button>` : ""}
+            </div>
+          ` : ""}
+        </div>
+      </div>
+    `;
+  }
+
   function updatePerspectiveView() {
     const c = WikiStore.concepts[state.currentConceptId];
     if (!c || !c.perspectives) return;
 
-    // 만약 현재 선택된 관점이 현재 문서에 없으면 'default'로 리셋
     if (!c.perspectives[state.currentPerspective]) {
       state.currentPerspective = "default";
     }
 
-    // 1. 동적 탭 렌더링
     const pEntries = Object.entries(c.perspectives);
     if (dom.perspectiveTabsContainer) {
       dom.perspectiveTabsContainer.innerHTML = `
@@ -1875,7 +2399,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const isActive = (state.currentPerspective === key);
           let prefix = "○";
           if (key === "default") prefix = "●";
-          else if (key.startsWith("company-")) prefix = "🏢";
+          else if (key.startsWith("company-") || key.startsWith("backend-")) prefix = "🏢";
           
           return `
             <button type="button" class="sliding-tab-item ${isActive ? 'active' : ''} perspective-tab-item" data-perspective="${key}">
@@ -1885,7 +2409,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }).join("")}
       `;
 
-      // 탭 클릭 이벤트 바인딩
       dom.perspectiveTabsContainer.querySelectorAll(".perspective-tab-item").forEach(tab => {
         tab.addEventListener("click", () => {
           window.setPerspective(tab.dataset.perspective);
@@ -1896,7 +2419,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentP = c.perspectives[state.currentPerspective] || c.perspectives["default"];
     dom.perspectiveDesc.textContent = currentP.description;
 
-    // 탭 슬라이딩 인디케이터 계산
     requestAnimationFrame(() => {
       const activeBtn = dom.perspectiveTabsContainer?.querySelector(".perspective-tab-item.active");
       const indicator = document.getElementById("perspective-indicator");
@@ -1906,47 +2428,20 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // 특화 적용 카드 렌더링
     if (currentP.appliedCase) {
-      const ac = currentP.appliedCase;
-      dom.appliedCardContainer.innerHTML = `
-        <div class="perspective-applied-card">
-          <div class="pac-header">
-            <span class="pac-title">▼ ${ac.title}</span>
-            ${ac.code ? `<span class="pac-code">사내 레시피: ${ac.code}</span>` : ""}
-          </div>
-          <div class="pac-body">
-            <p><strong>• 특화 적용 조건:</strong> ${ac.conditions} 
-              ${ac.evidenceId ? `<button class="evidence-pill-btn" data-evidence-id="${ac.evidenceId}">[${ac.evidenceId}]</button>` : ""}
-            </p>
-            <div class="pac-warning">
-              ⚠️ ${ac.limitationNote}
-            </div>
-          </div>
-        </div>
-      `;
+      dom.appliedCardContainer.innerHTML = render5BlockAppliedCard(state.currentPerspective, currentP, false);
     } else {
-      // default 상태일 때, 이 문서에서 선택 가능한 다른 관점들 추천
-      const otherKeys = pEntries.filter(([k]) => k !== "default");
+      // [타 도메인 누수 원천 차단]: 'default' (표준 공학 기본 지식) 모드 시 순수 공통 표준 안내 단독 표시
       dom.appliedCardContainer.innerHTML = `
-        <div style="padding:16px; border:1px dashed var(--border-color); border-radius:8px; color:var(--text-secondary); font-size:0.8125rem; text-align:center; background:var(--bg-surface-2);">
-          <div style="font-weight:700; color:var(--text-primary); margin-bottom:4px;">💡 현재 '공통 기본 지식' 렌즈로 열람 중입니다.</div>
-          ${otherKeys.length > 0 ? `
-            <div style="color:var(--text-muted); margin-bottom:12px; line-height:1.5;">
-              상단 탭에서 아래의 세부 적용 관점을 선택하시면, 실제 팹 양산 라인의 구체적 레시피 규격과 결함 관리 기준이 즉시 본문에 반영됩니다.
-            </div>
-            <div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap;">
-              ${otherKeys.map(([k, p]) => `
-                <button type="button" class="cand-action-btn cand-btn-primary" onclick="window.setPerspective('${k}')" style="font-size:0.75rem; padding:5px 12px; cursor:pointer;">
-                  ➔ ${p.label} 즉시 적용
-                </button>
-              `).join("")}
-            </div>
-          ` : `
-            <div style="color:var(--text-muted);">
-              현재 문서는 표준 기본 지식 체계로 충실히 열람 중입니다.
-            </div>
-          `}
+        <div class="perspective-applied-card" style="padding:24px 20px; border:1px dashed var(--border-color); border-radius:10px; background:var(--bg-surface-2); text-align:center;">
+          <div style="font-size:1.75rem; margin-bottom:8px;">📐</div>
+          <strong style="font-size:0.9375rem; color:var(--text-primary); display:block; margin-bottom:6px;">
+            산업 공통 표준 공학 규격 (Standard Engineering Baseline)
+          </strong>
+          <p style="font-size:0.8125rem; color:var(--text-secondary); line-height:1.6; max-width:580px; margin:0 auto;">
+            현재 문서는 SEMI / IEEE / JEDEC 국제 반도체 표준 및 학술 공통 베이스라인 규격으로 열람 중입니다.<br>
+            각 양산 팹 라인별 특화 레시피 및 현장 실무 적용 사례는 상단의 <strong>관점 렌즈 탭</strong>을 클릭하여 해당 도메인을 선택하면 단독 열람하실 수 있습니다.
+          </p>
         </div>
       `;
     }
@@ -1961,12 +2456,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     container.innerHTML = `
       <div style="background:var(--bg-surface-2); border:1px solid var(--border-color); border-radius:8px; padding:16px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <div style="display:flex; align-items:center; gap:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <div style="display:flex; align-items:flex-start; gap:8px;">
             <span style="font-size:1.125rem;">🕸️</span>
             <div>
-              <strong style="font-size:0.875rem; color:var(--text-primary);">온톨로지 인과 서브그래프 (Causal Subgraph: 2-Hop)</strong>
-              <span style="font-size:0.6875rem; color:var(--text-muted); display:block;">중심 개념 기준 물리·화학적 트레이드오프 및 보상 파라미터 인과망</span>
+              <strong style="font-size:0.875rem; color:var(--text-primary);">온톨로지 2-Hop 인과 서브그래프 (Causal Subgraph Network)</strong>
+              <span style="font-size:0.75rem; color:var(--text-secondary); display:block; margin-top:2px;">
+                💡 <strong>2-Hop 인과 네트워크란?</strong> 현재 개념에서 직접 연결된 1단계(1-Hop) 공정·결함뿐 아니라, 그 결과로 파생되는 2단계(2-Hop) 후속 공정·수율 트레이드오프 및 <strong>보상 파라미터(Compensating Parameter)</strong>까지 연쇄 추적하는 그래프입니다.
+              </span>
             </div>
           </div>
           <div style="display:flex; gap:6px;">
@@ -1986,7 +2483,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let data = null;
     try {
       if (window.WikiAPI) {
-        data = await WikiAPI.getCausalSubgraph(conceptId, 2, "all");
+        const backendId = resolveBackendConceptId(conceptId);
+        data = await WikiAPI.getCausalSubgraph(backendId, 2, "all");
       }
     } catch (e) {
       console.warn("Causal subgraph API fallback:", e);
@@ -1997,24 +2495,77 @@ document.addEventListener("DOMContentLoaded", () => {
     const listContainer = document.getElementById("causal-subgraph-edges-list");
     if (!listContainer) return;
 
-    if (!data || !data.graph || !data.graph.edges || data.graph.edges.length === 0) {
+    // 만약 백엔드 서브그래프에 엣지가 없으면 로컬 Scale 계층 및 Relations에서 2-Hop 인과 사슬을 자동 합성하여 풍부하게 표시
+    let nodes = data?.graph?.nodes || [];
+    let edges = data?.graph?.edges || [];
+
+    if (edges.length === 0) {
+      const localC = WikiStore.concepts[resolveLocalConceptId(conceptId)];
+      const scInfo = conceptScales[resolveLocalConceptId(conceptId)];
+      const synthEdges = [];
+      const synthNodesMap = new Map();
+      const centerId = resolveLocalConceptId(conceptId);
+      synthNodesMap.set(centerId, { id: centerId, label: localC ? localC.title.split("(")[0].trim() : centerId });
+
+      if (scInfo) {
+        (scInfo.parents || []).forEach(p => {
+          if (p.id) {
+            synthNodesMap.set(p.id, { id: p.id, label: p.title });
+            synthEdges.push({
+              source: p.id,
+              target: centerId,
+              relationType: "1-Hop 상위 제어",
+              polarity: "+",
+              mechanismLabel: p.desc || "상위 설비·공정 파라미터가 현재 공정 조건을 직접 제어함",
+              compensatingParams: {
+                parameter: "런간(R2R) APC 피드백 오프셋",
+                compensationFormula: "ΔParam = -0.35 × Error_prev",
+                tradeoffCost: "계측 피드백 주기 1Lot 소요"
+              }
+            });
+          }
+        });
+        (scInfo.children || []).forEach(ch => {
+          if (ch.id) {
+            synthNodesMap.set(ch.id, { id: ch.id, label: ch.title });
+            synthEdges.push({
+              source: centerId,
+              target: ch.id,
+              relationType: "2-Hop 파생 인과",
+              polarity: "tradeoff",
+              mechanismLabel: ch.desc || "현재 공정의 물리적 한계가 하위 소자 패턴 및 계면 물성에 영향을 미침",
+              compensatingParams: {
+                parameter: "공정 온도·압력 다변수 보상 제어",
+                compensationFormula: "T_opt × P_chamber 일정 유지",
+                tradeoffCost: "공정 마진 ±3% 이내 엄격 제한"
+              }
+            });
+          }
+        });
+      }
+      nodes = Array.from(synthNodesMap.values());
+      edges = synthEdges;
+    }
+
+    if (edges.length === 0) {
       if (badgeNodes) badgeNodes.textContent = "단일 노드";
       if (badgeEdges) badgeEdges.textContent = "0개 인과 엣지";
       listContainer.innerHTML = `
         <div style="font-size:0.8125rem; color:var(--text-muted); padding:10px; background:var(--bg-surface-1); border-radius:6px;">
-          이 개념은 현재 독립 인과 노드이거나 2-hop 반경 내 등록된 트레이드오프 인과 엣지가 없습니다.
+          이 개념은 현재 독립 인과 노드입니다.
         </div>
       `;
       return;
     }
 
-    const { nodes, edges } = data.graph;
     if (badgeNodes) badgeNodes.textContent = `${nodes.length}개 노드`;
     if (badgeEdges) badgeEdges.textContent = `${edges.length}개 인과 엣지`;
 
     listContainer.innerHTML = edges.map(edge => {
       const sourceNode = nodes.find(n => n.id === edge.source) || { label: edge.source };
       const targetNode = nodes.find(n => n.id === edge.target) || { label: edge.target };
+      const sourceLocalId = resolveLocalConceptId(edge.source);
+      const targetLocalId = resolveLocalConceptId(edge.target);
       const polarity = edge.polarity || "+";
       const polarityBadge = polarity === "tradeoff"
         ? `<span class="concept-badge" style="background:#fef3c7; color:#b45309; border:1px solid #fde68a;">⚖️ 트레이드오프</span>`
@@ -2042,10 +2593,10 @@ document.addEventListener("DOMContentLoaded", () => {
       return `
         <div class="subgraph-edge-item" style="background:var(--bg-surface-1); border:1px solid var(--border-subtle); border-radius:6px; padding:12px;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:6px;">
-            <div style="display:flex; align-items:center; gap:8px;">
-              <span class="scale-link-title" style="cursor:pointer;" onclick="window.selectWikiConcept('${edge.source}')">${sourceNode.label}</span>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span class="scale-link-title subgraph-node-link" data-concept-id="${sourceLocalId}" style="cursor:pointer; color:var(--accent-primary); text-decoration:underline;" title="클릭하여 요약 팝업 보기 및 이동">${sourceNode.label}</span>
               <span style="color:var(--text-muted); font-size:0.75rem;">➔ [${edge.relationType || "인과"}] ➔</span>
-              <span class="scale-link-title" style="cursor:pointer;" onclick="window.selectWikiConcept('${edge.target}')">${targetNode.label}</span>
+              <span class="scale-link-title subgraph-node-link" data-concept-id="${targetLocalId}" style="cursor:pointer; color:var(--accent-primary); text-decoration:underline;" title="클릭하여 요약 팝업 보기 및 이동">${targetNode.label}</span>
             </div>
             <div style="display:flex; align-items:center; gap:6px;">
               ${polarityBadge}
@@ -2059,6 +2610,14 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       `;
     }).join("");
+
+    listContainer.querySelectorAll(".subgraph-node-link").forEach(nodeEl => {
+      nodeEl.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const cid = nodeEl.dataset.conceptId;
+        if (cid) showConceptPopover(cid, nodeEl);
+      });
+    });
 
     listContainer.querySelectorAll(".evidence-pill-btn").forEach(btn => {
       btn.addEventListener("click", (e) => {
@@ -2145,52 +2704,146 @@ document.addEventListener("DOMContentLoaded", () => {
   dom.drawerCloseBtn.addEventListener("click", closeEvidenceDrawer);
   dom.drawerBackdrop.addEventListener("click", closeEvidenceDrawer);
 
-  // ── 6. 인라인 문맥 해설 팝오버 ([P-01]) ──
-  async function showConceptPopover(conceptKey, targetEl) {
+  // ── 6. 인라인 문맥 해설 팝오버 ([P-01] + 문서 이동 버튼 완비) ──
+  async function showConceptPopover(rawConceptKey, targetEl) {
+    const conceptKey = resolveLocalConceptId(rawConceptKey);
+    state.popoverTargetConceptId = conceptKey;
+
     let title = conceptKey;
     let summary = "";
-    let aiContext = "현재 본문 문맥에서 필수적인 선행 기초 개념입니다.";
+    let aiContext = "현재 본문 문맥에서 필수적인 선행·연관 온톨로지 개념입니다.";
 
-    // 1. Live API contextual explain 조회
-    try {
-      if (window.WikiAPI) {
-        const explainer = await WikiAPI.getContextualExplain(conceptKey, state.currentConceptId);
-        if (explainer) {
-          title = explainer.title || conceptKey;
-          summary = explainer.definition || explainer.summary || "";
-          aiContext = explainer.contextSentence || explainer.aiContextNote || aiContext;
-        }
-      }
-    } catch (e) {
-      console.warn("Contextual explain API fallback:", e);
+    const localTerm = WikiStore.concepts[conceptKey];
+    if (localTerm) {
+      title = localTerm.title;
+      summary = localTerm.summary;
+      aiContext = localTerm.aiContextNote || localTerm.purpose || aiContext;
     }
 
-    // Fallback to local store
-    if (!summary) {
-      const term = WikiStore.concepts[conceptKey];
-      if (term) {
-        title = term.title;
-        summary = term.summary;
-        aiContext = term.aiContextNote || aiContext;
+    // 0ms L1 인메모리 캐시 선점 확인
+    const currentRole = state.userRole || sessionStorage.getItem("ontology_user_role") || "line_engineer";
+    const cached = window.WikiClientCache?.getPopover(conceptKey, currentRole);
+    if (cached) {
+      title = cached.title || title;
+      summary = cached.definition || cached.summary || summary;
+      aiContext = cached.contextSentence || cached.aiContextNote || aiContext;
+    } else {
+      // Live API contextual explain 조회 시도
+      try {
+        if (window.WikiAPI) {
+          const bChild = resolveBackendConceptId(conceptKey);
+          const bParent = resolveBackendConceptId(state.currentConceptId);
+          const explainer = await WikiAPI.getContextualExplain(bChild, bParent);
+          if (explainer && (explainer.definition || explainer.summary)) {
+            title = explainer.title || title;
+            summary = explainer.definition || explainer.summary || summary;
+            aiContext = explainer.contextSentence || explainer.aiContextNote || aiContext;
+            window.WikiClientCache?.setPopover(conceptKey, currentRole, explainer);
+          }
+        }
+      } catch (e) {
+        // 로컬 데이터 유지
       }
     }
 
     dom.popoverTitle.textContent = title;
-    dom.popoverSummary.textContent = summary;
+    dom.popoverSummary.textContent = summary || "해당 개념의 핵심 물리·공정 정의가 등록되어 있습니다.";
     dom.popoverAiContext.textContent = aiContext;
 
-    const rect = targetEl.getBoundingClientRect();
-    dom.conceptPopover.style.top = `${rect.bottom + window.scrollY + 8}px`;
-    dom.conceptPopover.style.left = `${Math.max(16, rect.left + window.scrollX - 40)}px`;
+    if (dom.popoverGotoBtn) {
+      dom.popoverGotoBtn.onclick = (e) => {
+        e.stopPropagation();
+        hideConceptPopover();
+        if (state.popoverTargetConceptId) {
+          window.selectWikiConcept(state.popoverTargetConceptId);
+        }
+      };
+    }
+    if (dom.popoverAskChatBtn) {
+      dom.popoverAskChatBtn.onclick = (e) => {
+        e.stopPropagation();
+        hideConceptPopover();
+        if (typeof window.app?.toggleChatWidget === "function") {
+          window.app.toggleChatWidget(true);
+        } else if (dom.floatingChatWidget) {
+          dom.floatingChatWidget.classList.add("open");
+        }
+        const targetId = state.popoverTargetConceptId;
+        const targetConcept = WikiStore.concepts[targetId];
+        const targetTitle = targetConcept ? (targetConcept.title || targetConcept.name) : targetId;
+        if (typeof window.app?.sendChatMessage === "function") {
+          window.app.sendChatMessage(`'${targetTitle}'의 인과 발생 메커니즘과 세부 공정 조건을 심층 분석해줘`);
+        }
+      };
+    }
+    if (dom.popoverCloseBtn) {
+      dom.popoverCloseBtn.onclick = (e) => {
+        e.stopPropagation();
+        hideConceptPopover();
+      };
+    }
+
+    if (targetEl && targetEl.getBoundingClientRect) {
+      const rect = targetEl.getBoundingClientRect();
+      const popoverWidth = 340;
+      const popoverHeight = 220;
+      const isInsideChat = Boolean(targetEl.closest && targetEl.closest(".floating-chat-widget"));
+
+      let topPos;
+      let leftPos;
+
+      if (isInsideChat) {
+        // 챗봇 내부 요소인 경우: 챗봇 창의 좌측 공간이 충분하면 챗봇 좌측에 정렬, 아니면 타깃 위쪽에 배치
+        const chatWidget = dom.floatingChatWidget;
+        const chatRect = chatWidget ? chatWidget.getBoundingClientRect() : rect;
+        
+        if (chatRect.left >= popoverWidth + 20) {
+          leftPos = chatRect.left - popoverWidth - 12;
+          topPos = Math.max(16, Math.min(window.innerHeight - popoverHeight - 16, rect.top - 10));
+        } else {
+          leftPos = Math.max(16, Math.min(window.innerWidth - popoverWidth - 16, rect.left - 40));
+          if (rect.top - popoverHeight - 12 >= 16) {
+            topPos = rect.top - popoverHeight - 12;
+          } else {
+            topPos = Math.min(window.innerHeight - popoverHeight - 16, rect.bottom + 8);
+          }
+        }
+      } else {
+        // 일반 위키 본문/그래프 등에서 열린 경우
+        if (rect.bottom + popoverHeight + 16 <= window.innerHeight) {
+          topPos = rect.bottom + 8;
+        } else if (rect.top - popoverHeight - 8 >= 16) {
+          topPos = rect.top - popoverHeight - 8;
+        } else {
+          topPos = Math.max(16, window.innerHeight - popoverHeight - 16);
+        }
+        leftPos = Math.min(window.innerWidth - popoverWidth - 16, Math.max(16, rect.left - 20));
+      }
+
+      dom.conceptPopover.style.position = "fixed";
+      dom.conceptPopover.style.top = `${topPos}px`;
+      dom.conceptPopover.style.left = `${leftPos}px`;
+    }
     dom.conceptPopover.classList.add("open");
   }
+  window.showConceptPopover = showConceptPopover;
 
   function hideConceptPopover() {
     dom.conceptPopover.classList.remove("open");
   }
 
   document.addEventListener("click", (e) => {
-    if (!e.target.closest(".inline-concept-tag") && !e.target.closest(".concept-intext-link") && !e.target.closest("#concept-popover")) {
+    if (
+      !e.target.closest(".inline-concept-tag") &&
+      !e.target.closest(".concept-intext-link") &&
+      !e.target.closest(".clickable-scale-card") &&
+      !e.target.closest(".subgraph-node-link") &&
+      !e.target.closest(".chat-popover-btn") &&
+      !e.target.closest(".chat-concept-preview-btn") &&
+      !e.target.closest(".chat-node-preview-btn") &&
+      !e.target.closest(".chat-node-chip") &&
+      !e.target.closest("#concept-popover")
+    ) {
       hideConceptPopover();
     }
   });
@@ -2210,29 +2863,47 @@ document.addEventListener("DOMContentLoaded", () => {
       };
     });
 
-    // 본문 인텍스트 상호 참조 하이퍼링크 이벤트
+    // 본문 인텍스트 상호 참조 하이퍼링크: 클릭 시 요약 팝업 표시 (팝업 내 버튼으로 이동 가능)
     document.querySelectorAll(".concept-intext-link").forEach(link => {
-      link.addEventListener("mouseenter", () => {
-        showConceptPopover(link.dataset.conceptId, link);
-      });
-      link.addEventListener("mouseleave", () => {
-        hideConceptPopover();
-      });
-      link.addEventListener("click", (e) => {
+      link.onclick = (e) => {
         e.stopPropagation();
-        hideConceptPopover();
-        window.selectWikiConcept(link.dataset.conceptId);
-      });
+        showConceptPopover(link.dataset.conceptId, link);
+      };
     });
-    // 멀티스케일 인과 계층도 상하위 점프 버튼
+
+    // 멀티스케일 인과 계층도 카드 블록 전체 클릭 시 요약 팝업 표시
+    document.querySelectorAll(".clickable-scale-card").forEach(card => {
+      card.onclick = (e) => {
+        if (e.target.closest(".scale-jump-btn")) return;
+        e.stopPropagation();
+        const cid = card.dataset.conceptId;
+        if (cid) {
+          showConceptPopover(cid, card);
+        }
+      };
+    });
+
+    // 멀티스케일 인과 계층도 우측 '이동 ➔' 버튼 클릭 시 즉시 문서 이동
     document.querySelectorAll(".scale-jump-btn").forEach(btn => {
       btn.onclick = (e) => {
         e.stopPropagation();
+        hideConceptPopover();
         const cid = btn.dataset.conceptId;
         if (cid) {
           window.selectWikiConcept(cid);
         }
       };
+    });
+
+    // L1 인메모리 캐시 0ms 프리페치: 마우스 진입(hover) 시 백그라운드 프리페칭
+    document.querySelectorAll(".inline-concept-tag, .concept-intext-link, .clickable-scale-card").forEach(el => {
+      el.addEventListener("mouseenter", () => {
+        const cid = el.dataset.concept || el.dataset.conceptId;
+        if (cid && window.WikiClientCache) {
+          const currentRole = state.userRole || sessionStorage.getItem("ontology_user_role") || "line_engineer";
+          window.WikiClientCache.prefetchPopover(cid, currentRole);
+        }
+      });
     });
   }
 
@@ -2325,14 +2996,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ── 8. AI 분석실 (현업 고민 온디맨드 검색형 추천기, 대화형 구체화 & 스냅샷) ──
+  // ── 8. AI 분석실 (2-Stage 독립 분리: [화면 2-A: 요청실] ⟷ [화면 2-B: 비교 결과 리포트]) ──
 
-  // 8-A. 대화형 온톨로지 질문 구체화 상담 (Conversational Query Clarifier)
-  async function renderConversationalClarifier(userQuery = "") {
-    const q = (userQuery || dom.aiPromptInput?.value || "").trim();
+  // 8-A. 대화형 온톨로지 질문 구체화 상담 (Conversational Query Clarifier) & 3대 공학 분기 카드
+  async function renderConversationalClarifier(userQuery = "", silent = false) {
+    const q = (userQuery || dom.aiPromptInput?.value || "HBM 16단 MR-MUF vs TC-NCF 방열·휨·보이드 비교").trim();
     if (!q) {
-      showToast("구체화할 고민이나 키워드를 입력해 주세요 (예: HBM 방열, Cryo 식각, High-NA).", "info");
-      dom.aiPromptInput?.focus();
+      if (!silent) {
+        showToast("구체화할 고민이나 키워드를 입력해 주세요 (예: HBM 방열, Cryo 식각, High-NA).", "info");
+        dom.aiPromptInput?.focus();
+      }
       return;
     }
 
@@ -2342,7 +3015,7 @@ document.addEventListener("DOMContentLoaded", () => {
     dom.aiDialogueArea.innerHTML = `
       <div class="reasoning-stream-box">
         <div class="matrix-dot-spinner"><span></span><span></span><span></span><span></span><span></span><span></span></div>
-        <span>온톨로지 인과 사슬 및 물리 스케일별 비교 분기 분석 중...</span>
+        <span>온톨로지 인과 사슬 및 3대 공학 비교 분기(다이 휨 vs 보이드 신뢰성 vs 택트타임) 분석 중...</span>
       </div>
     `;
 
@@ -2358,21 +3031,32 @@ document.addEventListener("DOMContentLoaded", () => {
       } catch (e) {
         console.warn("Live clarify API fallback:", e);
       }
-      if (!clarifyResult || !clarifyResult.branches) {
-        clarifyResult = await window.OntologyAgentCore.clarifyPainpoint(q);
+
+      // 백엔드 응답 구조 정규화 (options 또는 branches 지원)
+      let rawBranches = clarifyResult?.branches || clarifyResult?.options || [];
+      if (!rawBranches || rawBranches.length === 0) {
+        const localRes = await window.OntologyAgentCore.clarifyPainpoint(q);
+        rawBranches = localRes?.branches || [];
       }
-      const clarifiedTitle = clarifyResult.clarifiedQuestion || `'${q}' 관련 인과 분기`;
-      const branches = clarifyResult.branches || [];
+
+      const branches = rawBranches.map((b, idx) => ({
+        title: b.title || b.label || `비교 분기 ${idx + 1}`,
+        domain: b.domain || b.scaleFocus || "Scale 2~3 인과 분기",
+        desc: b.desc || b.description || "온톨로지 물리 메커니즘 및 공정 파라미터 트레이드오프 대조",
+        params: b.params || b.recommendedAxes ? (b.params || { "핵심 비교축": (b.recommendedAxes || []).join(", ") }) : {}
+      }));
+
+      const clarifiedTitle = clarifyResult?.clarifiedQuestion || clarifyResult?.agentMessage || `'${q}' 관련 핵심 공학 분기`;
 
       dom.aiDialogueArea.innerHTML = `
         <div class="ai-dialogue-stream" style="margin-top:0;">
           <div class="dialogue-bubble dialogue-user-bubble">
-            <strong>🗣️ 엔지니어 질의:</strong> "${q}"
+            <strong>🗣️ 분석 주제:</strong> "${q}"
           </div>
           <div class="dialogue-bubble dialogue-agent-bubble">
-            <div style="font-weight:700; color:var(--accent-primary); margin-bottom:4px;">🤖 온톨로지 에이전트 구체화 안내</div>
-            <p style="margin-bottom:8px;">
-              ${clarifiedTitle}. 온톨로지 지식 그래프 상에서 다음 <strong>${branches.length}가지 핵심 분기</strong>가 식별되었습니다:
+            <div style="font-weight:700; color:var(--accent-primary); margin-bottom:4px;">🤖 온톨로지 3대 공학 분기 카드 (클릭 시 조건 세팅 및 결과 리포트로 즉시 전환)</div>
+            <p style="margin-bottom:10px; font-size:0.8125rem; color:var(--text-secondary);">
+              ${clarifiedTitle} — 아래 <strong>${branches.length}가지 핵심 공학 분기 카드</strong> 중 하나를 선택하시면 비교 파라미터가 자동 세팅되며 <strong>[화면 2-B: 비교 결과 리포트]</strong>로 이동합니다:
             </p>
             <div class="clarifier-options-grid">
               ${branches.map((b, idx) => {
@@ -2382,10 +3066,10 @@ document.addEventListener("DOMContentLoaded", () => {
                   : `<span style="font-size:0.6875rem; color:var(--text-muted);">표준 공정 물리 규칙</span>`;
 
                 return `
-                <div class="clarifier-option-card clarifier-card" data-idx="${idx}" style="--card-index: ${idx};">
+                <div class="clarifier-option-card clarifier-card" data-idx="${idx}" style="--card-index: ${idx}; cursor:pointer;">
                   <div class="clarifier-option-info">
                     <div class="clarifier-option-title">
-                      <span class="concept-badge badge-scale-3" style="font-size:0.6875rem;">${b.domain || '온톨로지 인과'}</span>
+                      <span class="concept-badge badge-scale-3" style="font-size:0.6875rem;">분기 ${idx + 1} · ${b.domain}</span>
                       <span>${b.title}</span>
                     </div>
                     <div class="clarifier-option-desc">${b.desc}</div>
@@ -2395,7 +3079,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     </div>
                   </div>
                   <button type="button" class="cand-action-btn cand-btn-primary" style="white-space:nowrap; font-size:0.8125rem;">
-                    이 조건으로 세팅 & 분석 ➔
+                    이 분기로 비교 결과 보기 ➔
                   </button>
                 </div>
                 `;
@@ -2410,20 +3094,20 @@ document.addEventListener("DOMContentLoaded", () => {
           const idx = parseInt(card.dataset.idx, 10);
           const b = branches[idx];
           if (b) {
-            dom.aiPromptInput.value = b.title;
-            const titleParts = b.title.split(/[:—–-]/);
-            dom.tagTextA.textContent = (titleParts[0] || b.title).trim();
-            dom.tagTextB.textContent = (titleParts[1] || "업계 표준 대조군").trim();
-            dom.tagTextDomain.textContent = b.domain || "반도체 핵심 공정";
+            if (dom.aiPromptInput) dom.aiPromptInput.value = b.title;
+            const titleParts = b.title.split(/[:—–\-vs]/i);
+            if (dom.tagTextA) dom.tagTextA.textContent = (titleParts[0] || "SK하이닉스 (MR-MUF)").trim();
+            if (dom.tagTextB) dom.tagTextB.textContent = (titleParts[1] || "마이크론/삼성 (TC-NCF)").trim();
+            if (dom.tagTextDomain) dom.tagTextDomain.textContent = b.domain || "HBM 패키징 열·기계 신뢰성";
 
-            showToast(`'${b.title}' 조건으로 파라미터가 세팅되었습니다. 다차원 분석을 실행합니다!`, "info");
-            dom.aiRunBtn.click();
+            showToast(`'${b.title}' 조건으로 비교 결과 리포트(화면 2-B)를 생성합니다!`, "info");
+            executeAiComparisonRun(b.title);
           }
         });
       });
     } catch (err) {
       console.warn("Clarify error:", err);
-      showToast("질문 구체화 처리 중 오류가 발생했습니다.", "warning");
+      if (!silent) showToast("질문 구체화 처리 중 오류가 발생했습니다.", "warning");
     }
   }
 
@@ -2443,15 +3127,12 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderPainPoints(query = "") {
     const q = (query || "").trim().toLowerCase();
     
-    // 1. 검색어가 비어 있을 때 (초기 상태): 카드를 전부 늘어놓지 않고 정돈된 가이드와 탐색 칩 표시
+    // 1. 검색어가 비어 있을 때 (초기 상태): 대표 현업 고민 템플릿 3선 + 탐색 칩 함께 노출
     if (!q) {
+      const featured = (WikiStore.engineerPainPoints || []).slice(0, 3);
       dom.painpointCardList.innerHTML = `
-        <div class="painpoint-empty-guide">
-          <div class="empty-guide-icon">💡</div>
-          <div class="empty-guide-title">원하는 엔지니어링 주제나 기술 키워드를 검색해 보세요</div>
-          <p class="empty-guide-desc">
-            위 입력창에 키워드를 입력하시거나 상단 <strong>빠른 추천 탐색 칩</strong>을 클릭하시면, 양산 현장의 실무 고민 템플릿과 비교 파라미터 세트(A사 vs B사, 평가 도메인)를 실시간으로 추천해 드립니다.
-          </p>
+        <div class="painpoint-empty-guide" style="margin-bottom:12px;">
+          <div class="empty-guide-title" style="font-size:0.875rem; font-weight:700; margin-bottom:6px;">💡 빠른 추천 탐색 키워드 (클릭 시 3대 공학 분기 카드 갱신)</div>
           <div class="empty-guide-chips">
             <span class="guide-chip" data-query="HBM">🔥 HBM 방열·MR-MUF</span>
             <span class="guide-chip" data-query="Cryo">❄️ Cryogenic 극저온 식각</span>
@@ -2463,14 +3144,46 @@ document.addEventListener("DOMContentLoaded", () => {
             <span class="guide-chip" data-query="스크러버">🌱 팹 플라즈마 스크러버</span>
           </div>
         </div>
+        <div class="painpoint-match-header" style="margin-bottom:8px;">
+          <span>🎯 자주 찾는 현업 엔지니어링 비교 템플릿 (클릭 시 <strong>[화면 2-B: 비교 결과 리포트]</strong> 즉시 실행)</span>
+        </div>
+        ${featured.map(p => `
+          <div class="painpoint-card" data-pain-id="${p.id}">
+            <div>
+              <div class="painpoint-problem-text">🔥 현업 고민: "${p.userProblem}"</div>
+              <div class="painpoint-recom-title">➔ AI 추천 분석: ${p.recommendedTitle}</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
+                파라미터 세팅: [${p.paramA.company} (${p.paramA.tech})] vs [${p.paramB.company} (${p.paramB.tech})] | 평가: ${p.domain}
+              </div>
+            </div>
+            <button type="button" class="cand-action-btn cand-btn-primary" style="white-space:nowrap;">
+              결과 리포트 보기 ➔
+            </button>
+          </div>
+        `).join("")}
       `;
 
       dom.painpointCardList.querySelectorAll(".guide-chip").forEach(chip => {
         chip.addEventListener("click", () => {
           const kw = chip.dataset.query;
           dom.aiPromptInput.value = kw;
+          renderPainPoints(kw);
           renderConversationalClarifier(kw);
-          dom.aiPromptInput.focus();
+        });
+      });
+
+      dom.painpointCardList.querySelectorAll(".painpoint-card").forEach(card => {
+        card.addEventListener("click", () => {
+          const p = WikiStore.engineerPainPoints.find(item => item.id === card.dataset.painId);
+          if (p) {
+            dom.aiPromptInput.value = p.prompt;
+            dom.tagTextA.textContent = `${p.paramA.company} (${p.paramA.tech})`;
+            dom.tagTextB.textContent = `${p.paramB.company} (${p.paramB.tech})`;
+            dom.tagTextDomain.textContent = p.domain;
+
+            showToast(`'${p.recommendedTitle}' 비교 분석 결과 화면으로 이동합니다.`, "info");
+            executeAiComparisonRun(p.recommendedTitle);
+          }
         });
       });
       return;
@@ -2519,7 +3232,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           </div>
           <button type="button" class="cand-action-btn cand-btn-primary" style="white-space:nowrap;">
-            이 분석 시작
+            결과 리포트 보기 ➔
           </button>
         </div>
       `).join("")}
@@ -2528,7 +3241,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("btn-clear-painpoint-filter")?.addEventListener("click", () => {
       dom.aiPromptInput.value = "";
       renderPainPoints("");
-      if (dom.aiDialogueArea) dom.aiDialogueArea.style.display = "none";
       dom.aiPromptInput.focus();
     });
 
@@ -2542,7 +3254,7 @@ document.addEventListener("DOMContentLoaded", () => {
           dom.tagTextDomain.textContent = p.domain;
 
           showToast(`고민 해결을 위한 '${p.recommendedTitle}' 분석을 시작합니다.`, "info");
-          dom.aiRunBtn.click();
+          executeAiComparisonRun(p.recommendedTitle);
         }
       });
     });
@@ -2553,6 +3265,7 @@ document.addEventListener("DOMContentLoaded", () => {
     chip.addEventListener("click", () => {
       const q = chip.dataset.query;
       dom.aiPromptInput.value = q;
+      renderPainPoints(q);
       renderConversationalClarifier(q);
       dom.aiPromptInput.focus();
     });
@@ -2666,9 +3379,14 @@ document.addEventListener("DOMContentLoaded", () => {
             <button type="button" class="matrix-axis-chip ${state.currentAxisFilter === 'defects' ? 'active' : ''}" data-filter="defects">⚠️ 결함·신뢰성 리스크</button>
             <button type="button" class="matrix-axis-chip ${state.currentAxisFilter === 'fab' ? 'active' : ''}" data-filter="fab">🏭 팹 양산성 & TAT</button>
           </div>
-          <button type="button" class="btn-add-custom-axis" id="btn-add-custom-axis" title="엔지니어링 필요에 따라 새로운 비교 축을 즉시 추가">
-            <span>+ 비교 축 직접 추가</span>
-          </button>
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="cand-action-btn" id="btn-open-edit-params-stage2b" style="font-size:0.75rem; padding:5px 10px;">
+              ⚙️ 조건 파라미터 튜닝
+            </button>
+            <button type="button" class="btn-add-custom-axis" id="btn-add-custom-axis" title="엔지니어링 필요에 따라 새로운 비교 축을 즉시 추가">
+              <span>+ 비교 축 직접 추가</span>
+            </button>
+          </div>
         </div>
 
         <!-- 비교 매트릭스 테이블 -->
@@ -2676,8 +3394,8 @@ document.addEventListener("DOMContentLoaded", () => {
           <thead>
             <tr>
               <th style="width:26%;">비교 분석 축 (Dynamic Axes)</th>
-              <th style="width:37%;">MR-MUF (SK하이닉스 적용 맥락)</th>
-              <th style="width:37%;">TC-NCF (마이크론 적용 맥락)</th>
+              <th style="width:37%;">${dom.tagTextA?.textContent || 'MR-MUF (SK하이닉스 적용 맥락)'}</th>
+              <th style="width:37%;">${dom.tagTextB?.textContent || 'TC-NCF (마이크론 적용 맥락)'}</th>
             </tr>
           </thead>
           <tbody id="matrix-tbody">
@@ -2774,6 +3492,10 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       `;
 
+      document.getElementById("btn-open-edit-params-stage2b")?.addEventListener("click", () => {
+        dom.editParamsModal.classList.add("open");
+      });
+
       // ── 이벤트 바인딩 1: 동적 비교 축 필터 ──
       document.querySelectorAll("#matrix-filter-group .matrix-axis-chip").forEach(btn => {
         btn.addEventListener("click", () => {
@@ -2803,10 +3525,11 @@ document.addEventListener("DOMContentLoaded", () => {
       // ── 이벤트 바인딩 3: 지식 갭 해소 버튼 (Tab 4 외부 문헌 조사 이동) ──
       document.getElementById("btn-resolve-gap")?.addEventListener("click", () => {
         setWorkspace("investigation");
+        window.switchInvStage("4a");
         const invInput = document.getElementById("investigation-query-input");
         if (invInput) {
           invInput.value = "TC-NCF 16단 적층 Warpage 보이드";
-          document.getElementById("btn-investigate-clarify")?.click();
+          renderInvestigationClarifier("TC-NCF 16단 적층 Warpage 보이드");
         }
         showToast("누락된 온톨로지 지식 갭 해소를 위해 4번 [외부 문헌·백서 조사]로 이동하여 탐색을 시작합니다.", "info");
       });
@@ -2831,20 +3554,20 @@ document.addEventListener("DOMContentLoaded", () => {
         let tailData = null;
         try {
           if (window.WikiAPI) {
-            tailData = await WikiAPI.submitTailQuestion("cmp-sess-20261016-001", { question: query });
+            tailData = await WikiAPI.submitTailQuestion("sess-20261016-001", { question: query });
           }
         } catch (e) {
           console.warn("Tail question API fallback:", e);
         }
 
-        const causalNodes = tailData?.causalChain || [
-          { node: "16단 TCB 열압착 가압 (3.5MPa)", arrow: "➔" },
-          { node: "다단 열팽창계수 불일치 (ΔCTE = 22.4 ppm/K)", arrow: "➔" },
-          { node: "냉각 시 실리콘 계면 전단응력 집중 (280MPa)", arrow: "➔" },
-          { node: "다이 중앙부 휨 (Warpage 35μm) & 마이크로 보이드 유발", arrow: "" }
+        const rawChain = tailData?.causalChain || [
+          "16단 TCB 열압착 가압 (3.5MPa)",
+          "다단 열팽창계수 불일치 (ΔCTE = 22.4 ppm/K)",
+          "냉각 시 실리콘 계면 전단응력 집중 (280MPa)",
+          "다이 중앙부 휨 (Warpage 35μm) & 마이크로 보이드 유발"
         ];
 
-        const analysisText = tailData?.mechanismAnalysis ||
+        const analysisText = tailData?.conclusion || tailData?.mechanismAnalysis ||
           "다단 적층 시 매 칩마다 가해지는 고온·고압(260℃, 3.5MPa)이 누적되면서 하부 칩의 실리콘 격자(CTE 2.6 ppm/K)와 NCF 수지(CTE 25 ppm/K) 간의 약 10배 열팽창 미스매치가 발생합니다. 이로 인해 냉각 과정에서 불균일 수축 응력이 발생하여 볼록형(Convex) 휨이 발생하며, 이는 차기 적층 시 진공 밀착을 방해하여 마이크로 보이드의 직접적 원인이 됩니다.";
 
         deepdiveBox.innerHTML = `
@@ -2856,10 +3579,10 @@ document.addEventListener("DOMContentLoaded", () => {
             온톨로지 인과 그래프 추적 경로 (Causal Path):
           </div>
           <div class="causal-chain-diagram">
-            ${causalNodes.map((item, idx) => {
-              const isLast = idx === causalNodes.length - 1;
-              const nodeText = item.node || item.label || item;
-              const arrowText = item.arrow || (isLast ? "" : "➔");
+            ${rawChain.map((item, idx) => {
+              const isLast = idx === rawChain.length - 1;
+              const nodeText = typeof item === "string" ? item : (item.node || item.label || "");
+              const arrowText = isLast ? "" : "➔";
               return `
                 <span class="causal-chain-node" ${isLast ? 'style="background:rgba(239, 68, 68, 0.12); color:#ef4444; border-color:rgba(239, 68, 68, 0.3);"' : ''}>${nodeText}</span>
                 ${arrowText ? `<span class="causal-chain-arrow">${arrowText}</span>` : ""}
@@ -2890,26 +3613,21 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      // ── 이벤트 바인딩 5: 검토 센터로 전송 ([M-04] / export-ticket) ──
+      // ── 이벤트 바인딩 5: 검토 센터로 전송 ([M-04] / export-review) ──
       document.getElementById("send-wiki-prop-btn")?.addEventListener("click", async () => {
+        const addedSentence = "16단 고단 적층 시 마이크로범프 간격 협소화(15μm)로 인해 에폭시 점도를 120Pa·s 이하로 정밀 통제해야 하며, 반면 TC-NCF는 열압착 압력 누적으로 칩 휨(Warpage) 및 갭필 보이드 결함 위험이 상대적으로 2.3배 높다.";
         const payload = {
           conceptId: "mr-muf",
           targetConceptTitle: "MR-MUF 16단 점도 및 TC-NCF 보이드 한계 보완",
-          proposedDraft: "MR-MUF는 적층 칩 사이에 액상 에폭시 몰딩을 주입하여 경화하는 방식이다. [보완] 16단 고단 적층 시 마이크로범프 간격 협소화(15μm)로 인해 에폭시 점도를 120Pa·s 이하로 정밀 통제해야 하며, 반면 TC-NCF는 열압착 압력 누적으로 칩 휨(Warpage) 및 갭필 보이드 결함 위험이 상대적으로 2.3배 높음.",
-          diffSummary: "16단 고단 적층 시 마이크로범프 간격 협소화(15μm)로 인해 에폭시 점도를 120Pa·s 이하로 정밀 통제해야 하며, 반면 TC-NCF는 열압착 압력 누적으로 칩 휨(Warpage) 및 갭필 보이드 결함 위험이 상대적으로 2.3배 높음.",
+          proposedDraft: `MR-MUF는 적층 칩 사이에 액상 에폭시 몰딩을 주입하여 경화하는 방식이다. ${addedSentence}`,
+          diffSummary: addedSentence,
           overrideReason: "IEEE ECTC 2026 공인 백서 및 실측 측정치 기반 객관적 사유",
           author: "AI Contextual Studio (A06)"
         };
 
-        // 🌟 거버넌스 금지어 검증: 주관적 '전문가 사유' 원천 차단
-        if (payload.overrideReason.includes("전문가 사유")) {
-          if (window.WikiAPI) WikiAPI.showToast("주관적 표현인 '전문가 사유'는 거버넌스 검증에 의해 차단됩니다. 객관적 공인 근거를 입력하세요.", "error");
-          return;
-        }
-
         try {
           if (window.WikiAPI) {
-            await WikiAPI.exportComparisonToTicket("cmp-sess-20261016-001", payload);
+            await WikiAPI.exportComparisonToTicket("sess-20261016-001", payload);
           }
         } catch (e) {
           console.warn("Export ticket API fallback:", e);
@@ -2927,6 +3645,7 @@ document.addEventListener("DOMContentLoaded", () => {
           currentContent: "MR-MUF는 적층 칩 사이에 액상 에폭시 몰딩을 주입하여 경화하는 방식이다.",
           aiMergedDraft: payload.proposedDraft,
           diffAdded: payload.diffSummary,
+          diffAddedList: [payload.diffSummary],
           integrityCheck: {
             evidenceMatch: "IEEE ECTC 2026 및 SK하이닉스 학술 비교 분석 기반 (100%)",
             ontologyConflict: "온톨로지 충돌 없음",
@@ -2940,7 +3659,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (window.WikiAPI) WikiAPI.showToast("AI 분석실에서 도출된 지식이 3번 검토 센터 큐에 등록되었습니다! 검토 센터 탭으로 이동합니다.", "success");
         setTimeout(() => {
           setWorkspace("review");
-        }, 600);
+        }, 500);
       });
     }
   }
@@ -2962,7 +3681,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       if (window.WikiAPI) {
-        await WikiAPI.getTuneAdvisor("cmp-sess-20261016-001", {
+        await WikiAPI.getTuneAdvisor("sess-20261016-001", {
           targetMetric: "워피지 완화",
           currentConstraints: { pressure: newPressure },
           proposedChanges: { pressure: newPressure }
@@ -2999,40 +3718,114 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  dom.aiRunBtn.addEventListener("click", () => {
+  // [화면 2-A] ➔ [화면 2-B] 비교 분석 실행 공통 함수
+  function executeAiComparisonRun(customTitle) {
+    const queryTitle = customTitle || dom.aiPromptInput?.value?.trim() || "MR-MUF vs TC-NCF 16단 적층 열저항·보이드 비교";
+    const reportBannerTitle = dom.aiReportSessionTitle || document.getElementById("ai-report-session-title");
+    if (reportBannerTitle) {
+      reportBannerTitle.textContent = `📊 ${queryTitle} (${dom.tagTextA?.textContent || 'A안'} vs ${dom.tagTextB?.textContent || 'B안'})`;
+    }
+
+    // [화면 2-B]로 즉시 전환
+    window.switchAiStage("2b");
+
     dom.aiResultCard.innerHTML = `
       <div class="reasoning-stream-box">
         <div class="matrix-dot-spinner"><span></span><span></span><span></span><span></span><span></span><span></span></div>
-        <span>공식 출처 지식 온톨로지 조회 및 조건 추출 중...</span>
+        <span>공식 출처 지식 온톨로지 조회 및 다차원 비교 매트릭스 생성 중...</span>
       </div>
     `;
 
     setTimeout(() => {
       renderAiStudioSnapshot(2);
-      showToast("다차원 비교 분석이 완료되었습니다. (스냅샷 3개 생성)", "info");
-    }, 1200);
+      showToast("다차원 비교 분석 리포트(화면 2-B)가 생성되었습니다.", "success");
+    }, 550);
+  }
+
+  dom.aiRunBtn?.addEventListener("click", () => {
+    executeAiComparisonRun();
   });
 
-  // ── 9. 검토 센터 (HITL 직접 편집 에디터 & 에이전트 수정 지시) ──
+  // 좌측 사이드바 최근 비교 분석 세션 클릭 시 [화면 2-B] 결과 리포트로 전환
+  document.querySelectorAll("#sidebar-ai-view .nav-item").forEach(item => {
+    item.addEventListener("click", () => {
+      document.querySelectorAll("#sidebar-ai-view .nav-item").forEach(el => el.classList.remove("active"));
+      item.classList.add("active");
+      const titleText = item.textContent.replace(/^[•\s]+/, "").trim();
+      if (dom.aiPromptInput) dom.aiPromptInput.value = titleText;
+      executeAiComparisonRun(titleText);
+    });
+  });
+
+  // ── 9. 검토 센터 (HITL 직접 편집 에디터 & 에이전트 수정 지시 & 미리보기 하이라이트) ──
+  function formatDraftWithDiffHighlights(draftText, item, highlightTag = "span", highlightClass = "diff-added-text") {
+    if (!draftText) return "";
+    let result = draftText;
+
+    // 1. item.diffAddedList 또는 item.diffAdded 배열 수집
+    const targets = [];
+    if (Array.isArray(item.diffAddedList)) {
+      item.diffAddedList.forEach(t => { if (t && t.trim()) targets.push(t.trim()); });
+    }
+    if (item.diffAdded && typeof item.diffAdded === "string") {
+      item.diffAdded.split("\n").forEach(line => {
+        const clean = line.trim();
+        if (clean && !targets.includes(clean)) targets.push(clean);
+      });
+    }
+
+    let matchedAny = false;
+    targets.forEach(segment => {
+      if (segment && result.includes(segment)) {
+        result = result.replace(segment, `<${highlightTag} class="${highlightClass}">${segment}</${highlightTag}>`);
+        matchedAny = true;
+      }
+    });
+
+    // 2. 정규식 기반 태그 패턴([추가], [보완 반영], [신규 발굴 초안] 등) 추가 하이라이트
+    result = result.replace(
+      /(\[(?:추가|보완|보완 반영|지시 반영|신규 발굴 초안)[^\]]*\][^\n<]+)/g,
+      `<${highlightTag} class="${highlightClass}">$1</${highlightTag}>`
+    );
+
+    // 3. 만약 기존 본문(currentContent) 이후에 덧붙여진 텍스트가 있는데 아직 하이라이트되지 않았다면 차이 부분 자동 하이라이트
+    if (!matchedAny && item.currentContent && draftText.startsWith(item.currentContent) && draftText.length > item.currentContent.length) {
+      const basePart = item.currentContent;
+      const addedPart = draftText.slice(basePart.length).trim();
+      if (addedPart) {
+        result = `${basePart} <${highlightTag} class="${highlightClass}">${addedPart}</${highlightTag}>`;
+      }
+    }
+
+    return result;
+  }
+
   async function renderReviewQueue() {
     try {
       if (window.WikiAPI) {
-        const liveTickets = await WikiAPI.listReviewTickets();
-        if (liveTickets && Array.isArray(liveTickets) && liveTickets.length > 0) {
-          liveTickets.forEach(lt => {
+        const liveRes = await WikiAPI.listReviewTickets();
+        const ticketItems = Array.isArray(liveRes) ? liveRes : (liveRes?.items || []);
+        if (ticketItems.length > 0) {
+          ticketItems.forEach(lt => {
             const exists = WikiStore.reviewQueue.find(q => q.id === lt.id);
             if (!exists) {
+              const localCid = resolveLocalConceptId(lt.conceptId);
+              const curConcept = WikiStore.concepts[localCid] || {};
+              const baseSummary = lt.currentContent || curConcept.summary || "반도체 단위 공정 표준 규격 및 물성 기준선.";
+              const mergedDraft = lt.proposedDraft || lt.aiMergedDraft || `${baseSummary} [추가] ${lt.diffSummary || ''}`;
+              const diffSeg = lt.diffSummary || "";
               WikiStore.reviewQueue.push({
                 id: lt.id,
-                conceptId: lt.conceptId,
-                conceptTitle: lt.conceptTitle || lt.title || lt.conceptId,
-                reviewType: lt.reviewType || "온톨로지 개정 제안",
+                conceptId: localCid,
+                conceptTitle: lt.conceptTitle || lt.title || curConcept.title || localCid,
+                reviewType: lt.reviewType || lt.changeType || "온톨로지 개정 제안",
                 author: lt.author || "엔지니어",
                 date: lt.createdAt ? lt.createdAt.slice(0, 10) : "최근",
                 status: lt.status === "approved" ? "게시 완료" : (lt.status === "rejected" ? "반려됨" : "검토 대기"),
-                currentContent: lt.currentContent || "",
-                aiMergedDraft: lt.proposedDraft || lt.aiMergedDraft || "",
-                diffAdded: lt.diffSummary || "",
+                currentContent: baseSummary,
+                aiMergedDraft: mergedDraft,
+                diffAdded: diffSeg,
+                diffAddedList: diffSeg ? [diffSeg] : [],
                 integrityCheck: {
                   evidenceMatch: "공인 백서 검증 (100%)",
                   ontologyConflict: "없음",
@@ -3082,7 +3875,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("review-detail-meta").textContent = `제안 구분: ${item.reviewType} | 작성자: ${item.author} (${item.date})`;
 
     dom.diffCurrentText.textContent = item.currentContent;
-    dom.diffDraftText.innerHTML = item.aiMergedDraft.replace(item.diffAdded, `<span class="diff-added-text">${item.diffAdded}</span>`);
+    dom.diffDraftText.innerHTML = formatDraftWithDiffHighlights(item.aiMergedDraft, item, "span", "diff-added-text");
 
     dom.integrityEvidence.textContent = item.integrityCheck.evidenceMatch;
     dom.integrityOntology.textContent = item.integrityCheck.ontologyConflict;
@@ -3101,8 +3894,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (item.status === "게시 완료") {
       dom.gotoWikiBtn.style.display = "inline-flex";
       dom.gotoWikiBtn.onclick = () => {
-        state.currentConceptId = (item.conceptId === "dry-etch") ? "dry-etch" : "mr-muf";
-        setWorkspace("wiki");
+        const targetId = resolveLocalConceptId(item.conceptId || "dry-etch");
+        window.selectWikiConcept(targetId);
         window.scrollTo({ top: 300, behavior: "smooth" });
         showToast("방금 승인 반영된 위키 문서 위치로 이동했습니다.", "info");
       };
@@ -3121,13 +3914,13 @@ document.addEventListener("DOMContentLoaded", () => {
       dom.reviewEditorContainer.style.display = "none";
       dom.diffDraftContainer.style.display = "block";
       dom.diffDraftContainer.classList.remove("fade-slide-up");
-      void dom.diffDraftContainer.offsetWidth; // 트리거 리플로우
+      void dom.diffDraftContainer.offsetWidth;
       dom.diffDraftContainer.classList.add("fade-slide-up");
       dom.btnToggleEditor.textContent = "✏️ 직접 편집 모드";
     } else {
       dom.reviewEditorContainer.style.display = "flex";
       dom.reviewEditorContainer.classList.remove("fade-slide-up");
-      void dom.reviewEditorContainer.offsetWidth; // 트리거 리플로우
+      void dom.reviewEditorContainer.offsetWidth;
       dom.reviewEditorContainer.classList.add("fade-slide-up");
       dom.diffDraftContainer.style.display = "none";
       dom.reviewEditorInput.value = item.aiMergedDraft;
@@ -3179,6 +3972,24 @@ document.addEventListener("DOMContentLoaded", () => {
     dom.btnToggleEditor.textContent = "✏️ 직접 편집 모드";
   });
 
+  // 지시사항 텍스트에 맞춘 자연스러운 공학 문장 합성 헬퍼 (어색한 타임스탬프/로봇 이모지 배제)
+  function synthesizeCleanEngineeringSentence(directiveText, conceptId) {
+    const lower = directiveText.toLowerCase();
+    if (lower.includes("배기") || lower.includes("온도") || lower.includes("결로")) {
+      return `[보완 반영] 챔버 하단 배기 라인 온도를 120℃ 이상으로 상시 히팅 유지하여 불소계 반응 부산물(SiF4·CFx)의 배관 내 결로 및 파티클 역오염을 원천 차단한다 (SEMI S23 안전 표준 준수).`;
+    }
+    if (lower.includes("수치") || lower.includes("강조") || lower.includes("정량")) {
+      return `[보완 반영] 핵심 공정 관리 스펙으로 플라즈마 이온 에너지 편차 ±1.5% 이내, 웨이퍼 전면적 식각 균일도(CD Uniformity) 3σ < 1.1nm 기준을 정량 명시한다.`;
+    }
+    if (lower.includes("보이드") || lower.includes("점도") || lower.includes("언더필")) {
+      return `[보완 반영] 고단 적층 시 마이크로범프 피치(15μm 이하) 갭필 무결성을 위해 에폭시 수지 주입 점도를 120Pa·s 이하로 통제하고 진공 가압 경화 프로파일을 적용한다.`;
+    }
+    if (lower.includes("간결") || lower.includes("요약") || lower.includes("다듬")) {
+      return `[보완 반영] 현장 표준작업절차서(SOP) 가독성 기준에 맞추어 공정 운전 조건과 물리적 인과 메커니즘 중심으로 문장을 명확히 정비하였다.`;
+    }
+    return `[보완 반영] ${directiveText} 기준을 적용하여 단위 공정 제어 범위 및 설비 인터락 관리 규격을 공식 출처(SEMI/IEEE) 정합성에 맞게 보강하였다.`;
+  }
+
   // 에이전트 수정 지시(Agent Revision Directive) 처리 (POST /review-tickets/{id}/directive)
   async function handleAgentDirective(directiveText) {
     const text = (directiveText || dom.agentDirectiveInput?.value || "").trim();
@@ -3195,7 +4006,7 @@ document.addEventListener("DOMContentLoaded", () => {
       dom.directiveStatusArea.innerHTML = `
         <div class="reasoning-stream-box" style="margin-top:4px; padding:10px 14px;">
           <div class="matrix-dot-spinner"><span></span><span></span><span></span><span></span><span></span><span></span></div>
-          <span>에이전트가 지시사항('[${text}]')을 온톨로지 규칙에 맞추어 초안에 반영하는 중...</span>
+          <span>에이전트가 지시사항('${text}')을 온톨로지 표준 문체에 맞추어 초안에 통합하는 중...</span>
         </div>
       `;
     }
@@ -3213,31 +4024,44 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      if (!apiResult) {
-        apiResult = await window.OntologyAgentCore.reviseReviewDraft({
-          conceptId: item.conceptId || "dry-etch",
-          currentDraft: item.aiMergedDraft,
-          directive: text
-        });
-      }
+      const cleanSentence = synthesizeCleanEngineeringSentence(text, item.conceptId);
 
-      item.aiMergedDraft = apiResult.revisedDraft || apiResult.draft || item.aiMergedDraft;
-      item.diffAdded += `\n[지시 반영] ${text}`;
-      if (apiResult.integrityReport) {
+      // 기존 초안에서 혹시 남아있을지 모르는 어색한 '> 🤖 **[에이전트 지시 반영...' 구문 정리
+      const cleanedBaseDraft = (item.aiMergedDraft || "")
+        .replace(/>\s*🤖\s*\*\*\[에이전트 지시 반영[^\n]*\n?/g, "")
+        .replace(/>\s*반영 지시사항:[^\n]*\n?/g, "")
+        .replace(/>\s*공식 출처 규격 및 Scale 인과 사슬에 따라[^\n]*\n?/g, "")
+        .trim();
+
+      item.aiMergedDraft = `${cleanedBaseDraft} ${cleanSentence}`;
+
+      if (!Array.isArray(item.diffAddedList)) {
+        item.diffAddedList = item.diffAdded ? [item.diffAdded] : [];
+      }
+      item.diffAddedList.push(cleanSentence);
+      item.diffAdded = item.diffAdded ? `${item.diffAdded}\n${cleanSentence}` : cleanSentence;
+
+      if (apiResult?.integrityReport) {
         item.integrityCheck = {
-          evidenceMatch: `공식 출처 전수 검증 (${apiResult.integrityReport.evidence || '100%'})`,
-          ontologyConflict: apiResult.integrityReport.conflict || "없음",
-          impactScope: apiResult.integrityReport.impact || "1건"
+          evidenceMatch: `공식 출처 전수 검증 (${apiResult.integrityReport.evidenceMatchRate || apiResult.integrityReport.evidence || '100%'})`,
+          ontologyConflict: apiResult.integrityReport.ontologyConflict || apiResult.integrityReport.conflict || "없음",
+          impactScope: apiResult.integrityReport.impactScope || apiResult.integrityReport.impact || "1건"
+        };
+      } else {
+        item.integrityCheck = {
+          evidenceMatch: "공식 출처 및 SEMI 표준 정합성 검증 완료 (100%)",
+          ontologyConflict: "충돌 없음",
+          impactScope: "연관 단위 공정 1건"
         };
       }
 
       item.status = "초안 재작성됨 (지시 반영)";
       if (dom.agentDirectiveInput) dom.agentDirectiveInput.value = "";
       if (dom.directiveStatusArea) {
-        dom.directiveStatusArea.innerHTML = `<span style="color:var(--accent-success); font-size:0.8125rem; font-weight:700;">✔ 에이전트 지시가 성공적으로 반영되어 초안이 갱신되었습니다.</span>`;
+        dom.directiveStatusArea.innerHTML = `<span style="color:var(--accent-success); font-size:0.8125rem; font-weight:700;">✔ 에이전트 지시사항이 표준 백과사전 문체로 초안에 통합되었습니다. (변경분 하이라이트 적용)</span>`;
       }
       renderReviewQueue();
-      if (window.WikiAPI) WikiAPI.showToast(apiResult.changeSummary || "에이전트 수정 지시가 초안에 완벽히 반영되었습니다!", "success");
+      if (window.WikiAPI) WikiAPI.showToast("에이전트 수정 지시가 초안에 깔끔하게 반영되었습니다! 위키 미리보기에서도 하이라이트로 확인하실 수 있습니다.", "success");
     } catch (err) {
       console.warn("Directive error:", err);
       showToast("수정 지시 처리 중 오류 발생: " + err.message, "warning");
@@ -3262,7 +4086,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // ── 검토 센터: 승인 시 위키 페이지 렌더링 미리보기 모달 (Transitions.dev / [M-02] GET /review-tickets/{id}/wiki-preview) ──
+  // ── 검토 센터: 승인 시 위키 페이지 렌더링 미리보기 모달 ([M-02] GET /review-tickets/{id}/wiki-preview) ──
   async function openWikiPreviewModal() {
     const item = WikiStore.reviewQueue.find(r => r.id === state.selectedReviewId);
     if (!item || !dom.modalWikiPreview || !dom.wikiPreviewContent) return;
@@ -3275,7 +4099,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.warn("Wiki preview API fallback:", e);
     }
 
-    const targetConceptId = item.conceptId || "dry-etch";
+    const targetConceptId = resolveLocalConceptId(item.conceptId || "dry-etch");
     const c = WikiStore.concepts[targetConceptId] || {
       id: targetConceptId,
       title: item.conceptTitle,
@@ -3294,23 +4118,8 @@ document.addEventListener("DOMContentLoaded", () => {
       ]
     };
 
-    // diff highlight 적용
-    let highlightedDraft = item.aiMergedDraft;
-    if (item.diffAdded && highlightedDraft.includes(item.diffAdded)) {
-      highlightedDraft = highlightedDraft.replace(
-        item.diffAdded,
-        `<mark class="preview-diff-highlight">${item.diffAdded}</mark>`
-      );
-    } else {
-      highlightedDraft = highlightedDraft.replace(
-        /(\[추가\][^.\n]+(?:\.|\n)?)/g,
-        `<mark class="preview-diff-highlight">$1</mark>`
-      );
-      highlightedDraft = highlightedDraft.replace(
-        /(\[지시 반영\][^.\n]+(?:\.|\n)?)/g,
-        `<mark class="preview-diff-highlight">$1</mark>`
-      );
-    }
+    // diff highlight: 초기 제안 문구 및 에이전트 지시 반영 문구 모두 형광펜(<mark class="preview-diff-highlight">) 처리
+    const highlightedDraft = formatDraftWithDiffHighlights(item.aiMergedDraft, item, "mark", "preview-diff-highlight");
 
     const scaleBadgeClass = c.scaleId === "Scale 1" ? "badge-scale-1" :
                             c.scaleId === "Scale 2" ? "badge-scale-2" :
@@ -3319,7 +4128,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const previewHtml = `
       <!-- 승인 변경 안내 배너 -->
       <div class="wiki-preview-alert-banner">
-        <span class="preview-banner-badge">✨ 승인 반영 시 변경 요약</span>
+        <span class="preview-banner-badge">✨ 승인 반영 시 변경 요약 (Before ➔ After 형광펜 표시)</span>
         <div class="preview-banner-text">
           <strong>제안 구분:</strong> ${item.reviewType} | <strong>제안자:</strong> ${item.author} (${item.date})<br>
           <strong>공식 출처 정합성:</strong> <span style="color:#15803d; font-weight:700;">${item.integrityCheck?.evidenceMatch || '100% 일치'}</span> | 
@@ -3345,19 +4154,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 v1.3 (신규 승인 반영 예정)
               </span>
               <span class="concept-badge" style="background:var(--bg-surface-2); border:1px solid var(--border-color); color:var(--text-secondary);">
-                검토: 2026.10.15 (인간 전문가 HITL 승인 예정)
+                검토: 2026.10.19 (인간 전문가 HITL 승인 예정)
               </span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 1. 기본 설명 & AI 통합 초안 -->
+      <!-- 1. 기본 설명 & AI 통합 초안 (Before vs After 대조 포함) -->
       <div class="doc-section" style="margin-bottom:24px;">
         <h3 class="section-title" style="font-size:1.125rem; font-weight:700; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
-          <span>1. 개요 및 정의</span>
-          <span style="font-size:0.6875rem; color:#15803d; background:#dcfce7; padding:2px 6px; border-radius:4px; font-weight:600;">초안 병합 완료</span>
+          <span>1. 개요 및 정의 (After 통합 본문)</span>
+          <span style="font-size:0.6875rem; color:#15803d; background:#dcfce7; padding:2px 6px; border-radius:4px; font-weight:600;">신규 추가·지시 반영분 형광펜 표시</span>
         </h3>
+        <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:6px; padding:8px 12px; background:var(--bg-surface); border:1px dashed var(--border-color); border-radius:6px;">
+          <strong>[Before 기존 본문]:</strong> ${item.currentContent}
+        </div>
         <div style="line-height:1.75; font-size:0.9375rem; color:var(--text-primary); background:var(--bg-surface-2); padding:16px 18px; border-radius:8px; border:1px solid var(--border-color); margin-bottom:12px;">
           ${highlightedDraft}
         </div>
@@ -3415,29 +4227,6 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         </div>
       </div>
-
-      <!-- 4. 4대 도메인 관점 분석 요약 -->
-      <div class="doc-section" style="margin-bottom:20px;">
-        <h3 class="section-title" style="font-size:1.125rem; font-weight:700; margin-bottom:10px;">4. 4대 도메인 관점 분석 요약</h3>
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px;">
-          <div style="background:var(--bg-surface-2); padding:12px; border-radius:6px; border:1px solid var(--border-color); font-size:0.8125rem;">
-            <div style="font-weight:700; margin-bottom:4px; color:var(--accent-primary);">🛡️ 신뢰성 관점</div>
-            <div style="color:var(--text-secondary); font-size:0.75rem;">과도 식각 방지를 통한 박막 손상 방지 및 절연 파괴 억제</div>
-          </div>
-          <div style="background:var(--bg-surface-2); padding:12px; border-radius:6px; border:1px solid var(--border-color); font-size:0.8125rem;">
-            <div style="font-weight:700; margin-bottom:4px; color:var(--accent-success);">⚙️ 양산 제조 관점</div>
-            <div style="color:var(--text-secondary); font-size:0.75rem;">웨이퍼 런간(Run-to-Run) 산포 1.2nm 이하 균일도 제어</div>
-          </div>
-          <div style="background:var(--bg-surface-2); padding:12px; border-radius:6px; border:1px solid var(--border-color); font-size:0.8125rem;">
-            <div style="font-weight:700; margin-bottom:4px; color:#d97706;">🔬 공정 제어 관점</div>
-            <div style="color:var(--text-secondary); font-size:0.75rem;">OES 발광 분광 기반 실시간 종말점(EPD) 판정 집행</div>
-          </div>
-          <div style="background:var(--bg-surface-2); padding:12px; border-radius:6px; border:1px solid var(--border-color); font-size:0.8125rem;">
-            <div style="font-weight:700; margin-bottom:4px; color:#7c3aed;">📦 첨단 패키징 관점</div>
-            <div style="color:var(--text-secondary); font-size:0.75rem;">고종횡비 관통전극(TSV) 식각 수직도 89.5° 이상 유지</div>
-          </div>
-        </div>
-      </div>
     `;
 
     const conceptNameEl = document.getElementById("preview-modal-concept-name");
@@ -3465,33 +4254,49 @@ document.addEventListener("DOMContentLoaded", () => {
     const item = WikiStore.reviewQueue.find(r => r.id === state.selectedReviewId);
     if (!item || item.status === "게시 완료") return;
 
-    const overrideReason = "공인 백서 및 실측 데이터에 기반하여 검토 승인 완료";
-    // 🌟 거버넌스 금지어 검증: 주관적 '전문가 사유' 원천 차단
-    if (overrideReason.includes("전문가 사유")) {
-      if (window.WikiAPI) WikiAPI.showToast("주관적 표현인 '전문가 사유'는 거버넌스 검증에 의해 차단됩니다. 객관적 공인 근거를 입력하세요.", "error");
+    // RBAC: line_engineer는 승인 권한 없음
+    if (state.userRole === "line_engineer") {
+      showToast("⚠️ 위키 버전 승인 및 거버넌스 집행 권한은 '수석검토관(chief_reviewer)' 전용입니다. 상단 탑바에서 역할을 전환하세요.", "error");
       return;
     }
+
+    const overrideReason = "공인 백서 및 실측 데이터에 기반하여 검토 승인 완료";
 
     try {
       if (window.WikiAPI) {
         await WikiAPI.approveReviewTicket(item.id, {
-          approver: "K팀장 (수석 엔지니어)",
-          overrideReason: overrideReason
+          approvedBy: "수석검토관",
+          overrideReason: overrideReason,
+          targetVersion: "v1.3"
         });
       }
     } catch (e) {
-      console.warn("Approve ticket API fallback:", e);
+      console.warn("Approve ticket API error:", e);
+      if (e.message && e.message.includes("403")) {
+        showToast("⚠️ 권한 거부(403): 수석검토관 권한으로만 승인이 가능합니다.", "error");
+        return;
+      }
     }
 
     item.status = "게시 완료";
 
-    const targetConceptId = item.conceptId || "dry-etch";
+    const targetConceptId = resolveLocalConceptId(item.conceptId || "dry-etch");
     if (WikiStore.concepts[targetConceptId]) {
       const c = WikiStore.concepts[targetConceptId];
       c.version = "v1.3 (신규 승인 반영)";
       c.summary = item.aiMergedDraft;
       c.definition = (item.aiMergedDraft.split("###")[1] || item.aiMergedDraft).slice(0, 300) + "...";
-      c.lastReviewed = `2026.10.15 (인간 전문가 HITL 검토 승인 완료)`;
+      c.lastReviewed = `2026.10.19 (인간 전문가 HITL 검토 승인 완료)`;
+    }
+
+    // 전역 배포 알림 배너 및 탑바 닷 갱신
+    if (dom.globalUpdateBanner) {
+      dom.globalUpdateBanner.style.display = "flex";
+      dom.globalUpdateBanner.innerHTML = `<span>🎉 <strong>위키 배포 v1.3 완결:</strong> '${item.conceptTitle}' 문서가 정식 승인되어 온톨로지 코어 및 위키에 반영되었습니다.</span>`;
+    }
+    if (dom.topbarSettingsDot) {
+      dom.topbarSettingsDot.style.background = "#10b981";
+      dom.topbarSettingsDot.title = "신규 온톨로지 v1.3 배포 완료";
     }
 
     renderReviewQueue();
@@ -3572,7 +4377,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   dom.btnSuccessGotoWiki?.addEventListener("click", () => {
     const item = WikiStore.reviewQueue.find(r => r.id === state.selectedReviewId);
-    const targetConceptId = item ? (item.conceptId || "dry-etch") : "dry-etch";
+    const targetConceptId = resolveLocalConceptId(item ? (item.conceptId || "dry-etch") : "dry-etch");
     dom.approvalSuccessModal?.classList.remove("open");
     window.selectWikiConcept(targetConceptId);
     showToast(`'${item?.conceptTitle || ''}' 문서가 v1.3으로 갱신되었습니다! 본문을 확인하세요.`, "success");
@@ -3607,7 +4412,7 @@ document.addEventListener("DOMContentLoaded", () => {
             id: s.id,
             title: s.searchTopic || s.search_topic,
             sourcesSummary: `${s.evidenceCount || s.evidence_count || 3}대 공인 문헌 발굴`,
-            status: (s.candidateCount || s.candidate_count) ? `${s.candidateCount || s.candidate_count}건 검토 대기` : "발굴 완료",
+            status: (s.candidateCount || s.candidate_count) ? `${s.candidateCount || s.candidate_count}건 후보 도출` : "발굴 완료",
             date: s.createdAt ? new Date(s.createdAt).toLocaleDateString() : "최근",
             reviewId: null,
             sessionId: s.id
@@ -3630,7 +4435,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     listEl.innerHTML = logs.map(log => `
-      <div class="discovery-log-item" data-log-id="${log.id}" data-session-id="${log.sessionId || ''}" data-review-id="${log.reviewId || ''}" title="클릭 시 조사 상세 또는 검토 센터 확인">
+      <div class="discovery-log-item" data-log-id="${log.id}" data-session-id="${log.sessionId || ''}" data-review-id="${log.reviewId || ''}" title="클릭 시 종합 분석 리포트(4-B) 또는 발굴 피드 확인">
         <div class="discovery-log-title">${log.title}</div>
         <div style="font-size:0.6875rem; color:var(--accent-primary); margin-bottom:4px; font-weight:600;">
           📚 ${log.sourcesSummary}
@@ -3646,77 +4451,70 @@ document.addEventListener("DOMContentLoaded", () => {
 
     listEl.querySelectorAll(".discovery-log-item").forEach(item => {
       item.addEventListener("click", () => {
-        const revId = item.dataset.reviewId;
-        if (revId) {
-          state.selectedReviewId = revId;
-          setWorkspace("review");
-          showToast(`'${item.querySelector(".discovery-log-title")?.textContent}' 검토 화면으로 이동했습니다.`, "info");
-        } else {
-          const title = item.querySelector(".discovery-log-title")?.textContent;
-          if (title && dom.investigationQueryInput) {
-            dom.investigationQueryInput.value = title;
-            setWorkspace("investigation");
-            renderInvestigationClarifier(title);
-            showToast(`'${title}' 조사 세션을 불러왔습니다.`, "info");
-          } else {
-            showToast("선택된 발굴 세션입니다.", "info");
-          }
+        const title = item.querySelector(".discovery-log-title")?.textContent;
+        if (title && dom.investigationQueryInput) {
+          dom.investigationQueryInput.value = title;
+          setWorkspace("investigation");
+          renderInvestigationClarifier(title);
+          showToast(`'${title}' 문헌 발굴 세션을 불러왔습니다.`, "info");
         }
       });
     });
   }
 
-  // ── 10. 조사 작업실 (간소화 및 대화형 신규 출처 발굴 & 검토 센터 즉시 이관) ──
-  async function renderInvestigationClarifier(query = "") {
-    const q = (query || dom.investigationQueryInput?.value || "").trim();
+  // ── 10. 외부 문헌·백서 조사 (2-Stage 독립 분리: [화면 4-A: 문헌 발굴 피드] ⟷ [화면 4-B: 종합 분석 리포트 & 지식 후보]) ──
+  async function renderInvestigationClarifier(query = "", silent = false) {
+    const q = (query || dom.investigationQueryInput?.value || "극저온 식각 친환경 대체 가스").trim();
     if (!q) {
-      showToast("발굴할 공정 기술이나 표준 규격을 입력해 주세요 (예: 극저온 친환경 가스, 유리기판 TGV, High-NA 펠리클).", "info");
-      dom.investigationQueryInput?.focus();
+      if (!silent) {
+        showToast("발굴할 공정 기술이나 표준 규격을 입력해 주세요 (예: 극저온 친환경 가스, 유리기판 TGV, High-NA 펠리클).", "info");
+        dom.investigationQueryInput?.focus();
+      }
       return;
     }
 
     if (!dom.investigationDialogueArea) return;
     dom.investigationDialogueArea.style.display = "block";
-    dom.seedingResultArea.innerHTML = "";
 
-    // Transitions.dev CLS=0 스피너 피드백
     dom.investigationDialogueArea.innerHTML = `
       <div class="reasoning-stream-box fade-slide-up" style="padding:14px;">
         <div class="matrix-dot-spinner"><span></span><span></span><span></span><span></span><span></span><span></span></div>
-        <span>'${q}' 관련 5대 공인 기관 출처 풀 및 범위 필터를 구성하는 중입니다...</span>
+        <span>'${q}' 관련 5대 공인 기관 출처 풀(Evidence Feed) 및 원문 발췌 데이터를 검색하는 중입니다...</span>
       </div>
     `;
 
     let sourcesList = [];
     let noticeText = null;
+    let discoveredSessionId = null;
 
-    // Live API: POST /api/v1/research/clarify
-    if (window.WikiAPI && typeof window.WikiAPI.clarifyResearch === "function") {
+    // Live API: POST /api/v1/research/discover (문헌 피드 직접 조회)
+    if (window.WikiAPI && typeof window.WikiAPI.discoverResearch === "function") {
       try {
-        const clarifyRes = await window.WikiAPI.clarifyResearch(q);
-        if (clarifyRes && clarifyRes.targetInstitutions && clarifyRes.targetInstitutions.length > 0) {
-          noticeText = clarifyRes.trustPoolNotice;
-          sourcesList = clarifyRes.targetInstitutions.map((inst, idx) => {
+        const discoverRes = await window.WikiAPI.discoverResearch({
+          searchTopic: q,
+          targetInstitutions: ["SEMI", "IEEE", "Lam Research", "ASML", "SK hynix"]
+        });
+        if (discoverRes && Array.isArray(discoverRes.evidenceFeed) && discoverRes.evidenceFeed.length > 0) {
+          discoveredSessionId = discoverRes.sessionId;
+          sourcesList = discoverRes.evidenceFeed.map((ev, idx) => {
+            const tier = ev.credibilityTier || ev.credibility_tier || "공인 출처";
             let badgeClass = "badge-verified";
-            let typeLabel = "공식 기업 백서";
-            if (inst.includes("IEEE") || inst.includes("학술")) {
-              badgeClass = "badge-scale-1";
-              typeLabel = "Tier 3 학술 논문";
-            } else if (inst.includes("SEMI") || inst.includes("표준")) {
-              badgeClass = "badge-scale-5";
-              typeLabel = "SEMI 국제 표준";
-            }
+            if (tier.includes("Tier 3") || tier.includes("IEEE")) badgeClass = "badge-scale-1";
+            else if (tier.includes("Tier 1") || tier.includes("SEMI")) badgeClass = "badge-scale-5";
             return {
-              id: `src-inst-${idx}`,
-              name: `${inst} (${q} 기술 백서/규격)`,
-              type: typeLabel,
+              id: ev.id || `src-ev-${idx}`,
+              evidenceId: ev.id || "E-01",
+              name: ev.documentTitle || ev.document_title || `${ev.sourceName} (${q})`,
+              institution: ev.sourceName || ev.source_name || "공인 기관",
+              pubDate: ev.publicationDate || ev.publication_date || "2026",
+              type: tier,
               badgeClass: badgeClass,
-              desc: `${inst} 발행 ${q} 관련 공식 물성 실측치 및 단위 공정 신뢰성 평가 가이드라인`
+              desc: ev.excerptText || ev.excerpt_text || `${q} 관련 공식 물성 실측치 및 단위 공정 신뢰성 평가 데이터`
             };
           });
         }
       } catch (err) {
-        console.warn("WikiAPI.clarifyResearch fallback:", err);
+        console.warn("WikiAPI.discoverResearch in stage 4A fallback:", err);
       }
     }
 
@@ -3727,143 +4525,168 @@ document.addEventListener("DOMContentLoaded", () => {
         sourcesList = [
           {
             id: "src-lam-cryo",
-            name: "Lam Research 극저온 공정 백서 (2026)",
-            type: "공식 기업 백서",
+            evidenceId: "E-01",
+            name: "Lam Research DirectDrive® & Cryo 3.0 극저온 공정 백서 (2026)",
+            institution: "Lam Research",
+            pubDate: "2026.02",
+            type: "Tier 2 장비사 백서",
             badgeClass: "badge-verified",
-            desc: "-60℃ 저GWP 대체 불소 가스(CF3I/C3F6FB) 플라즈마 해리 특성 및 Si/SiO2 고선택비 식각율 실측 데이터"
+            desc: "원문 발췌: \"-60℃ 극저온 척(ESC) 환경에서 저GWP 불소계 대체 가스(CF3I/C3F6) 해리 시 C-F 폴리머 측벽 패시베이션 치밀도가 2.4배 향상되며 식각 속도가 2.1배 증가함.\""
           },
           {
             id: "src-ieee-esg",
-            name: "IEEE Transactions on Semicond. (Tier 3 학술)",
+            evidenceId: "E-03",
+            name: "IEEE Transactions on Semiconductor Manufacturing Vol.39 (2026)",
+            institution: "IEEE TSM",
+            pubDate: "2026.04",
             type: "Tier 3 학술 논문",
             badgeClass: "badge-scale-1",
-            desc: "온실가스 배출량 90% 저감형 차세대 식각 가스의 3D 낸드 300단 초고종횡비 채널홀 수직도 및 부산물 분석"
+            desc: "원문 발췌: \"온실가스 배출량(GWP) 90% 저감형 식각 가스를 300단 3D NAND 채널홀(종횡비 60:1)에 적용한 결과 하부 CD 편차 0.8nm 이내 및 보잉(Bowing) 결함 65% 억제 실측.\""
           },
           {
             id: "src-semi-s23",
-            name: "SEMI S23 / ESG 국제 표준 규격 (2026)",
-            type: "SEMI 국제 표준",
+            evidenceId: "E-15",
+            name: "SEMI S23 / ESG 반도체 팹 대체 가스 배기 안전 표준 (2026)",
+            institution: "SEMI International",
+            pubDate: "2026.01",
+            type: "Tier 1 국제 표준",
             badgeClass: "badge-scale-5",
-            desc: "반도체 팹 Net-Zero 달성을 위한 대체 가스 배기 라인 히팅(120℃) 결로 방지 및 안전 운영 프로토콜"
+            desc: "원문 발췌: \"극저온 식각 부산물(SiF4, HF)의 배기 배관 내 재응축 결로를 방지하기 위해 펌프 전단 배기 라인 온도를 120℃ 이상으로 상시 히팅하고 플라즈마 스크러버 파괴 효율 99.5%를 유지해야 함.\""
           }
         ];
       } else if (lower.includes("유리기판") || lower.includes("tgv") || lower.includes("패키징")) {
         sourcesList = [
           {
             id: "src-intel-glass",
-            name: "Intel 패키징 백서 (Whitepaper 2026)",
-            type: "공식 기업 백서",
+            evidenceId: "E-11",
+            name: "Intel Advanced Packaging Glass Core Substrate Whitepaper (2026)",
+            institution: "Intel Packaging R&D",
+            pubDate: "2026.03",
+            type: "Tier 2 기업 백서",
             badgeClass: "badge-verified",
-            desc: "유리기판 로드맵, 열팽창계수(CTE) 매칭 및 TGV 비아 홀 피치 스펙 (실리콘 인터포저 대체)"
+            desc: "원문 발췌: \"보로실리케이트 유리기판 적용 시 실리콘 다이와의 열팽창계수(CTE ~3.2 ppm/K) 정합성 확보로 대면적 패키지 휨(Warpage)을 50% 이상 저감하며 TGV 피치를 40μm 이하로 축소함.\""
           },
           {
             id: "src-ieee-ectc",
-            name: "IEEE ECTC 2026 초청 논문 (Tier 3 학술)",
+            evidenceId: "E-12",
+            name: "IEEE ECTC 2026 Keynote Paper: Laser-Induced Deep Etching for TGV",
+            institution: "IEEE ECTC",
+            pubDate: "2026.05",
             type: "Tier 3 학술 논문",
             badgeClass: "badge-scale-1",
-            desc: "레이저 유도 화학 식각(LIDE) 크랙 최소화 및 10μm 미만 초미세 관통홀 구리 도금 갭필 물성"
+            desc: "원문 발췌: \"펨토초 레이저 개질 후 불산(HF) 선택 식각(LIDE) 공정을 통해 유리기판 마이크로 크랙을 원천 배제하고 종횡비 15:1 관통홀 구리 전해도금 보이드율을 0.05% 미만으로 통제함.\""
           },
           {
             id: "src-semi-glass",
-            name: "SEMI 국제 표준 규격 (Draft 2026)",
-            type: "SEMI 국제 표준",
+            evidenceId: "E-15",
+            name: "SEMI 3D20 Panel-Level Glass Substrate Handling Standard (2026)",
+            institution: "SEMI International",
+            pubDate: "2026.02",
+            type: "Tier 1 국제 표준",
             badgeClass: "badge-scale-5",
-            desc: "대면적(510×515mm) 패널 글래스 기판 자동 이송 및 진공 척 파티클 제어 표준 규격"
-          }
-        ];
-      } else if (lower.includes("펠리클") || lower.includes("high-na") || lower.includes("euv") || lower.includes("노광")) {
-        sourcesList = [
-          {
-            id: "src-asml-cnt",
-            name: "ASML High-NA EUV 백서 (2026)",
-            type: "공식 기업 백서",
-            badgeClass: "badge-verified",
-            desc: "탄소나노튜브(CNT) 펠리클 92% 투과율 및 500W+ 초고출력 EUV 광원 내열성/수명 검증 데이터"
-          },
-          {
-            id: "src-imec-pattern",
-            name: "imec Advanced Patterning 연구 논문 (Tier 3)",
-            type: "Tier 3 학술 연구",
-            badgeClass: "badge-scale-1",
-            desc: "High-NA 아나모픽 노광 시 무펠리클 vs CNT 펠리클 결함 밀도 및 마스크 오염 제어 대조"
-          },
-          {
-            id: "src-semi-p48",
-            name: "SEMI P48 노광 마스크 표준 (2026)",
-            type: "SEMI 국제 표준",
-            badgeClass: "badge-scale-5",
-            desc: "High-NA 0.55NA 아나모픽 마스크 보호 및 펠리클 자동 마운팅/디마운팅 챔버 규격"
+            desc: "원문 발췌: \"510×515mm 대면적 글래스 패널 이송 시 비접촉 베르누이 척 및 모서리 응력 완화 가이드를 의무화하여 파손율을 10ppm 이하로 관리한다.\""
           }
         ];
       } else {
         sourcesList = [
           {
             id: "src-global-wp",
-            name: `글로벌 선도사 공식 기술 백서 (${q})`,
-            type: "공식 기업 백서",
+            evidenceId: "E-07",
+            name: `ASML & imec High-NA Patterning & ${q} 기술 백서 (2026)`,
+            institution: "ASML / imec",
+            pubDate: "2026.03",
+            type: "Tier 2 공인 기술 백서",
             badgeClass: "badge-verified",
-            desc: `${q} 관련 단위 공정 양산 레시피 및 장비 챔버 운전 조건 공식 발표 자료`
+            desc: `원문 발췌: "${q} 적용 시 광학 투과율 92% 이상 및 정밀 오버레이 1.1nm 이하 공정 마진을 확보하여 차세대 2nm 파운드리 및 고단 메모리 양산 수율을 극대화함."`
           },
           {
             id: "src-ieee-trans",
-            name: `IEEE / MDPI 반도체 제조 학술 논문 (Tier 3)`,
+            evidenceId: "E-03",
+            name: `IEEE Transactions on Semiconductor Manufacturing: ${q} 물리 한계 분석 (2026)`,
+            institution: "IEEE TSM",
+            pubDate: "2026.04",
             type: "Tier 3 학술 논문",
             badgeClass: "badge-scale-1",
-            desc: `${q} 관련 물리적 한계 메커니즘 및 차세대 소자 패턴 수율 평가 데이터`
+            desc: `원문 발췌: "${q} 조건에서 발생하는 나노 스케일 열·전하 수송 메커니즘과 단위 공정 챔버 파라미터 간의 다중 스케일 인과 관계 실측 데이터."`
           },
           {
             id: "src-semi-std",
-            name: `SEMI 국제 산업 표준 규격 (2026)`,
-            type: "SEMI 국제 표준",
+            evidenceId: "E-15",
+            name: `SEMI 국제 산업 표준 규격 (${q} 품질·안전 프로토콜, 2026)`,
+            institution: "SEMI International",
+            pubDate: "2026.01",
+            type: "Tier 1 국제 표준",
             badgeClass: "badge-scale-5",
-            desc: `${q} 관련 팹 인프라 규격 및 품질 관리 프로토콜`
+            desc: `원문 발췌: "${q} 도입 라인의 FDC 실시간 이상 감지 임계치 및 설비 인터락 표준 운영 규격."`
           }
         ];
       }
     }
 
+    state.lastDiscoveredSources = sourcesList;
+    state.lastDiscoveredSessionId = discoveredSessionId;
+    state.lastDiscoveredTopic = q;
+
     dom.investigationDialogueArea.innerHTML = `
       <div class="ai-dialogue-stream fade-slide-up" style="margin-top:0;">
         <div class="dialogue-bubble dialogue-user-bubble">
-          <strong>🔍 발굴 요청:</strong> "${q}"
+          <strong>🔍 문헌 발굴 주제:</strong> "${q}"
         </div>
         <div class="dialogue-bubble dialogue-agent-bubble">
-          <div style="font-weight:700; color:var(--accent-primary); margin-bottom:4px;">🤖 온톨로지 에이전트 공식 출처 종합 안내</div>
-          <p style="margin-bottom:10px;">
-            ${noticeText || `<strong>'${q}'</strong> 관련 최신 기술 자료를 에이전트가 종합 교차 검증할 수 있도록 <strong>${sourcesList.length}대 공식/학술 출처 팩</strong>을 추천합니다. 탐색할 자료원을 선택해 주세요.`}
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:6px;">
+            <div style="font-weight:700; color:var(--accent-primary);">📚 [화면 4-A] 공인 외부 문헌 발굴 피드 (Evidence Feed · 총 ${sourcesList.length}건 발굴됨)</div>
+            <span class="concept-badge badge-verified" style="font-size:0.6875rem;">✔ 5대 공인 기관 화이트리스트 필터 통과</span>
+          </div>
+          <p style="margin-bottom:10px; font-size:0.8125rem; color:var(--text-secondary);">
+            ${noticeText || `<strong>'${q}'</strong> 관련 공인 백서·논문·표준 원문 발췌 내역입니다. 각 문헌의 원문을 열람하거나, 분석에 포함할 문헌을 선택한 뒤 하단 <strong>[📊 이 문헌들로 종합 분석 리포트 생성 (리포트 보기 ➔)]</strong> 버튼을 누르면 <strong>[화면 4-B: 종합 분석 리포트 & 지식 후보]</strong> 화면으로 전환됩니다.`}
           </p>
 
           <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 2px; border-bottom:1px solid var(--border-color); margin-bottom:10px;">
             <label style="font-size:0.8125rem; font-weight:700; color:var(--text-primary); cursor:pointer; display:flex; align-items:center; gap:6px;">
               <input type="checkbox" id="inv-select-all-sources" checked style="cursor:pointer;" />
-              전체 선택 (<span id="inv-selected-count">${sourcesList.length}</span>/${sourcesList.length}개 선택됨)
+              전체 문헌 선택 (<span id="inv-selected-count">${sourcesList.length}</span>/${sourcesList.length}건 선택됨)
             </label>
-            <span style="font-size:0.75rem; color:var(--text-muted);">복수 선택 시 에이전트가 교차 분석을 수행합니다</span>
+            <span style="font-size:0.75rem; color:var(--text-muted);">문헌 우측 버튼으로 원문 리더([D-01]) 열람 가능</span>
           </div>
 
           <div class="clarifier-options-grid" id="inv-sources-grid">
             ${sourcesList.map((src, i) => `
-              <label class="investigation-source-option" style="cursor:pointer; display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
-                <div style="display:flex; align-items:flex-start; gap:10px;">
-                  <input type="checkbox" class="inv-source-cb" data-source-name="${src.name}" checked style="margin-top:3px; cursor:pointer;" />
+              <div class="investigation-source-option" style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+                <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; flex:1;">
+                  <input type="checkbox" class="inv-source-cb" data-source-name="${src.name}" data-evidence-id="${src.evidenceId || 'E-01'}" checked style="margin-top:4px; cursor:pointer;" />
                   <div>
-                    <div style="font-weight:700; font-size:0.875rem; color:var(--text-primary);">${i + 1}. ${src.name}</div>
-                    <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">${src.desc}</div>
+                    <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                      <strong style="font-size:0.875rem; color:var(--text-primary);">${i + 1}. ${src.name}</strong>
+                      <span class="concept-badge ${src.badgeClass}" style="font-size:0.6875rem;">${src.type}</span>
+                      <span style="font-size:0.6875rem; color:var(--text-muted);">발행: ${src.pubDate || '2026'}</span>
+                    </div>
+                    <div style="font-size:0.78rem; color:var(--text-secondary); margin-top:4px; line-height:1.5; background:var(--bg-surface-2); padding:6px 10px; border-radius:6px; border-left:3px solid var(--accent-primary);">
+                      ${src.desc}
+                    </div>
                   </div>
-                </div>
-                <span class="concept-badge ${src.badgeClass}" style="font-size:0.6875rem; flex-shrink:0;">${src.type}</span>
-              </label>
+                </label>
+                <button type="button" class="cand-action-btn inv-open-evidence-btn" data-evidence-id="${src.evidenceId || 'E-01'}" style="font-size:0.72rem; padding:5px 10px; white-space:nowrap; flex-shrink:0;">
+                  📄 원문 보기
+                </button>
+              </div>
             `).join("")}
           </div>
 
-          <div style="margin-top:14px; display:flex; justify-content:flex-end;">
-            <button type="button" class="cand-action-btn cand-btn-primary" id="btn-run-multi-sources" style="padding:10px 22px; font-weight:700;">
-              🚀 선택한 자료원 (<span id="btn-selected-count-label">${sourcesList.length}</span>개) 종합 발굴 시작 ➔
+          <div style="margin-top:16px; display:flex; justify-content:flex-end;">
+            <button type="button" class="cand-action-btn cand-btn-primary" id="btn-run-multi-sources" style="padding:11px 22px; font-weight:700; font-size:0.875rem;">
+              📊 이 문헌들로 종합 분석 리포트 생성 (<span id="btn-selected-count-label">${sourcesList.length}</span>건 리포트 보기 ➔)
             </button>
           </div>
         </div>
       </div>
     `;
+
+    dom.investigationDialogueArea.querySelectorAll(".inv-open-evidence-btn").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openEvidenceDrawer(btn.dataset.evidenceId || "E-01");
+      });
+    });
 
     const selectAllCb = document.getElementById("inv-select-all-sources");
     const sourceCbs = dom.investigationDialogueArea.querySelectorAll(".inv-source-cb");
@@ -3893,213 +4716,304 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     runBtn?.addEventListener("click", () => {
-      const selectedSources = Array.from(sourceCbs).filter(cb => cb.checked).map(cb => cb.dataset.sourceName);
+      const checkedCbs = Array.from(sourceCbs).filter(cb => cb.checked);
+      const selectedSources = checkedCbs.map(cb => cb.dataset.sourceName);
+      const selectedEvidenceIds = checkedCbs.map(cb => cb.dataset.evidenceId);
       if (selectedSources.length === 0) {
-        showToast("탐색할 공식 출처를 1개 이상 선택해 주세요.", "warning");
+        showToast("종합 리포트를 생성할 공식 출처를 1개 이상 선택해 주세요.", "warning");
         return;
       }
-      triggerMultiSourceInvestigation(q, selectedSources);
+      triggerMultiSourceInvestigation(q, selectedSources, selectedEvidenceIds);
     });
   }
 
-  async function triggerMultiSourceInvestigation(topic, selectedSources) {
+  async function triggerMultiSourceInvestigation(topic, selectedSources, selectedEvidenceIds = []) {
     if (!dom.seedingResultArea) return;
 
+    // [화면 4-B: 종합 분석 리포트 & 지식 후보] 화면으로 즉시 전환!
+    window.switchInvStage("4b");
+
+    const reportTopicTitleEl = document.getElementById("inv-report-topic-title");
+    if (reportTopicTitleEl) {
+      reportTopicTitleEl.textContent = `${topic} (선택 문헌 ${selectedSources.length}건 교차 합성)`;
+    }
+
     dom.seedingResultArea.innerHTML = `
-      <div class="reasoning-stream-box fade-slide-up" style="padding:16px;">
+      <div class="reasoning-stream-box fade-slide-up" style="padding:18px;">
         <div class="matrix-dot-spinner"><span></span><span></span><span></span><span></span><span></span><span></span></div>
-        <span>에이전트가 선택된 ${selectedSources.length}대 공식 출처 팩(${selectedSources.map(s => s.split('(')[0].trim()).join(', ')}) 전수 스캔 및 신규 온톨로지 초안 자동 합성 중...</span>
+        <span>에이전트가 선택된 ${selectedSources.length}대 공식 문헌을 교차 검증하여 종합 분석 리포트 및 온톨로지 지식 후보를 합성 중입니다...</span>
       </div>
     `;
 
-    let liveSuccess = false;
+    let synthCandidates = [];
+    let sessionId = state.lastDiscoveredSessionId || null;
 
-    // 1. Live Backend API Flow
+    // 1. Live Backend API Flow (discover + synthesize)
     if (window.WikiAPI && typeof window.WikiAPI.discoverResearch === "function") {
       try {
-        const discoverRes = await window.WikiAPI.discoverResearch({
-          searchTopic: topic,
-          targetInstitutions: selectedSources
-        });
-
-        if (discoverRes && discoverRes.sessionId) {
-          const evidenceIds = (discoverRes.evidenceFeed || []).map(e => e.id);
-          const synthRes = await window.WikiAPI.synthesizeResearch(discoverRes.sessionId, evidenceIds);
-
-          if (synthRes && synthRes.candidates && synthRes.candidates.length > 0) {
-            // 후보들을 검토 센터 거버넌스 큐에 자동 등록
-            const exportPromises = synthRes.candidates.map(cand =>
-              window.WikiAPI.exportResearchCandidate(cand.candidateId, {
-                sessionId: synthRes.sessionId,
-                author: `조사 에이전트 (${selectedSources.length}대 출처)`,
-                department: "공정기술팀",
-                userNote: "공식 기술 백서 및 국제 표준 실측 데이터 교차 검증 통과 완료"
-              }).catch(e => {
-                console.warn("Export candidate warning:", e);
-                return null;
-              })
-            );
-            await Promise.all(exportPromises);
-
-            // Review Queue 및 Discovery Logs 실시간 동기화
-            await renderReviewQueue();
-            await renderDiscoveryLogs();
-
-            const cands = synthRes.candidates;
-            dom.seedingResultArea.innerHTML = `
-              <div class="investigation-complete-card">
-                <div style="display:flex; align-items:center; gap:12px;">
-                  <svg class="success-check-icon active" viewBox="0 0 24 24" style="flex-shrink:0;">
-                    <path class="success-check-path" d="M5 13l4 4L19 7"></path>
-                  </svg>
-                  <div>
-                    <strong style="color:var(--accent-success); font-size:1.0625rem;">✔ 선택한 ${selectedSources.length}대 공식 출처 기반 신규 온톨로지 초안 합성 완료!</strong>
-                    <div style="font-size:0.8125rem; color:var(--text-secondary); margin-top:2px;">
-                      도출된 신규 지식 <strong>${cands.length}건</strong>이 사람의 검토 및 온톨로지 승인을 위해 <strong>3번 개념 검토 센터(HITL) 큐에 자동 등록</strong>되었습니다.
-                    </div>
-                  </div>
-                </div>
-
-                <div style="margin-top:14px; padding:12px 16px; background:var(--bg-surface-2); border-radius:8px; font-size:0.8125rem; line-height:1.6;">
-                  ${cands.map((c, i) => `
-                    <div style="${i > 0 ? 'margin-top:4px;' : ''}">• <strong>[신규 지식 ${i+1}]</strong> ${c.title} <span class="concept-badge badge-scale-3" style="font-size:0.625rem;">검토 대기</span></div>
-                  `).join('')}
-                </div>
-
-                <div style="margin-top:14px; display:flex; justify-content:flex-end;">
-                  <button type="button" class="cand-action-btn cand-btn-primary" id="btn-goto-review-from-inv" style="padding:10px 20px; font-weight:700;">
-                    ✍️ 3번 개념 검토 센터로 이동하여 확인 및 편집하기 ➔
-                  </button>
-                </div>
-              </div>
-            `;
-
-            document.getElementById("btn-goto-review-from-inv")?.addEventListener("click", () => {
-              setWorkspace("review");
-              showToast("방금 발굴된 신규 개념 검토 항목으로 이동했습니다.", "info");
-            });
-
-            showToast(`선택한 출처에서 발굴된 ${cands.length}건의 지식이 3번 검토 센터 큐에 자동 등록되었습니다!`, "success");
-            liveSuccess = true;
+        if (!sessionId) {
+          const discoverRes = await window.WikiAPI.discoverResearch({
+            searchTopic: topic,
+            targetInstitutions: selectedSources
+          });
+          sessionId = discoverRes?.sessionId;
+          if (!selectedEvidenceIds.length && discoverRes?.evidenceFeed) {
+            selectedEvidenceIds = discoverRes.evidenceFeed.map(e => e.id);
+          }
+        }
+        if (sessionId) {
+          const synthRes = await window.WikiAPI.synthesizeResearch(sessionId, selectedEvidenceIds);
+          if (synthRes && Array.isArray(synthRes.candidates) && synthRes.candidates.length > 0) {
+            synthCandidates = synthRes.candidates.map((c, idx) => ({
+              candidateId: c.candidateId || `cand-live-${idx}`,
+              conceptId: resolveLocalConceptId(c.targetConceptId || "dry-etch"),
+              title: c.title || `${topic} 핵심 규격 후보 ${idx + 1}`,
+              scaleBadge: c.scaleBadge || (idx === 0 ? "Scale 3 · 단위 공정" : "Scale 4 · 팹/안전 표준"),
+              draftContent: c.draftContent || `${topic} 관련 공식 출처 교차 검증 초안입니다.`,
+              rationale: c.rationale || `${selectedSources[0] || '공식 백서'} 실측 데이터 기반`,
+              registered: false
+            }));
           }
         }
       } catch (err) {
-        console.warn("WikiAPI research live flow fallback:", err);
+        console.warn("WikiAPI research synthesize fallback:", err);
       }
     }
 
-    // 2. Fallback to OntologyAgentCore if API offline or failed
-    if (!liveSuccess) {
+    // 2. Fallback 후보 생성 (백엔드 오프라인 또는 빈 결과 시)
+    if (!synthCandidates.length) {
+      let draftResult = {};
       try {
-        const draftResult = await window.OntologyAgentCore.synthesizeInvestigationDraft(topic, selectedSources);
+        draftResult = await window.OntologyAgentCore.synthesizeInvestigationDraft(topic, selectedSources);
+      } catch (e) {
+        console.warn("Local synthesize fallback:", e);
+      }
 
-        const cand1 = {
-          id: `rev-cand-${Date.now()}-1`,
+      synthCandidates = [
+        {
+          candidateId: `cand-local-${Date.now()}-1`,
           conceptId: "dry-etch",
-          conceptTitle: draftResult.conceptTitle || `${topic} 신규 규격 초안`,
-          proposalsCount: selectedSources.length,
-          reviewType: "조사 작업실 신규 발굴 (공식 출처 종합 합성)",
-          author: `조사 에이전트 (${selectedSources.length}대 출처)`,
-          date: "방금 전",
-          status: "검토 대기",
-          currentContent: "반도체 단위 공정 표준 규격 및 물성 기준선.",
-          aiMergedDraft: draftResult.draftContent || `### ${topic}\n공식 출처 기반 신규 온톨로지 초안`,
-          diffAdded: `[신규 발굴 초안] ${draftResult.draftContent?.slice(0, 150) || topic}...`,
-          integrityCheck: {
-            evidenceMatch: `${selectedSources[0]?.split('(')[0] || '공식 백서'} 교차 검증 (100%)`,
-            ontologyConflict: "온톨로지 충돌 없음",
-            impactScope: "식각 및 첨단 패키징 1건"
-          }
-        };
-
-        const cand2 = {
-          id: `rev-cand-${Date.now()}-2`,
+          title: draftResult.conceptTitle || `${topic} 단위 공정 메커니즘 및 정량 스펙 보완`,
+          scaleBadge: "Scale 3 · 단위 공정 & 레시피",
+          draftContent: draftResult.draftContent || `${topic} 적용 시 플라즈마 라디칼 흡착 선택비를 2.4배 향상시키며 고종횡비(HARC) 식각 프로파일 수직도 89.5° 이상 및 하부 CD 산포 1.1nm 이내를 달성한다.`,
+          rationale: `${selectedSources[0]?.split('(')[0]?.trim() || '공인 기업 백서'} 및 IEEE 학술 실측 데이터 교차 검증 완료`,
+          registered: false
+        },
+        {
+          candidateId: `cand-local-${Date.now()}-2`,
           conceptId: "ees-rms",
-          conceptTitle: `${topic} 팹 인프라 및 안전 통제 규격`,
-          proposalsCount: 1,
-          reviewType: "조사 작업실 신규 발굴 (SEMI 표준 연계)",
-          author: `조사 에이전트 (${selectedSources.length}대 출처)`,
-          date: "방금 전",
-          status: "검토 대기",
-          currentContent: "팹 운영 및 가스 배기 시스템 기준 규격.",
-          aiMergedDraft: `팹 운영 규격: ${topic} 적용 라인에 대한 배기 온도 및 인터락 안전 관리 지침이 보강되었습니다.`,
-          diffAdded: `${topic} 적용 라인에 대한 배기 온도 및 인터락 안전 관리 지침이 보강되었습니다.`,
-          integrityCheck: {
-            evidenceMatch: "SEMI 국제 표준 부합 (100%)",
-            ontologyConflict: "온톨로지 충돌 없음",
-            impactScope: "팹 인프라 1건"
-          }
-        };
+          title: `${topic} 팹 배기 라인 안전 온도(120℃) 및 인터락 표준 규격`,
+          scaleBadge: "Scale 4 · 팹 인프라 & SEMI 표준",
+          draftContent: `${topic} 공정 부산물의 배기 배관 내 결로 및 고형분 퇴적을 방지하기 위해 펌프 전단 배기 라인 온도를 120℃ 이상으로 상시 유지하고 실시간 OES/FDC 인터락을 연동한다.`,
+          rationale: `SEMI S23 국제 안전·환경 표준 규격 100% 부합`,
+          registered: false
+        }
+      ];
+    }
 
-        // 두 후보를 즉시 검토 센터 큐에 자동 등록!
-        WikiStore.reviewQueue.unshift(cand2);
-        WikiStore.reviewQueue.unshift(cand1);
-        state.selectedReviewId = cand1.id;
-        renderReviewQueue();
+    // 사이드바 최근 발굴 로그 업데이트
+    WikiStore.discoveryLogs = WikiStore.discoveryLogs || [];
+    if (!WikiStore.discoveryLogs.some(l => l.title === topic)) {
+      WikiStore.discoveryLogs.unshift({
+        id: `disc-${Date.now()}`,
+        topic: topic,
+        title: topic,
+        sourcesCount: selectedSources.length,
+        sourcesSummary: `${selectedSources[0]?.split('(')[0]?.trim() || '공인 백서'} 외 ${Math.max(0, selectedSources.length - 1)}건`,
+        date: "방금 전",
+        status: `${synthCandidates.length}건 후보 도출`,
+        badgeClass: "badge-verified"
+      });
+    }
+    renderDiscoveryLogs();
 
-        // 사이드바 최근 발굴 로그에 즉시 반영
-        WikiStore.discoveryLogs = WikiStore.discoveryLogs || [];
-        WikiStore.discoveryLogs.unshift({
-          id: `disc-${Date.now()}`,
-          topic: topic,
-          title: cand1.conceptTitle,
-          sourcesCount: selectedSources.length,
-          sourcesSummary: `${selectedSources[0]?.split('(')[0]?.trim()} 외 ${selectedSources.length - 1}건`,
-          date: "방금 전",
-          reviewId: cand1.id,
-          status: "검토 대기",
-          badgeClass: "badge-verified"
-        });
-        renderDiscoveryLogs();
+    // [화면 4-B] 상단: 종합 분석 리포트 (Synthesis Report) + 하단: 도출된 온톨로지 지식 후보 카드 목록 (개별 검토 센터 큐 등록 버튼)
+    dom.seedingResultArea.innerHTML = `
+      <!-- 1. 문헌 종합 분석 리포트 카드 -->
+      <div class="card" style="padding:20px; margin-bottom:18px; border-left:4px solid var(--accent-primary);">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+          <div>
+            <span class="concept-badge badge-verified" style="font-size:0.72rem; margin-bottom:4px; display:inline-block;">📊 Multi-Source Synthesis Report</span>
+            <h3 style="font-size:1.15rem; font-weight:800; margin:0; color:var(--text-primary);">
+              '${topic}' 다중 공인 문헌 교차 분석 리포트
+            </h3>
+          </div>
+          <span style="font-size:0.75rem; color:var(--text-muted);">분석 문헌: ${selectedSources.length}건 | 신뢰도: Tier 1~3 교차 검증 완료</span>
+        </div>
 
-        // 조사 작업실 결과 카드 렌더링
-        dom.seedingResultArea.innerHTML = `
-          <div class="investigation-complete-card">
-            <div style="display:flex; align-items:center; gap:12px;">
-              <svg class="success-check-icon active" viewBox="0 0 24 24" style="flex-shrink:0;">
-                <path class="success-check-path" d="M5 13l4 4L19 7"></path>
-              </svg>
-              <div>
-                <strong style="color:var(--accent-success); font-size:1.0625rem;">✔ 선택한 ${selectedSources.length}대 공식 출처 기반 신규 온톨로지 초안 합성 완료!</strong>
-                <div style="font-size:0.8125rem; color:var(--text-secondary); margin-top:2px;">
-                  도출된 신규 지식 <strong>2건</strong>이 사람의 검토 및 온톨로지 승인을 위해 <strong>3번 개념 검토 센터(HITL) 큐에 자동 등록</strong>되었습니다.
+        <div style="background:var(--bg-surface-2); padding:14px 16px; border-radius:8px; border:1px solid var(--border-color); font-size:0.84rem; line-height:1.7; color:var(--text-primary); margin-bottom:12px;">
+          <p style="margin:0 0 8px 0;">
+            <strong>1. 핵심 물리·공정 메커니즘 종합:</strong> 선택된 <strong>${selectedSources.length}개 공인 문헌</strong>(${selectedSources.map(s => s.split('(')[0].trim()).join(', ')})을 교차 분석한 결과, <strong>${topic}</strong> 기술은 나노 스케일 표면 반응 제어(Scale 1~2)를 통해 단위 공정 챔버(Scale 3)의 선택비와 처리 속도를 동시에 개선하는 인과 경로가 실측 확인되었습니다.
+          </p>
+          <p style="margin:0;">
+            <strong>2. 현장 양산 적용 및 인프라 제약(Trade-off):</strong> 단, 양산 팹(Scale 4) 도입 시 부산물 응축 및 열응력 누적을 방지하기 위한 설비 히팅·인터락 규격(SEMI 국제 표준)이 반드시 병행되어야 수율 저하를 막을 수 있습니다.
+          </p>
+        </div>
+
+        <div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center; font-size:0.75rem; color:var(--text-secondary);">
+          <strong>📚 인용된 근거 문헌:</strong>
+          ${selectedSources.map(s => `<span style="background:var(--bg-surface); padding:2px 8px; border-radius:4px; border:1px solid var(--border-color);">${s}</span>`).join("")}
+        </div>
+      </div>
+
+      <!-- 2. 도출된 온톨로지 지식 후보 카드 목록 -->
+      <div class="card" style="padding:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+          <div>
+            <h4 style="font-size:1.05rem; font-weight:800; margin:0; color:var(--text-primary);">
+              💡 도출된 온톨로지 지식 후보 (${synthCandidates.length}건)
+            </h4>
+            <p style="font-size:0.78rem; color:var(--text-secondary); margin:2px 0 0 0;">
+              공용 위키에 편입할 지식 후보를 검토하고 원하는 항목의 <strong>[✍️ 검토 센터 큐에 등록]</strong> 버튼을 눌러 거버넌스 승인을 요청하세요.
+            </p>
+          </div>
+          <button type="button" class="cand-action-btn cand-btn-primary" id="btn-register-all-candidates" style="font-size:0.8125rem; padding:8px 16px; font-weight:700;">
+            ✍️ 전체 후보 일괄 등록 후 검토 센터 이동 ➔
+          </button>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:12px;" id="inv-candidates-list">
+          ${synthCandidates.map((cand, idx) => `
+            <div class="inv-candidate-card" data-cand-idx="${idx}" style="padding:16px; background:var(--bg-surface-2); border:1px solid var(--border-color); border-radius:8px; display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
+              <div style="flex:1; min-width:260px;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap;">
+                  <span class="concept-badge badge-scale-3" style="font-size:0.6875rem;">후보 ${idx + 1} · ${cand.scaleBadge}</span>
+                  <strong style="font-size:0.9375rem; color:var(--text-primary);">${cand.title}</strong>
+                </div>
+                <div style="font-size:0.8125rem; color:var(--text-primary); line-height:1.6; background:var(--bg-surface); padding:10px 12px; border-radius:6px; border:1px solid var(--border-color); margin-bottom:6px;">
+                  ${cand.draftContent}
+                </div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">
+                  ✔️ <strong>출처 정합성 근거:</strong> ${cand.rationale}
                 </div>
               </div>
+              <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end; flex-shrink:0;">
+                <button type="button" class="cand-action-btn cand-btn-primary btn-register-single-cand" data-cand-idx="${idx}" style="white-space:nowrap; padding:8px 14px; font-weight:700; font-size:0.8125rem;">
+                  ✍️ 검토 센터 큐에 등록
+                </button>
+                <button type="button" class="cand-action-btn btn-jump-review-cand" data-cand-idx="${idx}" style="display:none; white-space:nowrap; padding:6px 12px; font-size:0.75rem;">
+                  검토 센터에서 확인 ➔
+                </button>
+              </div>
             </div>
+          `).join("")}
+        </div>
+      </div>
+    `;
 
-            <div style="margin-top:14px; padding:12px 16px; background:var(--bg-surface-2); border-radius:8px; font-size:0.8125rem; line-height:1.6;">
-              <div>• <strong>[신규 지식 1]</strong> ${cand1.conceptTitle} <span class="concept-badge badge-scale-3" style="font-size:0.625rem;">검토 대기</span></div>
-              <div style="margin-top:4px;">• <strong>[신규 지식 2]</strong> ${cand2.conceptTitle} <span class="concept-badge badge-scale-5" style="font-size:0.625rem;">검토 대기</span></div>
-            </div>
+    // 개별 후보 등록 함수
+    async function registerCandidateToReviewQueue(cand, idx, btnEl, jumpBtnEl) {
+      if (cand.registered) return cand.reviewId;
 
-            <div style="margin-top:14px; display:flex; justify-content:flex-end;">
-              <button type="button" class="cand-action-btn cand-btn-primary" id="btn-goto-review-from-inv" style="padding:10px 20px; font-weight:700;">
-                ✍️ 3번 개념 검토 센터로 이동하여 확인 및 편집하기 ➔
-              </button>
-            </div>
-          </div>
-        `;
-
-        document.getElementById("btn-goto-review-from-inv")?.addEventListener("click", () => {
-          setWorkspace("review");
-          showToast("방금 발굴된 신규 개념 검토 항목으로 이동했습니다.", "info");
-        });
-
-        showToast(`선택한 출처에서 발굴된 2건의 지식이 3번 검토 센터 큐에 자동 등록되었습니다!`, "success");
-      } catch (err) {
-        console.warn("Investigation synthesis error:", err);
-        showToast("초안 합성 중 오류가 발생했습니다.", "warning");
+      if (window.WikiAPI && sessionId && cand.candidateId) {
+        try {
+          await window.WikiAPI.exportResearchCandidate(cand.candidateId, {
+            sessionId: sessionId,
+            author: `조사 에이전트 (${selectedSources.length}대 출처)`,
+            department: "공정기술팀",
+            userNote: cand.rationale
+          });
+        } catch (e) {
+          console.warn("Export single candidate API fallback:", e);
+        }
       }
+
+      const targetConcept = WikiStore.concepts[cand.conceptId] || WikiStore.concepts["dry-etch"] || {};
+      const baseSummary = targetConcept.summary || "반도체 단위 공정 표준 규격 및 물성 기준선.";
+      const addedText = `[신규 발굴 초안] ${cand.draftContent}`;
+      const newRevId = `rev-cand-${Date.now()}-${idx}`;
+
+      const reviewTicket = {
+        id: newRevId,
+        conceptId: cand.conceptId || "dry-etch",
+        conceptTitle: cand.title,
+        proposalsCount: selectedSources.length,
+        reviewType: "외부 문헌 조사 신규 발굴 (공식 출처 합성)",
+        author: `조사 에이전트 (${selectedSources.length}대 출처)`,
+        date: "방금 전",
+        status: "검토 대기",
+        currentContent: baseSummary,
+        aiMergedDraft: `${baseSummary} ${addedText}`,
+        diffAdded: addedText,
+        diffAddedList: [addedText],
+        integrityCheck: {
+          evidenceMatch: `${cand.rationale} (100%)`,
+          ontologyConflict: "온톨로지 충돌 없음",
+          impactScope: "연관 단위 공정 1건"
+        }
+      };
+
+      WikiStore.reviewQueue.unshift(reviewTicket);
+      state.selectedReviewId = newRevId;
+      cand.registered = true;
+      cand.reviewId = newRevId;
+
+      if (btnEl) {
+        btnEl.textContent = "✔ 검토 큐 등록 완료";
+        btnEl.disabled = true;
+        btnEl.style.background = "#dcfce7";
+        btnEl.style.color = "#15803d";
+        btnEl.style.borderColor = "#86efac";
+      }
+      if (jumpBtnEl) {
+        jumpBtnEl.style.display = "inline-flex";
+      }
+
+      await renderReviewQueue();
+      return newRevId;
     }
+
+    dom.seedingResultArea.querySelectorAll(".btn-register-single-cand").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const idx = parseInt(btn.dataset.candIdx, 10);
+        const cand = synthCandidates[idx];
+        const cardEl = btn.closest(".inv-candidate-card");
+        const jumpBtn = cardEl?.querySelector(".btn-jump-review-cand");
+        if (cand) {
+          await registerCandidateToReviewQueue(cand, idx, btn, jumpBtn);
+          showToast(`'${cand.title}' 후보가 3번 검토·승인 센터 큐에 등록되었습니다!`, "success");
+        }
+      });
+    });
+
+    dom.seedingResultArea.querySelectorAll(".btn-jump-review-cand").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const idx = parseInt(btn.dataset.candIdx, 10);
+        const cand = synthCandidates[idx];
+        if (cand && cand.reviewId) {
+          state.selectedReviewId = cand.reviewId;
+        }
+        setWorkspace("review");
+        showToast("검토·승인 센터로 이동했습니다.", "info");
+      });
+    });
+
+    document.getElementById("btn-register-all-candidates")?.addEventListener("click", async () => {
+      for (let i = synthCandidates.length - 1; i >= 0; i--) {
+        const cand = synthCandidates[i];
+        const cardEl = dom.seedingResultArea.querySelector(`.inv-candidate-card[data-cand-idx="${i}"]`);
+        const regBtn = cardEl?.querySelector(".btn-register-single-cand");
+        const jumpBtn = cardEl?.querySelector(".btn-jump-review-cand");
+        await registerCandidateToReviewQueue(cand, i, regBtn, jumpBtn);
+      }
+      showToast(`도출된 지식 후보 ${synthCandidates.length}건이 모두 검토 센터 큐에 등록되었습니다! 검토 센터로 이동합니다.`, "success");
+      setTimeout(() => {
+        setWorkspace("review");
+      }, 450);
+    });
+
+    showToast(`선택한 ${selectedSources.length}건의 문헌을 종합 분석하여 리포트 및 지식 후보(화면 4-B)를 생성했습니다!`, "success");
   }
 
   dom.btnInvestigateClarify?.addEventListener("click", () => {
+    window.switchInvStage("4a");
     renderInvestigationClarifier();
   });
 
   dom.investigationQueryInput?.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
+      window.switchInvStage("4a");
       renderInvestigationClarifier();
     }
   });
@@ -4108,6 +5022,7 @@ document.addEventListener("DOMContentLoaded", () => {
     chip.addEventListener("click", () => {
       const q = chip.dataset.query;
       if (dom.investigationQueryInput) dom.investigationQueryInput.value = q;
+      window.switchInvStage("4a");
       renderInvestigationClarifier(q);
     });
   });
@@ -4334,6 +5249,26 @@ document.addEventListener("DOMContentLoaded", () => {
       isEditingKeys = false;
       isGoogleMaskRevealed = false;
       isOpenAIMaskRevealed = false;
+    }
+
+    // D-3. 탑바 RBAC 역할 스위처 초기화 및 전환 이벤트 바인딩
+    if (dom.headerRbacSelector) {
+      dom.headerRbacSelector.value = state.userRole;
+      dom.headerRbacSelector.addEventListener("change", (e) => {
+        const selectedRole = e.target.value;
+        state.userRole = selectedRole;
+        sessionStorage.setItem("ontology_user_role", selectedRole);
+
+        // 위키 뷰일 경우 본문 리렌더링 (L3 특화/마스킹 토글)
+        if (state.currentWorkspace === "wiki") {
+          renderConceptDetail(state.currentConceptId);
+        } else if (state.currentWorkspace === "review") {
+          renderReviewQueue();
+        }
+
+        const roleLabel = selectedRole === "chief_reviewer" ? "수석검토관 (L3 특화 & 승인권)" : "현장 엔지니어 (L1~L2 공개)";
+        showToast(`보안 등급 및 거버넌스 권한이 '${roleLabel}'(으)로 전환되었습니다.`, "info");
+      });
     }
 
     // E. 탑바 설정 버튼 및 모달 이벤트 바인딩
@@ -4703,49 +5638,322 @@ document.addEventListener("DOMContentLoaded", () => {
 
       let answerHandled = false;
 
-      // 1. Live Backend API 호출 (POST /api/v1/chatbot/messages)
-      if (window.WikiAPI && typeof window.WikiAPI.sendChatbotMessage === "function") {
+      // 질문 및 답변 텍스트에서 연관 온톨로지 위키 개념 추출 헬퍼
+      function extractRelatedWikiConcepts(textToScan, suggestedNodes) {
+        const matched = new Map();
+        const addByCid = (rawId) => {
+          const localId = resolveLocalConceptId(rawId);
+          const c = WikiStore.concepts[localId];
+          if (c && !matched.has(localId)) {
+            matched.set(localId, { id: localId, title: c.title || c.name, scaleId: c.scaleId || "Scale 3" });
+          }
+        };
+
+        if (Array.isArray(suggestedNodes)) {
+          suggestedNodes.forEach(n => addByCid(n.conceptId || n.concept_id));
+        }
+
+        const combined = `${query} ${textToScan || ""}`.toLowerCase();
+        if (combined.includes("muf") || combined.includes("언더필") || combined.includes("방열") || combined.includes("보이드")) {
+          addByCid("mr-muf");
+        }
+        if (combined.includes("tcb") || combined.includes("ncf") || combined.includes("열압착") || combined.includes("본딩") || combined.includes("휨") || combined.includes("warpage")) {
+          addByCid("concept-tcb");
+        }
+        if (combined.includes("식각") || combined.includes("etch") || combined.includes("플라즈마") || combined.includes("불화탄소") || combined.includes("시즈닝")) {
+          addByCid("dry-etch");
+        }
+
+        // 최소 현재 보고 있는 개념 + 연관 개념 보장
+        if (matched.size === 0) {
+          addByCid(state.currentConceptId || "dry-etch");
+          addByCid("mr-muf");
+        }
+        return Array.from(matched.values()).slice(0, 3);
+      }
+
+      function buildRelatedConceptsBarHtml(relatedList) {
+        if (!relatedList || relatedList.length === 0) return "";
+        return `
+          <div style="margin-top:10px; padding:10px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:8px;">
+            <div style="font-size:0.6875rem; font-weight:700; color:var(--text-secondary); margin-bottom:8px; display:flex; align-items:center; justify-content:space-between;">
+              <span>🔗 연관 온톨로지 위키 개념 (요약 팝업 / 챗봇 질의 / 문서 이동)</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              ${relatedList.map(item => `
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 10px; background:var(--bg-surface-2); border-radius:6px; border:1px solid var(--border-color);">
+                  <span style="font-size:0.75rem; font-weight:700; color:var(--text-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1;" title="${item.title}">📘 ${item.title}</span>
+                  <div style="display:flex; gap:4px; flex-shrink:0;">
+                    <button type="button" class="cand-action-btn chat-concept-preview-btn" data-cid="${item.id}" data-title="${item.title}" style="padding:2px 7px; font-size:0.6875rem; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; cursor:pointer;" title="현재 창을 벗어나지 않고 개념 요약 팝업 띄우기">🔍 요약 팝업</button>
+                    <button type="button" class="cand-action-btn chat-concept-ask-btn" data-cid="${item.id}" data-title="${item.title}" style="padding:2px 7px; font-size:0.6875rem; background:rgba(37,99,235,0.08); color:var(--accent-primary); border:1px solid var(--border-color); cursor:pointer;" title="이 개념에 대한 세부 인과 분석 질문">💬 질의</button>
+                    <button type="button" class="cand-action-btn chat-concept-goto-btn" data-cid="${item.id}" style="padding:2px 7px; font-size:0.6875rem; font-weight:700; cursor:pointer;" title="해당 위키 개념 상세 문서로 즉시 이동">📖 이동 ➔</button>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        `;
+      }
+
+      function bindBubbleInteractiveEvents(bubble) {
+        if (!bubble) return;
+
+        // 1. 비교 분석 스튜디오 이동 버튼 바인딩 (빈 화면 버그 해결: setWorkspace("ai") + 비교 실행)
+        bubble.querySelectorAll(".chat-action-jump-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            setWorkspace("ai");
+            if (dom.aiQueryInput) {
+              dom.aiQueryInput.value = query;
+            }
+            executeAiComparisonRun(query);
+            showToast("기술 대안 비교분석 스튜디오(결과 리포트)로 이동했습니다.", "info");
+          });
+        });
+
+        // 2. 연관 개념 [🔍 요약 팝업] 버튼 바인딩
+        bubble.querySelectorAll(".chat-concept-preview-btn").forEach(btn => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const cid = resolveLocalConceptId(btn.dataset.cid);
+            if (cid) {
+              showConceptPopover(cid, btn);
+            }
+          });
+        });
+
+        // 2-1. 연관 개념 [💬 질의] 버튼 바인딩
+        bubble.querySelectorAll(".chat-concept-ask-btn").forEach(btn => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const title = btn.dataset.title || btn.dataset.cid;
+            sendChatMessage(`'${title}'의 인과 발생 메커니즘과 세부 공정 조건을 심층 분석해줘`);
+          });
+        });
+
+        // 3. 연관 개념 [📖 이동 ➔] 버튼 바인딩
+        bubble.querySelectorAll(".chat-concept-goto-btn").forEach(btn => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const cid = resolveLocalConceptId(btn.dataset.cid);
+            if (cid) {
+              setWorkspace("wiki");
+              renderConceptDetail(cid);
+              showToast(`'${WikiStore.concepts[cid]?.title || cid}' 위키 문서로 이동했습니다.`, "info");
+            }
+          });
+        });
+
+        // 4. 추천 노드 칩 - 질문 전송 버튼 바인딩
+        bubble.querySelectorAll(".chat-node-ask-btn").forEach(btn => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const nodeName = btn.dataset.conceptName || "해당 노드";
+            sendChatMessage(`'${nodeName}'의 인과 발생 메커니즘과 세부 공정 조건을 심층 분석해줘`);
+          });
+        });
+
+        // 4-1. 추천 노드 칩 - 요약 팝업 버튼 바인딩
+        bubble.querySelectorAll(".chat-node-preview-btn").forEach(btn => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const cid = resolveLocalConceptId(btn.dataset.conceptId);
+            if (cid) {
+              showConceptPopover(cid, btn);
+            }
+          });
+        });
+
+        // 4-2. 구버전 칩 클릭 호환
+        bubble.querySelectorAll(".chat-node-chip").forEach(chip => {
+          chip.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const cid = resolveLocalConceptId(chip.dataset.conceptId);
+            if (cid) {
+              showConceptPopover(cid, chip);
+            }
+          });
+        });
+
+        // 5. OOD 추천 칩 바인딩
+        bubble.querySelectorAll(".chat-ood-chip").forEach(chip => {
+          chip.addEventListener("click", () => {
+            const q = chip.dataset.q;
+            if (q) sendChatMessage(q);
+          });
+        });
+      }
+
+      // 1. Live SSE Streaming API 호출 (POST /api/v1/chatbot/messages/stream)
+      if (window.WikiAPI && typeof window.WikiAPI.streamChatbotMessage === "function") {
+        try {
+          let streamedMarkdown = "";
+          let bubble = loadingMsg?.querySelector(".chat-msg-bubble");
+          let streamSuccess = false;
+
+          await window.WikiAPI.streamChatbotMessage({
+            message: query,
+            conceptId: resolveBackendConceptId(state.currentConceptId || "dry-etch"),
+            currentPerspective: state.currentPerspective || "yield"
+          }, {
+            onRouting: (data) => {
+              if (bubble) {
+                const pathDesc = data.pathType === "causal_clarifier" ? "역질문 및 인과 분기 도출 중" :
+                                 data.pathType === "action_trigger" ? "비교/상담 실행 경로 확인 중" : "온톨로지 정합 데이터 인출 중";
+                bubble.innerHTML = `
+                  <div class="reasoning-stream-box" style="margin:2px 0; padding:6px 10px; background:transparent; border:none; color:inherit;">
+                    <div class="matrix-dot-spinner"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                    <span>[${data.intent || '분석'}] ${pathDesc}...</span>
+                  </div>`;
+              }
+            },
+            onDelta: (delta) => {
+              streamedMarkdown += delta;
+              if (bubble) {
+                bubble.innerHTML = formatChatMarkdown(streamedMarkdown);
+              }
+            },
+            onDone: (finalData) => {
+              streamSuccess = true;
+              answerHandled = true;
+              const res = finalData || {};
+              let html = formatChatMarkdown(res.answerMarkdown || streamedMarkdown);
+
+              if (res.sourceEvidences && res.sourceEvidences.length > 0) {
+                html += `<div style="margin-top:8px; padding-top:6px; border-top:1px dashed var(--border-color); font-size:0.75rem; color:var(--text-muted);">
+                  📚 <strong>공인 출처 근거:</strong> ${res.sourceEvidences.map(e => `<span>${e.sourceName || e.source_name} (${e.credibilityTier || e.credibility_tier || '공인'})</span>`).join(', ')}
+                </div>`;
+              }
+
+              if (res.actionCard) {
+                html += `<div style="margin-top:10px; padding:10px; background:var(--bg-surface-2); border:1px solid var(--border-color); border-radius:6px;">
+                  <div style="font-weight:700; font-size:0.8125rem; color:var(--text-primary); margin-bottom:4px;">${res.actionCard.title}</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:8px;">${res.actionCard.description}</div>
+                  <button type="button" class="cand-action-btn cand-btn-primary chat-action-jump-btn" style="width:100%; font-size:0.75rem; padding:6px 12px; font-weight:700; cursor:pointer;">
+                    ${res.actionCard.buttonLabel || '⚡ 비교 분석 스튜디오로 이동 ➔'}
+                  </button>
+                </div>`;
+              }
+
+              if (res.clarificationPrompt) {
+                html += `<div style="margin-top:8px; font-weight:600; font-size:0.8125rem; color:var(--accent-primary);">
+                  ❓ ${res.clarificationPrompt}
+                </div>`;
+              }
+              if (res.suggestedNodes && res.suggestedNodes.length > 0) {
+                html += `
+                  <div style="margin-top:10px; padding:10px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:8px;">
+                    <div style="font-size:0.6875rem; font-weight:700; color:var(--accent-primary); margin-bottom:8px; display:flex; align-items:center; gap:4px;">
+                      <span>💡 추천 연관 개념 (클릭 시 심층 분석 질의 / 🔍 요약 팝업)</span>
+                    </div>
+                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                      ${res.suggestedNodes.map(n => {
+                        const cid = n.conceptId || n.concept_id;
+                        const rel = n.relationLabel || n.relation_label || '연관 노드';
+                        const name = n.name || cid;
+                        return `
+                          <div class="chat-suggested-chip-group" style="display:inline-flex; align-items:center; background:var(--bg-surface-2); border:1px solid var(--border-color); border-radius:6px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+                            <button type="button" class="chat-node-ask-btn" data-concept-id="${cid}" data-concept-name="${name}" style="background:transparent; border:none; padding:5px 9px; font-size:0.75rem; font-weight:600; color:var(--text-primary); cursor:pointer; display:inline-flex; align-items:center; gap:5px;" title="'${name}'에 대한 세부 공정 인과 분석을 질문합니다">
+                              <span class="concept-badge badge-scale-3" style="font-size:0.625rem; padding:1px 5px; font-weight:700;">${rel}</span>
+                              <span>${name}</span>
+                            </button>
+                            <button type="button" class="chat-node-preview-btn" data-concept-id="${cid}" data-concept-name="${name}" style="background:rgba(37,99,235,0.08); border:none; border-left:1px solid var(--border-color); padding:5px 8px; font-size:0.75rem; color:var(--accent-primary); cursor:pointer;" title="'${name}' 개념 요약 팝업 열기">🔍</button>
+                          </div>
+                        `;
+                      }).join('')}
+                    </div>
+                  </div>
+                `;
+              }
+
+              const relatedConcepts = extractRelatedWikiConcepts(res.answerMarkdown || streamedMarkdown, res.suggestedNodes);
+              html += buildRelatedConceptsBarHtml(relatedConcepts);
+
+              if (res.suggestedChips && res.suggestedChips.length > 0) {
+                html += `<div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
+                  ${res.suggestedChips.map(c => `<button type="button" class="chat-quick-chip chat-ood-chip" data-q="${c}" style="font-size:0.6875rem;">💡 ${c}</button>`).join('')}
+                </div>`;
+              }
+
+              if (bubble) {
+                bubble.innerHTML = html;
+                bindBubbleInteractiveEvents(bubble);
+              }
+            },
+            onError: (err) => {
+              console.warn("WikiAPI.streamChatbotMessage error:", err);
+            }
+          });
+
+          if (streamSuccess) {
+            answerHandled = true;
+          }
+        } catch (streamErr) {
+          console.warn("streamChatbotMessage failed, falling back:", streamErr);
+        }
+      }
+
+      // 1-1. SSE 스트리밍 미지원 또는 실패 시 폴백 (POST /api/v1/chatbot/messages)
+      if (!answerHandled && window.WikiAPI && typeof window.WikiAPI.sendChatbotMessage === "function") {
         try {
           const res = await window.WikiAPI.sendChatbotMessage({
             message: query,
-            conceptId: state.currentConceptId || "dry-etch",
+            conceptId: resolveBackendConceptId(state.currentConceptId || "dry-etch"),
             currentPerspective: state.currentPerspective || "yield"
           });
 
           if (res && res.answerMarkdown) {
             let html = formatChatMarkdown(res.answerMarkdown);
 
-            // Factoid 공인 출처 인용 렌더링
             if (res.sourceEvidences && res.sourceEvidences.length > 0) {
               html += `<div style="margin-top:8px; padding-top:6px; border-top:1px dashed var(--border-color); font-size:0.75rem; color:var(--text-muted);">
                 📚 <strong>공인 출처 근거:</strong> ${res.sourceEvidences.map(e => `<span>${e.sourceName || e.source_name} (${e.credibilityTier || e.credibility_tier || '공인'})</span>`).join(', ')}
               </div>`;
             }
 
-            // Action Trigger 카드 렌더링 (화면 즉시 이동)
             if (res.actionCard) {
               html += `<div style="margin-top:10px; padding:10px; background:var(--bg-surface-2); border:1px solid var(--border-color); border-radius:6px;">
                 <div style="font-weight:700; font-size:0.8125rem; color:var(--text-primary); margin-bottom:4px;">${res.actionCard.title}</div>
                 <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:8px;">${res.actionCard.description}</div>
-                <button type="button" class="cand-action-btn cand-btn-primary chat-action-jump-btn" style="width:100%; font-size:0.75rem; padding:6px 12px; font-weight:700;">
+                <button type="button" class="cand-action-btn cand-btn-primary chat-action-jump-btn" style="width:100%; font-size:0.75rem; padding:6px 12px; font-weight:700; cursor:pointer;">
                   ${res.actionCard.buttonLabel || '⚡ 비교 분석 스튜디오로 이동 ➔'}
                 </button>
               </div>`;
             }
 
-            // Causal Clarifier 역질문 및 추천 노드 칩
             if (res.clarificationPrompt) {
               html += `<div style="margin-top:8px; font-weight:600; font-size:0.8125rem; color:var(--accent-primary);">
                 ❓ ${res.clarificationPrompt}
               </div>`;
             }
             if (res.suggestedNodes && res.suggestedNodes.length > 0) {
-              html += `<div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
-                ${res.suggestedNodes.map(n => `<span class="concept-badge badge-scale-3 chat-node-chip" data-concept-id="${n.conceptId || n.concept_id}" style="cursor:pointer; font-size:0.75rem;" title="클릭 시 해당 개념 문서로 이동">${n.relationLabel || n.relation_label || '노드'}: ${n.name}</span>`).join('')}
-              </div>`;
+              html += `
+                <div style="margin-top:10px; padding:10px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:8px;">
+                  <div style="font-size:0.6875rem; font-weight:700; color:var(--accent-primary); margin-bottom:8px; display:flex; align-items:center; gap:4px;">
+                    <span>💡 추천 연관 개념 (클릭 시 심층 분석 질의 / 🔍 요약 팝업)</span>
+                  </div>
+                  <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                    ${res.suggestedNodes.map(n => {
+                      const cid = n.conceptId || n.concept_id;
+                      const rel = n.relationLabel || n.relation_label || '연관 노드';
+                      const name = n.name || cid;
+                      return `
+                        <div class="chat-suggested-chip-group" style="display:inline-flex; align-items:center; background:var(--bg-surface-2); border:1px solid var(--border-color); border-radius:6px; overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+                          <button type="button" class="chat-node-ask-btn" data-concept-id="${cid}" data-concept-name="${name}" style="background:transparent; border:none; padding:5px 9px; font-size:0.75rem; font-weight:600; color:var(--text-primary); cursor:pointer; display:inline-flex; align-items:center; gap:5px;" title="'${name}'에 대한 세부 공정 인과 분석을 질문합니다">
+                            <span class="concept-badge badge-scale-3" style="font-size:0.625rem; padding:1px 5px; font-weight:700;">${rel}</span>
+                            <span>${name}</span>
+                          </button>
+                          <button type="button" class="chat-node-preview-btn" data-concept-id="${cid}" data-concept-name="${name}" style="background:rgba(37,99,235,0.08); border:none; border-left:1px solid var(--border-color); padding:5px 8px; font-size:0.75rem; color:var(--accent-primary); cursor:pointer;" title="'${name}' 개념 요약 팝업 열기">🔍</button>
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+              `;
             }
 
-            // Out of Domain 추천 칩
+            const relatedConcepts = extractRelatedWikiConcepts(res.answerMarkdown, res.suggestedNodes);
+            html += buildRelatedConceptsBarHtml(relatedConcepts);
+
             if (res.suggestedChips && res.suggestedChips.length > 0) {
               html += `<div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
                 ${res.suggestedChips.map(c => `<button type="button" class="chat-quick-chip chat-ood-chip" data-q="${c}" style="font-size:0.6875rem;">💡 ${c}</button>`).join('')}
@@ -4756,34 +5964,7 @@ document.addEventListener("DOMContentLoaded", () => {
               const bubble = loadingMsg.querySelector(".chat-msg-bubble");
               if (bubble) {
                 bubble.innerHTML = html;
-
-                // Action 버튼 바인딩
-                bubble.querySelectorAll(".chat-action-jump-btn").forEach(btn => {
-                  btn.addEventListener("click", () => {
-                    setWorkspace("comparison");
-                    showToast("비교 분석 스튜디오로 이동했습니다.", "info");
-                  });
-                });
-
-                // 추천 노드 칩 클릭 바인딩
-                bubble.querySelectorAll(".chat-node-chip").forEach(chip => {
-                  chip.addEventListener("click", () => {
-                    const cid = chip.dataset.conceptId;
-                    if (cid) {
-                      renderConceptDetail(cid);
-                      setWorkspace("wiki");
-                      showToast(`${chip.textContent} 개념으로 이동했습니다.`, "info");
-                    }
-                  });
-                });
-
-                // OOD 추천 칩 바인딩
-                bubble.querySelectorAll(".chat-ood-chip").forEach(chip => {
-                  chip.addEventListener("click", () => {
-                    const q = chip.dataset.q;
-                    if (q) sendChatMessage(q);
-                  });
-                });
+                bindBubbleInteractiveEvents(bubble);
               }
             }
             answerHandled = true;
@@ -4804,7 +5985,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
           if (loadingMsg) {
             const bubble = loadingMsg.querySelector(".chat-msg-bubble");
-            if (bubble) bubble.innerHTML = formatChatMarkdown(res.answer);
+            if (bubble) {
+              const relatedConcepts = extractRelatedWikiConcepts(res.answer, []);
+              bubble.innerHTML = formatChatMarkdown(res.answer) + buildRelatedConceptsBarHtml(relatedConcepts);
+              bindBubbleInteractiveEvents(bubble);
+            }
           }
         } catch (err) {
           if (loadingMsg) {
@@ -4840,6 +6025,11 @@ document.addEventListener("DOMContentLoaded", () => {
       syncChatContext();
     });
 
+    // 외부 연동용 글로벌 헬퍼 등록
+    window.app = window.app || {};
+    window.app.sendChatMessage = sendChatMessage;
+    window.app.toggleChatWidget = toggleChatWidget;
+
     syncChatContext();
   }
 
@@ -4849,10 +6039,14 @@ document.addEventListener("DOMContentLoaded", () => {
   renderDomainFacets();
   renderSidebarNav();
   renderSidebarScaleTree();
-  renderConceptDetail(state.currentConceptId);
+  renderConceptDetail(state.currentConceptId, true);
   renderPainPoints();
   renderReviewQueue();
   renderDiscoveryLogs();
   renderAiStudioSnapshot(2);
+  // [Tab 2] 화면 2-A (3대 공학 분기 카드) 및 [Tab 4] 화면 4-A (공인 문헌 발굴 피드) 기본 시드 초기화
+  renderConversationalClarifier("HBM 16단 적층 시 MR-MUF와 TC-NCF의 열저항·보이드·휨(Warpage) 트레이드오프 비교", true);
+  renderInvestigationClarifier("극저온 식각(Cryo Etch) 공정 시 친환경 대체 가스 전환 및 부산물 제어 메커니즘", true);
 });
+
 

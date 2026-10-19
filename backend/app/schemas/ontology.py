@@ -61,6 +61,10 @@ class PerspectiveCaseDTO(BaseModel):
     specifications: List[Dict[str, Any]] = Field(default_factory=list)
     caution: str
     evidenceId: Optional[str] = Field(None, alias="evidence_id", serialization_alias="evidenceId")
+    isMasked: bool = Field(False, alias="is_masked", serialization_alias="isMasked")
+    maskReason: Optional[str] = Field(None, alias="mask_reason", serialization_alias="maskReason")
+    relativeTrend: Optional[str] = Field(None, alias="relative_trend", serialization_alias="relativeTrend")
+    accessRequestCTA: Optional[str] = Field(None, alias="access_request_cta", serialization_alias="accessRequestCTA")
 
 
 class PrincipleStep(BaseModel):
@@ -111,6 +115,20 @@ class ContextualExplanationDTO(BaseModel):
     cached: bool = True
     sourceEvidence: Optional[Dict[str, Any]] = Field(None, alias="source_evidence", serialization_alias="sourceEvidence")
     deepLink: str = Field(..., alias="deep_link", serialization_alias="deepLink")
+
+
+class ContextualExplainerResponse(BaseModel):
+    """3.6절 에이전트 인라인 문맥 해설 응답 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    childConceptId: str = Field(..., alias="child_concept_id", serialization_alias="childConceptId")
+    childConceptName: str = Field(..., alias="child_concept_name", serialization_alias="childConceptName")
+    parentConceptId: str = Field(..., alias="parent_concept_id", serialization_alias="parentConceptId")
+    parentConceptName: str = Field(..., alias="parent_concept_name", serialization_alias="parentConceptName")
+    relationType: str = Field(..., alias="relation_type", serialization_alias="relationType")
+    contextualExplanation: str = Field(..., alias="contextual_explanation", serialization_alias="contextualExplanation")
+    fallbackDefinition: str = Field(..., alias="fallback_definition", serialization_alias="fallbackDefinition")
+    evidenceIds: List[str] = Field(default_factory=list, alias="evidence_ids", serialization_alias="evidenceIds")
 
 
 class ConceptDetailResponse(ConceptDTO):

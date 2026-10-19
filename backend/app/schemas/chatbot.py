@@ -53,9 +53,9 @@ class ChatbotSuggestedNode(BaseModel):
 
 class ChatbotMessageResponse(BaseModel):
     """3대 경로 분기형 챗봇 응답 DTO."""
-    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True, arbitrary_types_allowed=True)
 
-    pathType: str = Field(..., alias="path_type", serialization_alias="pathType")
+    pathType: Any = Field(..., alias="path_type", serialization_alias="pathType")
     answerMarkdown: str = Field(..., alias="answer_markdown", serialization_alias="answerMarkdown")
     clarificationPrompt: Optional[str] = Field(None, alias="clarification_prompt", serialization_alias="clarificationPrompt")
     sourceEvidences: List[Dict[str, Any]] = Field(default_factory=list, alias="source_evidences", serialization_alias="sourceEvidences")

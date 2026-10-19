@@ -9,13 +9,15 @@ from typing import Optional, List, Dict, Any, Literal
 import re
 import json
 import logging
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Header
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, text
 from sqlalchemy.orm import selectinload
 
 from backend.app.core.database import get_db
 from backend.app.core.cache import cache_manager
+from backend.app.core.security import mask_tier3_perspective, get_current_user_role
+from backend.app.agents import explainer_agent
 from backend.app.models.entities import (
     ConceptModel,
     CausalEdgeModel,
@@ -125,9 +127,11 @@ async def get_concept_tree(
 )
 async def get_concept_detail(
     concept_id: str,
+    x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     db: AsyncSession = Depends(get_db)
 ):
-    cache_key = f"concept:detail:{concept_id}"
+    role = get_current_user_role(x_user_role)
+    cache_key = f"concept:detail:{concept_id}:{role}"
     cached = await cache_manager.get(cache_key)
     if cached:
         return ConceptDetailResponse(**cached)
@@ -147,22 +151,24 @@ async def get_concept_detail(
             detail=f"Concept '{concept_id}' not found in ontology knowledge base."
         )
 
-    # 2. 실무 사례 DTO 매핑
-    perspectives_dto = [
-        PerspectiveCaseDTO(
-            id=p.id,
-            concept_id=p.concept_id,
-            perspective_id=p.perspective_id,
-            perspective_title=p.perspective_title,
-            perspective_badge=p.perspective_badge,
-            management_code=p.management_code,
-            context_narrative=p.context_narrative,
-            specifications=p.specifications if isinstance(p.specifications, list) else [],
-            caution=p.caution,
-            evidence_id=p.evidence_id
-        )
-        for p in concept.perspectives
-    ]
+    # 2. 실무 사례 DTO 매핑 및 5.4절 Tier 3 마스킹 엔진 적용
+    perspectives_dto = []
+    for p in concept.perspectives:
+        raw_dict = {
+            "id": p.id,
+            "concept_id": p.concept_id,
+            "perspective_id": p.perspective_id,
+            "perspective_title": p.perspective_title,
+            "perspective_badge": p.perspective_badge,
+            "management_code": p.management_code,
+            "context_narrative": p.context_narrative,
+            "specifications": p.specifications if isinstance(p.specifications, list) else [],
+            "caution": p.caution,
+            "evidence_id": p.evidence_id,
+            "is_masked": False
+        }
+        processed = mask_tier3_perspective(raw_dict, role)
+        perspectives_dto.append(PerspectiveCaseDTO(**processed))
 
     # 3. 0ms 팝오버를 위한 연관 개념 사전 적재 (Preloaded Explainers)
     preloaded_explainers: Dict[str, ContextualExplanationDTO] = {}
@@ -422,49 +428,46 @@ async def get_causal_subgraph(
 async def get_contextual_explainer(
     concept_id: str,
     term_id: str = Query(..., description="마우스오버된 용어/하위 개념 식별자"),
+    perspective_id: Optional[str] = Query("default", description="현재 활성 관점"),
+    x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
+    x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
     db: AsyncSession = Depends(get_db)
 ):
-    cache_key = f"concept:explainer:{concept_id}:{term_id}"
-    cached = await cache_manager.get(cache_key)
-    if cached:
-        return ContextualExplanationDTO(**cached)
-
-    child_concept = await db.get(ConceptModel, term_id)
-    if not child_concept:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Child concept/term '{term_id}' not found."
+    # 3.6절 Explainer Agent 호출 (가드레일 '현재 공정 맥락({parentName}):' 보장)
+    try:
+        explainer_resp = await explainer_agent.get_explanation(
+            child_id=term_id,
+            parent_id=concept_id,
+            perspective_id=perspective_id,
+            db=db,
+            gemini_key=x_gemini_key,
+            openai_key=x_openai_key
         )
-
-    parent_concept = await db.get(ConceptModel, concept_id)
-
-    # 부모-자식 간의 인과 엣지 메커니즘 문장 검색 (다중 관계 존재 시 최고 가중치 우선)
-    edge_stmt = (
-        select(CausalEdgeModel)
-        .where(
-            ((CausalEdgeModel.source_concept_id == concept_id) & (CausalEdgeModel.target_concept_id == term_id)) |
-            ((CausalEdgeModel.source_concept_id == term_id) & (CausalEdgeModel.target_concept_id == concept_id))
+        return ContextualExplanationDTO(
+            child_concept_id=explainer_resp.childConceptId,
+            parent_concept_id=explainer_resp.parentConceptId,
+            title=explainer_resp.childConceptName,
+            definition=explainer_resp.fallbackDefinition,
+            context_sentence=explainer_resp.contextualExplanation,
+            cached=True,
+            source_evidence={"evidenceIds": explainer_resp.evidenceIds},
+            deep_link=f"/wiki?concept={explainer_resp.childConceptId}"
         )
-        .order_by(CausalEdgeModel.weight.desc())
-    )
-    edge_res = await db.execute(edge_stmt)
-    edge = edge_res.scalars().first()
+    except Exception as e:
+        logger.warning(f"Explainer agent error, falling back to deterministic: {e}")
+        child_concept = await db.get(ConceptModel, term_id)
+        parent_concept = await db.get(ConceptModel, concept_id)
+        p_name = parent_concept.title if parent_concept else concept_id
+        c_title = child_concept.title if child_concept else term_id
+        c_def = child_concept.summary if child_concept else f"{term_id} 정의"
 
-    if edge and edge.mechanism_label:
-        context_sentence = f"[{concept_id} 연계 인과 메커니즘] {edge.mechanism_label}"
-    else:
-        context_sentence = f"'{parent_concept.title if parent_concept else concept_id}' 본문에서 참조되는 공학 개념입니다."
-
-    response_dto = ContextualExplanationDTO(
-        child_concept_id=child_concept.id,
-        parent_concept_id=concept_id,
-        title=child_concept.title,
-        definition=child_concept.summary,
-        context_sentence=context_sentence,
-        cached=True,
-        source_evidence=None,
-        deep_link=f"/wiki?concept={child_concept.id}"
-    )
-
-    await cache_manager.set(cache_key, response_dto.model_dump(by_alias=True), ttl_seconds=180)
-    return response_dto
+        return ContextualExplanationDTO(
+            child_concept_id=term_id,
+            parent_concept_id=concept_id,
+            title=c_title,
+            definition=c_def,
+            context_sentence=f"현재 공정 맥락({p_name}): {p_name}의 신뢰성 및 수율 안정성을 확보하기 위해 직접적으로 연계되는 핵심 구성 요소입니다.",
+            cached=True,
+            source_evidence=None,
+            deep_link=f"/wiki?concept={term_id}"
+        )

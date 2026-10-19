@@ -158,6 +158,19 @@ class DirectiveRequest(BaseModel):
     overrideReason: Optional[str] = Field(None, alias="override_reason", serialization_alias="overrideReason")
 
 
+class DirectiveResponse(BaseModel):
+    """전문가 보완 지시문 반영 응답 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    ticketId: str = Field(..., alias="ticket_id", serialization_alias="ticketId")
+    directiveText: str = Field(..., alias="directive_text", serialization_alias="directiveText")
+    targetLayer: str = Field(..., alias="target_layer", serialization_alias="targetLayer")
+    revisedDraft: str = Field(..., alias="revised_draft", serialization_alias="revisedDraft")
+    structuredPatches: Dict[str, Any] = Field(..., alias="structured_patches", serialization_alias="structuredPatches")
+    integrityReport: Dict[str, Any] = Field(..., alias="integrity_report", serialization_alias="integrityReport")
+    addedDirective: DirectiveHistoryItem = Field(..., alias="added_directive", serialization_alias="addedDirective")
+
+
 class HumanEditsRequest(BaseModel):
     """전문가 직접 편집 저장 요청 DTO."""
     model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)

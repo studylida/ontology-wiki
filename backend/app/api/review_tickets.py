@@ -16,7 +16,7 @@ import logging
 from datetime import datetime
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Header
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -310,8 +310,18 @@ async def manage_presence_lock(
 async def approve_review_ticket(
     ticket_id: str,
     body: ReviewTicketApproveRequest,
+    x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     db: AsyncSession = Depends(get_db)
 ):
+    if x_user_role and x_user_role.lower() == "line_engineer":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={
+                "code": "CHIEF_REVIEWER_ONLY",
+                "message": "위키 버전 승인 및 거버넌스 집행 권한은 '수석검토관(chief_reviewer)' 전용입니다. 현장 엔지니어(line_engineer)는 승인 권한이 없습니다."
+            }
+        )
+
     ticket = await db.get(ReviewTicketModel, ticket_id)
     if not ticket:
         raise HTTPException(
@@ -413,6 +423,14 @@ async def approve_review_ticket(
     await cache_manager.delete_prefix(f"concept:explainer:{ticket.concept_id}:")
     await cache_manager.delete_prefix("spotlight:")
 
+    # 7. 3.6절 Contextual Explainer 0ms 사전 컴파일 (Pre-computed Edge Caching)
+    try:
+        from backend.app.agents.explainer_agent import explainer_agent
+        await explainer_agent.precompile_concept_explainers(ticket.concept_id, db)
+    except Exception as e:
+        logger.warning(f"Failed to precompile explainers on approval: {e}")
+
+
     return ReviewTicketActionResponse(
         ticket=_convert_ticket_to_dto(ticket),
         audit_log=_convert_audit_to_dto(audit_entry),
@@ -433,8 +451,18 @@ async def approve_review_ticket(
 async def reject_review_ticket(
     ticket_id: str,
     body: ReviewTicketRejectRequest,
+    x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     db: AsyncSession = Depends(get_db)
 ):
+    if x_user_role and x_user_role.lower() == "line_engineer":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={
+                "code": "CHIEF_REVIEWER_ONLY",
+                "message": "위키 거버넌스 반려 권한은 '수석검토관(chief_reviewer)' 전용입니다. 현장 엔지니어(line_engineer)는 반려 권한이 없습니다."
+            }
+        )
+
     ticket = await db.get(ReviewTicketModel, ticket_id)
     if not ticket:
         raise HTTPException(
@@ -544,6 +572,9 @@ async def get_ticket_audit_logs(
 async def apply_directive(
     ticket_id: str,
     body: DirectiveRequest,
+    x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
+    x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
+    x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     db: AsyncSession = Depends(get_db)
 ):
     ticket = await db.get(ReviewTicketModel, ticket_id)
@@ -560,32 +591,16 @@ async def apply_directive(
             detail="보완 지시문 내용이 비어있습니다."
         )
 
-    if body.overrideReason:
-        ticket.override_reason = body.overrideReason
-
-    now_iso = datetime.utcnow().isoformat()
-    revised_draft = f"{ticket.ai_merged_draft}\n- **[전문가 보완 지시 반영]**: {text_input}"
-
-    directive_item = {
-        "directiveId": f"dir-{uuid.uuid4().hex[:6]}",
-        "directiveText": text_input,
-        "targetLayer": "hybrid",
-        "previousDraft": ticket.ai_merged_draft,
-        "revisedDraft": revised_draft,
-        "overrideReason": ticket.override_reason,
-        "timestamp": now_iso
-    }
-
-    history = list(ticket.directive_history or [])
-    history.append(directive_item)
-    ticket.directive_history = history
-    ticket.ai_merged_draft = revised_draft
-    ticket.updated_at = datetime.utcnow()
-
-    # 정합성 보고서 갱신
-    report = dict(ticket.integrity_report or {})
-    report["validationDetails"] = f"지시문 '{text_input[:30]}...' 반영 완료 (출처 정합성 검증 완료)"
-    ticket.integrity_report = report
+    # 🌟 3.4절 Directive Engine 에이전트 호출
+    from backend.app.agents.directive_agent import directive_agent
+    await directive_agent.process_directive(
+        ticket=ticket,
+        directive_text=text_input,
+        override_reason=body.overrideReason,
+        db=db,
+        gemini_key=x_gemini_key,
+        openai_key=x_openai_key
+    )
 
     await db.commit()
     await db.refresh(ticket)

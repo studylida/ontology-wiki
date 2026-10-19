@@ -797,3 +797,49 @@ REVIEW_TICKETS: List[Dict[str, Any]] = [
         "ticket_version": 2
     }
 ]
+
+# ==============================================================================
+# 7. 프론트엔드 전체 개념 및 실무 사례 전수 동기화 병합 (Extended Concepts)
+# ==============================================================================
+try:
+    from backend.seeds.extended_concepts import (
+        EXTENDED_CONCEPTS,
+        EXTENDED_PERSPECTIVES,
+        EXTENDED_CAUSAL_EDGES,
+        EXTENDED_EVIDENCES
+    )
+
+    # Concept 병합
+    existing_c_ids = {c["id"] for c in CONCEPTS}
+    for c in EXTENDED_CONCEPTS:
+        if c["id"] not in existing_c_ids:
+            CONCEPTS.append(c)
+            existing_c_ids.add(c["id"])
+
+    # Evidence 병합
+    existing_e_ids = {e["id"] for e in EVIDENCE_SOURCES}
+    for e in EXTENDED_EVIDENCES:
+        if e["id"] not in existing_e_ids:
+            EVIDENCE_SOURCES.append(e)
+            existing_e_ids.add(e["id"])
+
+    # PerspectiveCase 병합
+    existing_p_ids = {p["id"] for p in PERSPECTIVE_CASES}
+    for p in EXTENDED_PERSPECTIVES:
+        if p["id"] not in existing_p_ids:
+            PERSPECTIVE_CASES.append(p)
+            existing_p_ids.add(p["id"])
+
+    # CausalEdge 병합
+    existing_edge_keys = {
+        (edge["source_concept_id"], edge["target_concept_id"], edge["relation_type"])
+        for edge in CAUSAL_EDGES
+    }
+    for edge in EXTENDED_CAUSAL_EDGES:
+        ek = (edge["source_concept_id"], edge["target_concept_id"], edge["relation_type"])
+        if ek not in existing_edge_keys:
+            CAUSAL_EDGES.append(edge)
+            existing_edge_keys.add(ek)
+except ImportError:
+    pass
+

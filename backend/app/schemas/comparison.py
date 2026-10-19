@@ -119,6 +119,38 @@ class ClarifyBranch(BaseModel):
     domain: str
 
 
+# 호환용 별칭
+ComparisonBranchCard = ClarifyBranch
+
+
+class DynamicAxisTag(BaseModel):
+    """동적 후보 축 개별 태그 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    axisId: str = Field(..., alias="axis_id", serialization_alias="axisId")
+    label: str
+    category: str
+    isSelected: bool = Field(False, alias="is_selected", serialization_alias="isSelected")
+
+
+class DynamicAxesCategory(BaseModel):
+    """동적 후보 축 카테고리 그룹 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    category: str
+    categoryLabel: str = Field(..., alias="category_label", serialization_alias="categoryLabel")
+    tags: List[DynamicAxisTag] = Field(default_factory=list)
+
+
+class ClarificationQuestion(BaseModel):
+    """구체화 꼬리 질문 객체 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    questionId: str = Field(..., alias="question_id", serialization_alias="questionId")
+    question: str
+    options: List[str] = Field(default_factory=list)
+
+
 class DynamicAxisCandidate(BaseModel):
     """동적 적응형 비교 축 후보 DTO."""
     model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
@@ -144,8 +176,50 @@ class ClarifyResponse(BaseModel):
 
     recognizedIntent: str = Field(..., alias="recognized_intent", serialization_alias="recognizedIntent")
     branches: List[ClarifyBranch]
-    dynamicAxesPool: List[DynamicAxisCandidate] = Field(..., alias="dynamic_axes_pool", serialization_alias="dynamicAxesPool")
-    clarificationQuestions: List[str] = Field(..., alias="clarification_questions", serialization_alias="clarificationQuestions")
+    dynamicAxesPool: Any = Field(..., alias="dynamic_axes_pool", serialization_alias="dynamicAxesPool")
+    clarificationQuestions: Any = Field(..., alias="clarification_questions", serialization_alias="clarificationQuestions")
+
+
+# 호환용 별칭
+ComparisonClarifyResponse = ClarifyResponse
+
+
+class ComparisonMatrixRow(BaseModel):
+    """다차원 기술 대안 비교 매트릭스 단일 행 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    axis: str
+    axisCategory: str = Field(..., alias="axis_category", serialization_alias="axisCategory")
+    categoryLabel: str = Field(..., alias="category_label", serialization_alias="categoryLabel")
+    valA: str = Field(..., alias="val_a", serialization_alias="valA")
+    valB: str = Field(..., alias="val_b", serialization_alias="valB")
+    evidenceA: Optional[str] = Field(None, alias="evidence_a", serialization_alias="evidenceA")
+    evidenceB: Optional[str] = Field(None, alias="evidence_b", serialization_alias="evidenceB")
+    isGap: bool = Field(False, alias="is_gap", serialization_alias="isGap")
+
+
+class CausalChainStep(BaseModel):
+    """인과 사슬 단일 홉 단계 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    hop: int
+    sourceNode: str = Field(..., alias="source_node", serialization_alias="sourceNode")
+    targetNode: str = Field(..., alias="target_node", serialization_alias="targetNode")
+    relationType: str = Field(..., alias="relation_type", serialization_alias="relationType")
+    mechanism: str
+
+
+class TailQuestionResponse(BaseModel):
+    """심층 꼬리질문 인과 해설 응답 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    query: str
+    stepIndex: int = Field(2, alias="step_index", serialization_alias="stepIndex")
+    causalPath: List[str] = Field(default_factory=list, alias="causal_path", serialization_alias="causalPath")
+    chainSteps: List[CausalChainStep] = Field(default_factory=list, alias="chain_steps", serialization_alias="chainSteps")
+    engineeringExplanation: str = Field(..., alias="engineering_explanation", serialization_alias="engineeringExplanation")
+    evidenceReferences: List[str] = Field(default_factory=list, alias="evidence_references", serialization_alias="evidenceReferences")
+    compensatingProposal: Optional[str] = Field(None, alias="compensating_proposal", serialization_alias="compensatingProposal")
 
 
 class SessionPatchRequest(BaseModel):

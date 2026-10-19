@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>반도체 산업 지식 위키 (Industry Wiki Prototype)</title>
+  <title>반도체 인과 온톨로지 위키 (Ontology Wiki)</title>
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/transitions.css" />
 </head>
@@ -12,13 +12,13 @@
   <!-- ── 1. Top Bar (글로벌 셸 & 작업 공간 스위처) ── -->
   <header class="topbar">
     <div class="topbar-left">
-      <div class="brand-logo">
+      <div class="brand-logo" style="cursor:pointer;" onclick="window.setWorkspace && window.setWorkspace('wiki')" title="홈 (위키 본문)">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="2" y="2" width="20" height="20" rx="4"></rect>
           <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"></path>
         </svg>
-        <span>Industry Wiki</span>
-        <span class="brand-badge">반도체 온톨로지</span>
+        <span>Ontology Wiki</span>
+        <span class="brand-badge">반도체 인과 온톨로지</span>
       </div>
 
       <!-- 4대 독립 작업 공간 탭 -->
@@ -39,6 +39,15 @@
     </div>
 
     <div class="topbar-right">
+      <!-- RBAC 역할 스위처 UI (line_engineer <-> chief_reviewer) -->
+      <div class="rbac-role-switcher" id="rbac-role-switcher" title="현업 보안 등급 및 거버넌스 승인 권한 전환">
+        <span class="rbac-role-icon">🛡️</span>
+        <select id="header-rbac-selector" class="header-rbac-selector" aria-label="보안 및 승인 권한 역할">
+          <option value="line_engineer">현장 엔지니어 (L1~L2 공개)</option>
+          <option value="chief_reviewer">수석검토관 (L3 특화 & 승인권)</option>
+        </select>
+      </div>
+
       <div class="search-trigger-btn" id="global-search-trigger" title="전역 검색 (Cmd+K / Ctrl+K)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"></circle>
@@ -74,10 +83,10 @@
         <!-- 듀얼 내비게이션 모드 전환 토글 -->
         <div class="sidebar-nav-mode-toggle" id="sidebar-nav-mode-toggle" role="tablist" aria-label="사이드바 탐색 관점 전환">
           <button type="button" class="sidebar-mode-btn active" data-mode="domain" id="btn-mode-domain" role="tab" aria-selected="true" title="소자, 공정, 운영, 소재 등 4대 반도체 업무 분야별 탐색">
-            🏛️ 업무 분야별 (4축)
+            <span>🏛️ 업무분야별</span>
           </button>
           <button type="button" class="sidebar-mode-btn" data-mode="scale" id="btn-mode-scale" role="tab" aria-selected="false" title="팹 인프라(1km)부터 원자(0.1nm)까지 5단계 물리적 크기순 탐색">
-            📐 물리 규모별 (5단계)
+            <span>📐 물리규모별</span>
           </button>
         </div>
 
@@ -329,89 +338,136 @@
       </section>
 
       <!-- ==================================================================== -->
-      <!-- VIEW 2: 기술 대안 비교분석 (A-01: Contextual Comparison & Clarifier)       -->
+      <!-- VIEW 2: 기술 대안 비교분석 (A-01: 2-Stage View Flow: 2-A 요청실 ⟷ 2-B 결과 리포트) -->
       <!-- ==================================================================== -->
       <section id="view-ai" style="display:none;">
         <div class="ai-studio-container">
-          <div>
-            <h2 style="font-size:1.5rem; font-weight:800; margin-bottom:4px;">⚖️ 기술 대안 비교분석</h2>
-            <p style="font-size:0.875rem; color:var(--text-secondary);">
-              온톨로지 그래프와 공식 출처 데이터를 바탕으로, 현업의 모호한 엔지니어링 고민을 대화형으로 구체화하고 다차원 비교 분석을 수행합니다.
-            </p>
+          <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px;">
+            <div>
+              <h2 style="font-size:1.5rem; font-weight:800; margin-bottom:4px;">⚖️ 기술 대안 비교분석</h2>
+              <p style="font-size:0.875rem; color:var(--text-secondary);">
+                온톨로지 그래프와 공식 출처 데이터를 바탕으로, 현업의 엔지니어링 고민을 대화형으로 구체화하고 다차원 비교 분석 리포트를 생성합니다.
+              </p>
+            </div>
+            <!-- 2-Stage 인디케이터 칩 -->
+            <div class="stage-step-indicator" id="ai-stage-indicator" style="display:flex; align-items:center; gap:6px; font-size:0.75rem; font-weight:700;">
+              <span class="stage-pill active" id="ai-pill-2a" style="padding:4px 10px; border-radius:14px; background:var(--accent-primary); color:#fff; cursor:pointer;" onclick="window.switchAiStage && window.switchAiStage('2a')">Step 1. 조사·분석 요청실 (2-A)</span>
+              <span style="color:var(--text-muted);">➔</span>
+              <span class="stage-pill" id="ai-pill-2b" style="padding:4px 10px; border-radius:14px; background:var(--bg-surface-2); color:var(--text-muted); border:1px solid var(--border-color); cursor:pointer;" onclick="window.switchAiStage && window.switchAiStage('2b')">Step 2. 비교 결과 리포트 (2-B)</span>
+            </div>
           </div>
 
-          <!-- 대화형 질문 구체화 상담 및 질문 입력창 -->
-          <div class="ai-query-box">
-            <div class="ai-input-row">
-              <input type="text" class="ai-prompt-input" id="ai-prompt-input" 
-                     placeholder="엔지니어링 고민이나 키워드를 입력하세요 (예: HBM 열 문제, Cryo 식각, High-NA, 에어갭...)" />
-              <button type="button" class="ai-run-btn" id="ai-clarify-btn" style="background:var(--bg-surface-2); color:var(--text-primary); border:1px solid var(--border-color);" title="모호한 고민을 에이전트와 대화하여 정밀 비교 쿼리로 발전">
-                💬 대화로 질문 구체화
-              </button>
-              <button type="button" class="ai-run-btn" id="ai-run-btn">
-                ⚡ 분석 실행
-              </button>
-            </div>
+          <!-- ================================================================ -->
+          <!-- [화면 2-A: 조사·분석 요청실 (Query & Clarifier View)]            -->
+          <!-- ================================================================ -->
+          <div id="ai-stage-2a" class="stage-view-panel">
+            <div class="ai-query-box">
+              <div style="margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                <strong style="font-size:0.9375rem; color:var(--text-primary);">🔍 1단계: 비교 분석 주제 입력 및 공학 분기 구체화</strong>
+                <span class="concept-badge badge-level-1" style="font-size:0.6875rem;">화면 2-A · 조사·분석 요청실</span>
+              </div>
 
-            <!-- 빠른 추천 검색어 칩 -->
-            <div style="margin-top:6px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-              <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">⚡ 빠른 추천 탐색:</span>
-              <div class="ai-suggest-chip-group" id="ai-quick-chips">
-                <span class="ai-suggest-chip" data-query="HBM">🔥 HBM 방열·MR-MUF</span>
-                <span class="ai-suggest-chip" data-query="Cryo">❄️ Cryogenic 극저온 식각</span>
-                <span class="ai-suggest-chip" data-query="High-NA">🔬 High-NA EUV 노광</span>
-                <span class="ai-suggest-chip" data-query="에어갭">⚡ DRAM 비트라인 에어갭</span>
-                <span class="ai-suggest-chip" data-query="본딩">🔗 Cu-Cu 하이브리드 본딩</span>
-                <span class="ai-suggest-chip" data-query="FDC">📊 챔버 실시간 OES FDC</span>
-                <span class="ai-suggest-chip" data-query="GAA">⚙️ GAA 나노시트 선택식각</span>
-                <span class="ai-suggest-chip" data-query="스크러버">🌱 팹 플라즈마 스크러버</span>
+              <div class="ai-input-row">
+                <input type="text" class="ai-prompt-input" id="ai-prompt-input" 
+                       placeholder="엔지니어링 고민이나 키워드를 입력하세요 (예: HBM 열 문제, Cryo 식각, High-NA, 에어갭...)" />
+                <button type="button" class="ai-run-btn" id="ai-clarify-btn" style="background:var(--bg-surface-2); color:var(--text-primary); border:1px solid var(--border-color);" title="모호한 고민을 3대 공학 분기 카드로 구체화">
+                  💬 3대 공학 분기 구체화
+                </button>
+              </div>
+
+              <!-- 빠른 추천 검색어 칩 -->
+              <div style="margin-top:8px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">⚡ 빠른 추천 탐색:</span>
+                <div class="ai-suggest-chip-group" id="ai-quick-chips">
+                  <span class="ai-suggest-chip" data-query="HBM">🔥 HBM 방열·MR-MUF</span>
+                  <span class="ai-suggest-chip" data-query="Cryo">❄️ Cryogenic 극저온 식각</span>
+                  <span class="ai-suggest-chip" data-query="High-NA">🔬 High-NA EUV 노광</span>
+                  <span class="ai-suggest-chip" data-query="에어갭">⚡ DRAM 비트라인 에어갭</span>
+                  <span class="ai-suggest-chip" data-query="본딩">🔗 Cu-Cu 하이브리드 본딩</span>
+                  <span class="ai-suggest-chip" data-query="FDC">📊 챔버 실시간 OES FDC</span>
+                  <span class="ai-suggest-chip" data-query="GAA">⚙️ GAA 나노시트 선택식각</span>
+                  <span class="ai-suggest-chip" data-query="스크러버">🌱 팹 플라즈마 스크러버</span>
+                </div>
+              </div>
+
+              <!-- 대화형 질문 구체화 스트림 영역 (3대 공학 분기 카드 기본 노출) -->
+              <div id="ai-dialogue-area" style="margin-top:16px;">
+                <!-- js/app.js에서 3대 공학 분기 카드 렌더링 -->
+              </div>
+
+              <!-- 현업 엔지니어 맞춤 고민 템플릿 추천 영역 (입력 시 실시간 필터링) -->
+              <div style="margin-top:16px;" id="ai-painpoint-section">
+                <div class="painpoint-container" id="painpoint-card-list">
+                  <!-- js/app.js에서 온디맨드 렌더링 -->
+                </div>
+              </div>
+              
+              <div style="font-size:0.75rem; font-weight:600; color:var(--text-muted); margin-top:16px; margin-bottom:6px;">
+                현재 분석 적용 맥락 파라미터 (원클릭 조합 변경):
+              </div>
+              <div class="ai-tag-group">
+                <span class="ai-filter-tag" id="tag-target-a" onclick="window.WikiAPI && window.WikiAPI.showToast('기준 대상 A: SK하이닉스(MR-MUF) / Lam Research(Cryo 식각)', 'info')">
+                  🔹 기준 대상 A: <strong id="tag-text-a">SK하이닉스 (MR-MUF)</strong> ▾
+                </span>
+                <span class="ai-filter-tag" id="tag-target-b" onclick="window.WikiAPI && window.WikiAPI.showToast('대조 대상 B: 마이크론(TC-NCF) / AMAT(상온 RIE)', 'info')">
+                  🔸 대조 대상 B: <strong id="tag-text-b">마이크론 (TC-NCF)</strong> ▾
+                </span>
+                <span class="ai-filter-tag" id="tag-domain" onclick="window.WikiAPI && window.WikiAPI.showToast('평가 도메인: 첨단 패키징 방열 / 식각 수직도 / 챔버 FDC', 'info')">
+                  🌐 평가 도메인: <strong id="tag-text-domain">첨단 패키징</strong> ▾
+                </span>
+                <span class="ai-filter-tag" id="tag-release">
+                  📌 기준 판본: <strong>2026.10 최신</strong>
+                </span>
+              </div>
+
+              <!-- 하단 대형 실행 CTA 바 (클릭 시 화면 2-B로 전환) -->
+              <div style="margin-top:20px; padding-top:16px; border-top:1px dashed var(--border-color); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <span style="font-size:0.8125rem; color:var(--text-secondary);">
+                  💡 위 <strong>3대 공학 분기 카드</strong> 중 하나를 선택하거나 우측 실행 버튼을 누르면 <strong>[화면 2-B: 비교 결과 리포트]</strong>로 전환됩니다.
+                </span>
+                <button type="button" class="ai-run-btn" id="ai-run-btn" style="padding:10px 22px; font-size:0.9375rem; font-weight:700;">
+                  ⚡ 비교 분석 실행 (결과 보기 ➔)
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================================================================ -->
+          <!-- [화면 2-B: 비교 결과 리포트 (Comparison Report View)]            -->
+          <!-- ================================================================ -->
+          <div id="ai-stage-2b" class="stage-view-panel" style="display:none;">
+            <!-- 상단 서브 네비게이션 바 (화면 2-A 복귀 버튼 + 세션 제목 + 즐겨찾기) -->
+            <div class="stage-subnav-bar" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:8px; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <button type="button" class="cand-action-btn" id="btn-back-to-2a" style="background:var(--bg-surface-2); border:1px solid var(--border-color); color:var(--text-primary); font-weight:700; padding:6px 12px;">
+                  ← 분석 조건 수정 / 다시 질문하기
+                </button>
+                <div>
+                  <span style="font-size:0.6875rem; color:var(--accent-primary); font-weight:700; display:block;">[화면 2-B] 비교 분석 결과 리포트</span>
+                  <strong style="font-size:1rem; color:var(--text-primary);" id="ai-report-session-title">HBM3E 12단 패키징: MR-MUF vs TC-NCF 다차원 비교</strong>
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <button type="button" class="cand-action-btn" id="btn-toggle-session-bookmark" style="background:var(--bg-surface-2); border:1px solid var(--border-color); font-size:0.75rem; padding:5px 10px;" title="이 분석 세션을 즐겨찾기에 고정">
+                  ☆ 즐겨찾기
+                </button>
               </div>
             </div>
 
-            <!-- 대화형 질문 구체화 스트림 영역 (대화 및 옵션 카드) -->
-            <div id="ai-dialogue-area" style="display:none; margin-top:16px;">
-              <!-- js/app.js에서 렌더링 -->
-            </div>
-
-            <!-- 현업 엔지니어 맞춤 고민 템플릿 추천 영역 (입력 시 실시간 필터링) -->
-            <div style="margin-top:16px;" id="ai-painpoint-section">
-              <div class="painpoint-container" id="painpoint-card-list">
-                <!-- js/app.js에서 온디맨드 렌더링 -->
+            <!-- 스냅샷 타임라인 바 -->
+            <div style="margin-bottom:16px;">
+              <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px;">
+                분석 단계별 스냅샷 (클릭하여 과거 시점 이동 및 전제 수치 수정 재실행)
+              </div>
+              <div class="snapshot-timeline-bar" id="ai-snapshot-timeline">
+                <!-- js/app.js에서 렌더링 -->
               </div>
             </div>
-            
-            <div style="font-size:0.75rem; font-weight:600; color:var(--text-muted); margin-top:16px; margin-bottom:6px;">
-              현재 분석 적용 맥락 파라미터 (원클릭 조합 변경):
-            </div>
-            <div class="ai-tag-group">
-              <span class="ai-filter-tag" id="tag-target-a" onclick="alert('기준 대상 A: SK하이닉스(MR-MUF) / Lam Research(Cryo 식각)')">
-                🔹 기준 대상 A: <strong id="tag-text-a">SK하이닉스 (MR-MUF)</strong> ▾
-              </span>
-              <span class="ai-filter-tag" id="tag-target-b" onclick="alert('대조 대상 B: 마이크론(TC-NCF) / AMAT(상온 RIE)')">
-                🔸 대조 대상 B: <strong id="tag-text-b">마이크론 (TC-NCF)</strong> ▾
-              </span>
-              <span class="ai-filter-tag" id="tag-domain" onclick="alert('평가 도메인: 첨단 패키징 방열 / 식각 수직도 / 챔버 FDC')">
-                🌐 평가 도메인: <strong id="tag-text-domain">첨단 패키징</strong> ▾
-              </span>
-              <span class="ai-filter-tag" id="tag-release">
-                📌 기준 판본: <strong>2026.10 최신</strong>
-              </span>
-            </div>
-          </div>
 
-          <!-- 스냅샷 타임라인 바 -->
-          <div>
-            <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px;">
-              분석 단계별 스냅샷 (클릭하여 과거 시점 이동 및 전제 수치 수정 재실행)
-            </div>
-            <div class="snapshot-timeline-bar" id="ai-snapshot-timeline">
+            <!-- 분석 결과 카드 (다차원 비교 매트릭스 + 꼬리질문 + 온톨로지 보완 제안) -->
+            <div id="ai-result-card">
               <!-- js/app.js에서 렌더링 -->
             </div>
-          </div>
-
-          <!-- 분석 결과 카드 (다차원 비교 매트릭스 + Step 2-2 온톨로지 보완 제안) -->
-          <div id="ai-result-card">
-            <!-- js/app.js에서 렌더링 -->
           </div>
         </div>
       </section>
@@ -520,54 +576,89 @@
       </section>
 
       <!-- ==================================================================== -->
-      <!-- VIEW 4: 외부 문헌·백서 조사 (I-01: External Literature & Whitepaper) -->
+      <!-- VIEW 4: 외부 문헌·백서 조사 (I-01: 2-Stage View Flow: 4-A 문헌 피드 ⟷ 4-B 종합 리포트) -->
       <!-- ==================================================================== -->
       <section id="view-investigation" style="display:none;">
         <div>
-          <div style="margin-bottom:16px;">
-            <h2 style="font-size:1.5rem; font-weight:800; margin-bottom:4px;">📑 외부 문헌·백서 조사</h2>
-            <p style="font-size:0.875rem; color:var(--text-secondary);">
-              기본 지식(37개 핵심 온톨로지)은 사전에 안정적으로 적재되어 있으며, 신규 공식 백서나 표준 규격을 발굴할 때 에이전트와 대화하며 온디맨드로 탐색합니다.
-            </p>
-          </div>
-
-          <!-- 컴팩트 요약 상태 배너 -->
-          <div class="investigation-compact-banner">
+          <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
             <div>
-              <strong style="font-size:0.875rem; color:var(--text-primary);">✔ 사전 적재 공식 출처 (Pre-seeded): 5대 기관 완비</strong>
-              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
-                Samsung Semiconductor · SK hynix Newsroom · ASML High-NA Whitepaper · Lam Research · AMAT
-              </div>
-            </div>
-            <span class="concept-badge badge-verified" style="font-size:0.75rem;">37개 개념 안정 가동 중</span>
-          </div>
-
-          <!-- 신규 공식 출처 발굴 대화 도우미 카드 -->
-          <div class="seeding-sources-card" style="margin-bottom:20px;">
-            <div style="margin-bottom:12px;">
-              <strong style="font-size:1rem;">💬 신규 공식 출처 온디맨드 발굴 대화 (Search Clarifier)</strong>
-              <p style="font-size:0.8125rem; color:var(--text-muted); margin-top:2px;">
-                무차별 크롤링을 지양하고, 사용자가 원하는 공정 기술에 적합한 공식 출처 팩을 에이전트와 구체화하여 발굴합니다.
+              <h2 style="font-size:1.5rem; font-weight:800; margin-bottom:4px;">📑 외부 문헌·백서 조사</h2>
+              <p style="font-size:0.875rem; color:var(--text-secondary);">
+                신규 공식 백서나 표준 규격을 발굴(4-A)하고, 발굴된 근거 문헌을 교차 분석하여 종합 리포트 및 지식 후보를 도출(4-B)합니다.
               </p>
             </div>
+            <!-- 2-Stage 인디케이터 칩 -->
+            <div class="stage-step-indicator" id="inv-stage-indicator" style="display:flex; align-items:center; gap:6px; font-size:0.75rem; font-weight:700;">
+              <span class="stage-pill active" id="inv-pill-4a" style="padding:4px 10px; border-radius:14px; background:var(--accent-primary); color:#fff; cursor:pointer;" onclick="window.switchInvStage && window.switchInvStage('4a')">Step 1. 문헌 발굴 피드 (4-A)</span>
+              <span style="color:var(--text-muted);">➔</span>
+              <span class="stage-pill" id="inv-pill-4b" style="padding:4px 10px; border-radius:14px; background:var(--bg-surface-2); color:var(--text-muted); border:1px solid var(--border-color); cursor:pointer;" onclick="window.switchInvStage && window.switchInvStage('4b')">Step 2. 종합 분석 리포트 & 지식 후보 (4-B)</span>
+            </div>
+          </div>
 
-            <div class="ai-input-row" style="margin-bottom:8px;">
-              <input type="text" class="ai-prompt-input" id="investigation-query-input" 
-                     placeholder="발굴하려는 공정 기술이나 표준을 입력하세요 (예: 차세대 유리기판 TGV, High-NA 펠리클 소재...)" />
-              <button type="button" class="cand-action-btn cand-btn-primary" id="btn-investigate-clarify" style="white-space:nowrap;">
-                🔍 출처 발굴 상담
-              </button>
+          <!-- ================================================================ -->
+          <!-- [화면 4-A: 문헌 발굴 및 근거 피드 (Evidence Discovery View)]      -->
+          <!-- ================================================================ -->
+          <div id="inv-stage-4a" class="stage-view-panel">
+            <!-- 컴팩트 요약 상태 배너 -->
+            <div class="investigation-compact-banner">
+              <div>
+                <strong style="font-size:0.875rem; color:var(--text-primary);">✔ 신뢰 출처 풀 (Trusted Source Pool): Tier-1 공인 기관 완비</strong>
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
+                  Samsung Semiconductor · SK hynix Newsroom · ASML High-NA Whitepaper · Lam Research · AMAT · IEEE IEDM · SEMI
+                </div>
+              </div>
+              <span class="concept-badge badge-verified" style="font-size:0.75rem;">화면 4-A · 문헌 발굴 피드</span>
             </div>
 
-            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
-              <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">발굴 추천 예시:</span>
-              <span class="directive-chip inv-sample-chip" data-query="유리기판 TGV">📁 차세대 유리기판 TGV</span>
-              <span class="directive-chip inv-sample-chip" data-query="High-NA 펠리클">🔬 High-NA 탄소나노튜브 펠리클</span>
-              <span class="directive-chip inv-sample-chip" data-query="극저온 친환경 가스">🌱 극저온 식각 저탄소 대체 가스</span>
+            <!-- 신규 공식 출처 발굴 대화 도우미 카드 -->
+            <div class="seeding-sources-card" style="margin-bottom:20px;">
+              <div style="margin-bottom:12px;">
+                <strong style="font-size:1rem;">🔍 1단계: 기술 주제 입력 및 공인 문헌 발굴 (Evidence Feed)</strong>
+                <p style="font-size:0.8125rem; color:var(--text-muted); margin-top:2px;">
+                  조사할 공정 기술이나 표준을 입력하면 공인 백서·학회 논문에서 핵심 근거 문헌을 발굴합니다.
+                </p>
+              </div>
+
+              <div class="ai-input-row" style="margin-bottom:8px;">
+                <input type="text" class="ai-prompt-input" id="investigation-query-input" 
+                       placeholder="발굴하려는 공정 기술이나 표준을 입력하세요 (예: 차세대 유리기판 TGV, High-NA 펠리클 소재...)" />
+                <button type="button" class="cand-action-btn cand-btn-primary" id="btn-investigate-clarify" style="white-space:nowrap;">
+                  🔍 공인 문헌 발굴
+                </button>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+                <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">발굴 추천 예시:</span>
+                <span class="directive-chip inv-sample-chip" data-query="유리기판 TGV">📁 차세대 유리기판 TGV</span>
+                <span class="directive-chip inv-sample-chip" data-query="High-NA 펠리클">🔬 High-NA 탄소나노튜브 펠리클</span>
+                <span class="directive-chip inv-sample-chip" data-query="극저온 친환경 가스">🌱 극저온 식각 저탄소 대체 가스</span>
+              </div>
+
+              <!-- 출처 범위 구체화 안내 및 발굴된 문헌 피드 영역 -->
+              <div id="investigation-dialogue-area" style="margin-top:12px;"></div>
+            </div>
+          </div>
+
+          <!-- ================================================================ -->
+          <!-- [화면 4-B: 종합 분석 리포트 & 지식 후보 (Synthesis & Candidates)] -->
+          <!-- ================================================================ -->
+          <div id="inv-stage-4b" class="stage-view-panel" style="display:none;">
+            <div class="stage-subnav-bar" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:8px; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <button type="button" class="cand-action-btn" id="btn-back-to-4a" style="background:var(--bg-surface-2); border:1px solid var(--border-color); color:var(--text-primary); font-weight:700; padding:6px 12px;">
+                  ← 발굴 문헌 목록으로 돌아가기
+                </button>
+                <div>
+                  <span style="font-size:0.6875rem; color:var(--accent-primary); font-weight:700; display:block;">[화면 4-B] 문헌 종합 분석 리포트 & 온톨로지 지식 후보</span>
+                  <strong style="font-size:1rem; color:var(--text-primary);" id="inv-report-topic-title">차세대 유리기판 TGV (Through Glass Via) 문헌 교차 분석</strong>
+                </div>
+              </div>
+              <span class="concept-badge badge-verified" style="font-size:0.75rem;">온톨로지 후보 자동 추출됨</span>
             </div>
 
-            <div id="investigation-dialogue-area" style="display:none; margin-top:12px;"></div>
-            <div id="seeding-result-area" style="margin-top:16px;"></div>
+            <div id="seeding-result-area" style="margin-top:12px;">
+              <!-- js/app.js에서 문헌 종합 분석 리포트 + 도출된 온톨로지 지식 후보 카드 렌더링 -->
+            </div>
           </div>
         </div>
       </section>
@@ -594,7 +685,7 @@
   <div class="concept-popover" id="concept-popover" role="tooltip">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
       <strong style="font-size:0.9375rem; color:var(--text-primary);" id="popover-title">플라즈마 방전</strong>
-      <span class="concept-badge badge-verified" style="font-size:0.6875rem;">등록된 위키 개념</span>
+      <span class="concept-badge badge-verified" style="font-size:0.6875rem;" id="popover-badge">등록된 위키 개념</span>
     </div>
     <p style="font-size:0.8125rem; color:var(--text-secondary); margin-bottom:8px; line-height:1.5;" id="popover-summary">
       기체에 전계를 가하여 중성 분자가 전자와 양이온으로 해리된 상태.
@@ -602,6 +693,13 @@
     <div style="padding:8px; background:var(--accent-primary-light); border-radius:6px; font-size:0.75rem; color:var(--accent-primary); line-height:1.4;">
       <strong>💡 문맥 맞춤 해설:</strong>
       <span id="popover-ai-context">식각 가스를 반응성 라디칼과 이온으로 분해하는 필수 선행 물리 현상입니다.</span>
+    </div>
+    <div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; gap:8px;">
+      <button type="button" class="cand-action-btn" id="popover-close-btn" style="font-size:0.6875rem; padding:4px 8px; background:var(--bg-surface-2); border:1px solid var(--border-color); color:var(--text-muted);">닫기</button>
+      <div style="display:flex; gap:6px; align-items:center;">
+        <button type="button" class="cand-action-btn" id="popover-ask-chat-btn" style="font-size:0.6875rem; padding:4px 8px; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-weight:700; cursor:pointer;" title="온톨로지 챗봇에 이 개념의 인과 분석 질의">💬 챗봇 질문</button>
+        <button type="button" class="cand-action-btn cand-btn-primary" id="popover-goto-btn" style="font-size:0.75rem; padding:5px 12px; font-weight:700;">📖 문서 이동 ➔</button>
+      </div>
     </div>
   </div>
 
