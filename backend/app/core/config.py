@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     PORT: int = 8000
     HOST: str = "0.0.0.0"
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:5500,http://127.0.0.1:5500,http://localhost:8000"
+    SECRET_KEY: str = "semiconductor_causal_ontology_secret_key_2026"
 
     @property
     def cors_origin_list(self) -> List[str]:

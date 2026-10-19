@@ -28,6 +28,19 @@ from backend.app.schemas.comparison import (
     ExportReviewResponse
 )
 
+from backend.app.schemas.review import (
+    IntegrityReportSchema,
+    DirectiveHistoryItem,
+    ReviewTicketDTO,
+    ReviewTicketDetailDTO,
+    AuditLogDTO,
+    PresenceLockRequest,
+    PresenceLockResponse,
+    ReviewTicketApproveRequest,
+    ReviewTicketRejectRequest,
+    ReviewTicketActionResponse
+)
+
 __all__ = [
     "HealthResponse",
     "HealthServicesStatus",
@@ -48,5 +61,16 @@ __all__ = [
     "DeepDiveRequest",
     "DeepDiveResponse",
     "ExportReviewRequest",
-    "ExportReviewResponse"
+    "ExportReviewResponse",
+    "IntegrityReportSchema",
+    "DirectiveHistoryItem",
+    "ReviewTicketDTO",
+    "ReviewTicketDetailDTO",
+    "AuditLogDTO",
+    "PresenceLockRequest",
+    "PresenceLockResponse",
+    "ReviewTicketApproveRequest",
+    "ReviewTicketRejectRequest",
+    "ReviewTicketActionResponse"
 ]
+
