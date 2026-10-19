@@ -245,9 +245,28 @@ a {
   transition: background 0.2s ease, box-shadow 0.2s ease;
 }
 
-.settings-status-dot.active {
+.settings-status-dot.active,
+.settings-status-dot.healthy {
   background: var(--accent-success, #10b981);
   box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+}
+
+.settings-status-dot.degraded {
+  background: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
+}
+
+.settings-status-dot.maintenance {
+  background: #1f2937;
+  box-shadow: 0 0 0 2px rgba(31, 41, 55, 0.35);
+}
+
+.toast-item.toast-warning {
+  border-left: 4px solid #f59e0b;
+}
+
+.toast-item.toast-error {
+  border-left: 4px solid var(--accent-danger, #ef4444);
 }
 
 .kbd-shortcut {
@@ -3000,6 +3019,84 @@ a {
   font-weight: 700;
   cursor: pointer;
 }
+
+/* 글로벌 온톨로지 신규 버전 배포 알림 배너 */
+.global-update-banner {
+  background: linear-gradient(90deg, #1e3a8a, #2563eb);
+  color: #ffffff;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  z-index: 100;
+  animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.global-update-banner .banner-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.global-update-banner .banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.global-update-banner button.banner-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.global-update-banner button.banner-btn:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.global-update-banner button.banner-close {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.125rem;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.global-update-banner button.banner-close:hover {
+  color: #ffffff;
+}
+
+/* 검색 추천 칩 (Search Suggestion Chips) */
+.search-suggestion-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  color: var(--text-primary);
+  background: var(--bg-surface-2);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.search-suggestion-chip:hover {
+  background: var(--accent-primary-light, #eff6ff);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
 
 
 

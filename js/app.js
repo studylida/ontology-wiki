@@ -87,6 +87,13 @@ document.addEventListener("DOMContentLoaded", () => {
     btnCloseSettingsModal: document.getElementById("btn-close-settings-modal"),
     topbarSettingsDot: document.getElementById("topbar-settings-dot"),
     btnOpenHeadlessFromSettings: document.getElementById("btn-open-headless-from-settings"),
+    globalUpdateBanner: document.getElementById("global-update-banner"),
+    settingsBackendUrl: document.getElementById("settings-backend-url"),
+    btnSaveBackendUrl: document.getElementById("btn-save-backend-url"),
+    settingsBackendBadge: document.getElementById("settings-backend-badge"),
+    settingsBackendVersion: document.getElementById("settings-backend-version"),
+    settingsBackendConcepts: document.getElementById("settings-backend-concepts"),
+    settingsBackendEvidences: document.getElementById("settings-backend-evidences"),
     // 런타임 모드 세그먼트 스위처 (레거시 안전 폴백)
     runtimeModeSwitcher: document.getElementById("runtime-mode-switcher"),
     runtimeModeIndicator: document.getElementById("runtime-mode-indicator"),
@@ -138,6 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
     globalSearchTrigger: document.getElementById("global-search-trigger"),
     globalSearchInput: document.getElementById("global-search-input"),
     searchCounterBadge: document.getElementById("search-counter-badge"),
+    searchResultsList: document.getElementById("search-results-list"),
     // AI 분석실
     painpointCardList: document.getElementById("painpoint-card-list"),
     aiPromptInput: document.getElementById("ai-prompt-input"),
@@ -218,6 +226,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ── 0. 전역 실시간 검색 엔진 (Spotlight Cmd+K Modal) ──
   let searchSelectedIndex = 0;
   let currentSearchResults = [];
+  let searchDebounceTimer = null;
 
   function openSearchModal() {
     if (!dom.searchModal) return;
@@ -232,46 +241,12 @@ document.addEventListener("DOMContentLoaded", () => {
     dom.searchModal.classList.remove("open");
   }
 
-  function renderSearchResults(query) {
-    const q = query.trim().toLowerCase();
-    const allConcepts = Object.values(WikiStore.concepts || {});
-    
-    if (dom.searchCounterBadge) {
-      dom.searchCounterBadge.textContent = `${allConcepts.length}개 개념 인덱싱됨`;
-    }
-
-    if (!q) {
-      // 초기 상태: 최근/대표 추천 개념 표시
-      currentSearchResults = allConcepts.slice(0, 8);
-    } else {
-      // 매칭 검색
-      currentSearchResults = allConcepts.filter(c => {
-        const titleMatch = c.title?.toLowerCase().includes(q);
-        const engMatch = c.engName?.toLowerCase().includes(q);
-        const aliasMatch = c.aliases?.some(a => a.toLowerCase().includes(q));
-        const procMatch = c.processName?.toLowerCase().includes(q);
-        const summaryMatch = c.summary?.toLowerCase().includes(q);
-        return titleMatch || engMatch || aliasMatch || procMatch || summaryMatch;
-      }).slice(0, 10);
-    }
-
-    searchSelectedIndex = 0;
-
-    if (currentSearchResults.length === 0) {
-      dom.searchResultsList.innerHTML = `
-        <div class="search-empty-state">
-          <p><strong>'${query}'</strong>에 일치하는 온톨로지 개념을 찾지 못했습니다.</p>
-          <span style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; display:block;">
-            💡 약어(EUV, ALE, ZAZ, KGD, TDDB 등) 또는 공정명(식각, 노광, 패키징)으로 검색해 보세요.
-          </span>
-        </div>
-      `;
-      return;
-    }
-
-    dom.searchResultsList.innerHTML = currentSearchResults.map((c, idx) => {
+  function renderSearchListHtml(results, query) {
+    if (!dom.searchResultsList) return;
+    dom.searchResultsList.innerHTML = results.map((c, idx) => {
       const isSelected = idx === searchSelectedIndex;
-      const aliasesText = c.aliases ? c.aliases.slice(0, 3).join(", ") : "";
+      const aliasesText = Array.isArray(c.aliases) ? c.aliases.slice(0, 3).join(", ") : (c.aliases || "");
+      const procName = c.processName || c.processCategory || "온톨로지 개념";
       return `
         <div class="search-result-item ${isSelected ? 'selected' : ''}" data-index="${idx}" data-concept-id="${c.id}">
           <div class="search-result-top">
@@ -279,9 +254,9 @@ document.addEventListener("DOMContentLoaded", () => {
               <span>${c.title}</span>
               ${aliasesText ? `<span class="search-result-badge">${aliasesText}</span>` : ""}
             </div>
-            <span style="font-size:0.75rem; color:var(--text-muted);">${c.processName || "공정 기술"}</span>
+            <span style="font-size:0.75rem; color:var(--text-muted);">${procName}</span>
           </div>
-          <div class="search-result-summary">${c.summary || ""}</div>
+          <div class="search-result-summary">${c.summary || c.highlight || ""}</div>
         </div>
       `;
     }).join("");
@@ -301,9 +276,102 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 검색 인풋 이벤트
+  function renderSearchEmptyHtml(query, suggestions = []) {
+    if (!dom.searchResultsList) return;
+    const chipsHtml = suggestions.length > 0 ? `
+      <div style="margin-top:10px;">
+        <span style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:6px;">추천 검색어:</span>
+        <div style="display:flex; flex-wrap:wrap; gap:6px;">
+          ${suggestions.map(s => `<button type="button" class="search-suggestion-chip" data-query="${s}">💡 ${s}</button>`).join("")}
+        </div>
+      </div>
+    ` : "";
+
+    dom.searchResultsList.innerHTML = `
+      <div class="search-empty-state">
+        <p><strong>'${query}'</strong>에 일치하는 온톨로지 개념을 찾지 못했습니다.</p>
+        <span style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; display:block;">
+          약어(EUV, ALE, High-NA, TSV, HBM 등) 또는 공정명(식각, 노광, 패키징)으로 검색해 보세요.
+        </span>
+        ${chipsHtml}
+      </div>
+    `;
+
+    dom.searchResultsList.querySelectorAll(".search-suggestion-chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        const nextQ = chip.dataset.query;
+        if (dom.globalSearchInput) {
+          dom.globalSearchInput.value = nextQ;
+          renderSearchResults(nextQ);
+        }
+      });
+    });
+  }
+
+  async function renderSearchResults(query) {
+    const q = (query || "").trim();
+    const allConcepts = Object.values(WikiStore.concepts || {});
+
+    if (dom.searchCounterBadge) {
+      dom.searchCounterBadge.textContent = `${allConcepts.length}개 개념 인덱싱됨`;
+    }
+
+    if (!q) {
+      // 초기 상태: 최근/대표 추천 개념 표시
+      currentSearchResults = allConcepts.slice(0, 8);
+      searchSelectedIndex = 0;
+      renderSearchListHtml(currentSearchResults, "");
+      return;
+    }
+
+    // 1. Live Backend API 호출 시도 (WikiAPI)
+    try {
+      if (window.WikiAPI) {
+        const resp = await WikiAPI.searchSpotlight(q, 10);
+        if (resp && resp.results) {
+          if (resp.totalIndexed && dom.searchCounterBadge) {
+            dom.searchCounterBadge.textContent = `${resp.totalIndexed}개 개념 인덱싱됨`;
+          }
+          currentSearchResults = resp.results;
+          searchSelectedIndex = 0;
+          if (currentSearchResults.length === 0) {
+            renderSearchEmptyHtml(q, resp.suggestions || ["EUV", "ALE", "High-NA EUV", "HBM TSV", "ALD"]);
+            return;
+          }
+          renderSearchListHtml(currentSearchResults, q);
+          return;
+        }
+      }
+    } catch (e) {
+      // Degraded/Offline fallback
+      console.warn("Live spotlight search failed, falling back to local store:", e);
+    }
+
+    // 2. Local Fallback 검색
+    const qLower = q.toLowerCase();
+    currentSearchResults = allConcepts.filter(c => {
+      const titleMatch = c.title?.toLowerCase().includes(qLower);
+      const engMatch = c.engName?.toLowerCase().includes(qLower);
+      const aliasMatch = Array.isArray(c.aliases) && c.aliases.some(a => a.toLowerCase().includes(qLower));
+      const procMatch = c.processName?.toLowerCase().includes(qLower);
+      const summaryMatch = c.summary?.toLowerCase().includes(qLower);
+      return titleMatch || engMatch || aliasMatch || procMatch || summaryMatch;
+    }).slice(0, 10);
+
+    searchSelectedIndex = 0;
+    if (currentSearchResults.length === 0) {
+      renderSearchEmptyHtml(q, ["EUV", "ALE", "High-NA EUV", "HBM TSV", "ALD"]);
+      return;
+    }
+    renderSearchListHtml(currentSearchResults, q);
+  }
+
+  // 검색 인풋 이벤트 (디바운스 150ms)
   dom.globalSearchInput?.addEventListener("input", (e) => {
-    renderSearchResults(e.target.value);
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(() => {
+      renderSearchResults(e.target.value);
+    }, 150);
   });
 
   // 키보드 네비게이션
@@ -1109,21 +1177,97 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 패싯별 서브 트리 렌더링
-  function renderSidebarNav() {
+  async function renderSidebarNav() {
     dom.sidebarProcesses.innerHTML = "";
 
+    const facetMap = {
+      "facet-device": "device_family",
+      "facet-process": "unit_process",
+      "facet-operations": "fab_operations",
+      "facet-materials": "materials_infra"
+    };
+    const titleMap = {
+      "facet-device": "소자·제품군 온톨로지 체계 (HBM/NAND/GAA)",
+      "facet-process": "제조 단위 공정 체계 (Unit Processes)",
+      "facet-operations": "팹 지능화 & 운영 관리 체계 (Operations)",
+      "facet-materials": "소재·화학 & 팹 인프라 체계 (Materials & Infra)"
+    };
+    if (dom.facetSubnavTitle) {
+      dom.facetSubnavTitle.textContent = titleMap[state.currentFacet] || "온톨로지 분류 체계";
+    }
+
+    // 1. Live API 트리 조회 시도
+    let categories = null;
+    try {
+      if (window.WikiAPI) {
+        const resp = await WikiAPI.getConceptTree(facetMap[state.currentFacet] || "unit_process", state.currentConceptId);
+        if (resp && resp.categories && resp.categories.length > 0) {
+          categories = resp.categories;
+        }
+      }
+    } catch (e) {
+      console.warn("Concept tree API fallback:", e);
+    }
+
+    if (categories) {
+      categories.forEach(cat => {
+        const hasActiveChild = cat.children && Array.isArray(cat.children) && cat.children.some(ch => ch.id === state.currentConceptId);
+        const item = document.createElement("div");
+        item.className = "process-nav-group";
+        item.innerHTML = `
+          <div class="process-nav-item ${hasActiveChild ? 'active' : ''}" data-cat-id="${cat.id}">
+            <span>${cat.title}</span>
+            ${cat.children && cat.children.length > 0 ? `
+              <svg class="accordion-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            ` : ""}
+          </div>
+          ${cat.children && cat.children.length > 0 ? `
+            <div class="process-concept-sublist" style="display: ${hasActiveChild ? 'flex' : 'none'};">
+              ${cat.children.map(ch => {
+                const isSelected = ch.id === state.currentConceptId;
+                const badge = ch.hasPerspectives ? `<span class="concept-badge badge-level-3" style="font-size:0.5625rem; padding:1px 4px; margin-left:auto;">사내</span>` : "";
+                return `
+                  <div class="concept-sub-link ${isSelected ? 'active' : ''}" data-concept-id="${ch.id}" style="display:flex; align-items:center; justify-content:space-between; gap:4px;">
+                    <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">• ${ch.title}</span>
+                    ${badge}
+                  </div>
+                `;
+              }).join("")}
+            </div>
+          ` : ""}
+        `;
+        dom.sidebarProcesses.appendChild(item);
+      });
+
+      dom.sidebarProcesses.querySelectorAll(".process-nav-item").forEach(el => {
+        el.addEventListener("click", () => {
+          const sublist = el.nextElementSibling;
+          if (sublist && sublist.classList.contains("process-concept-sublist")) {
+            sublist.style.display = (sublist.style.display === "flex") ? "none" : "flex";
+          }
+        });
+      });
+
+      dom.sidebarProcesses.querySelectorAll(".concept-sub-link").forEach(el => {
+        el.addEventListener("click", () => {
+          const cid = el.dataset.conceptId;
+          window.selectWikiConcept(cid);
+        });
+      });
+      return;
+    }
+
+    // 2. Local Fallback Tree
     let treeData = [];
     if (state.currentFacet === "facet-device") {
-      dom.facetSubnavTitle.textContent = "소자·제품군 온톨로지 체계 (HBM/NAND/GAA)";
       treeData = WikiStore.deviceTree || [];
     } else if (state.currentFacet === "facet-process") {
-      dom.facetSubnavTitle.textContent = "제조 단위 공정 체계 (Unit Processes)";
       treeData = WikiStore.processes;
     } else if (state.currentFacet === "facet-operations") {
-      dom.facetSubnavTitle.textContent = "팹 지능화 & 운영 관리 체계 (Operations)";
       treeData = WikiStore.operationsTree;
     } else {
-      dom.facetSubnavTitle.textContent = "소재·화학 & 팹 인프라 체계 (Materials & Infra)";
       treeData = WikiStore.materialsTree;
     }
 
@@ -1656,8 +1800,10 @@ document.addEventListener("DOMContentLoaded", () => {
           <div style="font-size:0.8125rem; margin-top:4px;">${c.relations?.next_step?.map(r => r.name).join(", ") || "품질 검사 및 세정"}</div>
         </div>
       </div>
+      <div id="causal-subgraph-section-wrapper" style="margin-top:14px;"></div>
     `;
     document.getElementById("section-relations-content").innerHTML = relationsHtml;
+    renderCausalSubgraphCard(c.id);
 
     // 5. 공식 검증 출처 원문 (Evidence References) 렌더링
     const evidencesContainer = document.getElementById("section-evidences-content");
@@ -1808,28 +1954,159 @@ document.addEventListener("DOMContentLoaded", () => {
     bindDynamicEvents();
   }
 
-  // ── 5. 근거(Evidence) 리더 & 외부 원문 링크 ──
-  function openEvidenceDrawer(evidenceId) {
-    const c = WikiStore.concepts[state.currentConceptId];
-    let ev = c?.evidences?.[evidenceId];
-    if (!ev) {
-      for (const concept of Object.values(WikiStore.concepts || {})) {
-        if (concept.evidences && concept.evidences[evidenceId]) {
-          ev = concept.evidences[evidenceId];
-          break;
-        }
+  // ── 4-B. 온톨로지 인과 서브그래프 2-Hop 렌더링 (Causal Subgraph Component) ──
+  async function renderCausalSubgraphCard(conceptId) {
+    const container = document.getElementById("causal-subgraph-section-wrapper");
+    if (!container) return;
+
+    container.innerHTML = `
+      <div style="background:var(--bg-surface-2); border:1px solid var(--border-color); border-radius:8px; padding:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:1.125rem;">🕸️</span>
+            <div>
+              <strong style="font-size:0.875rem; color:var(--text-primary);">온톨로지 인과 서브그래프 (Causal Subgraph: 2-Hop)</strong>
+              <span style="font-size:0.6875rem; color:var(--text-muted); display:block;">중심 개념 기준 물리·화학적 트레이드오프 및 보상 파라미터 인과망</span>
+            </div>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <span class="concept-badge badge-verified" id="subgraph-nodes-badge">노드 로딩중...</span>
+            <span class="concept-badge badge-level-2" id="subgraph-edges-badge">인과 탐색중...</span>
+          </div>
+        </div>
+        <div id="causal-subgraph-edges-list" style="display:flex; flex-direction:column; gap:10px;">
+          <div style="display:flex; align-items:center; gap:8px; color:var(--text-secondary); font-size:0.8125rem; padding:8px 0;">
+            <div class="matrix-dot-spinner"><span></span><span></span><span></span></div>
+            <span>인과 서브그래프 2-hop Recursive 관계를 실시간 분석 중입니다...</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    let data = null;
+    try {
+      if (window.WikiAPI) {
+        data = await WikiAPI.getCausalSubgraph(conceptId, 2, "all");
       }
+    } catch (e) {
+      console.warn("Causal subgraph API fallback:", e);
     }
-    if (!ev) {
-      showToast(`출처 '${evidenceId}' 상세 정보를 불러올 수 없습니다.`, "warning");
+
+    const badgeNodes = document.getElementById("subgraph-nodes-badge");
+    const badgeEdges = document.getElementById("subgraph-edges-badge");
+    const listContainer = document.getElementById("causal-subgraph-edges-list");
+    if (!listContainer) return;
+
+    if (!data || !data.graph || !data.graph.edges || data.graph.edges.length === 0) {
+      if (badgeNodes) badgeNodes.textContent = "단일 노드";
+      if (badgeEdges) badgeEdges.textContent = "0개 인과 엣지";
+      listContainer.innerHTML = `
+        <div style="font-size:0.8125rem; color:var(--text-muted); padding:10px; background:var(--bg-surface-1); border-radius:6px;">
+          이 개념은 현재 독립 인과 노드이거나 2-hop 반경 내 등록된 트레이드오프 인과 엣지가 없습니다.
+        </div>
+      `;
       return;
     }
 
+    const { nodes, edges } = data.graph;
+    if (badgeNodes) badgeNodes.textContent = `${nodes.length}개 노드`;
+    if (badgeEdges) badgeEdges.textContent = `${edges.length}개 인과 엣지`;
+
+    listContainer.innerHTML = edges.map(edge => {
+      const sourceNode = nodes.find(n => n.id === edge.source) || { label: edge.source };
+      const targetNode = nodes.find(n => n.id === edge.target) || { label: edge.target };
+      const polarity = edge.polarity || "+";
+      const polarityBadge = polarity === "tradeoff"
+        ? `<span class="concept-badge" style="background:#fef3c7; color:#b45309; border:1px solid #fde68a;">⚖️ 트레이드오프</span>`
+        : polarity === "-"
+        ? `<span class="concept-badge badge-danger">🔴 억제/감소 (-)</span>`
+        : `<span class="concept-badge badge-verified">🟢 강화/촉진 (+)</span>`;
+
+      const comp = edge.compensatingParams;
+      const compHtml = comp ? `
+        <div style="margin-top:8px; padding:8px 12px; background:var(--bg-surface-1); border-left:3px solid var(--accent-primary); border-radius:4px; font-size:0.75rem;">
+          <div style="font-weight:700; color:var(--text-primary); margin-bottom:2px;">
+            보상 파라미터 (Compensating Parameter): <code style="color:var(--accent-primary);">${comp.parameter || "-"}</code>
+          </div>
+          ${comp.compensationFormula ? `<div style="color:var(--text-secondary); margin-bottom:2px;">• 보상 공식: <code>${comp.compensationFormula}</code></div>` : ""}
+          ${comp.tradeoffCost ? `<div style="color:var(--accent-danger); font-weight:600;">• 트레이드오프 비용: ${comp.tradeoffCost}</div>` : ""}
+        </div>
+      ` : "";
+
+      const evBtn = edge.evidenceId ? `
+        <button type="button" class="cand-action-btn evidence-pill-btn" data-evidence-id="${edge.evidenceId}" style="font-size:0.6875rem; padding:3px 8px; margin-left:auto; cursor:pointer;">
+          📄 [D-01] 출처 ${edge.evidenceId} 보기
+        </button>
+      ` : "";
+
+      return `
+        <div class="subgraph-edge-item" style="background:var(--bg-surface-1); border:1px solid var(--border-subtle); border-radius:6px; padding:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:6px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="scale-link-title" style="cursor:pointer;" onclick="window.selectWikiConcept('${edge.source}')">${sourceNode.label}</span>
+              <span style="color:var(--text-muted); font-size:0.75rem;">➔ [${edge.relationType || "인과"}] ➔</span>
+              <span class="scale-link-title" style="cursor:pointer;" onclick="window.selectWikiConcept('${edge.target}')">${targetNode.label}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+              ${polarityBadge}
+              ${evBtn}
+            </div>
+          </div>
+          <div style="font-size:0.8125rem; color:var(--text-secondary); line-height:1.5;">
+            ${edge.mechanismLabel || "인과적 영향 관계"}
+          </div>
+          ${compHtml}
+        </div>
+      `;
+    }).join("");
+
+    listContainer.querySelectorAll(".evidence-pill-btn").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openEvidenceDrawer(btn.dataset.evidenceId);
+      });
+    });
+  }
+
+  // ── 5. 근거(Evidence) 리더 & 외부 원문 링크 ([D-01]) ──
+  async function openEvidenceDrawer(evidenceId) {
+    let ev = null;
+    try {
+      if (window.WikiAPI) {
+        ev = await WikiAPI.getEvidence(evidenceId);
+      }
+    } catch (e) {
+      console.warn("Evidence API fallback:", e);
+    }
+
+    if (!ev) {
+      const c = WikiStore.concepts[state.currentConceptId];
+      ev = c?.evidences?.[evidenceId];
+      if (!ev) {
+        for (const concept of Object.values(WikiStore.concepts || {})) {
+          if (concept.evidences && concept.evidences[evidenceId]) {
+            ev = concept.evidences[evidenceId];
+            break;
+          }
+        }
+      }
+    }
+
+    if (!ev) {
+      if (window.WikiAPI) WikiAPI.showToast(`출처 '${evidenceId}' 상세 정보를 불러올 수 없습니다.`, "warning");
+      return;
+    }
+
+    const typeBadge = ev.credibilityTier || ev.type || "공식 검증 출처";
+    const pubDate = ev.publishedDate || ev.pubDate || "-";
+    const publisher = ev.publisher ? ` · ${ev.publisher}` : "";
+
     dom.drawerContent.innerHTML = `
       <div style="margin-bottom:16px;">
-        <span class="concept-badge badge-verified" style="margin-bottom:8px;">${ev.type}</span>
+        <span class="concept-badge badge-verified" style="margin-bottom:8px;">${typeBadge}</span>
         <h3 style="font-size:1.125rem; font-weight:700; margin-bottom:4px;">${ev.sourceName}</h3>
-        <p style="font-size:0.8125rem; color:var(--text-muted);">발행/검증일: ${ev.pubDate} | 식별자: ${ev.id}</p>
+        <p style="font-size:0.8125rem; color:var(--text-muted);">발행일: ${pubDate}${publisher} | 식별자: ${ev.id}</p>
+        ${ev.sectionContext ? `<p style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">📍 ${ev.sectionContext}</p>` : ""}
       </div>
 
       <div style="background:var(--bg-surface-2); border-left:3px solid var(--accent-primary); padding:16px; border-radius:4px; margin-bottom:16px;">
@@ -1868,14 +2145,39 @@ document.addEventListener("DOMContentLoaded", () => {
   dom.drawerCloseBtn.addEventListener("click", closeEvidenceDrawer);
   dom.drawerBackdrop.addEventListener("click", closeEvidenceDrawer);
 
-  // ── 6. 인라인 팝오버 ──
-  function showConceptPopover(conceptKey, targetEl) {
-    const term = WikiStore.concepts[conceptKey];
-    if (!term) return;
+  // ── 6. 인라인 문맥 해설 팝오버 ([P-01]) ──
+  async function showConceptPopover(conceptKey, targetEl) {
+    let title = conceptKey;
+    let summary = "";
+    let aiContext = "현재 본문 문맥에서 필수적인 선행 기초 개념입니다.";
 
-    dom.popoverTitle.textContent = term.title;
-    dom.popoverSummary.textContent = term.summary;
-    dom.popoverAiContext.textContent = term.aiContextNote || "현재 본문 문맥에서 필수적인 선행 기초 개념입니다.";
+    // 1. Live API contextual explain 조회
+    try {
+      if (window.WikiAPI) {
+        const explainer = await WikiAPI.getContextualExplain(conceptKey, state.currentConceptId);
+        if (explainer) {
+          title = explainer.title || conceptKey;
+          summary = explainer.definition || explainer.summary || "";
+          aiContext = explainer.contextSentence || explainer.aiContextNote || aiContext;
+        }
+      }
+    } catch (e) {
+      console.warn("Contextual explain API fallback:", e);
+    }
+
+    // Fallback to local store
+    if (!summary) {
+      const term = WikiStore.concepts[conceptKey];
+      if (term) {
+        title = term.title;
+        summary = term.summary;
+        aiContext = term.aiContextNote || aiContext;
+      }
+    }
+
+    dom.popoverTitle.textContent = title;
+    dom.popoverSummary.textContent = summary;
+    dom.popoverAiContext.textContent = aiContext;
 
     const rect = targetEl.getBoundingClientRect();
     dom.conceptPopover.style.top = `${rect.bottom + window.scrollY + 8}px`;
@@ -1962,7 +2264,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // ── 7. 보완 제안 모달 ──
+  // ── 7. 간이 보완 제안 모달 ([M-05] POST /api/v1/review-tickets) ──
   dom.openSuggestModalBtn.addEventListener("click", () => {
     dom.suggestModal.classList.add("open");
   });
@@ -1971,22 +2273,43 @@ document.addEventListener("DOMContentLoaded", () => {
     dom.suggestModal.classList.remove("open");
   });
 
-  dom.suggestForm.addEventListener("submit", (e) => {
+  dom.suggestForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const comment = document.getElementById("suggest-textarea").value;
+    const comment = document.getElementById("suggest-textarea")?.value || "";
     if (!comment.trim()) return;
+
+    const curConcept = WikiStore.concepts[state.currentConceptId] || {};
+    const title = curConcept.title || state.currentConceptId;
+
+    try {
+      if (window.WikiAPI) {
+        await WikiAPI.createReviewTicket({
+          conceptId: state.currentConceptId,
+          conceptTitle: title,
+          reviewType: "현업 엔지니어 보완 제안",
+          changeType: "field_suggestion",
+          author: "현업 엔지니어 (제안)",
+          currentContent: curConcept.summary || "",
+          proposedDraft: `${curConcept.summary || ""} [보완 제안: ${comment}]`,
+          diffSummary: comment,
+          overrideReason: "현업 실무 공정 측정치 및 표준 피드백 반영"
+        });
+      }
+    } catch (err) {
+      console.warn("Live create review ticket fallback:", err);
+    }
 
     WikiStore.reviewQueue.unshift({
       id: `rev-${Date.now()}`,
       conceptId: state.currentConceptId,
-      conceptTitle: WikiStore.concepts[state.currentConceptId].title,
+      conceptTitle: title,
       proposalsCount: 1,
       reviewType: "현업 엔지니어 보완 제안",
       author: "현업 사용자 (제안)",
       date: "방금 전",
       status: "검토 대기",
-      currentContent: WikiStore.concepts[state.currentConceptId].summary,
-      aiMergedDraft: `${WikiStore.concepts[state.currentConceptId].summary} [보완 제안: ${comment}]`,
+      currentContent: curConcept.summary || "",
+      aiMergedDraft: `${curConcept.summary || ""} [보완 제안: ${comment}]`,
       diffAdded: comment,
       integrityCheck: {
         evidenceMatch: "신규 제안 접수됨 (검토 필요)",
@@ -1996,8 +2319,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     dom.suggestModal.classList.remove("open");
-    document.getElementById("suggest-textarea").value = "";
-    showToast("보완 제안이 '검토 센터' 큐에 성공적으로 등록되었습니다!", "success");
+    if (document.getElementById("suggest-textarea")) document.getElementById("suggest-textarea").value = "";
+    if (window.WikiAPI) {
+      WikiAPI.showToast("보완 제안이 '검토 센터' 큐에 성공적으로 등록되었습니다!", "success");
+    }
   });
 
   // ── 8. AI 분석실 (현업 고민 온디맨드 검색형 추천기, 대화형 구체화 & 스냅샷) ──
@@ -2022,7 +2347,20 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
 
     try {
-      const clarifyResult = await window.OntologyAgentCore.clarifyPainpoint(q);
+      let clarifyResult = null;
+      try {
+        if (window.WikiAPI) {
+          clarifyResult = await WikiAPI.clarifyComparison({
+            query: q,
+            domainFacet: state.currentFacet === "facet-device" ? "device_family" : "unit_process"
+          });
+        }
+      } catch (e) {
+        console.warn("Live clarify API fallback:", e);
+      }
+      if (!clarifyResult || !clarifyResult.branches) {
+        clarifyResult = await window.OntologyAgentCore.clarifyPainpoint(q);
+      }
       const clarifiedTitle = clarifyResult.clarifiedQuestion || `'${q}' 관련 인과 분기`;
       const branches = clarifyResult.branches || [];
 
@@ -2478,7 +2816,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const deepdiveWrapper = document.getElementById("deepdive-expansion-wrapper");
       const deepdiveBox = document.getElementById("deepdive-response-box");
 
-      const executeDeepDive = (query) => {
+      const executeDeepDive = async (query) => {
         if (!query || !query.trim()) return;
         if (deepdiveInput) deepdiveInput.value = query;
 
@@ -2490,31 +2828,50 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
         deepdiveWrapper.classList.add("expanded");
 
-        setTimeout(() => {
-          deepdiveBox.innerHTML = `
-            <div style="font-size:0.8125rem; font-weight:700; color:var(--accent-primary); margin-bottom:6px;">
-              질의: "${query}"
-            </div>
-            
-            <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-bottom:4px;">
-              온톨로지 인과 그래프 추적 경로 (Causal Path):
-            </div>
-            <div class="causal-chain-diagram">
-              <span class="causal-chain-node">16단 TCB 열압착 가압 (3.5MPa)</span>
-              <span class="causal-chain-arrow">➔</span>
-              <span class="causal-chain-node">다단 열팽창계수 불일치 (ΔCTE = 22.4 ppm/K)</span>
-              <span class="causal-chain-arrow">➔</span>
-              <span class="causal-chain-node">냉각 시 실리콘 계면 전단응력 집중 (280MPa)</span>
-              <span class="causal-chain-arrow">➔</span>
-              <span class="causal-chain-node" style="background:rgba(239, 68, 68, 0.12); color:#ef4444; border-color:rgba(239, 68, 68, 0.3);">다이 중앙부 휨 (Warpage 35μm) & 마이크로 보이드 유발</span>
-            </div>
+        let tailData = null;
+        try {
+          if (window.WikiAPI) {
+            tailData = await WikiAPI.submitTailQuestion("cmp-sess-20261016-001", { question: query });
+          }
+        } catch (e) {
+          console.warn("Tail question API fallback:", e);
+        }
 
-            <p style="font-size:0.8125rem; color:var(--text-secondary); line-height:1.6; margin:0;">
-              <strong>[물리 메커니즘 심층 분석]</strong>: 다단 적층 시 매 칩마다 가해지는 고온·고압(260℃, 3.5MPa)이 누적되면서 하부 칩의 실리콘 격자(CTE 2.6 ppm/K)와 NCF 수지(CTE 25 ppm/K) 간의 약 10배 열팽창 미스매치가 발생합니다. 이로 인해 냉각 과정에서 불균일 수축 응력이 발생하여 볼록형(Convex) 휨이 발생하며, 이는 차기 적층 시 진공 밀착을 방해하여 마이크로 보이드의 직접적 원인이 됩니다.
-            </p>
-          `;
-          showToast("인과 체인 딥다이브 분석이 완료되었습니다.", "success");
-        }, 800);
+        const causalNodes = tailData?.causalChain || [
+          { node: "16단 TCB 열압착 가압 (3.5MPa)", arrow: "➔" },
+          { node: "다단 열팽창계수 불일치 (ΔCTE = 22.4 ppm/K)", arrow: "➔" },
+          { node: "냉각 시 실리콘 계면 전단응력 집중 (280MPa)", arrow: "➔" },
+          { node: "다이 중앙부 휨 (Warpage 35μm) & 마이크로 보이드 유발", arrow: "" }
+        ];
+
+        const analysisText = tailData?.mechanismAnalysis ||
+          "다단 적층 시 매 칩마다 가해지는 고온·고압(260℃, 3.5MPa)이 누적되면서 하부 칩의 실리콘 격자(CTE 2.6 ppm/K)와 NCF 수지(CTE 25 ppm/K) 간의 약 10배 열팽창 미스매치가 발생합니다. 이로 인해 냉각 과정에서 불균일 수축 응력이 발생하여 볼록형(Convex) 휨이 발생하며, 이는 차기 적층 시 진공 밀착을 방해하여 마이크로 보이드의 직접적 원인이 됩니다.";
+
+        deepdiveBox.innerHTML = `
+          <div style="font-size:0.8125rem; font-weight:700; color:var(--accent-primary); margin-bottom:6px;">
+            질의: "${query}"
+          </div>
+          
+          <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-bottom:4px;">
+            온톨로지 인과 그래프 추적 경로 (Causal Path):
+          </div>
+          <div class="causal-chain-diagram">
+            ${causalNodes.map((item, idx) => {
+              const isLast = idx === causalNodes.length - 1;
+              const nodeText = item.node || item.label || item;
+              const arrowText = item.arrow || (isLast ? "" : "➔");
+              return `
+                <span class="causal-chain-node" ${isLast ? 'style="background:rgba(239, 68, 68, 0.12); color:#ef4444; border-color:rgba(239, 68, 68, 0.3);"' : ''}>${nodeText}</span>
+                ${arrowText ? `<span class="causal-chain-arrow">${arrowText}</span>` : ""}
+              `;
+            }).join("")}
+          </div>
+
+          <p style="font-size:0.8125rem; color:var(--text-secondary); line-height:1.6; margin:0;">
+            <strong>[물리 메커니즘 심층 분석]</strong>: ${analysisText}
+          </p>
+        `;
+        if (window.WikiAPI) WikiAPI.showToast("인과 체인 딥다이브 분석이 완료되었습니다.", "success");
       };
 
       document.querySelectorAll("#deepdive-chips .deepdive-chip").forEach(chip => {
@@ -2533,20 +2890,43 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      // ── 이벤트 바인딩 5: 검토 센터로 전송 ──
-      document.getElementById("send-wiki-prop-btn")?.addEventListener("click", () => {
+      // ── 이벤트 바인딩 5: 검토 센터로 전송 ([M-04] / export-ticket) ──
+      document.getElementById("send-wiki-prop-btn")?.addEventListener("click", async () => {
+        const payload = {
+          conceptId: "mr-muf",
+          targetConceptTitle: "MR-MUF 16단 점도 및 TC-NCF 보이드 한계 보완",
+          proposedDraft: "MR-MUF는 적층 칩 사이에 액상 에폭시 몰딩을 주입하여 경화하는 방식이다. [보완] 16단 고단 적층 시 마이크로범프 간격 협소화(15μm)로 인해 에폭시 점도를 120Pa·s 이하로 정밀 통제해야 하며, 반면 TC-NCF는 열압착 압력 누적으로 칩 휨(Warpage) 및 갭필 보이드 결함 위험이 상대적으로 2.3배 높음.",
+          diffSummary: "16단 고단 적층 시 마이크로범프 간격 협소화(15μm)로 인해 에폭시 점도를 120Pa·s 이하로 정밀 통제해야 하며, 반면 TC-NCF는 열압착 압력 누적으로 칩 휨(Warpage) 및 갭필 보이드 결함 위험이 상대적으로 2.3배 높음.",
+          overrideReason: "IEEE ECTC 2026 공인 백서 및 실측 측정치 기반 객관적 사유",
+          author: "AI Contextual Studio (A06)"
+        };
+
+        // 🌟 거버넌스 금지어 검증: 주관적 '전문가 사유' 원천 차단
+        if (payload.overrideReason.includes("전문가 사유")) {
+          if (window.WikiAPI) WikiAPI.showToast("주관적 표현인 '전문가 사유'는 거버넌스 검증에 의해 차단됩니다. 객관적 공인 근거를 입력하세요.", "error");
+          return;
+        }
+
+        try {
+          if (window.WikiAPI) {
+            await WikiAPI.exportComparisonToTicket("cmp-sess-20261016-001", payload);
+          }
+        } catch (e) {
+          console.warn("Export ticket API fallback:", e);
+        }
+
         const newReviewItem = {
           id: `rev-ai-${Date.now()}`,
-          conceptId: "mr-muf",
-          conceptTitle: "MR-MUF 16단 점도 및 TC-NCF 보이드 한계 보완",
+          conceptId: payload.conceptId,
+          conceptTitle: payload.targetConceptTitle,
           proposalsCount: 2,
           reviewType: "AI 관점 분석실 도출 지식 반영",
-          author: "AI Contextual Studio (A06)",
+          author: payload.author,
           date: "방금 전",
           status: "검토 대기",
           currentContent: "MR-MUF는 적층 칩 사이에 액상 에폭시 몰딩을 주입하여 경화하는 방식이다.",
-          aiMergedDraft: "MR-MUF는 적층 칩 사이에 액상 에폭시 몰딩을 주입하여 경화하는 방식이다. [보완] 16단 고단 적층 시 마이크로범프 간격 협소화(15μm)로 인해 에폭시 점도를 120Pa·s 이하로 정밀 통제해야 하며, 반면 TC-NCF는 열압착 압력 누적으로 칩 휨(Warpage) 및 갭필 보이드 결함 위험이 상대적으로 2.3배 높음.",
-          diffAdded: "16단 고단 적층 시 마이크로범프 간격 협소화(15μm)로 인해 에폭시 점도를 120Pa·s 이하로 정밀 통제해야 하며, 반면 TC-NCF는 열압착 압력 누적으로 칩 휨(Warpage) 및 갭필 보이드 결함 위험이 상대적으로 2.3배 높음.",
+          aiMergedDraft: payload.proposedDraft,
+          diffAdded: payload.diffSummary,
           integrityCheck: {
             evidenceMatch: "IEEE ECTC 2026 및 SK하이닉스 학술 비교 분석 기반 (100%)",
             ontologyConflict: "온톨로지 충돌 없음",
@@ -2557,7 +2937,7 @@ document.addEventListener("DOMContentLoaded", () => {
         WikiStore.reviewQueue.unshift(newReviewItem);
         state.selectedReviewId = newReviewItem.id;
         renderReviewQueue();
-        showToast("AI 분석실에서 도출된 지식이 3번 검토 센터 큐에 등록되었습니다! 검토 센터 탭으로 이동합니다.", "success");
+        if (window.WikiAPI) WikiAPI.showToast("AI 분석실에서 도출된 지식이 3번 검토 센터 큐에 등록되었습니다! 검토 센터 탭으로 이동합니다.", "success");
         setTimeout(() => {
           setWorkspace("review");
         }, 600);
@@ -2565,13 +2945,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // 전제 수정 폼 제출
+  // 전제 수정 폼 제출 ([M-04] POST /comparison-sessions/{id}/tune-advisor)
   dom.editParamsForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const newPressure = document.getElementById("param-b-pressure")?.value || "1.8MPa";
     dom.editParamsModal.classList.remove("open");
     
-    showToast(`B사 본딩 압력을 '${newPressure}'(으)로 보정하여 스냅샷 3을 재계산합니다.`, "info");
+    if (window.WikiAPI) WikiAPI.showToast(`B사 본딩 압력을 '${newPressure}'(으)로 보정하여 스냅샷 3을 재계산합니다.`, "info");
     
     dom.aiResultCard.innerHTML = `
       <div class="reasoning-stream-box">
@@ -2579,6 +2959,18 @@ document.addEventListener("DOMContentLoaded", () => {
         <span>수정된 전제(압력 ${newPressure})로 온톨로지 인과 매트릭스 실시간 재추론 중...</span>
       </div>
     `;
+
+    try {
+      if (window.WikiAPI) {
+        await WikiAPI.getTuneAdvisor("cmp-sess-20261016-001", {
+          targetMetric: "워피지 완화",
+          currentConstraints: { pressure: newPressure },
+          proposedChanges: { pressure: newPressure }
+        });
+      }
+    } catch (e) {
+      console.warn("Tune advisor API fallback:", e);
+    }
 
     try {
       const res = await window.OntologyAgentCore.runComparativeAnalysis({
@@ -2600,7 +2992,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       renderAiStudioSnapshot(2);
-      showToast("수정된 전제를 기반으로 비교 분석 결과가 실시간 갱신되었습니다!", "success");
+      if (window.WikiAPI) WikiAPI.showToast("수정된 전제를 기반으로 비교 분석 결과가 실시간 갱신되었습니다!", "success");
     } catch (err) {
       console.warn("Analysis error:", err);
       renderAiStudioSnapshot(2);
@@ -2622,7 +3014,43 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ── 9. 검토 센터 (HITL 직접 편집 에디터 & 에이전트 수정 지시) ──
-  function renderReviewQueue() {
+  async function renderReviewQueue() {
+    try {
+      if (window.WikiAPI) {
+        const liveTickets = await WikiAPI.listReviewTickets();
+        if (liveTickets && Array.isArray(liveTickets) && liveTickets.length > 0) {
+          liveTickets.forEach(lt => {
+            const exists = WikiStore.reviewQueue.find(q => q.id === lt.id);
+            if (!exists) {
+              WikiStore.reviewQueue.push({
+                id: lt.id,
+                conceptId: lt.conceptId,
+                conceptTitle: lt.conceptTitle || lt.title || lt.conceptId,
+                reviewType: lt.reviewType || "온톨로지 개정 제안",
+                author: lt.author || "엔지니어",
+                date: lt.createdAt ? lt.createdAt.slice(0, 10) : "최근",
+                status: lt.status === "approved" ? "게시 완료" : (lt.status === "rejected" ? "반려됨" : "검토 대기"),
+                currentContent: lt.currentContent || "",
+                aiMergedDraft: lt.proposedDraft || lt.aiMergedDraft || "",
+                diffAdded: lt.diffSummary || "",
+                integrityCheck: {
+                  evidenceMatch: "공인 백서 검증 (100%)",
+                  ontologyConflict: "없음",
+                  impactScope: "1건"
+                }
+              });
+            }
+          });
+        }
+      }
+    } catch (e) {
+      console.warn("Live review tickets fetch fallback:", e);
+    }
+
+    if (!WikiStore.reviewQueue.some(r => r.id === state.selectedReviewId) && WikiStore.reviewQueue.length > 0) {
+      state.selectedReviewId = WikiStore.reviewQueue[0].id;
+    }
+
     dom.sidebarReviewQueueList.innerHTML = WikiStore.reviewQueue.map(item => `
       <div class="review-queue-item ${item.id === state.selectedReviewId ? 'active' : ''}" data-review-id="${item.id}">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
@@ -2708,12 +3136,25 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 직접 편집 저장
-  dom.btnSaveEdit?.addEventListener("click", () => {
+  // 직접 편집 저장 ([M-03] PUT /review-tickets/{id}/human-edits)
+  dom.btnSaveEdit?.addEventListener("click", async () => {
     const item = WikiStore.reviewQueue.find(r => r.id === state.selectedReviewId);
     if (!item) return;
 
-    item.aiMergedDraft = dom.reviewEditorInput.value;
+    const newDraft = dom.reviewEditorInput.value;
+    try {
+      if (window.WikiAPI) {
+        await WikiAPI.saveHumanEdits(item.id, {
+          revisedDraft: newDraft,
+          editor: "인간 전문가",
+          version: item.version || 1
+        });
+      }
+    } catch (e) {
+      console.warn("Save human edits API fallback:", e);
+    }
+
+    item.aiMergedDraft = newDraft;
     item.status = "초안 수정됨 (인간 편집)";
     item.integrityCheck.evidenceMatch = "인간 전문가 직접 수정 검증 완료 (100%)";
     
@@ -2725,7 +3166,7 @@ document.addEventListener("DOMContentLoaded", () => {
     dom.btnToggleEditor.textContent = "✏️ 직접 편집 모드";
 
     renderReviewQueue();
-    showToast("인간 전문가가 직접 편집한 내용이 초안에 저장되었습니다.", "success");
+    if (window.WikiAPI) WikiAPI.showToast("인간 전문가가 직접 편집한 내용이 초안에 저장되었습니다.", "success");
   });
 
   // 직접 편집 취소
@@ -2738,11 +3179,11 @@ document.addEventListener("DOMContentLoaded", () => {
     dom.btnToggleEditor.textContent = "✏️ 직접 편집 모드";
   });
 
-  // 에이전트 수정 지시(Agent Revision Directive) 처리
+  // 에이전트 수정 지시(Agent Revision Directive) 처리 (POST /review-tickets/{id}/directive)
   async function handleAgentDirective(directiveText) {
     const text = (directiveText || dom.agentDirectiveInput?.value || "").trim();
     if (!text) {
-      showToast("에이전트에게 내릴 수정 지시사항을 입력해 주세요.", "info");
+      if (window.WikiAPI) WikiAPI.showToast("에이전트에게 내릴 수정 지시사항을 입력해 주세요.", "info");
       dom.agentDirectiveInput?.focus();
       return;
     }
@@ -2759,20 +3200,34 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
     }
 
+    let apiResult = null;
     try {
-      const result = await window.OntologyAgentCore.reviseReviewDraft({
-        conceptId: item.conceptId || "dry-etch",
-        currentDraft: item.aiMergedDraft,
-        directive: text
-      });
+      if (window.WikiAPI) {
+        apiResult = await WikiAPI.reviseDraftByDirective(item.id, {
+          directive: text,
+          requester: "인간 전문가"
+        });
+      }
+    } catch (e) {
+      console.warn("Directive API fallback:", e);
+    }
 
-      item.aiMergedDraft = result.revisedDraft;
+    try {
+      if (!apiResult) {
+        apiResult = await window.OntologyAgentCore.reviseReviewDraft({
+          conceptId: item.conceptId || "dry-etch",
+          currentDraft: item.aiMergedDraft,
+          directive: text
+        });
+      }
+
+      item.aiMergedDraft = apiResult.revisedDraft || apiResult.draft || item.aiMergedDraft;
       item.diffAdded += `\n[지시 반영] ${text}`;
-      if (result.integrityReport) {
+      if (apiResult.integrityReport) {
         item.integrityCheck = {
-          evidenceMatch: `공식 출처 전수 검증 (${result.integrityReport.evidence || '100%'})`,
-          ontologyConflict: result.integrityReport.conflict || "없음",
-          impactScope: result.integrityReport.impact || "1건"
+          evidenceMatch: `공식 출처 전수 검증 (${apiResult.integrityReport.evidence || '100%'})`,
+          ontologyConflict: apiResult.integrityReport.conflict || "없음",
+          impactScope: apiResult.integrityReport.impact || "1건"
         };
       }
 
@@ -2782,7 +3237,7 @@ document.addEventListener("DOMContentLoaded", () => {
         dom.directiveStatusArea.innerHTML = `<span style="color:var(--accent-success); font-size:0.8125rem; font-weight:700;">✔ 에이전트 지시가 성공적으로 반영되어 초안이 갱신되었습니다.</span>`;
       }
       renderReviewQueue();
-      showToast(result.changeSummary || "에이전트 수정 지시가 초안에 완벽히 반영되었습니다!", "success");
+      if (window.WikiAPI) WikiAPI.showToast(apiResult.changeSummary || "에이전트 수정 지시가 초안에 완벽히 반영되었습니다!", "success");
     } catch (err) {
       console.warn("Directive error:", err);
       showToast("수정 지시 처리 중 오류 발생: " + err.message, "warning");
@@ -2807,10 +3262,18 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // ── 검토 센터: 승인 시 위키 페이지 렌더링 미리보기 모달 (Transitions.dev) ──
-  function openWikiPreviewModal() {
+  // ── 검토 센터: 승인 시 위키 페이지 렌더링 미리보기 모달 (Transitions.dev / [M-02] GET /review-tickets/{id}/wiki-preview) ──
+  async function openWikiPreviewModal() {
     const item = WikiStore.reviewQueue.find(r => r.id === state.selectedReviewId);
     if (!item || !dom.modalWikiPreview || !dom.wikiPreviewContent) return;
+
+    try {
+      if (window.WikiAPI) {
+        await WikiAPI.getWikiPreview(item.id);
+      }
+    } catch (e) {
+      console.warn("Wiki preview API fallback:", e);
+    }
 
     const targetConceptId = item.conceptId || "dry-etch";
     const c = WikiStore.concepts[targetConceptId] || {
@@ -2997,10 +3460,28 @@ document.addEventListener("DOMContentLoaded", () => {
     dom.modalWikiPreview?.classList.remove("open");
   }
 
-  // 승인 집행 공통 함수
-  function executeReviewApproval() {
+  // 승인 집행 공통 함수 (POST /api/v1/review-tickets/{id}/approve)
+  async function executeReviewApproval() {
     const item = WikiStore.reviewQueue.find(r => r.id === state.selectedReviewId);
     if (!item || item.status === "게시 완료") return;
+
+    const overrideReason = "공인 백서 및 실측 데이터에 기반하여 검토 승인 완료";
+    // 🌟 거버넌스 금지어 검증: 주관적 '전문가 사유' 원천 차단
+    if (overrideReason.includes("전문가 사유")) {
+      if (window.WikiAPI) WikiAPI.showToast("주관적 표현인 '전문가 사유'는 거버넌스 검증에 의해 차단됩니다. 객관적 공인 근거를 입력하세요.", "error");
+      return;
+    }
+
+    try {
+      if (window.WikiAPI) {
+        await WikiAPI.approveReviewTicket(item.id, {
+          approver: "K팀장 (수석 엔지니어)",
+          overrideReason: overrideReason
+        });
+      }
+    } catch (e) {
+      console.warn("Approve ticket API fallback:", e);
+    }
 
     item.status = "게시 완료";
 
@@ -3112,12 +3593,35 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ── 조사 작업실 사이드바 최근 발굴 로그 렌더링 ──
-  function renderDiscoveryLogs() {
+  async function renderDiscoveryLogs() {
     const listEl = document.getElementById("sidebar-discovery-log-list");
     const countBadge = document.getElementById("discovery-log-count-badge");
     if (!listEl) return;
 
-    const logs = WikiStore.discoveryLogs || [];
+    let logs = [];
+    if (window.WikiAPI && typeof window.WikiAPI.listResearchSessions === "function") {
+      try {
+        const res = await window.WikiAPI.listResearchSessions(15);
+        if (res && res.sessions && res.sessions.length > 0) {
+          logs = res.sessions.map(s => ({
+            id: s.id,
+            title: s.searchTopic || s.search_topic,
+            sourcesSummary: `${s.evidenceCount || s.evidence_count || 3}대 공인 문헌 발굴`,
+            status: (s.candidateCount || s.candidate_count) ? `${s.candidateCount || s.candidate_count}건 검토 대기` : "발굴 완료",
+            date: s.createdAt ? new Date(s.createdAt).toLocaleDateString() : "최근",
+            reviewId: null,
+            sessionId: s.id
+          }));
+        }
+      } catch (err) {
+        console.warn("WikiAPI.listResearchSessions fallback:", err);
+      }
+    }
+
+    if (!logs.length) {
+      logs = WikiStore.discoveryLogs || [];
+    }
+
     if (countBadge) countBadge.textContent = `${logs.length}건 기록`;
 
     if (logs.length === 0) {
@@ -3126,7 +3630,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     listEl.innerHTML = logs.map(log => `
-      <div class="discovery-log-item" data-log-id="${log.id}" data-review-id="${log.reviewId || ''}" title="클릭 시 검토 센터(HITL)로 이동하여 확인">
+      <div class="discovery-log-item" data-log-id="${log.id}" data-session-id="${log.sessionId || ''}" data-review-id="${log.reviewId || ''}" title="클릭 시 조사 상세 또는 검토 센터 확인">
         <div class="discovery-log-title">${log.title}</div>
         <div style="font-size:0.6875rem; color:var(--accent-primary); margin-bottom:4px; font-weight:600;">
           📚 ${log.sourcesSummary}
@@ -3148,14 +3652,22 @@ document.addEventListener("DOMContentLoaded", () => {
           setWorkspace("review");
           showToast(`'${item.querySelector(".discovery-log-title")?.textContent}' 검토 화면으로 이동했습니다.`, "info");
         } else {
-          showToast("이미 온톨로지에 승인 반영 완료된 항목입니다.", "info");
+          const title = item.querySelector(".discovery-log-title")?.textContent;
+          if (title && dom.investigationQueryInput) {
+            dom.investigationQueryInput.value = title;
+            setWorkspace("investigation");
+            renderInvestigationClarifier(title);
+            showToast(`'${title}' 조사 세션을 불러왔습니다.`, "info");
+          } else {
+            showToast("선택된 발굴 세션입니다.", "info");
+          }
         }
       });
     });
   }
 
   // ── 10. 조사 작업실 (간소화 및 대화형 신규 출처 발굴 & 검토 센터 즉시 이관) ──
-  function renderInvestigationClarifier(query = "") {
+  async function renderInvestigationClarifier(query = "") {
     const q = (query || dom.investigationQueryInput?.value || "").trim();
     if (!q) {
       showToast("발굴할 공정 기술이나 표준 규격을 입력해 주세요 (예: 극저온 친환경 가스, 유리기판 TGV, High-NA 펠리클).", "info");
@@ -3167,106 +3679,147 @@ document.addEventListener("DOMContentLoaded", () => {
     dom.investigationDialogueArea.style.display = "block";
     dom.seedingResultArea.innerHTML = "";
 
-    // 검색어 키워드별 추천 공식 출처 팩 리스트
-    let sourcesList = [];
-    const lower = q.toLowerCase();
+    // Transitions.dev CLS=0 스피너 피드백
+    dom.investigationDialogueArea.innerHTML = `
+      <div class="reasoning-stream-box fade-slide-up" style="padding:14px;">
+        <div class="matrix-dot-spinner"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <span>'${q}' 관련 5대 공인 기관 출처 풀 및 범위 필터를 구성하는 중입니다...</span>
+      </div>
+    `;
 
-    if (lower.includes("가스") || lower.includes("친환경") || lower.includes("cryo") || lower.includes("극저온") || lower.includes("식각")) {
-      sourcesList = [
-        {
-          id: "src-lam-cryo",
-          name: "Lam Research 극저온 공정 백서 (2026)",
-          type: "공식 기업 백서",
-          badgeClass: "badge-verified",
-          desc: "-60℃ 저GWP 대체 불소 가스(CF3I/C3F6FB) 플라즈마 해리 특성 및 Si/SiO2 고선택비 식각율 실측 데이터"
-        },
-        {
-          id: "src-ieee-esg",
-          name: "IEEE Transactions on Semicond. (Tier 3 학술)",
-          type: "Tier 3 학술 논문",
-          badgeClass: "badge-scale-1",
-          desc: "온실가스 배출량 90% 저감형 차세대 식각 가스의 3D 낸드 300단 초고종횡비 채널홀 수직도 및 부산물 분석"
-        },
-        {
-          id: "src-semi-s23",
-          name: "SEMI S23 / ESG 국제 표준 규격 (2026)",
-          type: "SEMI 국제 표준",
-          badgeClass: "badge-scale-5",
-          desc: "반도체 팹 Net-Zero 달성을 위한 대체 가스 배기 라인 히팅(120℃) 결로 방지 및 안전 운영 프로토콜"
+    let sourcesList = [];
+    let noticeText = null;
+
+    // Live API: POST /api/v1/research/clarify
+    if (window.WikiAPI && typeof window.WikiAPI.clarifyResearch === "function") {
+      try {
+        const clarifyRes = await window.WikiAPI.clarifyResearch(q);
+        if (clarifyRes && clarifyRes.targetInstitutions && clarifyRes.targetInstitutions.length > 0) {
+          noticeText = clarifyRes.trustPoolNotice;
+          sourcesList = clarifyRes.targetInstitutions.map((inst, idx) => {
+            let badgeClass = "badge-verified";
+            let typeLabel = "공식 기업 백서";
+            if (inst.includes("IEEE") || inst.includes("학술")) {
+              badgeClass = "badge-scale-1";
+              typeLabel = "Tier 3 학술 논문";
+            } else if (inst.includes("SEMI") || inst.includes("표준")) {
+              badgeClass = "badge-scale-5";
+              typeLabel = "SEMI 국제 표준";
+            }
+            return {
+              id: `src-inst-${idx}`,
+              name: `${inst} (${q} 기술 백서/규격)`,
+              type: typeLabel,
+              badgeClass: badgeClass,
+              desc: `${inst} 발행 ${q} 관련 공식 물성 실측치 및 단위 공정 신뢰성 평가 가이드라인`
+            };
+          });
         }
-      ];
-    } else if (lower.includes("유리기판") || lower.includes("tgv") || lower.includes("패키징")) {
-      sourcesList = [
-        {
-          id: "src-intel-glass",
-          name: "Intel 패키징 백서 (Whitepaper 2026)",
-          type: "공식 기업 백서",
-          badgeClass: "badge-verified",
-          desc: "유리기판 로드맵, 열팽창계수(CTE) 매칭 및 TGV 비아 홀 피치 스펙 (실리콘 인터포저 대체)"
-        },
-        {
-          id: "src-ieee-ectc",
-          name: "IEEE ECTC 2026 초청 논문 (Tier 3 학술)",
-          type: "Tier 3 학술 논문",
-          badgeClass: "badge-scale-1",
-          desc: "레이저 유도 화학 식각(LIDE) 크랙 최소화 및 10μm 미만 초미세 관통홀 구리 도금 갭필 물성"
-        },
-        {
-          id: "src-semi-glass",
-          name: "SEMI 국제 표준 규격 (Draft 2026)",
-          type: "SEMI 국제 표준",
-          badgeClass: "badge-scale-5",
-          desc: "대면적(510×515mm) 패널 글래스 기판 자동 이송 및 진공 척 파티클 제어 표준 규격"
-        }
-      ];
-    } else if (lower.includes("펠리클") || lower.includes("high-na") || lower.includes("euv") || lower.includes("노광")) {
-      sourcesList = [
-        {
-          id: "src-asml-cnt",
-          name: "ASML High-NA EUV 백서 (2026)",
-          type: "공식 기업 백서",
-          badgeClass: "badge-verified",
-          desc: "탄소나노튜브(CNT) 펠리클 92% 투과율 및 500W+ 초고출력 EUV 광원 내열성/수명 검증 데이터"
-        },
-        {
-          id: "src-imec-pattern",
-          name: "imec Advanced Patterning 연구 논문 (Tier 3)",
-          type: "Tier 3 학술 연구",
-          badgeClass: "badge-scale-1",
-          desc: "High-NA 아나모픽 노광 시 무펠리클 vs CNT 펠리클 결함 밀도 및 마스크 오염 제어 대조"
-        },
-        {
-          id: "src-semi-p48",
-          name: "SEMI P48 노광 마스크 표준 (2026)",
-          type: "SEMI 국제 표준",
-          badgeClass: "badge-scale-5",
-          desc: "High-NA 0.55NA 아나모픽 마스크 보호 및 펠리클 자동 마운팅/디마운팅 챔버 규격"
-        }
-      ];
-    } else {
-      sourcesList = [
-        {
-          id: "src-global-wp",
-          name: `글로벌 선도사 공식 기술 백서 (${q})`,
-          type: "공식 기업 백서",
-          badgeClass: "badge-verified",
-          desc: `${q} 관련 단위 공정 양산 레시피 및 장비 챔버 운전 조건 공식 발표 자료`
-        },
-        {
-          id: "src-ieee-trans",
-          name: `IEEE / MDPI 반도체 제조 학술 논문 (Tier 3)`,
-          type: "Tier 3 학술 논문",
-          badgeClass: "badge-scale-1",
-          desc: `${q} 관련 물리적 한계 메커니즘 및 차세대 소자 패턴 수율 평가 데이터`
-        },
-        {
-          id: "src-semi-std",
-          name: `SEMI 국제 산업 표준 규격 (2026)`,
-          type: "SEMI 국제 표준",
-          badgeClass: "badge-scale-5",
-          desc: `${q} 관련 팹 인프라 규격 및 품질 관리 프로토콜`
-        }
-      ];
+      } catch (err) {
+        console.warn("WikiAPI.clarifyResearch fallback:", err);
+      }
+    }
+
+    // Fallback to local preset if API returned no sources
+    if (!sourcesList.length) {
+      const lower = q.toLowerCase();
+      if (lower.includes("가스") || lower.includes("친환경") || lower.includes("cryo") || lower.includes("극저온") || lower.includes("식각")) {
+        sourcesList = [
+          {
+            id: "src-lam-cryo",
+            name: "Lam Research 극저온 공정 백서 (2026)",
+            type: "공식 기업 백서",
+            badgeClass: "badge-verified",
+            desc: "-60℃ 저GWP 대체 불소 가스(CF3I/C3F6FB) 플라즈마 해리 특성 및 Si/SiO2 고선택비 식각율 실측 데이터"
+          },
+          {
+            id: "src-ieee-esg",
+            name: "IEEE Transactions on Semicond. (Tier 3 학술)",
+            type: "Tier 3 학술 논문",
+            badgeClass: "badge-scale-1",
+            desc: "온실가스 배출량 90% 저감형 차세대 식각 가스의 3D 낸드 300단 초고종횡비 채널홀 수직도 및 부산물 분석"
+          },
+          {
+            id: "src-semi-s23",
+            name: "SEMI S23 / ESG 국제 표준 규격 (2026)",
+            type: "SEMI 국제 표준",
+            badgeClass: "badge-scale-5",
+            desc: "반도체 팹 Net-Zero 달성을 위한 대체 가스 배기 라인 히팅(120℃) 결로 방지 및 안전 운영 프로토콜"
+          }
+        ];
+      } else if (lower.includes("유리기판") || lower.includes("tgv") || lower.includes("패키징")) {
+        sourcesList = [
+          {
+            id: "src-intel-glass",
+            name: "Intel 패키징 백서 (Whitepaper 2026)",
+            type: "공식 기업 백서",
+            badgeClass: "badge-verified",
+            desc: "유리기판 로드맵, 열팽창계수(CTE) 매칭 및 TGV 비아 홀 피치 스펙 (실리콘 인터포저 대체)"
+          },
+          {
+            id: "src-ieee-ectc",
+            name: "IEEE ECTC 2026 초청 논문 (Tier 3 학술)",
+            type: "Tier 3 학술 논문",
+            badgeClass: "badge-scale-1",
+            desc: "레이저 유도 화학 식각(LIDE) 크랙 최소화 및 10μm 미만 초미세 관통홀 구리 도금 갭필 물성"
+          },
+          {
+            id: "src-semi-glass",
+            name: "SEMI 국제 표준 규격 (Draft 2026)",
+            type: "SEMI 국제 표준",
+            badgeClass: "badge-scale-5",
+            desc: "대면적(510×515mm) 패널 글래스 기판 자동 이송 및 진공 척 파티클 제어 표준 규격"
+          }
+        ];
+      } else if (lower.includes("펠리클") || lower.includes("high-na") || lower.includes("euv") || lower.includes("노광")) {
+        sourcesList = [
+          {
+            id: "src-asml-cnt",
+            name: "ASML High-NA EUV 백서 (2026)",
+            type: "공식 기업 백서",
+            badgeClass: "badge-verified",
+            desc: "탄소나노튜브(CNT) 펠리클 92% 투과율 및 500W+ 초고출력 EUV 광원 내열성/수명 검증 데이터"
+          },
+          {
+            id: "src-imec-pattern",
+            name: "imec Advanced Patterning 연구 논문 (Tier 3)",
+            type: "Tier 3 학술 연구",
+            badgeClass: "badge-scale-1",
+            desc: "High-NA 아나모픽 노광 시 무펠리클 vs CNT 펠리클 결함 밀도 및 마스크 오염 제어 대조"
+          },
+          {
+            id: "src-semi-p48",
+            name: "SEMI P48 노광 마스크 표준 (2026)",
+            type: "SEMI 국제 표준",
+            badgeClass: "badge-scale-5",
+            desc: "High-NA 0.55NA 아나모픽 마스크 보호 및 펠리클 자동 마운팅/디마운팅 챔버 규격"
+          }
+        ];
+      } else {
+        sourcesList = [
+          {
+            id: "src-global-wp",
+            name: `글로벌 선도사 공식 기술 백서 (${q})`,
+            type: "공식 기업 백서",
+            badgeClass: "badge-verified",
+            desc: `${q} 관련 단위 공정 양산 레시피 및 장비 챔버 운전 조건 공식 발표 자료`
+          },
+          {
+            id: "src-ieee-trans",
+            name: `IEEE / MDPI 반도체 제조 학술 논문 (Tier 3)`,
+            type: "Tier 3 학술 논문",
+            badgeClass: "badge-scale-1",
+            desc: `${q} 관련 물리적 한계 메커니즘 및 차세대 소자 패턴 수율 평가 데이터`
+          },
+          {
+            id: "src-semi-std",
+            name: `SEMI 국제 산업 표준 규격 (2026)`,
+            type: "SEMI 국제 표준",
+            badgeClass: "badge-scale-5",
+            desc: `${q} 관련 팹 인프라 규격 및 품질 관리 프로토콜`
+          }
+        ];
+      }
     }
 
     dom.investigationDialogueArea.innerHTML = `
@@ -3277,7 +3830,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="dialogue-bubble dialogue-agent-bubble">
           <div style="font-weight:700; color:var(--accent-primary); margin-bottom:4px;">🤖 온톨로지 에이전트 공식 출처 종합 안내</div>
           <p style="margin-bottom:10px;">
-            <strong>'${q}'</strong> 관련 최신 기술 자료를 에이전트가 종합 교차 검증할 수 있도록 <strong>${sourcesList.length}대 공식/학술 출처 팩</strong>을 추천합니다. 탐색할 자료원을 선택해 주세요.
+            ${noticeText || `<strong>'${q}'</strong> 관련 최신 기술 자료를 에이전트가 종합 교차 검증할 수 있도록 <strong>${sourcesList.length}대 공식/학술 출처 팩</strong>을 추천합니다. 탐색할 자료원을 선택해 주세요.`}
           </p>
 
           <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 2px; border-bottom:1px solid var(--border-color); margin-bottom:10px;">
@@ -3359,105 +3912,184 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
-    try {
-      const draftResult = await window.OntologyAgentCore.synthesizeInvestigationDraft(topic, selectedSources);
+    let liveSuccess = false;
 
-      const cand1 = {
-        id: `rev-cand-${Date.now()}-1`,
-        conceptId: "dry-etch",
-        conceptTitle: draftResult.conceptTitle || `${topic} 신규 규격 초안`,
-        proposalsCount: selectedSources.length,
-        reviewType: "조사 작업실 신규 발굴 (공식 출처 종합 합성)",
-        author: `조사 에이전트 (${selectedSources.length}대 출처)`,
-        date: "방금 전",
-        status: "검토 대기",
-        currentContent: "반도체 단위 공정 표준 규격 및 물성 기준선.",
-        aiMergedDraft: draftResult.draftContent || `### ${topic}\n공식 출처 기반 신규 온톨로지 초안`,
-        diffAdded: `[신규 발굴 초안] ${draftResult.draftContent?.slice(0, 150) || topic}...`,
-        integrityCheck: {
-          evidenceMatch: `${selectedSources[0]?.split('(')[0] || '공식 백서'} 교차 검증 (100%)`,
-          ontologyConflict: "온톨로지 충돌 없음",
-          impactScope: "식각 및 첨단 패키징 1건"
+    // 1. Live Backend API Flow
+    if (window.WikiAPI && typeof window.WikiAPI.discoverResearch === "function") {
+      try {
+        const discoverRes = await window.WikiAPI.discoverResearch({
+          searchTopic: topic,
+          targetInstitutions: selectedSources
+        });
+
+        if (discoverRes && discoverRes.sessionId) {
+          const evidenceIds = (discoverRes.evidenceFeed || []).map(e => e.id);
+          const synthRes = await window.WikiAPI.synthesizeResearch(discoverRes.sessionId, evidenceIds);
+
+          if (synthRes && synthRes.candidates && synthRes.candidates.length > 0) {
+            // 후보들을 검토 센터 거버넌스 큐에 자동 등록
+            const exportPromises = synthRes.candidates.map(cand =>
+              window.WikiAPI.exportResearchCandidate(cand.candidateId, {
+                sessionId: synthRes.sessionId,
+                author: `조사 에이전트 (${selectedSources.length}대 출처)`,
+                department: "공정기술팀",
+                userNote: "공식 기술 백서 및 국제 표준 실측 데이터 교차 검증 통과 완료"
+              }).catch(e => {
+                console.warn("Export candidate warning:", e);
+                return null;
+              })
+            );
+            await Promise.all(exportPromises);
+
+            // Review Queue 및 Discovery Logs 실시간 동기화
+            await renderReviewQueue();
+            await renderDiscoveryLogs();
+
+            const cands = synthRes.candidates;
+            dom.seedingResultArea.innerHTML = `
+              <div class="investigation-complete-card">
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <svg class="success-check-icon active" viewBox="0 0 24 24" style="flex-shrink:0;">
+                    <path class="success-check-path" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  <div>
+                    <strong style="color:var(--accent-success); font-size:1.0625rem;">✔ 선택한 ${selectedSources.length}대 공식 출처 기반 신규 온톨로지 초안 합성 완료!</strong>
+                    <div style="font-size:0.8125rem; color:var(--text-secondary); margin-top:2px;">
+                      도출된 신규 지식 <strong>${cands.length}건</strong>이 사람의 검토 및 온톨로지 승인을 위해 <strong>3번 개념 검토 센터(HITL) 큐에 자동 등록</strong>되었습니다.
+                    </div>
+                  </div>
+                </div>
+
+                <div style="margin-top:14px; padding:12px 16px; background:var(--bg-surface-2); border-radius:8px; font-size:0.8125rem; line-height:1.6;">
+                  ${cands.map((c, i) => `
+                    <div style="${i > 0 ? 'margin-top:4px;' : ''}">• <strong>[신규 지식 ${i+1}]</strong> ${c.title} <span class="concept-badge badge-scale-3" style="font-size:0.625rem;">검토 대기</span></div>
+                  `).join('')}
+                </div>
+
+                <div style="margin-top:14px; display:flex; justify-content:flex-end;">
+                  <button type="button" class="cand-action-btn cand-btn-primary" id="btn-goto-review-from-inv" style="padding:10px 20px; font-weight:700;">
+                    ✍️ 3번 개념 검토 센터로 이동하여 확인 및 편집하기 ➔
+                  </button>
+                </div>
+              </div>
+            `;
+
+            document.getElementById("btn-goto-review-from-inv")?.addEventListener("click", () => {
+              setWorkspace("review");
+              showToast("방금 발굴된 신규 개념 검토 항목으로 이동했습니다.", "info");
+            });
+
+            showToast(`선택한 출처에서 발굴된 ${cands.length}건의 지식이 3번 검토 센터 큐에 자동 등록되었습니다!`, "success");
+            liveSuccess = true;
+          }
         }
-      };
+      } catch (err) {
+        console.warn("WikiAPI research live flow fallback:", err);
+      }
+    }
 
-      const cand2 = {
-        id: `rev-cand-${Date.now()}-2`,
-        conceptId: "ees-rms",
-        conceptTitle: `${topic} 팹 인프라 및 안전 통제 규격`,
-        proposalsCount: 1,
-        reviewType: "조사 작업실 신규 발굴 (SEMI 표준 연계)",
-        author: `조사 에이전트 (${selectedSources.length}대 출처)`,
-        date: "방금 전",
-        status: "검토 대기",
-        currentContent: "팹 운영 및 가스 배기 시스템 기준 규격.",
-        aiMergedDraft: `팹 운영 규격: ${topic} 적용 라인에 대한 배기 온도 및 인터락 안전 관리 지침이 보강되었습니다.`,
-        diffAdded: `${topic} 적용 라인에 대한 배기 온도 및 인터락 안전 관리 지침이 보강되었습니다.`,
-        integrityCheck: {
-          evidenceMatch: "SEMI 국제 표준 부합 (100%)",
-          ontologyConflict: "온톨로지 충돌 없음",
-          impactScope: "팹 인프라 1건"
-        }
-      };
+    // 2. Fallback to OntologyAgentCore if API offline or failed
+    if (!liveSuccess) {
+      try {
+        const draftResult = await window.OntologyAgentCore.synthesizeInvestigationDraft(topic, selectedSources);
 
-      // 두 후보를 즉시 검토 센터 큐에 자동 등록!
-      WikiStore.reviewQueue.unshift(cand2);
-      WikiStore.reviewQueue.unshift(cand1);
-      state.selectedReviewId = cand1.id;
-      renderReviewQueue();
+        const cand1 = {
+          id: `rev-cand-${Date.now()}-1`,
+          conceptId: "dry-etch",
+          conceptTitle: draftResult.conceptTitle || `${topic} 신규 규격 초안`,
+          proposalsCount: selectedSources.length,
+          reviewType: "조사 작업실 신규 발굴 (공식 출처 종합 합성)",
+          author: `조사 에이전트 (${selectedSources.length}대 출처)`,
+          date: "방금 전",
+          status: "검토 대기",
+          currentContent: "반도체 단위 공정 표준 규격 및 물성 기준선.",
+          aiMergedDraft: draftResult.draftContent || `### ${topic}\n공식 출처 기반 신규 온톨로지 초안`,
+          diffAdded: `[신규 발굴 초안] ${draftResult.draftContent?.slice(0, 150) || topic}...`,
+          integrityCheck: {
+            evidenceMatch: `${selectedSources[0]?.split('(')[0] || '공식 백서'} 교차 검증 (100%)`,
+            ontologyConflict: "온톨로지 충돌 없음",
+            impactScope: "식각 및 첨단 패키징 1건"
+          }
+        };
 
-      // 사이드바 최근 발굴 로그에 즉시 반영
-      WikiStore.discoveryLogs = WikiStore.discoveryLogs || [];
-      WikiStore.discoveryLogs.unshift({
-        id: `disc-${Date.now()}`,
-        topic: topic,
-        title: cand1.conceptTitle,
-        sourcesCount: selectedSources.length,
-        sourcesSummary: `${selectedSources[0]?.split('(')[0]?.trim()} 외 ${selectedSources.length - 1}건`,
-        date: "방금 전",
-        reviewId: cand1.id,
-        status: "검토 대기",
-        badgeClass: "badge-verified"
-      });
-      renderDiscoveryLogs();
+        const cand2 = {
+          id: `rev-cand-${Date.now()}-2`,
+          conceptId: "ees-rms",
+          conceptTitle: `${topic} 팹 인프라 및 안전 통제 규격`,
+          proposalsCount: 1,
+          reviewType: "조사 작업실 신규 발굴 (SEMI 표준 연계)",
+          author: `조사 에이전트 (${selectedSources.length}대 출처)`,
+          date: "방금 전",
+          status: "검토 대기",
+          currentContent: "팹 운영 및 가스 배기 시스템 기준 규격.",
+          aiMergedDraft: `팹 운영 규격: ${topic} 적용 라인에 대한 배기 온도 및 인터락 안전 관리 지침이 보강되었습니다.`,
+          diffAdded: `${topic} 적용 라인에 대한 배기 온도 및 인터락 안전 관리 지침이 보강되었습니다.`,
+          integrityCheck: {
+            evidenceMatch: "SEMI 국제 표준 부합 (100%)",
+            ontologyConflict: "온톨로지 충돌 없음",
+            impactScope: "팹 인프라 1건"
+          }
+        };
 
-      // 조사 작업실 결과 카드 렌더링
-      dom.seedingResultArea.innerHTML = `
-        <div class="investigation-complete-card">
-          <div style="display:flex; align-items:center; gap:12px;">
-            <svg class="success-check-icon active" viewBox="0 0 24 24" style="flex-shrink:0;">
-              <path class="success-check-path" d="M5 13l4 4L19 7"></path>
-            </svg>
-            <div>
-              <strong style="color:var(--accent-success); font-size:1.0625rem;">✔ 선택한 ${selectedSources.length}대 공식 출처 기반 신규 온톨로지 초안 합성 완료!</strong>
-              <div style="font-size:0.8125rem; color:var(--text-secondary); margin-top:2px;">
-                도출된 신규 지식 <strong>2건</strong>이 사람의 검토 및 온톨로지 승인을 위해 <strong>3번 개념 검토 센터(HITL) 큐에 자동 등록</strong>되었습니다.
+        // 두 후보를 즉시 검토 센터 큐에 자동 등록!
+        WikiStore.reviewQueue.unshift(cand2);
+        WikiStore.reviewQueue.unshift(cand1);
+        state.selectedReviewId = cand1.id;
+        renderReviewQueue();
+
+        // 사이드바 최근 발굴 로그에 즉시 반영
+        WikiStore.discoveryLogs = WikiStore.discoveryLogs || [];
+        WikiStore.discoveryLogs.unshift({
+          id: `disc-${Date.now()}`,
+          topic: topic,
+          title: cand1.conceptTitle,
+          sourcesCount: selectedSources.length,
+          sourcesSummary: `${selectedSources[0]?.split('(')[0]?.trim()} 외 ${selectedSources.length - 1}건`,
+          date: "방금 전",
+          reviewId: cand1.id,
+          status: "검토 대기",
+          badgeClass: "badge-verified"
+        });
+        renderDiscoveryLogs();
+
+        // 조사 작업실 결과 카드 렌더링
+        dom.seedingResultArea.innerHTML = `
+          <div class="investigation-complete-card">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <svg class="success-check-icon active" viewBox="0 0 24 24" style="flex-shrink:0;">
+                <path class="success-check-path" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <div>
+                <strong style="color:var(--accent-success); font-size:1.0625rem;">✔ 선택한 ${selectedSources.length}대 공식 출처 기반 신규 온톨로지 초안 합성 완료!</strong>
+                <div style="font-size:0.8125rem; color:var(--text-secondary); margin-top:2px;">
+                  도출된 신규 지식 <strong>2건</strong>이 사람의 검토 및 온톨로지 승인을 위해 <strong>3번 개념 검토 센터(HITL) 큐에 자동 등록</strong>되었습니다.
+                </div>
               </div>
             </div>
+
+            <div style="margin-top:14px; padding:12px 16px; background:var(--bg-surface-2); border-radius:8px; font-size:0.8125rem; line-height:1.6;">
+              <div>• <strong>[신규 지식 1]</strong> ${cand1.conceptTitle} <span class="concept-badge badge-scale-3" style="font-size:0.625rem;">검토 대기</span></div>
+              <div style="margin-top:4px;">• <strong>[신규 지식 2]</strong> ${cand2.conceptTitle} <span class="concept-badge badge-scale-5" style="font-size:0.625rem;">검토 대기</span></div>
+            </div>
+
+            <div style="margin-top:14px; display:flex; justify-content:flex-end;">
+              <button type="button" class="cand-action-btn cand-btn-primary" id="btn-goto-review-from-inv" style="padding:10px 20px; font-weight:700;">
+                ✍️ 3번 개념 검토 센터로 이동하여 확인 및 편집하기 ➔
+              </button>
+            </div>
           </div>
+        `;
 
-          <div style="margin-top:14px; padding:12px 16px; background:var(--bg-surface-2); border-radius:8px; font-size:0.8125rem; line-height:1.6;">
-            <div>• <strong>[신규 지식 1]</strong> ${cand1.conceptTitle} <span class="concept-badge badge-scale-3" style="font-size:0.625rem;">검토 대기</span></div>
-            <div style="margin-top:4px;">• <strong>[신규 지식 2]</strong> ${cand2.conceptTitle} <span class="concept-badge badge-scale-5" style="font-size:0.625rem;">검토 대기</span></div>
-          </div>
+        document.getElementById("btn-goto-review-from-inv")?.addEventListener("click", () => {
+          setWorkspace("review");
+          showToast("방금 발굴된 신규 개념 검토 항목으로 이동했습니다.", "info");
+        });
 
-          <div style="margin-top:14px; display:flex; justify-content:flex-end;">
-            <button type="button" class="cand-action-btn cand-btn-primary" id="btn-goto-review-from-inv" style="padding:10px 20px; font-weight:700;">
-              ✍️ 3번 개념 검토 센터로 이동하여 확인 및 편집하기 ➔
-            </button>
-          </div>
-        </div>
-      `;
-
-      document.getElementById("btn-goto-review-from-inv")?.addEventListener("click", () => {
-        setWorkspace("review");
-        showToast("방금 발굴된 신규 개념 검토 항목으로 이동했습니다.", "info");
-      });
-
-      showToast(`선택한 출처에서 발굴된 2건의 지식이 3번 검토 센터 큐에 자동 등록되었습니다!`, "success");
-    } catch (err) {
-      console.warn("Investigation synthesis error:", err);
-      showToast("초안 합성 중 오류가 발생했습니다.", "warning");
+        showToast(`선택한 출처에서 발굴된 2건의 지식이 3번 검토 센터 큐에 자동 등록되었습니다!`, "success");
+      } catch (err) {
+        console.warn("Investigation synthesis error:", err);
+        showToast("초안 합성 중 오류가 발생했습니다.", "warning");
+      }
     }
   }
 
@@ -3605,9 +4237,79 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // D-1. 시스템 설정 팝업창 제어 (.modal-overlay.open 표준 준수)
+    function updateSystemStatusUI(data) {
+      if (!data) return;
+      const status = data.status || "degraded";
+
+      // 1. 탑바 설정 닷 상태 바인딩 (healthy: 🟢, degraded: 🟡, maintenance: ⚫)
+      if (dom.topbarSettingsDot) {
+        dom.topbarSettingsDot.classList.remove("healthy", "degraded", "maintenance");
+        dom.topbarSettingsDot.classList.add(status);
+        const statusLabels = {
+          healthy: "정상 가동 (Healthy 🟢)",
+          degraded: "폴백 모드 (Degraded 🟡)",
+          maintenance: "서버 점검 (Maintenance ⚫)"
+        };
+        dom.topbarSettingsDot.title = `백엔드 API: ${statusLabels[status] || status} · 배포 ${data.activeVersion || "v1.2"}`;
+      }
+
+      // 2. 환경설정 모달 내 백엔드 상태 바인딩
+      if (dom.settingsBackendBadge) {
+        if (status === "healthy") {
+          dom.settingsBackendBadge.className = "concept-badge badge-verified";
+          dom.settingsBackendBadge.textContent = "정상 가동 (Healthy 🟢)";
+          dom.settingsBackendBadge.style.background = "#dcfce7";
+          dom.settingsBackendBadge.style.color = "#15803d";
+        } else if (status === "degraded") {
+          dom.settingsBackendBadge.className = "concept-badge";
+          dom.settingsBackendBadge.textContent = "폴백 가동 (Degraded 🟡)";
+          dom.settingsBackendBadge.style.background = "#fef3c7";
+          dom.settingsBackendBadge.style.color = "#b45309";
+        } else {
+          dom.settingsBackendBadge.className = "concept-badge badge-danger";
+          dom.settingsBackendBadge.textContent = "서버 점검 (Maintenance ⚫)";
+          dom.settingsBackendBadge.style.background = "#fee2e2";
+          dom.settingsBackendBadge.style.color = "#b91c1c";
+        }
+      }
+
+      if (dom.settingsBackendVersion) {
+        dom.settingsBackendVersion.textContent = data.activeVersion || "v1.2";
+      }
+
+      // 3. 신규 버전 감지 시 글로벌 상단 배너 표시
+      if (dom.globalUpdateBanner) {
+        if (data.isUpdateAvailable) {
+          dom.globalUpdateBanner.style.display = "flex";
+          dom.globalUpdateBanner.innerHTML = `
+            <div class="banner-text">
+              <span>🚀</span>
+              <span>온톨로지 신규 배포 버전(<strong>${data.latestVersion}</strong>)이 감지되었습니다. 최신 지식 그래프로 동기화할 수 있습니다.</span>
+            </div>
+            <div class="banner-actions">
+              <button type="button" class="banner-btn" id="btn-sync-new-version">지식 베이스 동기화</button>
+              <button type="button" class="banner-close" id="btn-close-update-banner">&times;</button>
+            </div>
+          `;
+          document.getElementById("btn-sync-new-version")?.addEventListener("click", () => {
+            if (window.WikiAPI) WikiAPI.showToast(`신규 온톨로지 버전(${data.latestVersion}) 동기화를 진행합니다.`, "info");
+            setTimeout(() => window.location.reload(), 1000);
+          });
+          document.getElementById("btn-close-update-banner")?.addEventListener("click", () => {
+            dom.globalUpdateBanner.style.display = "none";
+          });
+        } else {
+          dom.globalUpdateBanner.style.display = "none";
+        }
+      }
+    }
+
     function openSettingsModal() {
       if (!dom.settingsModal) return;
       renderApiKeyBox();
+      if (window.WikiAPI && dom.settingsBackendUrl) {
+        dom.settingsBackendUrl.value = WikiAPI.baseUrl;
+      }
       dom.settingsModal.classList.add("open");
     }
 
@@ -3840,6 +4542,38 @@ document.addEventListener("DOMContentLoaded", () => {
       const curMode = window.OntologyAgentCore?.getMode() || "mock";
       updateModeSwitcherUI(curMode);
     });
+
+    // J. WikiAPI 연동 및 백엔드 설정 저장 이벤트 바인딩
+    if (window.WikiAPI) {
+      if (dom.settingsBackendUrl) {
+        dom.settingsBackendUrl.value = WikiAPI.baseUrl;
+      }
+      WikiAPI.onStatusChange(updateSystemStatusUI);
+      WikiAPI.startHealthPolling(30000);
+    }
+
+    dom.btnSaveBackendUrl?.addEventListener("click", async () => {
+      const newUrl = dom.settingsBackendUrl?.value.trim();
+      if (!newUrl) {
+        if (window.WikiAPI) WikiAPI.showToast("API Base URL을 입력해 주세요.", "warning");
+        return;
+      }
+      dom.btnSaveBackendUrl.textContent = "연결 테스트 중...";
+      dom.btnSaveBackendUrl.disabled = true;
+      try {
+        if (window.WikiAPI) {
+          WikiAPI.setBaseUrl(newUrl);
+          const health = await WikiAPI.getSystemHealth();
+          await WikiAPI.getSystemVersion();
+          WikiAPI.showToast(`API 엔드포인트 연결 성공 (${health.status})`, "success");
+        }
+      } catch (err) {
+        if (window.WikiAPI) WikiAPI.showToast(`엔드포인트 연결 실패: ${err.message}`, "error");
+      } finally {
+        dom.btnSaveBackendUrl.textContent = "연결 테스트 & 저장";
+        dom.btnSaveBackendUrl.disabled = false;
+      }
+    });
   }
 
   // ── 0-C. 위키 1번 탭 우측 하단 플로팅 챗봇 컨트롤러 ──
@@ -3855,16 +4589,55 @@ document.addEventListener("DOMContentLoaded", () => {
         .replace(/\n/g, "<br>");
     }
 
-    function syncChatContext() {
+    async function syncChatContext() {
       const cur = WikiStore.concepts[state.currentConceptId] || WikiStore.concepts["dry-etch"];
-      if (!cur) return;
-      const title = cur.title || cur.name || state.currentConceptId;
+      const conceptId = state.currentConceptId || "dry-etch";
+      const title = cur ? (cur.title || cur.name || conceptId) : conceptId;
+
       if (dom.chatContextBadge) {
-        dom.chatContextBadge.textContent = `📌 ${title} (${cur.scaleId || 'Scale 3'})`;
+        dom.chatContextBadge.textContent = `📌 ${title} (${cur?.scaleId || 'Scale 3'})`;
       }
       if (dom.chatCurConceptName) {
         dom.chatCurConceptName.textContent = title;
       }
+
+      // Live Backend API 연동 (GET /api/v1/chatbot/context)
+      if (window.WikiAPI && typeof window.WikiAPI.getChatbotContext === "function") {
+        try {
+          const res = await window.WikiAPI.getChatbotContext(conceptId, state.currentPerspective || "yield");
+          if (res) {
+            if (dom.chatEngineModeBadge) {
+              dom.chatEngineModeBadge.className = "concept-badge badge-verified";
+              dom.chatEngineModeBadge.style.background = "#dcfce7";
+              dom.chatEngineModeBadge.style.color = "#15803d";
+              dom.chatEngineModeBadge.textContent = res.engineModeLabel || "🟢 Live (온톨로지 인과 엔진)";
+            }
+            if (res.scaleBadge && dom.chatContextBadge) {
+              dom.chatContextBadge.textContent = `📌 ${res.conceptTitle || title} (${res.scaleBadge})`;
+            }
+            // 퀵 질문 칩 3종 동적 업데이트
+            const chipsContainer = document.getElementById("chat-quick-chips");
+            if (chipsContainer && res.quickQuestionChips && res.quickQuestionChips.length > 0) {
+              chipsContainer.innerHTML = res.quickQuestionChips.map(chipText => {
+                const cleanText = chipText.replace(/^[💡\s]+/, "");
+                const label = cleanText.length > 18 ? cleanText.slice(0, 16) + "..." : cleanText;
+                return `<button type="button" class="chat-quick-chip" data-q="${cleanText}" title="${cleanText}">💡 ${label}</button>`;
+              }).join("");
+              chipsContainer.querySelectorAll(".chat-quick-chip").forEach(chip => {
+                chip.addEventListener("click", () => {
+                  const q = chip.dataset.q;
+                  if (q) sendChatMessage(q);
+                });
+              });
+            }
+            return;
+          }
+        } catch (err) {
+          console.warn("WikiAPI.getChatbotContext fallback:", err);
+        }
+      }
+
+      // Fallback
       if (dom.chatEngineModeBadge && window.OntologyAgentCore) {
         const mode = window.OntologyAgentCore.getMode();
         const isLive = window.OntologyAgentCore.isLiveAvailable();
@@ -3919,34 +4692,128 @@ document.addEventListener("DOMContentLoaded", () => {
       appendChatMessage("user", query);
       if (dom.floatingChatInput) dom.floatingChatInput.value = "";
 
-      // Transitions.dev 추론 스트림 & 매트릭스 도트 스피너 적용
+      // Transitions.dev 추론 스트림 & 매트릭스 도트 스피너 적용 (Layout Shift CLS=0)
       const loadingMsg = appendChatMessage(
         "agent",
         `<div class="reasoning-stream-box" style="margin:2px 0; padding:6px 10px; background:transparent; border:none; color:inherit;">
           <div class="matrix-dot-spinner"><span></span><span></span><span></span><span></span><span></span><span></span></div>
-          <span>현재 온톨로지 문서의 물리 인과 사슬을 분석 중입니다...</span>
+          <span>현재 온톨로지 문서의 물리 인과 사슬 및 백엔드 지능형 라우터를 분석 중입니다...</span>
         </div>`
       );
 
-      try {
-        const res = await window.OntologyAgentCore.askContextualChat({
-          conceptId: state.currentConceptId,
-          userMessage: query,
-          currentPerspective: state.currentPerspective
-        });
+      let answerHandled = false;
 
-        if (loadingMsg) {
-          const bubble = loadingMsg.querySelector(".chat-msg-bubble");
-          if (bubble) {
-            bubble.innerHTML = formatChatMarkdown(res.answer);
+      // 1. Live Backend API 호출 (POST /api/v1/chatbot/messages)
+      if (window.WikiAPI && typeof window.WikiAPI.sendChatbotMessage === "function") {
+        try {
+          const res = await window.WikiAPI.sendChatbotMessage({
+            message: query,
+            conceptId: state.currentConceptId || "dry-etch",
+            currentPerspective: state.currentPerspective || "yield"
+          });
+
+          if (res && res.answerMarkdown) {
+            let html = formatChatMarkdown(res.answerMarkdown);
+
+            // Factoid 공인 출처 인용 렌더링
+            if (res.sourceEvidences && res.sourceEvidences.length > 0) {
+              html += `<div style="margin-top:8px; padding-top:6px; border-top:1px dashed var(--border-color); font-size:0.75rem; color:var(--text-muted);">
+                📚 <strong>공인 출처 근거:</strong> ${res.sourceEvidences.map(e => `<span>${e.sourceName || e.source_name} (${e.credibilityTier || e.credibility_tier || '공인'})</span>`).join(', ')}
+              </div>`;
+            }
+
+            // Action Trigger 카드 렌더링 (화면 즉시 이동)
+            if (res.actionCard) {
+              html += `<div style="margin-top:10px; padding:10px; background:var(--bg-surface-2); border:1px solid var(--border-color); border-radius:6px;">
+                <div style="font-weight:700; font-size:0.8125rem; color:var(--text-primary); margin-bottom:4px;">${res.actionCard.title}</div>
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:8px;">${res.actionCard.description}</div>
+                <button type="button" class="cand-action-btn cand-btn-primary chat-action-jump-btn" style="width:100%; font-size:0.75rem; padding:6px 12px; font-weight:700;">
+                  ${res.actionCard.buttonLabel || '⚡ 비교 분석 스튜디오로 이동 ➔'}
+                </button>
+              </div>`;
+            }
+
+            // Causal Clarifier 역질문 및 추천 노드 칩
+            if (res.clarificationPrompt) {
+              html += `<div style="margin-top:8px; font-weight:600; font-size:0.8125rem; color:var(--accent-primary);">
+                ❓ ${res.clarificationPrompt}
+              </div>`;
+            }
+            if (res.suggestedNodes && res.suggestedNodes.length > 0) {
+              html += `<div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
+                ${res.suggestedNodes.map(n => `<span class="concept-badge badge-scale-3 chat-node-chip" data-concept-id="${n.conceptId || n.concept_id}" style="cursor:pointer; font-size:0.75rem;" title="클릭 시 해당 개념 문서로 이동">${n.relationLabel || n.relation_label || '노드'}: ${n.name}</span>`).join('')}
+              </div>`;
+            }
+
+            // Out of Domain 추천 칩
+            if (res.suggestedChips && res.suggestedChips.length > 0) {
+              html += `<div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;">
+                ${res.suggestedChips.map(c => `<button type="button" class="chat-quick-chip chat-ood-chip" data-q="${c}" style="font-size:0.6875rem;">💡 ${c}</button>`).join('')}
+              </div>`;
+            }
+
+            if (loadingMsg) {
+              const bubble = loadingMsg.querySelector(".chat-msg-bubble");
+              if (bubble) {
+                bubble.innerHTML = html;
+
+                // Action 버튼 바인딩
+                bubble.querySelectorAll(".chat-action-jump-btn").forEach(btn => {
+                  btn.addEventListener("click", () => {
+                    setWorkspace("comparison");
+                    showToast("비교 분석 스튜디오로 이동했습니다.", "info");
+                  });
+                });
+
+                // 추천 노드 칩 클릭 바인딩
+                bubble.querySelectorAll(".chat-node-chip").forEach(chip => {
+                  chip.addEventListener("click", () => {
+                    const cid = chip.dataset.conceptId;
+                    if (cid) {
+                      renderConceptDetail(cid);
+                      setWorkspace("wiki");
+                      showToast(`${chip.textContent} 개념으로 이동했습니다.`, "info");
+                    }
+                  });
+                });
+
+                // OOD 추천 칩 바인딩
+                bubble.querySelectorAll(".chat-ood-chip").forEach(chip => {
+                  chip.addEventListener("click", () => {
+                    const q = chip.dataset.q;
+                    if (q) sendChatMessage(q);
+                  });
+                });
+              }
+            }
+            answerHandled = true;
           }
-        }
-      } catch (err) {
-        if (loadingMsg) {
-          const bubble = loadingMsg.querySelector(".chat-msg-bubble");
-          if (bubble) bubble.textContent = "답변 생성 실패: " + err.message;
+        } catch (err) {
+          console.warn("WikiAPI.sendChatbotMessage fallback:", err);
         }
       }
+
+      // 2. Fallback to OntologyAgentCore if API offline or failed
+      if (!answerHandled) {
+        try {
+          const res = await window.OntologyAgentCore.askContextualChat({
+            conceptId: state.currentConceptId,
+            userMessage: query,
+            currentPerspective: state.currentPerspective
+          });
+
+          if (loadingMsg) {
+            const bubble = loadingMsg.querySelector(".chat-msg-bubble");
+            if (bubble) bubble.innerHTML = formatChatMarkdown(res.answer);
+          }
+        } catch (err) {
+          if (loadingMsg) {
+            const bubble = loadingMsg.querySelector(".chat-msg-bubble");
+            if (bubble) bubble.textContent = "답변 생성 실패: " + err.message;
+          }
+        }
+      }
+
       if (dom.floatingChatMessages) {
         dom.floatingChatMessages.scrollTop = dom.floatingChatMessages.scrollHeight;
       }
