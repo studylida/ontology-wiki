@@ -140,22 +140,23 @@ async def test_add_deep_dive_tail_question():
 
 
 @pytest.mark.asyncio
-async def test_export_review_forbidden_expert_reason():
-    """🌟 도메인 필수 거버넌스: 금지어 '전문가 사유' 입력 시 400 Bad Request 차단 검증."""
+async def test_export_review_with_expert_reason_preserves_and_guides():
+    """사용자가 '전문가 사유'를 기재하더라도 400으로 튕겨내지 않고 안전하게 접수하며 권장 팁을 제공하는지 검증."""
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         payload = {
             "conceptId": "concept-tcb",
-            "title": "가압 조건 임의 완화 건",
-            "overrideReason": "수석 엔지니어 직관에 따른 전문가 사유로 변경 승인 요청",
+            "title": "가압 조건 현장 테스트 결과 반영 건",
+            "overrideReason": "수석 엔지니어 현장 의견 및 전문가 사유 기반 가압력 미세 조정",
             "author": "Dr. 홍",
             "reviewType": "파라미터 수정"
         }
         response = await client.post("/api/v1/comparison-sessions/sess-20261016-001/export-review", json=payload)
-        assert response.status_code == 400
-        detail = response.json()["detail"]
-        assert "전문가 사유" in detail
-        assert "허용되지 않습니다" in detail
+        assert response.status_code == 200
+        data = response.json()
+        assert "ticketId" in data
+        assert "성공적으로 내보내졌습니다" in data["message"]
+        assert "실측 데이터나 공인 백서 근거를 보완" in data["message"]
 
 
 @pytest.mark.asyncio

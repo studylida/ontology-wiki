@@ -268,20 +268,14 @@ async def add_deep_dive_question(
     response_model=ExportReviewResponse,
     response_model_by_alias=True,
     response_model_exclude_none=True,
-    summary="비교 세션 ➔ 검토 센터 티켓 내보내기 API (금지어 엄격 배제)",
-    description="비교 분석 결과를 바탕으로 지식 거버넌스 티켓을 생성합니다. 도메인 금지어 '전문가 사유'는 400 Bad Request로 엄격 차단됩니다."
+    summary="비교 세션 ➔ 검토 센터 티켓 내보내기 API",
+    description="비교 분석 결과를 바탕으로 지식 거버넌스 티켓을 생성합니다."
 )
 async def export_to_review_ticket(
     session_id: str,
     body: ExportReviewRequest,
     db: AsyncSession = Depends(get_db)
 ):
-    # 🌟 도메인 필수 검증: 금지어 '전문가 사유' 원천 차단
-    if "전문가 사유" in body.overrideReason:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="금지어 '전문가 사유'는 거버넌스 규격상 허용되지 않습니다. 실측 데이터 또는 공인 백서 근거를 담은 객관적 '사유(overrideReason)'를 기술하십시오."
-        )
 
     session = await db.get(ComparisonSessionModel, session_id)
     if not session:
@@ -340,8 +334,12 @@ async def export_to_review_ticket(
 
     await db.commit()
 
+    message = f"비교 분석 세션이 거버넌스 티켓 [{ticket_id}]로 성공적으로 내보내졌습니다."
+    if "전문가 사유" in (body.overrideReason or ""):
+        message += " (💡 안내: 승인율을 높이기 위해 검토 센터에서 '전문가 사유' 대신 구체적 실측 데이터나 공인 백서 근거를 보완하실 수 있습니다.)"
+
     return ExportReviewResponse(
         session_id=session.id,
         ticket_id=ticket_id,
-        message=f"비교 분석 세션이 거버넌스 티켓 [{ticket_id}]로 성공적으로 내보내졌습니다."
+        message=message
     )
