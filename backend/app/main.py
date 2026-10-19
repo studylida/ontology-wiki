@@ -11,6 +11,7 @@ from backend.app.core.config import settings
 from backend.app.core.cache import cache_manager
 from backend.app.api.system import router as system_router
 from backend.app.api.search import router as search_router
+from backend.app.api.concepts import router as concepts_router
 
 logging.basicConfig(
     level=logging.INFO if not settings.DEBUG else logging.DEBUG,
@@ -48,6 +49,7 @@ app.add_middleware(
 # API v1 라우터 등록
 app.include_router(system_router, prefix="/api/v1")
 app.include_router(search_router, prefix="/api/v1")
+app.include_router(concepts_router, prefix="/api/v1")
 
 
 @app.get("/healthz", tags=["System"])
