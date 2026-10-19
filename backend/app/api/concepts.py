@@ -87,26 +87,48 @@ async def get_concept_detail(
     # 3. 0ms 팝오버를 위한 연관 개념 사전 적재 (Preloaded Explainers)
     preloaded_explainers: Dict[str, ContextualExplanationDTO] = {}
     rel_ids = set()
+    edge_mechanisms: Dict[str, str] = {}
+
+    # (1) relations JSON 필드 기반 연관 개념 수집 (전공정/후공정/소자 공통)
     if isinstance(concept.relations, dict):
-        for key in ["causes", "causedBy", "competing", "children", "parents"]:
+        for key in ["causes", "causedBy", "competing", "children", "parents", "alternative_to"]:
             items = concept.relations.get(key, [])
             if isinstance(items, list):
                 for item in items:
-                    if isinstance(item, dict) and "id" in item:
-                        rel_ids.add(item["id"])
+                    if isinstance(item, dict):
+                        cid = item.get("id") or item.get("targetId")
+                        if cid:
+                            rel_ids.add(cid)
                     elif isinstance(item, str):
                         rel_ids.add(item)
+
+    # (2) causal_edges 물리 테이블 기반 1-hop 연관 개념 및 메커니즘 수집
+    edge_stmt = select(CausalEdgeModel).where(
+        (CausalEdgeModel.source_concept_id == concept_id) |
+        (CausalEdgeModel.target_concept_id == concept_id)
+    )
+    edge_rows = (await db.execute(edge_stmt)).scalars().all()
+    for e in edge_rows:
+        other_id = e.target_concept_id if e.source_concept_id == concept_id else e.source_concept_id
+        rel_ids.add(other_id)
+        if e.mechanism_label:
+            edge_mechanisms[other_id] = e.mechanism_label
 
     if rel_ids:
         rel_stmt = select(ConceptModel).where(ConceptModel.id.in_(rel_ids))
         rel_res = await db.execute(rel_stmt)
         for rc in rel_res.scalars().all():
+            mech = edge_mechanisms.get(rc.id)
+            context_sentence = (
+                f"[{concept.title} ➔ {rc.title} 인과 메커니즘] {mech}"
+                if mech else f"{concept.title} 본문에서 참조되는 연관 개념 ({rc.process_category})."
+            )
             preloaded_explainers[rc.id] = ContextualExplanationDTO(
                 child_concept_id=rc.id,
                 parent_concept_id=concept.id,
                 title=rc.title,
                 definition=rc.summary,
-                context_sentence=f"{concept.title} 본문에서 참조되는 연관 개념 ({rc.process_category}).",
+                context_sentence=context_sentence,
                 cached=True,
                 source_evidence=None,
                 deep_link=f"/wiki?concept={rc.id}"

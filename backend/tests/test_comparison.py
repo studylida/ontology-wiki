@@ -179,3 +179,47 @@ async def test_export_review_success():
         assert "ticketId" in data
         assert data["ticketId"].startswith("rev-")
         assert "성공적으로 내보내졌습니다" in data["message"]
+
+
+@pytest.mark.asyncio
+async def test_add_deep_dive_multi_domain_generalization():
+    """노광, 식각, 소자 등 반도체 전 공정에 걸친 4단계 물리 인과 체인 도출 일반화 검증."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        # 세션 생성
+        sess = await client.post(
+            "/api/v1/comparison-sessions",
+            json={"title": "반도체 전 공정 인과 테스트", "userId": "EMP-PHYS", "query": "전 공정 비교"}
+        )
+        sid = sess.json()["id"]
+
+        # 1. 노광 공정 (High-NA EUV DOF)
+        res_litho = await client.post(
+            f"/api/v1/comparison-sessions/{sid}/deep-dive",
+            json={"query": "High-NA EUV 노광 시 초점 심도(DOF) 감소로 인한 스토캐스틱 결함 경로는?"}
+        )
+        assert res_litho.status_code == 200
+        path_litho = res_litho.json()["tailQuestion"]["causalPath"]
+        assert len(path_litho) == 4
+        assert "초점 심도(DOF) 축소" in path_litho[0]
+
+        # 2. 식각 공정 (Cryo Etch HARC 틸팅)
+        res_etch = await client.post(
+            f"/api/v1/comparison-sessions/{sid}/deep-dive",
+            json={"query": "극저온 Cryo 식각 공정에서 고종횡비 홀 틸팅(Tilting) 불량 메커니즘은?"}
+        )
+        assert res_etch.status_code == 200
+        path_etch = res_etch.json()["tailQuestion"]["causalPath"]
+        assert len(path_etch) == 4
+        assert "식각 프로파일 틸팅" in path_etch[-1]
+
+        # 3. 소자 구조 (2nm GAA Nanosheet)
+        res_gaa = await client.post(
+            f"/api/v1/comparison-sessions/{sid}/deep-dive",
+            json={"query": "2nm GAA 나노시트 소자에서 단채널 효과(SCE)로 인한 누설 전류 발생 원인은?"}
+        )
+        assert res_gaa.status_code == 200
+        path_gaa = res_gaa.json()["tailQuestion"]["causalPath"]
+        assert len(path_gaa) == 4
+        # 실제 DB 엣지("2nm GAA 나노시트") 또는 도메인 템플릿("단채널 효과")이 정확히 도출되었는지 검증
+        assert any("gaa" in p.lower() or "나노시트" in p.lower() or "단채널" in p.lower() for p in path_gaa)

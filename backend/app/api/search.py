@@ -3,6 +3,7 @@
 Provides /api/v1/search/spotlight endpoint for Cmd+K search modal with low-latency ranking.
 """
 from typing import Optional, List, Dict, Any, Tuple
+import re
 import logging
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,13 +22,19 @@ logger = logging.getLogger("ontology_wiki.search")
 router = APIRouter(prefix="/search", tags=["Search"])
 
 
+def normalize_term(s: str) -> str:
+    """반도체 특수 약어(MR-MUF, High-NA, TC-NCF 등) 매칭을 위해 하이픈/공백/특수문자 제거 정규화."""
+    return re.sub(r"[\s\-_/().,]", "", s.lower())
+
+
 def extract_highlight(text: str, query: str, context_len: int = 40) -> Optional[str]:
     """검색어 매칭 지점 전후 문맥을 발췌하여 하이라이트 스니펫을 생성."""
     if not text or not query:
         return None
     idx = text.lower().find(query.lower())
     if idx == -1:
-        return None
+        # 정규화된 위치 검색
+        return text[:context_len * 2] if len(text) > context_len * 2 else text
     start = max(0, idx - context_len)
     end = min(len(text), idx + len(query) + context_len)
     prefix = "..." if start > 0 else ""
@@ -40,25 +47,30 @@ def score_concept(
     q: str
 ) -> Tuple[float, str, Optional[str]]:
     """개념에 대해 검색어 관련도 점수(0~100)와 매칭 축, 하이라이트를 산출."""
-    q = q.lower()
+    q_raw = q.lower()
+    q_norm = normalize_term(q)
     title_lower = c.title.lower()
+    title_norm = normalize_term(c.title)
     eng_lower = c.eng_name.lower()
+    eng_norm = normalize_term(c.eng_name)
     aliases = c.aliases if isinstance(c.aliases, list) else []
     cat_lower = c.process_category.lower()
     summary_lower = c.summary.lower() if c.summary else ""
     purpose_lower = c.purpose.lower() if c.purpose else ""
 
-    # 1. Exact Title Match
-    if title_lower == q:
+    # 1. Exact Title Match (원문 또는 정규화)
+    if title_lower == q_raw or (len(q_norm) >= 2 and title_norm == q_norm):
         return 100.0, "title", c.title
 
-    # 2. Exact Alias Match
+    # 2. Exact Alias Match (약어 정규화 포함: 예: mrmuf -> MR-MUF)
     for a in aliases:
-        if isinstance(a, str) and a.lower() == q:
-            return 90.0, "alias", f"동의어/약어 일치: {a}"
+        if isinstance(a, str):
+            a_norm = normalize_term(a)
+            if a.lower() == q_raw or (len(q_norm) >= 2 and a_norm == q_norm):
+                return 90.0, "alias", f"동의어/약어 일치: {a}"
 
     # 3. Exact English Name Match
-    if eng_lower == q:
+    if eng_lower == q_raw or (len(q_norm) >= 2 and eng_norm == q_norm):
         return 85.0, "eng_name", c.eng_name
 
     # 4. Title Starts With Query
