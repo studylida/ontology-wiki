@@ -71,7 +71,7 @@ class CausalEdgeModel(Base):
     """🌟 온톨로지 인과 엣지 물리 테이블 (Neo4j 대체 및 단일화)."""
     __tablename__ = "causal_edges"
 
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True, autoincrement=True)
     source_concept_id = Column(String(64), ForeignKey("concepts.id", ondelete="CASCADE"), nullable=False)
     target_concept_id = Column(String(64), ForeignKey("concepts.id", ondelete="CASCADE"), nullable=False)
     relation_type = Column(String(32), nullable=False)
@@ -168,7 +168,7 @@ class ReviewTicketModel(Base):
 class AuditLogModel(Base):
     __tablename__ = "audit_logs"
 
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True, autoincrement=True)
     audit_id = Column(String(64), nullable=False)
     ticket_id = Column(String(64), nullable=False)
     concept_id = Column(String(64), nullable=False)
@@ -178,4 +178,4 @@ class AuditLogModel(Base):
     previous_log_hash = Column(String(64), nullable=False)
     entry_hash = Column(String(64), nullable=False)
     digital_signature = Column(Text, nullable=True)
-    timestamp = Column(DateTime(timezone=True), primary_key=True, default=datetime.utcnow)
+    timestamp = Column(DateTime(timezone=True), default=datetime.utcnow)
