@@ -84,6 +84,10 @@ class CacheManager:
         self._in_memory_store.pop(key, None)
         return True
 
+    # JSON convenience aliases
+    get_json = get
+    set_json = set
+
     # --------------------------------------------------------------------------
     # [Tab 3] Presence Lock (동시 편집 사전 차단 락)
     # --------------------------------------------------------------------------
