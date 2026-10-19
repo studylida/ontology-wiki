@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ontology-wiki-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ontology_wiki}
+      POSTGRES_USER: ${POSTGRES_USER:-ontology_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ontology_secure_pass}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ontology_user} -d ${POSTGRES_DB:-ontology_wiki}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - ontology_net
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: ontology-wiki-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-ontology_redis_pass}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-ontology_redis_pass}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - ontology_net
+
+volumes:
+  postgres_data:
+    name: ontology_wiki_postgres_data
+  redis_data:
+    name: ontology_wiki_redis_data
+
+networks:
+  ontology_net:
+    name: ontology_wiki_net
+    driver: bridge

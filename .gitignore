@@ -1,6 +1,7 @@
 # Environment variables & API Keys
 .env
 .env.*
+!.env.example
 *.local
 secrets/
 
@@ -13,3 +14,37 @@ Thumbs.db
 # Node / Scratch
 node_modules/
 npm-debug.log*
+
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.venv/
+venv/
+ENV/
+env/
+
+# Database & Runtime Data
+data/
+postgres_data/
+redis_data/
+*.db
+*.sqlite3
+
