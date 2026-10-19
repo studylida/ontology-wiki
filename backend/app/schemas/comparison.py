@@ -106,3 +106,82 @@ class TuneAdvisorResponse(BaseModel):
     advisorRecommendation: Dict[str, Any] = Field(..., alias="advisor_recommendation", serialization_alias="advisorRecommendation")
     appliedResult: Optional[Dict[str, Any]] = Field(None, alias="applied_result", serialization_alias="appliedResult")
 
+
+class ClarifyBranch(BaseModel):
+    """대화형 질문 구체화 공학 분기 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    branchId: str = Field(..., alias="branch_id", serialization_alias="branchId")
+    title: str
+    description: str
+    targetA: str = Field(..., alias="target_a", serialization_alias="targetA")
+    targetB: str = Field(..., alias="target_b", serialization_alias="targetB")
+    domain: str
+
+
+class DynamicAxisCandidate(BaseModel):
+    """동적 적응형 비교 축 후보 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    axisId: str = Field(..., alias="axis_id", serialization_alias="axisId")
+    label: str
+    category: str
+    categoryLabel: str = Field(..., alias="category_label", serialization_alias="categoryLabel")
+
+
+class ClarifyRequest(BaseModel):
+    """비교 분석 전 질문 구체화 요청 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    query: str = Field(..., min_length=2, description="엔지니어 비교 질문")
+    baseConceptId: Optional[str] = Field(None, alias="base_concept_id", serialization_alias="baseConceptId")
+    customAxes: Optional[List[str]] = Field(default_factory=list, alias="custom_axes", serialization_alias="customAxes")
+
+
+class ClarifyResponse(BaseModel):
+    """비교 분석 전 질문 구체화 응답 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    recognizedIntent: str = Field(..., alias="recognized_intent", serialization_alias="recognizedIntent")
+    branches: List[ClarifyBranch]
+    dynamicAxesPool: List[DynamicAxisCandidate] = Field(..., alias="dynamic_axes_pool", serialization_alias="dynamicAxesPool")
+    clarificationQuestions: List[str] = Field(..., alias="clarification_questions", serialization_alias="clarificationQuestions")
+
+
+class SessionPatchRequest(BaseModel):
+    """비교 세션 핀 고정, 제목 수정, 폴더 이동 요청 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    isPinned: Optional[bool] = Field(None, alias="is_pinned", serialization_alias="isPinned")
+    title: Optional[str] = None
+    folderId: Optional[str] = Field(None, alias="folder_id", serialization_alias="folderId")
+
+
+class SessionPatchResponse(BaseModel):
+    """비교 세션 패치 결과 응답 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    id: str
+    title: str
+    isPinned: bool = Field(..., alias="is_pinned", serialization_alias="isPinned")
+    folderId: Optional[str] = Field(None, alias="folder_id", serialization_alias="folderId")
+    updatedAt: str = Field(..., alias="updated_at", serialization_alias="updatedAt")
+
+
+class MatrixRecalculateRequest(BaseModel):
+    """스냅샷 3 매트릭스 필터링 및 커스텀 축 추가 요청 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    selectedCategories: Optional[List[str]] = Field(default_factory=list, alias="selected_categories", serialization_alias="selectedCategories")
+    addedCustomAxis: Optional[Dict[str, str]] = Field(None, alias="added_custom_axis", serialization_alias="addedCustomAxis")
+
+
+class MatrixRecalculateResponse(BaseModel):
+    """스냅샷 3 매트릭스 재계산 응답 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    sessionId: str = Field(..., alias="session_id", serialization_alias="sessionId")
+    matrix: List[Dict[str, Any]]
+    aiCausalNote: Optional[str] = Field(None, alias="ai_causal_note", serialization_alias="aiCausalNote")
+
+

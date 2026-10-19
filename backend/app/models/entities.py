@@ -179,3 +179,19 @@ class AuditLogModel(Base):
     entry_hash = Column(String(64), nullable=False)
     digital_signature = Column(Text, nullable=True)
     timestamp = Column(DateTime(timezone=True), default=datetime.utcnow)
+
+
+class ResearchSessionModel(Base):
+    __tablename__ = "research_sessions"
+
+    id = Column(String(64), primary_key=True)
+    search_topic = Column(String(256), nullable=False)
+    trust_pool_notice = Column(Text, nullable=True)
+    scope_filters = Column(JSON, default=list, nullable=False)
+    target_institutions = Column(JSON, default=list, nullable=False)
+    evidence_feed = Column(JSON, default=list, nullable=False)
+    synthesis_report = Column(JSON, default=dict, nullable=False)
+    candidates = Column(JSON, default=list, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+

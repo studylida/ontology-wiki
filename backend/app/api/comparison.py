@@ -32,12 +32,20 @@ from backend.app.schemas.comparison import (
     ExportReviewRequest,
     ExportReviewResponse,
     TuneAdvisorRequest,
-    TuneAdvisorResponse
+    TuneAdvisorResponse,
+    ClarifyRequest,
+    ClarifyResponse,
+    ClarifyBranch,
+    DynamicAxisCandidate,
+    SessionPatchRequest,
+    SessionPatchResponse,
+    MatrixRecalculateRequest,
+    MatrixRecalculateResponse
 )
 
 logger = logging.getLogger("ontology_wiki.comparison")
 
-router = APIRouter(prefix="/comparison-sessions", tags=["Comparison Studio"])
+router = APIRouter(tags=["Comparison Studio"])
 
 
 async def infer_causal_chain(
@@ -181,8 +189,152 @@ async def infer_causal_chain(
     return chain, explanation
 
 
+@router.post(
+    "/comparison/clarify",
+    response_model=ClarifyResponse,
+    response_model_by_alias=True,
+    response_model_exclude_none=True,
+    summary="비교 분석 전 질문 구체화 API",
+    description="모호한 질문으로부터 3대 공학 분기, 동적 비교 축 후보 풀 및 구체화 질문을 도출합니다."
+)
+@router.post(
+    "/comparison-sessions/clarify",
+    response_model=ClarifyResponse,
+    response_model_by_alias=True,
+    response_model_exclude_none=True,
+    include_in_schema=False
+)
+async def clarify_comparison_query(
+    body: ClarifyRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    q = body.query.strip()
+    if len(q) < 2:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"code": "QUERY_EMPTY", "message": "비교 질문을 2자 이상 입력해주세요."}
+        )
+
+    q_lower = q.lower()
+    semi_keywords = [
+        "hbm", "tcb", "lab", "mrmuf", "mr-muf", "ncf", "cryo", "rie", "식각", "본딩", "패키징",
+        "euv", "gaa", "tsv", "다이", "휨", "warpage", "보이드", "웨이퍼", "fdc", "apc",
+        "cmp", "ald", "cvd", "dram", "nand", "반도체", "공정", "소자", "수율", "택트타임", "tat"
+    ]
+
+    concepts_stmt = select(ConceptModel)
+    all_concepts = (await db.execute(concepts_stmt)).scalars().all()
+    concept_titles = [c.title.lower() for c in all_concepts] + [c.eng_name.lower() for c in all_concepts if c.eng_name]
+
+    is_domain_relevant = any(k in q_lower for k in semi_keywords) or any(t in q_lower for t in concept_titles)
+    if not is_domain_relevant:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "code": "OUT_OF_DOMAIN_QUERY",
+                "message": "입력하신 내용은 반도체 소자·공정 온톨로지 범위를 벗어납니다.",
+                "suggestedKeywords": ["HBM 방열 대안", "Cryo 식각 vs 고온 식각", "TCB vs MR-MUF"]
+            }
+        )
+
+    target_a = "열압착 본딩 (TCB)"
+    target_b = "레이저 어시스트 본딩 (LAB)"
+    domain = "첨단 패키징"
+
+    if any(k in q_lower for k in ["식각", "cryo", "rie", "etch"]):
+        target_a = "극저온 식각 (Cryo-Etch)"
+        target_b = "플라즈마 건식 식각 (RIE)"
+        domain = "제조 단위 공정"
+    elif any(k in q_lower for k in ["fdc", "apc", "수율", "운영", "이상감지"]):
+        target_a = "실시간 설비 이상감지 (FDC/APC)"
+        target_b = "기존 통계적 공정관리 (SPC)"
+        domain = "팹 지능화 & 운영"
+    elif any(k in q_lower for k in ["euv", "gaa", "노광", "미세화"]):
+        target_a = "High-NA EUV 노광"
+        target_b = "기존 Low-NA 0.33 EUV"
+        domain = "소자·제품군"
+    elif any(k in q_lower for k in ["mrmuf", "mr-muf", "tcb", "ncf", "hbm"]):
+        target_a = "매스 리플로우 몰디드 언더필 (MR-MUF)"
+        target_b = "열압착 비도전성 필름 접합 (TC-NCF)"
+        domain = "첨단 패키징"
+
+    recognized_intent = f"{domain} 분야에서 {target_a}와 {target_b} 간의 상충 메커니즘 및 양산성 비교"
+
+    branches = [
+        ClarifyBranch(
+            branch_id="branch-thermal-stress",
+            title="열 피로 및 다이 휨(Warpage) 한계 비교",
+            description=f"{target_a} vs {target_b} 간 고온/압력 조건에서의 누적 열응력 및 휨 특성 중심 비교",
+            target_a=target_a,
+            target_b=target_b,
+            domain=domain
+        ),
+        ClarifyBranch(
+            branch_id="branch-void-reliability",
+            title="마이크로 보이드 및 접합/패턴 신뢰성 비교",
+            description="접합 계면 결함, 보이드 형성률 및 계면 전단응력 내구성 비교",
+            target_a=target_a,
+            target_b=target_b,
+            domain="수율/품질"
+        ),
+        ClarifyBranch(
+            branch_id="branch-tact-time-capex",
+            title="양산 택트타임(TAT) 및 설비 개조비용 비교",
+            description="다이/웨이퍼당 공정 소요 시간 단축 효과 vs 신규 설비 도입 CAPEX 비교",
+            target_a=target_a,
+            target_b=target_b,
+            domain="팹 양산성"
+        )
+    ]
+
+    dynamic_axes_pool = [
+        DynamicAxisCandidate(
+            axis_id="axis-thermal",
+            label="열전도도 및 다이 휨(Warpage) 변형량",
+            category="thermal",
+            category_label="🔬 열·물성"
+        ),
+        DynamicAxisCandidate(
+            axis_id="axis-defect",
+            label="마이크로 보이드 및 결함 발생률 (%)",
+            category="defects",
+            category_label="⚠️ 결함·신뢰성"
+        ),
+        DynamicAxisCandidate(
+            axis_id="axis-tat",
+            label="다이 1매당 접합 소요 시간 (초)",
+            category="fab",
+            category_label="🏭 팹 양산성"
+        )
+    ]
+
+    if body.customAxes:
+        for idx, custom_axis in enumerate(body.customAxes):
+            dynamic_axes_pool.append(
+                DynamicAxisCandidate(
+                    axis_id=f"axis-custom-{idx+1}",
+                    label=custom_axis,
+                    category="custom",
+                    category_label="📐 사용자 정의"
+                )
+            )
+
+    clarification_questions = [
+        "고다단 적층/미세 패턴 환경에서 허용 가능한 최대 물리적 변형 한계 기준이 있으신가요?",
+        "기존 팹 챔버의 개조(Retrofit)를 우선 고려 중이신가요, 전용 라인 신설인가요?",
+        "현재 양산 라인에서 타깃으로 하는 최소 단위 공정 택트타임(TAT) 목표치는 얼마인가요?"
+    ]
+
+    return ClarifyResponse(
+        recognized_intent=recognized_intent,
+        branches=branches,
+        dynamic_axes_pool=dynamic_axes_pool,
+        clarification_questions=clarification_questions
+    )
+
+
 @router.get(
-    "",
+    "/comparison-sessions",
     response_model=List[ComparisonSessionDTO],
     response_model_by_alias=True,
     response_model_exclude_none=True,
@@ -218,7 +370,7 @@ async def list_comparison_sessions(
 
 
 @router.post(
-    "",
+    "/comparison-sessions",
     response_model=ComparisonSessionDTO,
     response_model_by_alias=True,
     response_model_exclude_none=True,
@@ -302,7 +454,7 @@ async def create_comparison_session(
 
 
 @router.get(
-    "/{session_id}",
+    "/comparison-sessions/{session_id}",
     response_model=ComparisonSessionDTO,
     response_model_by_alias=True,
     response_model_exclude_none=True,
@@ -335,8 +487,122 @@ async def get_comparison_session(
     )
 
 
+@router.patch(
+    "/comparison-sessions/{session_id}",
+    response_model=SessionPatchResponse,
+    response_model_by_alias=True,
+    response_model_exclude_none=True,
+    summary="비교 세션 핀 고정 / 제목 / 폴더 수정 API",
+    description="세션의 즐겨찾기(isPinned), 제목 및 프로젝트 폴더를 수정합니다."
+)
+async def patch_comparison_session(
+    session_id: str,
+    body: SessionPatchRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    session = await db.get(ComparisonSessionModel, session_id)
+    if not session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"code": "SESSION_NOT_FOUND", "message": "수정할 세션이 존재하지 않습니다."}
+        )
+
+    if body.isPinned is not None:
+        session.is_pinned = body.isPinned
+    if body.title is not None and body.title.strip():
+        session.title = body.title.strip()
+    if body.folderId is not None:
+        session.folder_id = body.folderId
+
+    session.updated_at = datetime.utcnow()
+    await db.commit()
+    await db.refresh(session)
+
+    return SessionPatchResponse(
+        id=session.id,
+        title=session.title,
+        is_pinned=session.is_pinned,
+        folder_id=session.folder_id,
+        updated_at=session.updated_at.isoformat() if session.updated_at else datetime.utcnow().isoformat()
+    )
+
+
 @router.post(
-    "/{session_id}/deep-dive",
+    "/comparison-sessions/{session_id}/matrix",
+    response_model=MatrixRecalculateResponse,
+    response_model_by_alias=True,
+    response_model_exclude_none=True,
+    summary="비교 매트릭스 필터링 및 동적 축 추가 API",
+    description="카테고리 필터링 또는 커스텀 비교 축 추가에 따라 매트릭스 테이블을 동적으로 재구성합니다."
+)
+async def update_comparison_matrix(
+    session_id: str,
+    body: MatrixRecalculateRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    session = await db.get(ComparisonSessionModel, session_id)
+    if not session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"code": "SESSION_NOT_FOUND", "message": "비교 세션을 찾을 수 없습니다."}
+        )
+
+    snapshots = list(session.snapshots or [])
+    if len(snapshots) < 3:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"code": "INVALID_SESSION_SNAPSHOTS", "message": "세션 스냅샷 3단계가 초기화되지 않았습니다."}
+        )
+
+    step3 = dict(snapshots[2])
+    matrix = list(step3.get("matrix") or [])
+
+    # 커스텀 축 추가
+    if body.addedCustomAxis:
+        axis_name = body.addedCustomAxis.get("name", "").strip()
+        if not axis_name:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={"code": "CUSTOM_AXIS_NAME_REQUIRED", "message": "추가할 비교 축 이름은 필수입니다."}
+            )
+        desc = body.addedCustomAxis.get("description", "현업 기준")
+        new_row = {
+            "axis": axis_name,
+            "axisCategory": "custom",
+            "categoryLabel": "📐 사용자 정의",
+            "valA": f"기준 공정 A 적용치 ({desc})",
+            "valB": f"대안 기술 B 적용치 ({desc})",
+            "evidenceA": "E-01",
+            "evidenceB": "E-02",
+            "isGap": False
+        }
+        matrix.append(new_row)
+        step3["matrix"] = matrix
+        snapshots[2] = step3
+        session.snapshots = snapshots
+        session.updated_at = datetime.utcnow()
+        await db.commit()
+        await db.refresh(session)
+
+    # 카테고리 필터링
+    filtered_matrix = matrix
+    if body.selectedCategories:
+        filtered_matrix = [
+            row for row in matrix
+            if row.get("axisCategory") in body.selectedCategories or row.get("axisCategory") == "custom"
+        ]
+
+    ai_causal_note = step3.get("aiCausalNote", "열·물성 및 결함 관점 온톨로지 인과 모델 기반 동적 매트릭스 도출 완료")
+
+    return MatrixRecalculateResponse(
+        session_id=session.id,
+        matrix=filtered_matrix,
+        ai_causal_note=ai_causal_note
+    )
+
+
+@router.post(
+    "/comparison-sessions/{session_id}/deep-dive",
     response_model=DeepDiveResponse,
     response_model_by_alias=True,
     response_model_exclude_none=True,
@@ -344,7 +610,7 @@ async def get_comparison_session(
     description="엔지니어의 심층 질문에 대해 4단계 물리 인과 체인(Causal Chain)을 도출하고 세션의 Step 3 스냅샷에 영구 저장합니다."
 )
 @router.post(
-    "/{session_id}/tail-question",
+    "/comparison-sessions/{session_id}/tail-question",
     response_model=DeepDiveResponse,
     response_model_by_alias=True,
     response_model_exclude_none=True,
@@ -394,7 +660,7 @@ async def add_deep_dive_question(
 
 
 @router.post(
-    "/{session_id}/tune-advisor",
+    "/comparison-sessions/{session_id}/tune-advisor",
     response_model=TuneAdvisorResponse,
     response_model_by_alias=True,
     response_model_exclude_none=True,
@@ -498,7 +764,7 @@ async def tune_advisor(
 
 
 @router.post(
-    "/{session_id}/export-review",
+    "/comparison-sessions/{session_id}/export-review",
     response_model=ExportReviewResponse,
     response_model_by_alias=True,
     response_model_exclude_none=True,
@@ -506,7 +772,7 @@ async def tune_advisor(
     description="비교 분석 결과를 바탕으로 지식 거버넌스 티켓을 생성합니다."
 )
 @router.post(
-    "/{session_id}/export-ticket",
+    "/comparison-sessions/{session_id}/export-ticket",
     response_model=ExportReviewResponse,
     response_model_by_alias=True,
     response_model_exclude_none=True,

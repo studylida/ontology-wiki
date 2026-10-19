@@ -15,6 +15,8 @@ from backend.app.api.concepts import router as concepts_router
 from backend.app.api.comparison import router as comparison_router
 from backend.app.api.review_tickets import router as review_tickets_router
 from backend.app.api.evidences import router as evidences_router
+from backend.app.api.research import router as research_router
+from backend.app.api.chatbot import router as chatbot_router
 
 logging.basicConfig(
     level=logging.INFO if not settings.DEBUG else logging.DEBUG,
@@ -56,6 +58,9 @@ app.include_router(concepts_router, prefix="/api/v1")
 app.include_router(comparison_router, prefix="/api/v1")
 app.include_router(review_tickets_router, prefix="/api/v1")
 app.include_router(evidences_router, prefix="/api/v1")
+app.include_router(research_router, prefix="/api/v1")
+app.include_router(chatbot_router, prefix="/api/v1")
+
 
 
 @app.get("/healthz", tags=["System"])
