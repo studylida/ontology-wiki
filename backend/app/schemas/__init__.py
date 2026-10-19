@@ -17,6 +17,16 @@ from backend.app.schemas.search import (
     SpotlightSearchResult,
     SpotlightSearchResponse
 )
+from backend.app.schemas.comparison import (
+    TailQuestionEntry,
+    ParameterTuningEntry,
+    ComparisonSessionCreate,
+    ComparisonSessionDTO,
+    DeepDiveRequest,
+    DeepDiveResponse,
+    ExportReviewRequest,
+    ExportReviewResponse
+)
 
 __all__ = [
     "HealthResponse",
@@ -30,5 +40,13 @@ __all__ = [
     "EvidenceSourceDTO",
     "CausalSubgraphResponse",
     "SpotlightSearchResult",
-    "SpotlightSearchResponse"
+    "SpotlightSearchResponse",
+    "TailQuestionEntry",
+    "ParameterTuningEntry",
+    "ComparisonSessionCreate",
+    "ComparisonSessionDTO",
+    "DeepDiveRequest",
+    "DeepDiveResponse",
+    "ExportReviewRequest",
+    "ExportReviewResponse"
 ]
