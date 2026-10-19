@@ -10,6 +10,7 @@ Provides:
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 import uuid
+import re
 import logging
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -42,91 +43,136 @@ async def infer_causal_chain(
     q: str,
     session: ComparisonSessionModel
 ) -> tuple[List[str], str]:
-    """반도체 전 공정(노광, 식각, 박막, 소자, 패키징, 공정제어) 인과 온톨로지 기반 4단계 체인 도출."""
+    """순수 데이터 드리븐(Data-Driven) 온톨로지 인과 그래프 탐색 엔진.
+
+    특정 공정에 하드코딩되지 않고, DB의 concepts 및 causal_edges 테이블에 
+    새로운 노드와 관계가 추가되면 자동으로 해당 그래프를 순회하여 4단계 인과 체인을 도출합니다.
+    """
     q_lower = q.lower()
 
-    # 1. DB CausalEdges 테이블에서 직접 연계 인과 엣지 검색 (우선 순위)
-    edge_stmt = select(CausalEdgeModel).where(
-        CausalEdgeModel.mechanism_label.ilike(f"%{q[:10]}%")
-    ).limit(1)
-    matched_edge = (await db.execute(edge_stmt)).scalar_one_or_none()
+    # 1. DB concepts 테이블에서 질의어/세션 문맥과 가장 연관된 앵커 개념(Anchor Concept) 동적 탐색
+    all_concepts_stmt = select(ConceptModel)
+    all_concepts = (await db.execute(all_concepts_stmt)).scalars().all()
 
-    if matched_edge:
-        source_concept = await db.get(ConceptModel, matched_edge.source_concept_id)
-        target_concept = await db.get(ConceptModel, matched_edge.target_concept_id)
-        s_name = source_concept.title if source_concept else matched_edge.source_concept_id
-        t_name = target_concept.title if target_concept else matched_edge.target_concept_id
-        rel_map = {
-            "causes": "물리적 인과 전이",
-            "competing_with": "기술 대안 경쟁",
-            "causes_defect": "공정 결함 유발",
-            "compensates": "파라미터 보상 상쇄"
-        }
-        rel_label = rel_map.get(matched_edge.relation_type, matched_edge.relation_type)
-        return (
-            [s_name, "공정 변수 계면 응력", rel_label, t_name],
-            f"[{s_name} ➔ {t_name}] {matched_edge.mechanism_label}"
-        )
+    scored_anchors = []
+    session_text = f"{session.title} {session.query} {str(session.context_params or {})}"
 
-    # 2. 반도체 6대 전·후공정 도메인 물리 인과 템플릿 (노광, 식각, 박막, 소자, 패키징, FDC/APC)
-    # [1] 노광 공정 (Lithography: High-NA, EUV, ArFi, DOF, LER, 스토캐스틱)
-    if any(k in q_lower for k in ["노광", "euv", "high-na", "dof", "초점", "ler", "스토캐스틱", "레지스트", "패터닝"]):
-        return (
-            ["초점 심도(DOF) 축소", "웨이퍼 토포그래피 변동", "스토캐스틱 불균일 노광", "미세 패턴 브릿징/단선"],
-            "개구수(NA) 증가 시 Rayleigh 공식(DOF ∝ λ/NA²)에 따라 초점 심도가 급감하며, 레지스트 박막의 화학적 불균일성으로 인해 나노 패턴 스토캐스틱 브릿징 및 선폭 거칠기(LER) 불량이 발생합니다."
-        )
+    STOPWORDS = {"공정", "기술", "에서", "으로", "로", "의", "이", "가", "은", "는", "을", "를", "무엇인가", "어떤", "원인", "발생", "현상", "결함", "인과", "메커니즘", "경로", "질의", "분석"}
+    q_tokens = [w for w in re.split(r"[\s\-_/().,?]+", q_lower) if len(w) >= 2 and w not in STOPWORDS]
 
-    # [2] 식각 공정 (Etch: Cryo, ALE, HARC, 틸팅, 플라즈마, RIE)
-    elif any(k in q_lower for k in ["식각", "etch", "cryo", "극저온", "harc", "틸팅", "tilting", "로딩"]):
-        return (
-            ["라디칼/이온 플럭스 불균형", "웨이퍼 척 극저온 냉각 편차", "보호막 형성/탈착 지연", "고종횡비 식각 프로파일 틸팅"],
-            "초고단 3D NAND/고종횡비(HARC) 식각 시 웨이퍼 척 헬륨 냉각 압력 변동으로 표면 패시베이션 흡착층 밸런스가 무너지며, 이온 빔 입사각 왜곡으로 인한 하부 휨 및 프로파일 틸팅(Tilting) 결함이 유발됩니다."
-        )
+    for c in all_concepts:
+        score = 0
+        c_title_lower = c.title.lower()
+        c_eng_lower = c.eng_name.lower()
+        aliases = [a.lower() for a in (c.aliases or []) if isinstance(a, str)]
 
-    # [3] 증착/박막 공정 (Deposition: ALD, CVD, Epitaxy, 결정, 격자, 균일도)
-    elif any(k in q_lower for k in ["증착", "ald", "cvd", "epitaxy", "에피", "단결정", "격자", "박막"]):
-        return (
-            ["전구체 흡착 불균일", "열분해 속도 편차", "격자 상수 부정합(Mismatch)", "계면 응력 및 결정 결함 전위"],
-            "원자층 증착(ALD) 및 에피택시 성장 시 기판-박막 간 격자 상수 부정합 응력이 축적되어 원자간 결합각이 뒤틀리며 계면 트랩 준위 및 결정 결함 전위(Dislocation)가 증가합니다."
-        )
+        # 1) 질의어 고유 명사/전문용어 매칭
+        for token in q_tokens:
+            if token in c_title_lower:
+                score += 80
+            if token in c_eng_lower:
+                score += 70
+            if any(token in a for a in aliases):
+                score += 75
 
-    # [4] 소자 구조 및 물리 (Device: GAA, MBCFET, Nanosheet, FinFET, 단채널, SCE, 누설전류)
-    elif any(k in q_lower for k in ["gaa", "mbcfet", "nanosheet", "나노시트", "finfet", "단채널", "sce", "누설"]):
-        return (
-            ["채널 나노시트 박막화", "게이트 정전 전계 제어력 약화", "단채널 효과(SCE) 심화", "오프상태 누설 전류 급증"],
-            "2nm 이하 GAA 소자에서 채널 두께 미세화 시 양자 구속 효과로 인해 문턱 전압(Vth) 산포가 확대되고 드레인 유기 장벽 저하(DIBL)가 심화되어 오프 상태 대기 누설 전류가 급격히 상승합니다."
-        )
+        # 2) 질의어 전체 원문 포함 가중치
+        if c_title_lower in q_lower:
+            score += 100
+        if any(a in q_lower for a in aliases):
+            score += 90
 
-    # [5] 첨단 패키징 (Packaging: TCB, MR-MUF, 하이브리드 본딩, 휨, Warpage, 보이드, 쇼트)
-    elif any(k in q_lower for k in ["휨", "warpage", "워피지"]):
-        return (
-            ["가압력 누적", "CTE 미스매치", "전단응력", "다이 휨"],
-            "NCF의 열팽창계수(CTE, 약 30ppm/K)와 실리콘 다이(2.6ppm/K) 간의 10배 이상 물성 차이로 인해, 냉각 시 계면 전단응력이 중심부로 집중되면서 칩 최외곽이 위로 들리는 Warpage 현상이 유발됩니다."
-        )
-    elif any(k in q_lower for k in ["보이드", "void", "미충진"]):
-        return (
-            ["점도 상승", "모세관 유동 저항", "기포 포집", "미소 보이드 잔류"],
-            "액상 언더필 주입 중 국소 온도 저하로 점도가 상승하여 미세 범프 간극에서 모세관 유동 압력이 급감하고 공기가 포집되어 보이드 결함이 발생합니다."
-        )
-    elif any(k in q_lower for k in ["브릿징", "쇼트", "short", "bridging"]):
-        return (
-            ["과도 가압력", "솔더 용융 압출", "측면 범프 접촉", "마이크로 브릿징 단락"],
-            "본딩 가압력이 임계치를 초과할 경우 용융 솔더 볼이 NCF 필름 외곽으로 강제 압출되어 인접 범프와 접촉하며 단락 쇼트가 유발됩니다."
-        )
+        # 3) 세션 문맥 매칭 보조 가중치
+        for token in q_tokens:
+            if token in session_text.lower():
+                score += 10
 
-    # [6] 공정 제어 및 운영 (Operations: FDC, APC, R2R, 센서 드리프트, 수율)
-    elif any(k in q_lower for k in ["apc", "fdc", "r2r", "런투런", "센서", "드리프트", "수율", "제어"]):
-        return (
-            ["설비 센서 시계열 드리프트", "챔버 환경 상태 변동", "Run-to-Run 피드백 지연", "웨이퍼 간 임계치수(CD) 산포"],
-            "챔버 부품 노후화로 인한 센서 계측 드리프트를 APC 모델이 실시간 피드백 보정하지 못할 경우, 연속 공정 런 간 RF 바이어스 전력 편차가 누적되어 최종 다이 수율이 급락합니다."
-        )
+        if score > 0:
+            scored_anchors.append((score, c))
 
-    # [7] 일반 반도체 공학 질의 기본 체인 (General Semiconductor Physical Chain)
-    else:
-        return (
-            [f"{q} 입력 변수", "공정 계면 물리적 스트레스 전이", "도메인 임계치 도달", "전기적·구조적 성능 편차"],
-            f"'{q}'에 대한 공정 시뮬레이션 결과, 공정 인자의 미세 변동이 계면 에너지 상태를 변화시켜 도메인 임계치를 초과하는 물리적 인과 메커니즘이 도출되었습니다."
-        )
+    scored_anchors.sort(key=lambda x: -x[0])
+    primary_anchor = scored_anchors[0][1] if scored_anchors else None
+
+    # 2. causal_edges 테이블에서 앵커 개념 기반 인과 경로(1~2 hop) 동적 탐색
+    relation_korean_map = {
+        "causes": "물리적 인과 전이",
+        "causes_defect": "공정 결함 유발",
+        "competing_with": "기술 대안 경쟁",
+        "compensates": "파라미터 보상 상쇄",
+        "alternative_to": "차세대 대안 전환",
+        "part_of": "상위 모듈 통합",
+        "next_step": "후속 단위 공정"
+    }
+
+    if primary_anchor:
+        # (A) 앵커 개념에서 나가는 1-hop 엣지 탐색
+        out_edge_stmt = select(CausalEdgeModel).where(
+            CausalEdgeModel.source_concept_id == primary_anchor.id
+        ).order_by(CausalEdgeModel.weight.desc())
+        out_edges = (await db.execute(out_edge_stmt)).scalars().all()
+
+        if out_edges:
+            edge_1 = out_edges[0]
+            target_1 = await db.get(ConceptModel, edge_1.target_concept_id)
+            target_1_title = target_1.title if target_1 else edge_1.target_concept_id
+
+            # (B) 2-hop 엣지 탐색 (target_1 ➔ target_2)
+            hop2_edge_stmt = select(CausalEdgeModel).where(
+                CausalEdgeModel.source_concept_id == edge_1.target_concept_id
+            ).order_by(CausalEdgeModel.weight.desc())
+            hop2_edges = (await db.execute(hop2_edge_stmt)).scalars().all()
+
+            if hop2_edges:
+                edge_2 = hop2_edges[0]
+                target_2 = await db.get(ConceptModel, edge_2.target_concept_id)
+                target_2_title = target_2.title if target_2 else edge_2.target_concept_id
+                rel_label = relation_korean_map.get(edge_2.relation_type, edge_2.relation_type)
+
+                chain = [primary_anchor.title, target_1_title, rel_label, target_2_title]
+                explanation = f"[{primary_anchor.title} ➔ {target_1_title}] {edge_1.mechanism_label} 이후, [{target_1_title} ➔ {target_2_title}] {edge_2.mechanism_label}"
+                return chain, explanation
+            else:
+                rel_label = relation_korean_map.get(edge_1.relation_type, edge_1.relation_type)
+                chain = [primary_anchor.title, "공정 변수 계면 응력", rel_label, target_1_title]
+                explanation = f"[{primary_anchor.title} ➔ {target_1_title}] {edge_1.mechanism_label}"
+                if edge_1.compensating_params:
+                    cp = edge_1.compensating_params
+                    if isinstance(cp, dict):
+                        explanation += f" (🌟 보상 파라미터: {cp.get('parameter')} - {cp.get('compensation_formula', '')})"
+                return chain, explanation
+
+        # (C) 앵커 개념으로 들어오는 1-hop 엣지 탐색 (원인 노드 ➔ 앵커)
+        in_edge_stmt = select(CausalEdgeModel).where(
+            CausalEdgeModel.target_concept_id == primary_anchor.id
+        ).order_by(CausalEdgeModel.weight.desc())
+        in_edges = (await db.execute(in_edge_stmt)).scalars().all()
+        if in_edges:
+            in_edge = in_edges[0]
+            source_c = await db.get(ConceptModel, in_edge.source_concept_id)
+            source_title = source_c.title if source_c else in_edge.source_concept_id
+            rel_label = relation_korean_map.get(in_edge.relation_type, in_edge.relation_type)
+            chain = [source_title, "원인 변수 누적", rel_label, primary_anchor.title]
+            explanation = f"[{source_title} ➔ {primary_anchor.title}] {in_edge.mechanism_label}"
+            return chain, explanation
+
+        # (D) 엣지는 아직 없지만 DB에 개념은 있는 신규 노드 (Zero-hop DB Fallback)
+        chain = [
+            primary_anchor.title,
+            f"{primary_anchor.process_category} 파라미터 변동",
+            "물리·화학적 계면 스트레스 전이",
+            f"{primary_anchor.title} 공정 한계 도달"
+        ]
+        explanation = f"온톨로지 개념 '{primary_anchor.title}'({primary_anchor.process_category})의 물리적 특성: {primary_anchor.summary}"
+        return chain, explanation
+
+    # 3. DB에 개념도 없는 완전 신규 미등록 질의인 경우 (추상 공학 메커니즘 템플릿)
+    chain = [
+        f"'{q}' 입력 변수",
+        "공정 챔버 물리 상태 변동",
+        "계면 에너지 전이 및 응력 축적",
+        "양산 수율 및 임계치(Threshold) 도달"
+    ]
+    explanation = f"'{q}'와 관련된 온톨로지 노드를 지속 학습 중이며, 공정 인자의 미세 변동이 계면 에너지 상태를 변화시켜 도메인 임계치를 초과하는 일반 물리 인과 메커니즘을 제공합니다."
+    return chain, explanation
 
 
 @router.get(
