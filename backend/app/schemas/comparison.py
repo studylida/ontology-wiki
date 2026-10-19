@@ -86,3 +86,23 @@ class ExportReviewResponse(BaseModel):
     sessionId: str = Field(..., alias="session_id", serialization_alias="sessionId")
     ticketId: str = Field(..., alias="ticket_id", serialization_alias="ticketId")
     message: str
+
+
+class TuneAdvisorRequest(BaseModel):
+    """AI 파라미터 튜닝 상담 요청 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    userPrompt: str = Field(..., alias="user_prompt", serialization_alias="userPrompt", description="엔지니어 장비/라인 제약 질문")
+    applyCompensation: Optional[str] = Field(None, alias="applyCompensation", serialization_alias="applyCompensation", description="선택된 보상안 ('compensationA' 또는 'compensationB')")
+    manualConditions: Optional[Dict[str, Any]] = Field(None, alias="manualConditions", serialization_alias="manualConditions", description="엔지니어 직접 입력 수치")
+
+
+class TuneAdvisorResponse(BaseModel):
+    """AI 파라미터 튜닝 상담 응답 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    userPrompt: str = Field(..., alias="user_prompt", serialization_alias="userPrompt")
+    riskDetected: str = Field(..., alias="risk_detected", serialization_alias="riskDetected")
+    advisorRecommendation: Dict[str, Any] = Field(..., alias="advisor_recommendation", serialization_alias="advisorRecommendation")
+    appliedResult: Optional[Dict[str, Any]] = Field(None, alias="applied_result", serialization_alias="appliedResult")
+

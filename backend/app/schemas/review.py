@@ -132,3 +132,58 @@ class ReviewTicketActionResponse(BaseModel):
     conceptVersion: Optional[str] = Field(None, alias="concept_version", serialization_alias="conceptVersion")
     guideTip: Optional[str] = Field(None, alias="guide_tip", serialization_alias="guideTip")
     message: str
+
+
+class ReviewTicketCreate(BaseModel):
+    """위키 본문 간이 제안 모달을 통한 티켓 생성 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    conceptId: str = Field(..., alias="concept_id", serialization_alias="conceptId")
+    title: str
+    author: str
+    department: Optional[str] = "도메인개발팀"
+    reviewType: str = Field("파라미터 수정", alias="review_type", serialization_alias="reviewType")
+    originType: Optional[str] = Field("manual_expert", alias="origin_type", serialization_alias="originType")
+    targetSection: Optional[str] = Field("limitations", alias="target_section", serialization_alias="targetSection")
+    userNote: Optional[str] = Field(None, alias="user_note", serialization_alias="userNote")
+    overrideReason: Optional[str] = Field(None, alias="override_reason", serialization_alias="overrideReason")
+    evidencePayload: Optional[Dict[str, Any]] = Field(None, alias="evidence_payload", serialization_alias="evidencePayload")
+
+
+class DirectiveRequest(BaseModel):
+    """전문가 보완 지시문 반영 요청 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    directiveText: str = Field(..., alias="directive_text", serialization_alias="directiveText")
+    overrideReason: Optional[str] = Field(None, alias="override_reason", serialization_alias="overrideReason")
+
+
+class HumanEditsRequest(BaseModel):
+    """전문가 직접 편집 저장 요청 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    editedContent: str = Field(..., alias="edited_content", serialization_alias="editedContent")
+    ticketVersion: Optional[int] = Field(None, alias="ticket_version", serialization_alias="ticketVersion")
+
+
+class HumanEditsResponse(BaseModel):
+    """전문가 직접 편집 저장 응답 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    ticketId: str = Field(..., alias="ticket_id", serialization_alias="ticketId")
+    ticketVersion: int = Field(..., alias="ticket_version", serialization_alias="ticketVersion")
+    humanEdits: str = Field(..., alias="human_edits", serialization_alias="humanEdits")
+    integrityReport: Dict[str, Any] = Field(..., alias="integrity_report", serialization_alias="integrityReport")
+    updatedAt: str = Field(..., alias="updated_at", serialization_alias="updatedAt")
+
+
+class WikiPreviewResponse(BaseModel):
+    """승인 전 위키 렌더링 미리보기 응답 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    ticketId: str = Field(..., alias="ticket_id", serialization_alias="ticketId")
+    conceptId: str = Field(..., alias="concept_id", serialization_alias="conceptId")
+    targetVersion: str = Field(..., alias="target_version", serialization_alias="targetVersion")
+    previewConcept: Dict[str, Any] = Field(..., alias="preview_concept", serialization_alias="previewConcept")
+    diffSummary: Dict[str, Any] = Field(..., alias="diff_summary", serialization_alias="diffSummary")
+

@@ -6,6 +6,7 @@ Provides:
 3. GET /api/v1/concepts/{id}/contextual-explainer - 0ms popover inline context definitions.
 """
 from typing import Optional, List, Dict, Any, Literal
+import re
 import json
 import logging
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -27,12 +28,91 @@ from backend.app.schemas.ontology import (
     SubgraphNode,
     SubgraphEdge,
     CompensatingParamSchema,
-    ContextualExplanationDTO
+    ContextualExplanationDTO,
+    ConceptTreeNode,
+    ConceptTreeResponse
 )
 
 logger = logging.getLogger("ontology_wiki.concepts")
 
 router = APIRouter(prefix="/concepts", tags=["Concepts & Causal Ontology"])
+
+
+@router.get(
+    "/tree",
+    response_model=ConceptTreeResponse,
+    response_model_by_alias=True,
+    response_model_exclude_none=True,
+    summary="좌측 사이드바 4축 계층형 온톨로지 네비게이션 트리 조회 API",
+    description="4대 업무 분류(소자, 공정, 운영, 소재) 및 단위 공정 카테고리별 계층형 온톨로지 트리를 서빙합니다."
+)
+async def get_concept_tree(
+    facet: Optional[Literal["device", "unit_process", "operations", "materials_infra"]] = Query(
+        default="unit_process",
+        description="4대 업무 분야 분류 필터"
+    ),
+    expanded_id: Optional[str] = Query(default=None, alias="expandedId", description="기본 활성화할 개념 ID"),
+    db: AsyncSession = Depends(get_db)
+):
+    target_facet = facet or "unit_process"
+    cache_key = f"concept:tree:{target_facet}"
+    cached = await cache_manager.get(cache_key)
+    if cached:
+        return ConceptTreeResponse(**cached)
+
+    # 1. 대상 패싯의 개념 전체 조회
+    stmt = (
+        select(ConceptModel)
+        .options(selectinload(ConceptModel.perspectives))
+        .where(ConceptModel.domain_facet == target_facet)
+        .order_by(ConceptModel.scale_level.asc(), ConceptModel.title.asc())
+    )
+    concepts = (await db.execute(stmt)).scalars().all()
+
+    # 2. 카테고리(process_category)별 그룹화하여 트리 구성
+    categories: Dict[str, List[ConceptModel]] = {}
+    for c in concepts:
+        cat = c.process_category or "기타 공정"
+        categories.setdefault(cat, []).append(c)
+
+    tree_nodes: List[ConceptTreeNode] = []
+    for cat_name, cat_concepts in sorted(categories.items()):
+        cat_id = f"cat-{re.sub(r'[^a-zA-Z0-9]+', '-', cat_name.lower()).strip('-')}"
+        children_nodes: List[ConceptTreeNode] = []
+
+        for c in cat_concepts:
+            children_nodes.append(
+                ConceptTreeNode(
+                    id=c.id,
+                    title=c.title,
+                    eng_name=c.eng_name,
+                    aliases=c.aliases if isinstance(c.aliases, list) else [],
+                    type="concept",
+                    scale_level=c.scale_level,
+                    badge=f"L{c.scale_level} {c.scale_name or '공정'}",
+                    status=c.status or "adopted",
+                    has_perspectives=bool(c.perspectives and len(c.perspectives) > 0),
+                    children=[]
+                )
+            )
+
+        tree_nodes.append(
+            ConceptTreeNode(
+                id=cat_id,
+                title=cat_name,
+                type="category",
+                children=children_nodes
+            )
+        )
+
+    response_dto = ConceptTreeResponse(
+        current_facet=target_facet,
+        total_nodes=len(concepts),
+        tree=tree_nodes
+    )
+
+    await cache_manager.set(cache_key, response_dto.model_dump(by_alias=True), ttl_seconds=300)
+    return response_dto
 
 
 @router.get(
@@ -331,6 +411,13 @@ async def get_causal_subgraph(
     response_model_exclude_none=True,
     summary="용어 호버 시 0ms 인라인 문맥 해설 조회 API",
     description="위키 본문 용어에 마우스를 올렸을 때 인라인으로 띄워줄 공학적 정의와 부모 문맥 문장을 서빙합니다."
+)
+@router.get(
+    "/{concept_id}/contextual-explain",
+    response_model=ContextualExplanationDTO,
+    response_model_by_alias=True,
+    response_model_exclude_none=True,
+    include_in_schema=False
 )
 async def get_contextual_explainer(
     concept_id: str,

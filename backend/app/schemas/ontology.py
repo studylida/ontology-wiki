@@ -151,3 +151,29 @@ class CausalSubgraphResponse(BaseModel):
 
     centralConceptId: str = Field(..., alias="central_concept_id", serialization_alias="centralConceptId")
     graph: Dict[str, Any]  # { "nodes": List[SubgraphNode], "edges": List[SubgraphEdge] }
+
+
+class ConceptTreeNode(BaseModel):
+    """좌측 사이드바 온톨로지 네비게이션 트리 노드 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    id: str
+    title: str
+    engName: Optional[str] = Field(None, alias="eng_name", serialization_alias="engName")
+    aliases: List[str] = Field(default_factory=list)
+    type: Literal["category", "concept"] = "concept"
+    scaleLevel: Optional[int] = Field(None, alias="scale_level", serialization_alias="scaleLevel")
+    badge: Optional[str] = None
+    status: Optional[str] = "adopted"
+    hasPerspectives: bool = Field(False, alias="has_perspectives", serialization_alias="hasPerspectives")
+    children: List["ConceptTreeNode"] = Field(default_factory=list)
+
+
+class ConceptTreeResponse(BaseModel):
+    """좌측 사이드바 4축 계층형 온톨로지 네비게이션 트리 응답 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    currentFacet: str = Field(..., alias="current_facet", serialization_alias="currentFacet")
+    totalNodes: int = Field(..., alias="total_nodes", serialization_alias="totalNodes")
+    tree: List[ConceptTreeNode]
+
