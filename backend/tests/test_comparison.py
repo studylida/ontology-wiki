@@ -11,16 +11,27 @@ Verifies:
 import pytest
 from httpx import AsyncClient, ASGITransport
 
+from sqlalchemy import delete
 from backend.app.main import app
 from backend.app.core.cache import cache_manager
+from backend.app.core.database import async_session_factory
+from backend.app.models.entities import ComparisonSessionModel, ReviewTicketModel
 
 
 @pytest.fixture(autouse=True)
 async def setup_cache():
-    """Ensure in-memory/redis cache manager is initialized for testing."""
+    """Ensure in-memory/redis cache manager is initialized and clean up temporary test records."""
     await cache_manager.init()
     yield
     await cache_manager.close()
+    async with async_session_factory() as db:
+        await db.execute(delete(ComparisonSessionModel).where(ComparisonSessionModel.id != "sess-20261016-001"))
+        await db.execute(delete(ReviewTicketModel).where(ReviewTicketModel.id.notin_(["rev-20261016-001", "rev-20261015-002"])))
+        orig_sess = await db.get(ComparisonSessionModel, "sess-20261016-001")
+        if orig_sess:
+            orig_sess.exported_review_id = "rev-20261016-001"
+        await db.commit()
+
 
 
 @pytest.mark.asyncio

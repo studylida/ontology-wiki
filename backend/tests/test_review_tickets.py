@@ -10,12 +10,39 @@ Covers:
 """
 import pytest
 from httpx import AsyncClient, ASGITransport
-from sqlalchemy import select
+from sqlalchemy import select, delete
 
 from backend.app.main import app
 from backend.app.core.database import async_session_factory
 from backend.app.models.entities import ReviewTicketModel, ConceptModel, AuditLogModel
 from backend.app.core.cache import cache_manager
+
+
+@pytest.fixture(autouse=True)
+async def setup_and_restore_seed_state():
+    """Backup core seed concepts before test and clean up temporary test tickets after test."""
+    await cache_manager.init()
+    backup_concepts = {}
+    async with async_session_factory() as db:
+        for cid in ["concept-tcb", "concept-cryo-etch"]:
+            c = await db.get(ConceptModel, cid)
+            if c:
+                backup_concepts[cid] = (c.version, c.summary)
+
+    yield
+
+    await cache_manager.close()
+    async with async_session_factory() as db:
+        # 1. 임시 테스트 티켓 및 감사 로그 정리
+        await db.execute(delete(ReviewTicketModel).where(ReviewTicketModel.id.notin_(["rev-20261016-001", "rev-20261015-002"])))
+        await db.execute(delete(AuditLogModel).where(AuditLogModel.ticket_id.notin_(["rev-20261016-001", "rev-20261015-002"])))
+        # 2. 시드 개념 원본 복원
+        for cid, (orig_ver, orig_sum) in backup_concepts.items():
+            c = await db.get(ConceptModel, cid)
+            if c:
+                c.version = orig_ver
+                c.summary = orig_sum
+        await db.commit()
 
 
 @pytest.mark.asyncio

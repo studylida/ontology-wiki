@@ -73,38 +73,42 @@ def score_concept(
     if eng_lower == q_raw or (len(q_norm) >= 2 and eng_norm == q_norm):
         return 85.0, "eng_name", c.eng_name
 
-    # 4. Title Starts With Query
-    if title_lower.startswith(q):
+    # 4. Title Starts With Query (대소문자 무관 & 약어 정규화 지원)
+    if title_lower.startswith(q_raw) or (len(q_norm) >= 2 and title_norm.startswith(q_norm)):
         return 80.0, "title", extract_highlight(c.title, q)
 
     # 5. Title Contains Query
-    if q in title_lower:
+    if q_raw in title_lower or (len(q_norm) >= 2 and q_norm in title_norm):
         return 65.0, "title", extract_highlight(c.title, q)
 
     # 6. Alias Starts With Query
     for a in aliases:
-        if isinstance(a, str) and a.lower().startswith(q):
-            return 60.0, "alias", f"동의어 일치: {a}"
+        if isinstance(a, str):
+            a_norm = normalize_term(a)
+            if a.lower().startswith(q_raw) or (len(q_norm) >= 2 and a_norm.startswith(q_norm)):
+                return 60.0, "alias", f"동의어 일치: {a}"
 
     # 7. Alias Contains Query
     for a in aliases:
-        if isinstance(a, str) and q in a.lower():
-            return 50.0, "alias", f"동의어 포함: {a}"
+        if isinstance(a, str):
+            a_norm = normalize_term(a)
+            if q_raw in a.lower() or (len(q_norm) >= 2 and q_norm in a_norm):
+                return 50.0, "alias", f"동의어 포함: {a}"
 
     # 8. English Name Contains Query
-    if q in eng_lower:
+    if q_raw in eng_lower or (len(q_norm) >= 2 and q_norm in eng_norm):
         return 45.0, "eng_name", extract_highlight(c.eng_name, q)
 
     # 9. Process Category Match
-    if q in cat_lower:
+    if q_raw in cat_lower:
         return 35.0, "category", f"공정 분류: {c.process_category}"
 
     # 10. Summary Contains Query
-    if q in summary_lower:
+    if q_raw in summary_lower:
         return 20.0, "summary", extract_highlight(c.summary, q)
 
     # 11. Purpose Contains Query
-    if q in purpose_lower:
+    if q_raw in purpose_lower:
         return 15.0, "summary", extract_highlight(c.purpose, q)
 
     return 0.0, "default", None

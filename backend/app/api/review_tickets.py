@@ -336,6 +336,12 @@ async def approve_review_ticket(
     await db.refresh(ticket)
     await db.refresh(audit_entry)
 
+    # 6. Stale Cache 방지를 위한 연관 캐시 즉시 무효화 (위키 상세 / 서브그래프 / 문맥해설 / 전역검색)
+    await cache_manager.delete(f"concept:detail:{ticket.concept_id}")
+    await cache_manager.delete_prefix(f"concept:subgraph:{ticket.concept_id}:")
+    await cache_manager.delete_prefix(f"concept:explainer:{ticket.concept_id}:")
+    await cache_manager.delete_prefix("spotlight:")
+
     return ReviewTicketActionResponse(
         ticket=_convert_ticket_to_dto(ticket),
         audit_log=_convert_audit_to_dto(audit_entry),

@@ -84,6 +84,22 @@ class CacheManager:
         self._in_memory_store.pop(key, None)
         return True
 
+    async def delete_prefix(self, prefix: str) -> int:
+        """Invalidates all cache keys starting with the given prefix."""
+        count = 0
+        if self._redis:
+            try:
+                keys = await self._redis.keys(f"{prefix}*")
+                if keys:
+                    count += await self._redis.delete(*keys)
+            except Exception:
+                pass
+        keys_to_delete = [k for k in self._in_memory_store.keys() if k.startswith(prefix)]
+        for k in keys_to_delete:
+            self._in_memory_store.pop(k, None)
+            count += 1
+        return count
+
     # JSON convenience aliases
     get_json = get
     set_json = set

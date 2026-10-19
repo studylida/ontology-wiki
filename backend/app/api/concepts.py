@@ -227,7 +227,7 @@ async def get_causal_subgraph(
             (:dir = 'in' AND ce.target_concept_id = cn.source_concept_id) OR
             (:dir = 'both' AND (ce.source_concept_id = cn.target_concept_id OR ce.target_concept_id = cn.source_concept_id))
         )
-        WHERE cn.hop < :max_depth
+        WHERE cn.hop < :max_depth AND ce.id != cn.id
     )
     SELECT * FROM causal_network;
     """)
@@ -351,13 +351,17 @@ async def get_contextual_explainer(
 
     parent_concept = await db.get(ConceptModel, concept_id)
 
-    # 부모-자식 간의 인과 엣지 메커니즘 문장 검색
-    edge_stmt = select(CausalEdgeModel).where(
-        ((CausalEdgeModel.source_concept_id == concept_id) & (CausalEdgeModel.target_concept_id == term_id)) |
-        ((CausalEdgeModel.source_concept_id == term_id) & (CausalEdgeModel.target_concept_id == concept_id))
+    # 부모-자식 간의 인과 엣지 메커니즘 문장 검색 (다중 관계 존재 시 최고 가중치 우선)
+    edge_stmt = (
+        select(CausalEdgeModel)
+        .where(
+            ((CausalEdgeModel.source_concept_id == concept_id) & (CausalEdgeModel.target_concept_id == term_id)) |
+            ((CausalEdgeModel.source_concept_id == term_id) & (CausalEdgeModel.target_concept_id == concept_id))
+        )
+        .order_by(CausalEdgeModel.weight.desc())
     )
     edge_res = await db.execute(edge_stmt)
-    edge = edge_res.scalar_one_or_none()
+    edge = edge_res.scalars().first()
 
     if edge and edge.mechanism_label:
         context_sentence = f"[{concept_id} 연계 인과 메커니즘] {edge.mechanism_label}"
