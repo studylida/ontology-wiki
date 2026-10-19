@@ -35,8 +35,8 @@ async def get_system_health():
 
     services = HealthServicesStatus(
         database="connected" if db_ok else "offline",
-        redis_cache="connected" if redis_ok else "fallback_in_memory",
-        llm_gateway="ready" if llm_ready else "offline (circuit_open)"
+        redisCache="connected" if redis_ok else "fallback_in_memory",
+        llmGateway="ready" if llm_ready else "offline (circuit_open)"
     )
 
     # 3단계 상태 판정
@@ -49,7 +49,7 @@ async def get_system_health():
                 timestamp=now_iso,
                 services=services,
                 message="데이터베이스 점검 중입니다. 데이터 정합성 보전을 위해 안전 정지 모드로 대기 중입니다.",
-                active_fallbacks=["read_only_standby"]
+                activeFallbacks=["read_only_standby"]
             ).model_dump(by_alias=True)
         )
 
@@ -60,7 +60,7 @@ async def get_system_health():
             timestamp=now_iso,
             services=services,
             message="AI 추론 엔진 점검 중입니다. 온톨로지 정적 지식 및 룰베이스 모드로 안전하게 서비스 중입니다.",
-            active_fallbacks=["static_ontology_fallback", "in_memory_cache"]
+            activeFallbacks=["static_ontology_fallback", "in_memory_cache"]
         )
 
     # 🟢 정상 가동
@@ -69,7 +69,7 @@ async def get_system_health():
         timestamp=now_iso,
         services=services,
         message="모든 온톨로지 코어 엔진이 정상 가동 중입니다.",
-        active_fallbacks=[]
+        activeFallbacks=[]
     )
 
 
@@ -98,14 +98,14 @@ async def get_system_version(
     is_update_available = client_version != settings.ACTIVE_VERSION
 
     return VersionResponse(
-        active_version=settings.ACTIVE_VERSION,
-        latest_version=settings.LATEST_VERSION,
-        is_update_available=is_update_available,
-        published_at="2026-10-15T18:00:00Z",
-        total_concepts=total_concepts,
-        total_evidences=total_evidences,
-        schema_hash=schema_hash,
-        system_config={
+        activeVersion=settings.ACTIVE_VERSION,
+        latestVersion=settings.LATEST_VERSION,
+        isUpdateAvailable=is_update_available,
+        publishedAt="2026-10-15T18:00:00Z",
+        totalConcepts=total_concepts,
+        totalEvidences=total_evidences,
+        schemaHash=schema_hash,
+        systemConfig={
             "gapThreshold": settings.GAP_THRESHOLD,
             "minVerificationTiers": 1,
             "allowedPerspectiveTypes": ["hbm3e_advanced", "dram_process", "foundry_sub2nm", "nand_high_stack"],
