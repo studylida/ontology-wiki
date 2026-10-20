@@ -571,6 +571,16 @@
 
 ---
 
+### [도메인 5] 문헌 조사 종합 리포트 내보내기/다운로드 (`ResearchExportController`)
+- **담당 역할**:
+  - 수집된 공인 출처 증빙 피드(인용구, 메타데이터, 원문 링크), AI 교차 분석 종합 리포트, 온톨로지 편입 후보를 사내 기술 표준 마크다운(Markdown) 보고서 파일로 조합하여 다운로드 서빙.
+- **컨트롤러 엔드포인트**:
+  - `GET /api/v1/research/sessions/{session_id}/export?format={md|pdf}`
+- **서비스**: `ResearchExportService` (세션 데이터를 기술 동향 보고서 템플릿으로 렌더링)
+- **응답**: `FileResponse` (Markdown/PDF 파일 다운로드 스트림)
+
+---
+
 ## 4.3 타 도메인 연계 컴포넌트 명세 (타 도메인과의 중복 신설 방지 규격)
 
 ### 4.3.1 🔍 Track 2 목적형 개념 타깃팅 (전역 검색 재사용)
