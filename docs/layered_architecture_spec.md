@@ -1992,6 +1992,269 @@ class ResearchCandidateRepository:
 
 ---
 
-# 5. 🤖 [F-01] 플로팅 챗봇 & 공통 계층 설계 (작성 예정)
+# 5. 🤖 [F-01] 플로팅 엔지니어 챗봇 & 공통 계층 설계
 
-*(사용자님과 다음 대화에서 챗봇/공통 Entity/DTO/Repository/Service 설계 후 통합 수록)*
+## 5.1 물리 Entity 스키마 설계 (Physical Database Schema)
+
+기존의 챗봇 단일 덤프 로그 방식을 폐기하고, **스레드(대화 세션)와 메시지(대화 턴)를 분리하여 세션 혼선을 차단하고, L3 보안 수치를 마스킹 저장하는 2대 정규화 물리 테이블로 구축**합니다.
+
+```
+┌────────────────────────────────────────────────────────┐
+│             chatbot_threads (대화 스레드 마스터)       │
+├────────────────────────────────────────────────────────┤
+│ PK thread_id: VARCHAR(64) (th-YYYYMMDD-UUID)           │
+│    user_id: VARCHAR(64) NOT NULL, INDEX                │
+│    tab: VARCHAR(32) NOT NULL, INDEX                    │
+│    target_concept_id: VARCHAR(64) NULLABLE, INDEX      │
+│    is_active: BOOLEAN DEFAULT TRUE                     │
+│    created_at, updated_at: DATETIME                    │
+└──────────────┬─────────────────────────────────────────┘
+               │ 1:N
+               ▼
+┌────────────────────────────────────────────────────────┐
+│             chatbot_messages (대화 턴 메시지)          │
+├────────────────────────────────────────────────────────┤
+│ PK message_id: INTEGER AUTOINCREMENT                   │
+│ FK thread_id: VARCHAR(64) ON DELETE CASCADE            │
+│    sender: VARCHAR(16) NOT NULL ("user" | "bot")       │
+│    content_masked: TEXT NOT NULL (★ L3 보안 마스킹)    │
+│    intent_type: VARCHAR(32) ("factoid", "causal", ...) │
+│    grounding_citations: JSON (참조된 공인 출처 리스트) │
+│    action_card: JSON NULLABLE (화면 이동 카드 페이로드) │
+│    created_at: DATETIME                                │
+└────────────────────────────────────────────────────────┘
+```
+
+---
+
+### [테이블 1] `chatbot_threads` (대화 스레드 마스터 테이블)
+- **테이블명**: `chatbot_threads`
+- **책임**: 
+  - 엔지니어가 각 탭(위키, 비교, 검토, 문헌, 전역)에서 챗봇을 열고 대화할 때 생성되는 독립된 대화 스레드 마스터.
+  - 대화 초기화(`DELETE /messages`) 시 활성 플래그(`is_active=False`)를 내리고 새 스레드를 발급하여 과거 대화와 현재 대화가 뒤섞이는 안티패턴을 원천 차단.
+- **컬럼 정의**:
+
+| 컬럼명 | 물리 타입 | 제약 조건 | 설명 |
+| :--- | :--- | :--- | :--- |
+| `thread_id` | `VARCHAR(64)` | `PRIMARY KEY` | 스레드 고유 식별자 (`th-YYYYMMDD-UUID`) |
+| `user_id` | `VARCHAR(64)` | `NOT NULL, INDEX` | 대화 엔지니어 사번/ID |
+| `tab` | `VARCHAR(32)` | `NOT NULL, INDEX` | 생성 탭 (`wiki`, `comparison`, `review`, `research`, `global`) |
+| `target_concept_id` | `VARCHAR(64)` | `NULLABLE, INDEX` | 연계 개념 ID (통계 및 개념별 질의 분석용) |
+| `is_active` | `BOOLEAN` | `NOT NULL, DEFAULT TRUE, INDEX` | 활성 대화 스레드 여부 (초기화 시 False 처리) |
+| `created_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP, INDEX` | 스레드 생성 일시 |
+| `updated_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP` | 최종 갱신 일시 |
+
+---
+
+### [테이블 2] `chatbot_messages` (대화 턴 메시지 테이블)
+- **테이블명**: `chatbot_messages`
+- **책임**:
+  - 스레드에 귀속된 사용자 질문과 챗봇 답변 턴을 정규화 보존.
+  - **L3 보안 무누출 저장(`content_masked`)**: 챗봇 답변에 포함된 기밀 수치를 `DeidentificationService`로 마스킹 처리하여 DB에 저장함으로써 로그를 통한 사내 기밀 유출을 원천 방어.
+- **컬럼 정의**:
+
+| 컬럼명 | 물리 타입 | 제약 조건 | 설명 |
+| :--- | :--- | :--- | :--- |
+| `message_id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | 메시지 고유 순차 ID |
+| `thread_id` | `VARCHAR(64)` | `NOT NULL, FK(chatbot_threads.thread_id ON DELETE CASCADE), INDEX` | 연계 대화 스레드 ID |
+| `sender` | `VARCHAR(16)` | `NOT NULL` | 발화 주체 (`user` [엔지니어], `bot` [지능형 챗봇]) |
+| `content_masked` | `TEXT` | `NOT NULL` | 발화 텍스트 전문 (기밀 수치는 `[L3 보안 인가 필요]`로 마스킹) |
+| `intent_type` | `VARCHAR(32)` | `NULLABLE` | 판별된 의도 (`factoid`, `causal_clarifier`, `action_trigger`) |
+| `grounding_citations`| `JSON` | `DEFAULT '[]'` | 답변 근거로 활용된 공인 출처 목록 (`["E-01", "E-02"]`) |
+| `action_card` | `JSON` | `NULLABLE` | 화면 이동 액션 카드 페이로드 |
+| `created_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP, INDEX` | 메시지 전송 일시 |
+
+---
+
+## 5.2 DTO 계약 스펙 설계 (Pydantic Data Transfer Objects - 6종 전수)
+
+### ① 0ms 탭 적응형 컨텍스트 DTO (`GET /chatbot/context`)
+```python
+# 1. 0ms 탭 적응형 컨텍스트 응답 DTO (No-LLM Instant Context)
+class ChatbotContextResponse(BaseModel):
+    tab: str                           # "comparison"
+    contextTitle: str                  # "MR-MUF vs TC-NCF 비교 분석 중"
+    badgeText: str                     # "Scale 3 · 첨단 패키징 비교 모드"
+    engineMode: str                    # "live" | "fallback"
+    welcomeMessage: str                # "현재 MR-MUF와 TC-NCF 비교 분석을 진행 중이시군요. 무엇이 궁금하신가요?"
+    quickQuestionChips: List[str]      # 0ms 고속 렌더링 칩 3종
+```
+
+### ② 대화 질의 및 문맥 강제 주입 DTO (`POST /chatbot/messages`)
+```python
+# 2. 문맥 강제 주입용 화면 상태 페이로드 (프롬프트 인젝션 방어 정규식 적용)
+class ChatbotContextPayload(BaseModel):
+    tab: Literal["wiki", "comparison", "review", "research", "global"]
+    conceptId: Optional[str] = Field(None, pattern=r"^[a-zA-Z0-9_-]{3,64}$")
+    targetA: Optional[str] = Field(None, pattern=r"^[a-zA-Z0-9_-]{3,64}$")
+    targetB: Optional[str] = Field(None, pattern=r"^[a-zA-Z0-9_-]{3,64}$")
+    ticketId: Optional[str] = Field(None, pattern=r"^[a-zA-Z0-9_-]{3,64}$")
+    sessionId: Optional[str] = Field(None, pattern=r"^[a-zA-Z0-9_-]{3,64}$")
+
+# 3. 대화 질의 요청 DTO
+class ChatbotMessageRequest(BaseModel):
+    message: str                       # "둘 중에 뭐가 더 열에 강해?"
+    context: ChatbotContextPayload     # 프론트엔드가 캡처한 현재 작업 맥락
+    threadId: Optional[str] = None     # 기존 대화 스레드 ID (미지정 시 신규 스레드 발급)
+
+# 4. 액션 트리거 카드 DTO
+class ChatbotActionCardDTO(BaseModel):
+    title: str                         # "⚡ 기술 대안 비교 스튜디오로 이동"
+    targetTab: str                     # "comparison"
+    payload: Dict[str, Any]            # { "targetA": "concept-mrmuf", "targetB": "concept-tcncf" }
+
+# 5. 대화 질의 단건 동기 응답 DTO
+class ChatbotMessageResponse(BaseModel):
+    threadId: str
+    intentType: str                    # "factoid" | "causal_clarifier" | "action_trigger"
+    answerMarkdown: str                # KaTeX 수식 및 [E-01] 각주가 포함된 완성형 마크다운
+    groundingCitations: List[str]      # ["E-01 (Intel Whitepaper)", "E-02 (IEEE 2025)"]
+    actionCard: Optional[ChatbotActionCardDTO] = None
+
+# 6. SSE 실시간 스트리밍 청크 DTO (POST /messages/stream 응답 규격)
+class ChatbotStreamChunkDTO(BaseModel):
+    eventType: Literal["token", "intent", "citation", "action_card", "done", "error"]
+    token: Optional[str] = None        # 실시간 타이핑 토큰
+    intentType: Optional[str] = None   # 의도 분류 결과
+    citation: Optional[str] = None     # 공인 출처 각주 태그
+    actionCard: Optional[ChatbotActionCardDTO] = None
+    errorMessage: Optional[str] = None
+```
+
+### ③ 대화 초기화 및 전역 스포트라이트 검색 DTO (`DELETE /messages`, `GET /search/spotlight`)
+```python
+# 7. 대화 스레드 초기화 응답 DTO
+class ChatbotResetResponse(BaseModel):
+    status: str                        # "reset_success"
+    newThreadId: str
+    restoredContext: ChatbotContextResponse # 초기화 직후 즉시 복원된 환영 상태와 퀵 칩
+
+# 8. 전역 스포트라이트 검색 DTO (동음이의어/카테고리 식별 보강)
+class SpotlightItemDTO(BaseModel):
+    id: str                            # "concept-thermal-ox"
+    title: str                         # "열산화 (Thermal Oxidation)"
+    engName: str                       # "Thermal Oxidation"
+    domainFacet: str                   # "unit_process"
+    processCategory: str               # "산화 및 확산 (Oxidation & Diffusion)"
+    scaleLevel: int                    # 3
+    scaleName: str                     # "L3 단위 공정"
+    summarySnippet: str                # "고온 산소 분위기에서 실리콘 표면에 균일한 절연막을 형성하는 기본 공정"
+    matchedField: str                  # "title" | "alias" | "eng_name"
+
+class SpotlightSearchResponse(BaseModel):
+    query: str
+    results: List[SpotlightItemDTO]
+```
+
+---
+
+## 5.3 Repository 계층 설계 (Data Access Layer - 2개 Repository)
+
+### ① `ChatbotThreadRepository` 인터페이스
+```python
+class ChatbotThreadRepository:
+    def __init__(self, db: AsyncSession):
+        self.db = db
+
+    async def get_or_create_active_thread(self, user_id: str, tab: str, target_concept_id: Optional[str]) -> ChatbotThreadModel:
+        """사용자의 특정 탭 활성 대화 스레드 조회 또는 신규 발급."""
+        stmt = (
+            select(ChatbotThreadModel)
+            .where(ChatbotThreadModel.user_id == user_id)
+            .where(ChatbotThreadModel.tab == tab)
+            .where(ChatbotThreadModel.is_active == True)
+            .order_by(ChatbotThreadModel.created_at.desc())
+        )
+        thread = (await self.db.execute(stmt)).scalars().first()
+        if not thread:
+            thread_id = f"th-{datetime.utcnow().strftime('%Y%m%d')}-{uuid.uuid4().hex[:6]}"
+            thread = ChatbotThreadModel(
+                thread_id=thread_id,
+                user_id=user_id,
+                tab=tab,
+                target_concept_id=target_concept_id,
+                is_active=True
+            )
+            self.db.add(thread)
+            await self.db.commit()
+            await self.db.refresh(thread)
+        return thread
+
+    async def deactivate_thread(self, thread_id: str) -> bool:
+        """대화 초기화 시 기존 스레드 비활성화."""
+        stmt = update(ChatbotThreadModel).where(ChatbotThreadModel.thread_id == thread_id).values(is_active=False, updated_at=datetime.utcnow())
+        res = await self.db.execute(stmt)
+        await self.db.commit()
+        return res.rowcount > 0
+```
+
+### ② `ChatbotMessageRepository` 인터페이스
+```python
+class ChatbotMessageRepository:
+    def __init__(self, db: AsyncSession):
+        self.db = db
+
+    async def save_message(
+        self, 
+        thread_id: str, 
+        sender: str, 
+        content_masked: str, 
+        intent_type: Optional[str] = None, 
+        citations: Optional[List[str]] = None, 
+        action_card: Optional[Dict[str, Any]] = None
+    ) -> ChatbotMessageModel:
+        """대화 턴 정규화 저장 (L3 보안 마스킹 적용 텍스트 저장)."""
+        msg = ChatbotMessageModel(
+            thread_id=thread_id,
+            sender=sender,
+            content_masked=content_masked,
+            intent_type=intent_type,
+            grounding_citations=citations or [],
+            action_card=action_card
+        )
+        self.db.add(msg)
+        await self.db.commit()
+        await self.db.refresh(msg)
+        return msg
+
+    async def list_recent_turns(self, thread_id: str, limit: int = 10) -> List[ChatbotMessageModel]:
+        """멀티턴 대화 맥락 조립을 위한 최근 대화 목록 조회."""
+        stmt = (
+            select(ChatbotMessageModel)
+            .where(ChatbotMessageModel.thread_id == thread_id)
+            .order_by(ChatbotMessageModel.message_id.asc())
+            .limit(limit)
+        )
+        return (await self.db.execute(stmt)).scalars().all()
+```
+
+---
+
+## 5.4 Service 계층 설계 (Business Logic Layer - 3대 전문 Service 전수)
+
+### ① `ChatbotContextService` (0ms 탭 적응형 컨텍스트 어셈블러)
+- **책임**:
+  - LLM을 일절 호출하지 않고(비용 0원, 5ms 지연시간 보장) 순수 DB RDBMS 메타데이터만으로 작업 맥락 뱃지와 맞춤 환영 인사, 퀵 칩 3종을 즉시 조립.
+  - **인과 에지 부재 시 3단계 계층형 폴백(Hierarchical Fallback)**을 완벽히 집행:
+    - 1순위: `causal_edges`에 결함/보상 파라미터가 있으면 ➔ 초정밀 공학 칩 생성.
+    - 2순위: 에지가 없으면 ➔ `concepts`의 `limitations`, `principles` 텍스트를 파싱하여 질문 칩 생성.
+    - 3순위: 텍스트도 없으면 ➔ 기본 표준 엔지니어링 템플릿(공인 실측 출처 보기 등) 적용.
+
+### ② `ChatbotMessageService` (문맥 강제 주입 & 3단 인텐트 라우터 & 보안 로깅)
+- **책임**:
+  - **시스템 프롬프트 상단에 작업 맥락 강제 주입(Context Injection)**:
+    - *"사용자가 '둘 중에', '그 공정' 등 대명사를 사용하면 즉시 대상 A(MR-MUF)와 대상 B(TC-NCF)를 지칭하는 것으로 해석할 것."*
+  - `ClarifierAgent`를 호출하여 3단 의도 실시간 분류 및 답변 합성:
+    - `factoid`: 공인 출처 `[E-01]` 각주와 함께 절대 수치 즉답.
+    - `causal_clarifier`: 2-Hop 인과망을 바탕으로 원인-결함 체인 설명.
+    - `action_trigger`: 답변과 함께 Tab 2 비교 화면으로 즉시 이동하는 액션 카드 DTO 동봉.
+  - **SSE(Server-Sent Events) 실시간 토큰 스트리밍** 지원 (`POST /messages/stream`).
+  - **L3 기밀 무누출 보안 파이프라인**:
+    - 인가자에게 전달되는 응답에는 평문이 포함될 수 있으나, **DB에 대화 이력을 영구 보존할 때는 `DeidentificationService`를 경유하여 L3 기밀 수치를 마스킹한 후 저장**.
+
+### ③ `SpotlightSearchService` (0ms 전역 개념 검색 게이트웨이)
+- **책임**:
+  - 상단 헤더 및 단축키(`Ctrl + K`) 입력 시 `ConceptRepository.search_by_prefix`를 호출하여 0ms 자동완성 서빙.
+  - 공정 카테고리(`processCategory`)와 1줄 설명 요약(`summarySnippet`)을 동봉하여 동음이의어 혼선 원천 차단.
+  - Tab 2 비교 대안 검색 및 Tab 4 문헌 조사 개념 타깃팅에서 100% 재사용.
+
