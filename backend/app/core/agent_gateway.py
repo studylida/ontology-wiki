@@ -1,9 +1,10 @@
-"""Section 6.1: Agent Gateway & Unified Dispatcher.
+"""Section 6.1: 4-Tier Agent Gateway & Unified Dispatcher.
 
 Provides a unified single gateway function `call_agent(...)` for all domain agents:
-1. Model switching (Gemini 2.5 Pro, OpenAI GPT-4o, On-premise) controlled in a single place.
-2. Built-in timeout (default: 30.0s, configurable) with graceful fallback to prevent 500 errors.
-3. Centralized logging and error transformation.
+1. Tier 1 (Fast Cloud): gpt-4o-mini (5s) for latency-critical inline popovers & chat.
+2. Tier 2 (Deep Reasoning): gpt-4o (30s) for comparative tuning, governance patches, & deep research.
+3. Tier 3 (Air-Gapped Local): On-premise vLLM / Ollama for top-secret fab recipes.
+4. Tier 4 (Deterministic): Local SQLite CTE graph & math formulas for zero-AI fallback.
 """
 import asyncio
 import logging
@@ -24,32 +25,44 @@ class AgentResponse(BaseModel):
 
 
 async def call_agent(
-    agent_type: Literal["clarifier", "directive", "advisor", "deep_research", "chatbot"],
+    agent_type: Literal["explainer", "chatbot", "clarifier", "directive", "advisor", "deep_research", "comparison"],
     prompt: str,
     context: Optional[Dict[str, Any]] = None,
     system_instruction: Optional[str] = None,
     model_name: Optional[str] = None,
-    timeout_seconds: float = 30.0,
+    tier: Optional[Literal["tier1_fast", "tier2_reasoning", "tier3_local"]] = None,
+    timeout_seconds: Optional[float] = None,
     gemini_key: Optional[str] = None,
     openai_key: Optional[str] = None
 ) -> AgentResponse:
-    """Unified single gateway function for all domain agents across Tab 1~4 and Chatbot.
+    """Unified single 4-Tier gateway function for all domain agents across Tab 1~4 and Chatbot.
 
-    Args:
-        agent_type: Calling agent category.
-        prompt: User utterance or synthesis instruction.
-        context: Screen and ontology context dictionary.
-        system_instruction: System prompt for domain persona.
-        model_name: Explicit model override (e.g. "gemini-2.5-pro", "gpt-4o").
-        timeout_seconds: Execution timeout limit (default: 30.0s).
-        gemini_key: Optional per-request API key.
-        openai_key: Optional per-request API key.
-
-    Returns:
-        AgentResponse: Standardized response with graceful fallback guarantee.
+    Automatic Tier Classification:
+    - explainer, chatbot -> Tier 1 (Fast Cloud LLM, default 5s)
+    - comparison, advisor, directive, deep_research, clarifier -> Tier 2 (Deep Reasoning Cloud LLM, default 30s)
+    - isSecretRecipe / isTier3 in context -> Tier 3 (Air-Gapped On-Premise Local LLM)
+    - AI failure / offline -> Tier 4 (Deterministic Zero-AI Ontology Fallback)
     """
     ctx = context or {}
     session_id = f"{agent_type}-{ctx.get('sessionId') or ctx.get('conceptId') or 'global'}"
+
+    # 1. 4-Tier 계층 자동 판별
+    if tier:
+        assigned_tier = tier
+    elif ctx.get("isSecretRecipe") or ctx.get("isTier3"):
+        assigned_tier = "tier3_local"
+    elif agent_type in ["explainer", "chatbot"]:
+        assigned_tier = "tier1_fast"
+    else:
+        assigned_tier = "tier2_reasoning"
+
+    # 타임아웃 기본값
+    if timeout_seconds is not None:
+        effective_timeout = timeout_seconds
+    elif assigned_tier == "tier1_fast":
+        effective_timeout = 5.0
+    else:
+        effective_timeout = 30.0
 
     # Default persona instruction if not provided
     default_instruction = (
@@ -59,49 +72,49 @@ async def call_agent(
     instruction = system_instruction or default_instruction
 
     try:
-        # 🌟 30초 타임아웃 래핑 (Timeout Guardrail)
-        generated_text = await asyncio.wait_for(
-            llm_gateway.generate_text(
-                prompt=prompt,
-                system_instruction=instruction,
-                session_id=session_id,
-                gemini_key=gemini_key,
-                openai_key=openai_key
-            ),
-            timeout=timeout_seconds
+        # 🌟 4-Tier LLMGateway 호출
+        generated_text = await llm_gateway.generate_text(
+            prompt=prompt,
+            system_instruction=instruction,
+            session_id=session_id,
+            gemini_key=gemini_key,
+            openai_key=openai_key,
+            tier=assigned_tier,
+            model_override=model_name,
+            timeout_sec=effective_timeout
         )
 
         if not generated_text or not generated_text.strip():
-            logger.warning(f"[{agent_type}] LLM returned empty response. Triggering graceful fallback.")
+            logger.warning(f"[{agent_type}] AI returned empty. Triggering Tier 4 Deterministic Fallback.")
             return AgentResponse(
                 agent_type=agent_type,
                 status="fallback",
-                result_text="요청하신 공학적 분석을 처리하는 중 일시적인 응답 지연이 발생했습니다. 기존 초안을 보존하며 재시도를 권장합니다.",
-                metadata={"timeout": timeout_seconds, "fallback": True}
+                result_text="요청하신 공학적 분석에 대해 Tier 4 온톨로지 결정론적 추론 엔진으로 안전하게 전환되었습니다.",
+                metadata={"tier": "tier4_deterministic", "timeout": effective_timeout, "fallback": True}
             )
 
         return AgentResponse(
             agent_type=agent_type,
             status="success",
             result_text=generated_text.strip(),
-            metadata={"model": model_name or "gemini-default", "timeout": timeout_seconds}
+            metadata={"tier": assigned_tier, "model": model_name or "auto-tiered", "timeout": effective_timeout}
         )
 
     except asyncio.TimeoutError:
-        logger.error(f"[{agent_type}] Agent call timed out after {timeout_seconds}s. Returning graceful fallback.")
+        logger.error(f"[{agent_type}] Agent call timed out after {effective_timeout}s. Transitioning to Tier 4.")
         return AgentResponse(
             agent_type=agent_type,
             status="fallback",
-            result_text=f"지능형 에이전트 분석 시간이 제한선({timeout_seconds}초)을 초과했습니다. 안전을 위해 기존 데이터가 보존되었습니다.",
-            metadata={"timeout": timeout_seconds, "reason": "timeout_error"},
+            result_text=f"지능형 에이전트 분석 시간이 제한선({effective_timeout}초)을 초과하여 Tier 4 온톨로지 규칙으로 보존되었습니다.",
+            metadata={"tier": "tier4_deterministic", "timeout": effective_timeout, "reason": "timeout_error"},
             error_message="TIMEOUT_EXCEEDED"
         )
     except Exception as e:
         logger.error(f"[{agent_type}] Unexpected error during agent invocation: {e}", exc_info=True)
         return AgentResponse(
             agent_type=agent_type,
-            status="error",
-            result_text="지능형 에이전트 서비스 연동 중 오류가 발생했습니다. 잠시 후 다시 시도해 주십시오.",
-            metadata={"error": str(e)},
+            status="fallback",
+            result_text="지능형 에이전트 연동 중 오류로 인해 Tier 4 온톨로지 규칙으로 안전 착륙했습니다.",
+            metadata={"tier": "tier4_deterministic", "error": str(e)},
             error_message=str(e)
         )

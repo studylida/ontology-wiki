@@ -2294,27 +2294,38 @@ class ChatbotMessageRepository:
 
 ---
 
-## 6.1 `AgentGateway` (`call_agent` 단일 총괄 함수)
+## 6.1 `AgentGateway` (`call_agent` 4-Tier 단일 총괄 함수)
 
-- **책임**: 파편화된 에이전트 클래스 호출을 단일 게이트웨이 함수로 일원화하여, 모델 교체와 타임아웃, 예외 처리를 한곳에서 통제.
+- **책임**: 파편화된 에이전트 클래스 호출을 단일 게이트웨이 함수로 일원화하고, **[지연시간 / 추론 난이도 / 사내 보안 기밀도]에 따른 4-Tier 하이브리드 인과 추론 체계**를 단일 인터페이스에서 통제.
+- **4-Tier 아키텍처 계층 구조**:
+  1. **Tier 1 (Fast Cloud LLM)**: `gpt-4o-mini` / `gemini-flash` (0.5~1.2초 저지연 팝오버 문맥 해설, 단답 챗봇)
+  2. **Tier 2 (Deep Reasoning Cloud LLM)**: `gpt-4o` / `gemini-pro` (30초 복합 다차원 비교 매트릭스, 튜닝 수식, 거버넌스 JSON 패치)
+  3. **Tier 3 (On-Premise Air-Gapped Local LLM)**: 사내 폐쇄망 vLLM / Ollama (Qwen-7B) + `DLPTokenizer` 구간 가명화 (L3 극비 양산 레시피 외부 반출 원천 차단)
+  4. **Tier 4 (Deterministic Zero-AI Engine)**: SQLite `causal_edges` 0.65ms Recursive CTE & 물리 안전 마진 수식 (AI 전면 단절 시 최후의 100% 무중단 물리 안전망)
+
 - **인터페이스 규격**:
 
 ```python
 async def call_agent(
-    agent_type: Literal["clarifier", "directive", "advisor", "deep_research", "chatbot"],
+    agent_type: Literal["explainer", "chatbot", "clarifier", "directive", "advisor", "deep_research", "comparison"],
     prompt: str,
-    context: Dict[str, Any],
-    model_name: Optional[str] = None,   # 예: "gemini-2.5-pro", "gpt-4o", 사내 온프레미스 모델
-    timeout_seconds: float = 30.0,      # 기본 30초 타임아웃 (실무 테스트 후 유연 조정 가능)
-    stream: bool = False,
+    context: Optional[Dict[str, Any]] = None,
+    system_instruction: Optional[str] = None,
+    model_name: Optional[str] = None,
+    tier: Optional[Literal["tier1_fast", "tier2_reasoning", "tier3_local"]] = None,
+    timeout_seconds: Optional[float] = None,
     gemini_key: Optional[str] = None,
     openai_key: Optional[str] = None
 ) -> AgentResponse:
-    """전 도메인 에이전트/LLM 호출 총괄 단일 게이트웨이 함수.
+    """전 도메인 에이전트/LLM 호출 4-Tier 단일 총괄 게이트웨이 함수.
     
-    1. 모델 일괄 교체: 옵션 하나로 Gemini ➔ OpenAI ➔ 사내 온프레미스 모델 전사 일괄 전환.
-    2. 타임아웃 및 Graceful Fallback: 30초 초과 시 500 크래시 방지 및 안전 기본 응답 반환.
-    3. 감사 로깅: 입출력 토큰 및 프롬프트 인젝션 패턴 전역 검사.
+    1. 4-Tier 자동 디스패치:
+       - explainer, chatbot ➔ Tier 1 (초경량 고속 클라우드 AI, 5초)
+       - comparison, advisor, directive, deep_research ➔ Tier 2 (고성능 심층 추론 AI, 30초)
+       - isSecretRecipe / isTier3 컨텍스트 ➔ Tier 3 (사내 에어갭 폐쇄망 로컬 AI)
+       - AI 호출 실패 / 오프라인 ➔ Tier 4 (순수 온톨로지 결정론적 추론 엔진 안전 착륙)
+    2. Active Cross-Failover: 1순위 모델 실패 시 2순위 모델로 자동 교차 전환.
+    3. 타임아웃 및 무중단 보장: 타임아웃 초과 시 500 크래시 방지 및 Tier 4 안전 기본 응답 반환.
     """
     ...
 ```

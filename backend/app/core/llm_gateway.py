@@ -1,27 +1,27 @@
-"""LLM Gateway for Semiconductor Ontology AI Agents.
+"""4-Tier LLM Gateway for Semiconductor Ontology AI Agents.
 
 Orchestrates:
-1. Circuit Breaker protection (CLOSED / OPEN / HALF_OPEN)
-2. Regime-Aware Tokenization & Detokenization (DLP)
-3. Multi-Provider routing (Google Gemini / OpenAI)
-4. Graceful Degradation to deterministic ontology inference when offline or circuit-open.
+1. Tier 1: Fast Cloud LLM (gpt-4o-mini / gemini-flash) for latency-critical 0ms inline popovers.
+2. Tier 2: Deep Reasoning Cloud LLM (gpt-4o / gemini-pro) for comparison matrices, tuning, & governance patch.
+3. Tier 3: On-Premise Air-Gapped Local LLM (vLLM / Ollama) with DLP Tokenization for top-secret fab recipes.
+4. Tier 4: Deterministic Ontology Inference Engine (SQLite CTE & math formulas) for zero-AI fallback.
 """
 import time
 import json
 import logging
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Literal, List
 import httpx
 
 from backend.app.core.config import settings
-from backend.app.core.circuit_breaker import circuit_breaker, CircuitState
+from backend.app.core.circuit_breaker import circuit_breaker
 from backend.app.core.dlp_tokenizer import dlp_tokenizer
 
 logger = logging.getLogger("llm_gateway")
 
 
 class LLMGateway:
-    def __init__(self, timeout_sec: float = 8.0):
-        self.timeout_sec = timeout_sec
+    def __init__(self, default_timeout_sec: float = 8.0):
+        self.default_timeout_sec = default_timeout_sec
 
     async def generate_text(
         self,
@@ -30,69 +30,95 @@ class LLMGateway:
         session_id: str = "default",
         gemini_key: Optional[str] = None,
         openai_key: Optional[str] = None,
-        preferred_provider: Optional[str] = None
+        preferred_provider: Optional[str] = None,
+        tier: Literal["tier1_fast", "tier2_reasoning", "tier3_local"] = "tier1_fast",
+        model_override: Optional[str] = None,
+        timeout_sec: Optional[float] = None
     ) -> Optional[str]:
-        """Calls external LLM with DLP tokenization, active failover, circuit-breaker safety, and fallback.
+        """Calls 4-Tier AI models with DLP tokenization, active failover, and zero-AI fallback.
         
-        Failover Strategy:
-        1. Both Alive: Executes preferred provider (default: OpenAI gpt-4o-mini).
-        2. One Dead: Automatically cross-fails over to the surviving provider (e.g. Gemini or OpenAI).
-        3. Both Dead: Returns None to trigger local deterministic ontology inference engine.
+        Returns None if all AI providers fail or circuit is open, triggering Tier 4 Deterministic Fallback.
         """
-        # 1. 서킷 브레이커 상태 확인
-        if not circuit_breaker.can_execute():
-            logger.info("Circuit breaker is OPEN/BLOCKED. Returning None for deterministic fallback.")
+        # 1. 서킷 브레이커 상태 확인 (Tier 1 & Tier 2 클라우드 호출 시)
+        if tier != "tier3_local" and not circuit_breaker.can_execute():
+            logger.info("Circuit breaker is OPEN/BLOCKED. Falling back to Tier 4 Deterministic Engine.")
             return None
 
-        # 2. API Key 확인
+        # 2. 구간 인지형 가명화 (DLP Tokenization)
+        tokenized_prompt, _ = dlp_tokenizer.tokenize(prompt, session_id=session_id)
+
+        # 3. Tier 3: 사내 에어갭 폐쇄망 로컬 LLM 분기
+        if tier == "tier3_local":
+            if getattr(settings, "ENABLE_LOCAL_LLM", False):
+                local_res = await self._call_local_llm(
+                    prompt=tokenized_prompt,
+                    system_prompt=system_instruction,
+                    base_url=settings.TIER3_LOCAL_URL,
+                    model=settings.TIER3_LOCAL_MODEL,
+                    timeout=timeout_sec or 20.0
+                )
+                if local_res:
+                    return dlp_tokenizer.detokenize(local_res, session_id=session_id)
+            logger.info("[Tier 3 Air-Gapped] Local LLM disabled or unreachable. Transitioning to Tier 4 Deterministic Engine.")
+            return None
+
+        # 4. Tier 1 & Tier 2: API Key 확인
         active_gemini_key = gemini_key or settings.GEMINI_API_KEY
         active_openai_key = openai_key or settings.OPENAI_API_KEY
 
         if not active_gemini_key and not active_openai_key:
             return None
 
-        # 3. 우선순위 결정 (Active Failover Chain 구성)
-        pref = (preferred_provider or getattr(settings, "PREFERRED_LLM_PROVIDER", "openai")).lower()
-        provider_chain = []
-        if pref == "openai":
-            if active_openai_key:
-                provider_chain.append(("openai", active_openai_key))
-            if active_gemini_key:
-                provider_chain.append(("gemini", active_gemini_key))
-        else:
-            if active_gemini_key:
-                provider_chain.append(("gemini", active_gemini_key))
-            if active_openai_key:
-                provider_chain.append(("openai", active_openai_key))
+        # 5. 티어별 모델 및 페일오버 체인 구성
+        # Tier 1 (Fast): gpt-4o-mini (5s) -> gemini-flash (5s)
+        # Tier 2 (Reasoning): gpt-4o (30s) -> gpt-4o-mini (10s) -> gemini-pro (20s)
+        provider_chain: List[Dict[str, Any]] = []
 
-        if not provider_chain:
-            return None
-
-        # 4. 구간 인지형 가명화 (DLP Tokenization)
-        tokenized_prompt, _ = dlp_tokenizer.tokenize(prompt, session_id=session_id)
+        if tier == "tier1_fast":
+            timeout_1 = timeout_sec or 5.0
+            primary_model = model_override or settings.TIER1_MODEL
+            if active_openai_key:
+                provider_chain.append({"provider": "openai", "key": active_openai_key, "model": primary_model, "timeout": timeout_1})
+            if active_gemini_key:
+                provider_chain.append({"provider": "gemini", "key": active_gemini_key, "model": "gemini-2.5-flash", "timeout": timeout_1})
+        else:  # tier2_reasoning
+            timeout_2 = timeout_sec or 30.0
+            primary_model = model_override or settings.TIER2_MODEL
+            if active_openai_key:
+                provider_chain.append({"provider": "openai", "key": active_openai_key, "model": primary_model, "timeout": timeout_2})
+                # OpenAI Tier 2 모델 실패 시 경량 모델로 1차 완화 재시도
+                if primary_model != settings.TIER1_MODEL:
+                    provider_chain.append({"provider": "openai", "key": active_openai_key, "model": settings.TIER1_MODEL, "timeout": 10.0})
+            if active_gemini_key:
+                provider_chain.append({"provider": "gemini", "key": active_gemini_key, "model": "gemini-2.5-pro", "timeout": 20.0})
 
         start_time = time.time()
         response_text = None
-        used_provider = None
+        used_meta = None
 
-        # 🌟 Active Failover: 1순위 실패 시 2순위로 즉시 교차 재시도
-        for prov_name, key in provider_chain:
+        # 🌟 Active Failover: 체인 순차 실행
+        for candidate in provider_chain:
+            prov = candidate["provider"]
+            key = candidate["key"]
+            m_name = candidate["model"]
+            t_limit = candidate["timeout"]
+
             try:
-                if prov_name == "openai":
-                    response_text = await self._call_openai(tokenized_prompt, system_instruction, key)
-                elif prov_name == "gemini":
-                    response_text = await self._call_gemini(tokenized_prompt, system_instruction, key)
+                if prov == "openai":
+                    response_text = await self._call_openai(tokenized_prompt, system_instruction, key, model=m_name, timeout=t_limit)
+                elif prov == "gemini":
+                    response_text = await self._call_gemini(tokenized_prompt, system_instruction, key, model=m_name, timeout=t_limit)
 
                 if response_text and response_text.strip():
-                    used_provider = prov_name
-                    logger.info(f"[LLM Gateway] Successfully generated text using provider: {prov_name}")
+                    used_meta = f"{prov}:{m_name}"
+                    logger.info(f"[LLM Gateway] Success with {tier} -> {used_meta}")
                     break
                 else:
-                    logger.warning(f"[LLM Gateway] Provider '{prov_name}' failed or returned empty. Switching to next available provider in failover chain.")
+                    logger.warning(f"[LLM Gateway] Candidate {prov}:{m_name} failed. Attempting failover...")
             except (httpx.TimeoutException, httpx.RequestError) as e:
-                logger.warning(f"[LLM Gateway] Provider '{prov_name}' network/timeout error: {e}. Switching to failover provider.")
+                logger.warning(f"[LLM Gateway] Candidate {prov}:{m_name} network error: {e}. Attempting failover...")
             except Exception as e:
-                logger.error(f"[LLM Gateway] Provider '{prov_name}' unexpected error: {e}. Switching to failover provider.")
+                logger.error(f"[LLM Gateway] Candidate {prov}:{m_name} unexpected error: {e}. Attempting failover...")
 
         duration_ms = (time.time() - start_time) * 1000
 
@@ -101,20 +127,20 @@ class LLMGateway:
             detokenized = dlp_tokenizer.detokenize(response_text, session_id=session_id)
             return detokenized
         else:
-            logger.warning("[LLM Gateway] All available LLM providers failed. Triggering deterministic ontology fallback.")
+            logger.warning(f"[LLM Gateway] All AI candidates failed for {tier}. Activating Tier 4 Deterministic Fallback.")
             await circuit_breaker.record_call(success=False, duration_ms=duration_ms)
             return None
 
-    async def _call_gemini(self, prompt: str, system_prompt: Optional[str], api_key: str) -> Optional[str]:
-        """Calls Google Gemini REST API (gemini-2.5-flash / gemini-1.5-flash)."""
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+    async def _call_gemini(self, prompt: str, system_prompt: Optional[str], api_key: str, model: str = "gemini-2.5-flash", timeout: float = 8.0) -> Optional[str]:
+        """Calls Google Gemini REST API."""
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
         payload: Dict[str, Any] = {
             "contents": [{"parts": [{"text": prompt}]}]
         }
         if system_prompt:
             payload["systemInstruction"] = {"parts": [{"text": system_prompt}]}
 
-        async with httpx.AsyncClient(timeout=self.timeout_sec) as client:
+        async with httpx.AsyncClient(timeout=timeout) as client:
             resp = await client.post(url, json=payload)
             if resp.status_code == 200:
                 data = resp.json()
@@ -127,7 +153,7 @@ class LLMGateway:
                 logger.warning(f"Gemini API returned status {resp.status_code}: {resp.text[:200]}")
                 return None
 
-    async def _call_openai(self, prompt: str, system_prompt: Optional[str], api_key: str) -> Optional[str]:
+    async def _call_openai(self, prompt: str, system_prompt: Optional[str], api_key: str, model: str = "gpt-4o-mini", timeout: float = 8.0) -> Optional[str]:
         """Calls OpenAI Chat Completion REST API."""
         url = "https://api.openai.com/v1/chat/completions"
         messages = []
@@ -140,12 +166,12 @@ class LLMGateway:
             "Content-Type": "application/json"
         }
         payload = {
-            "model": "gpt-4o-mini",
+            "model": model,
             "messages": messages,
             "temperature": 0.2
         }
 
-        async with httpx.AsyncClient(timeout=self.timeout_sec) as client:
+        async with httpx.AsyncClient(timeout=timeout) as client:
             resp = await client.post(url, headers=headers, json=payload)
             if resp.status_code == 200:
                 data = resp.json()
@@ -153,8 +179,33 @@ class LLMGateway:
                 if choices:
                     return choices[0].get("message", {}).get("content", "")
             else:
-                logger.warning(f"OpenAI API returned status {resp.status_code}: {resp.text[:200]}")
+                logger.warning(f"OpenAI API ({model}) returned status {resp.status_code}: {resp.text[:200]}")
                 return None
+
+    async def _call_local_llm(self, prompt: str, system_prompt: Optional[str], base_url: str, model: str = "qwen2.5:7b", timeout: float = 15.0) -> Optional[str]:
+        """Calls On-Premise Air-Gapped vLLM / Ollama REST API (OpenAI Compatible)."""
+        url = f"{base_url.rstrip('/')}/chat/completions"
+        messages = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": prompt})
+
+        payload = {
+            "model": model,
+            "messages": messages,
+            "temperature": 0.1
+        }
+        try:
+            async with httpx.AsyncClient(timeout=timeout) as client:
+                resp = await client.post(url, json=payload)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    choices = data.get("choices", [])
+                    if choices:
+                        return choices[0].get("message", {}).get("content", "")
+        except Exception as e:
+            logger.warning(f"Tier 3 Local LLM call failed ({url}): {e}")
+        return None
 
 
 # 전역 싱글톤 LLM 게이트웨이

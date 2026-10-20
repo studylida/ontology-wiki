@@ -48,11 +48,18 @@ class Settings(BaseSettings):
     CACHE_TTL_CONCEPT_SECONDS: int = 86400
     PRESENCE_LOCK_TTL_SECONDS: int = 30
 
-    # 5. AI 인과 추론 엔진
+    # 5. 4-Tier AI 인과 추론 엔진
     GEMINI_API_KEY: str = ""
     OPENAI_API_KEY: str = ""
-    LLM_MODEL: str = "gpt-4o-mini"
     PREFERRED_LLM_PROVIDER: str = "openai"
+
+    # 4-Tier 모델 매핑
+    TIER1_MODEL: str = "gpt-4o-mini"
+    TIER2_MODEL: str = "gpt-4o"
+    TIER3_LOCAL_URL: str = "http://localhost:11434/v1"
+    TIER3_LOCAL_MODEL: str = "qwen2.5:7b"
+    ENABLE_LOCAL_LLM: bool = False
+
     CIRCUIT_BREAKER_FAILURE_THRESHOLD: int = 3
     CIRCUIT_BREAKER_RECOVERY_TIME_SECONDS: int = 30
 
