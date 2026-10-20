@@ -286,6 +286,71 @@ class WikiEntryDetailResponse(BaseModel):
     perspectives: List[PerspectiveCaseDTO]
     relations: RelationsBundleDTO
     preloadedExplainers: Dict[str, str] = {}
+
+# 7. 좌측 카테고리 계층 트리 DTO (CategoryHierarchyController 서빙용)
+class CategoryConceptNodeDTO(BaseModel):
+    id: str
+    title: str
+    scaleLevel: int
+    scaleName: str
+    version: str
+    status: str
+
+class CategoryNodeDTO(BaseModel):
+    categoryName: str
+    concepts: List[CategoryConceptNodeDTO]
+
+class CategoryTreeResponse(BaseModel):
+    domainFacet: str
+    categories: List[CategoryNodeDTO]
+
+# 8. 공식 검증 출처 원문 드로어 DTO (EvidenceController 서빙용)
+class EvidenceDetailDTO(BaseModel):
+    id: str                              # "E-01"
+    sourceName: str
+    sourceType: str
+    publisher: str
+    publishedDate: Optional[str] = None
+    quote: str
+    sectionContext: Optional[str] = None
+    relevanceScore: float
+    externalUrl: str
+    urlLabel: str
+    credibilityTier: str
+
+class EvidenceListResponse(BaseModel):
+    conceptId: str
+    evidences: List[EvidenceDetailDTO]
+
+# 9. 인라인 용어 팝업 요약 DTO (ContextualExplainerController 서빙용)
+class ContextualExplanationDTO(BaseModel):
+    childId: str
+    parentId: str
+    childTitle: str
+    parentTitle: str
+    summary: str
+    relationshipNarrative: str
+
+# 10. 2-Hop 인과 서브그래프 네트워크 DTO (CausalGraphController 서빙용)
+class SubgraphNodeDTO(BaseModel):
+    id: str
+    title: str
+    scaleLevel: int
+    nodeType: str                        # "concept" | "defect" | "parameter"
+
+class SubgraphEdgeDTO(BaseModel):
+    source: str
+    target: str
+    relationType: str                    # "causes_defect" | "compensates" | "alternative_to"
+    polarity: str                        # "+" | "-" | "tradeoff"
+    weight: float
+    mechanismLabel: str
+    compensatingParams: Optional[Dict[str, Any]] = None
+
+class CausalSubgraphResponse(BaseModel):
+    centerConceptId: str
+    nodes: List[SubgraphNodeDTO]
+    edges: List[SubgraphEdgeDTO]
 ```
 
 ---
@@ -421,14 +486,21 @@ class EvidenceRepository:
 
 ## 2.1 물리 Entity 스키마 설계 (Physical Database Schema)
 
-기존의 `snapshots`, `context_params` 등 거대 JSON 덤프와 `val_a`, `val_b` 화면 중심의 비정규화 컬럼을 전면 폐기하고, **세션 ➔ 평가 축 ➔ 격자 셀 ➔ 튜닝 레시피로 이어지는 4대 정규화 물리 테이블로 재구축**합니다.
+기존의 `snapshots`, `context_params` 등 거대 JSON 덤프와 `val_a`, `val_b` 화면 중심의 비정규화 컬럼을 전면 폐기하고, **세션 ➔ 프로젝트 폴더 ➔ 평가 축 ➔ 격자 셀 ➔ 튜닝 레시피로 이어지는 5대 정규화 물리 테이블로 재구축**합니다.
 
 ```
+┌──────────────────────────────┐
+│  comparison_folders (폴더)   │
+├──────────────────────────────┤
+│ PK id, user_id, name         │
+└──────────────┬───────────────┘
+               │ 1:N
+               ▼
 ┌────────────────────────────────────────────────────────┐
 │              comparison_sessions (세션 마스터)         │
 ├────────────────────────────────────────────────────────┤
 │ PK id, user_id, title, query, target_a_id, target_b_id │
-│    is_pinned, folder_id, ai_summary, created_at        │
+│    is_pinned, FK folder_id, ai_summary, created_at     │
 └──────────────┬──────────────────────────┬──────────────┘
                │ 1:N                      │ 1:N
                ▼                          ▼
@@ -459,7 +531,21 @@ class EvidenceRepository:
 
 ---
 
-### [테이블 1] `comparison_sessions` (비교 연구 자산 세션 마스터)
+### [테이블 1] `comparison_folders` (프로젝트 폴더 마스터 테이블)
+- **테이블명**: `comparison_folders`
+- **책임**: 엔지니어링 세션을 프로젝트/제품군별로 정리하는 폴더링 물리 엔티티.
+- **컬럼 정의**:
+
+| 컬럼명 | 물리 타입 | 제약 조건 | 설명 |
+| :--- | :--- | :--- | :--- |
+| `id` | `VARCHAR(64)` | `PRIMARY KEY` | 폴더 고유 ID (예: `fld-hbm4-pkg`) |
+| `user_id` | `VARCHAR(64)` | `NOT NULL, INDEX` | 폴더 소유자 사번/엔지니어 ID |
+| `name` | `VARCHAR(128)` | `NOT NULL` | 폴더명 (예: `HBM4 패키징 선행 연구`) |
+| `created_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP` | 생성 일시 |
+
+---
+
+### [테이블 2] `comparison_sessions` (비교 연구 자산 세션 마스터)
 - **테이블명**: `comparison_sessions`
 - **책임**: 엔지니어가 수행한 비교 분석 작업 공간(Workspace)의 루트 엔티티(Aggregate Root).
 - **컬럼 정의**:
@@ -473,7 +559,7 @@ class EvidenceRepository:
 | `target_a_id` | `VARCHAR(64)` | `NOT NULL, FK(concepts.id), INDEX` | 비교 대상 A 개념 ID (예: `concept-mrmuf`) |
 | `target_b_id` | `VARCHAR(64)` | `NOT NULL, FK(concepts.id), INDEX` | 비교 대상 B 개념 ID (예: `concept-tcncf`) |
 | `is_pinned` | `BOOLEAN` | `DEFAULT FALSE, NOT NULL` | 상단 즐겨찾기 고정 여부 |
-| `folder_id` | `VARCHAR(64)` | `NULLABLE, INDEX` | 소속 프로젝트 폴더 ID |
+| `folder_id` | `VARCHAR(64)` | `NULLABLE, FK(comparison_folders.id ON DELETE SET NULL), INDEX` | 소속 프로젝트 폴더 ID |
 | `ai_summary` | `TEXT` | `NULLABLE` | 두 대안에 대한 AI 종합 인과 코멘트 |
 | `created_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP` | 생성 일시 |
 | `updated_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP` | 수정 일시 |
@@ -482,7 +568,7 @@ class EvidenceRepository:
 
 ---
 
-### [테이블 2] `comparison_axes` (평가 축 척도 마스터)
+### [테이블 3] `comparison_axes` (평가 축 척도 마스터)
 - **테이블명**: `comparison_axes`
 - **책임**: 두 대안을 평가하는 세로 행(Row) 기준(열저항, TAT, CAPEX 등) 정규화 관리 및 Delta 신규 축 추가 지원.
 - **컬럼 정의**:
@@ -499,7 +585,7 @@ class EvidenceRepository:
 
 ---
 
-### [테이블 3] `comparison_cells` (대안별 평가 격자 셀 정규화 테이블)
+### [테이블 4] `comparison_cells` (대안별 평가 격자 셀 정규화 테이블)
 - **테이블명**: `comparison_cells`
 - **책임**: 
   - 특정 평가 축(`axis_id`)에서 특정 대상(`target_concept_id`)이 갖는 실제 값, 단위, 지식 갭 상태, 공인 출처 증빙을 1:1로 물리 보존.
@@ -520,7 +606,7 @@ class EvidenceRepository:
 
 ---
 
-### [테이블 4] `comparison_tunings` (AI 파라미터 튜닝 상담 마스터)
+### [테이블 5] `comparison_tunings` (AI 파라미터 튜닝 상담 마스터)
 - **테이블명**: `comparison_tunings`
 - **책임**: 엔지니어가 입력한 설비 제약 조건과 AI의 종합 트레이드오프 분석 코멘트 이력 보존.
 - **컬럼 정의**:
@@ -535,7 +621,7 @@ class EvidenceRepository:
 
 ---
 
-### [테이블 5] `comparison_tuning_recipes` (추천 파라미터 보상 레시피 정규화 테이블)
+### [테이블 6] `comparison_tuning_recipes` (추천 파라미터 보상 레시피 정규화 테이블)
 - **테이블명**: `comparison_tuning_recipes`
 - **책임**: AI가 추천한 보상 레시피(파라미터명, 추천값, 단위, 페널티)를 JSON 덤프 없이 정규화 행(Row)으로 관리하여 사내 팹 통계 쿼리 지원.
 - **컬럼 정의**:
@@ -552,12 +638,82 @@ class EvidenceRepository:
 
 ---
 
-## 2.2 계약 DTO 설계 (API Contract Schemas)
+## 2.2 계약 DTO 설계 (API Contract Schemas - 전수 19종 완비)
 
-DB의 정규화된 `comparison_axes`와 `comparison_cells`를 Service 계층에서 조립하여, 프론트엔드가 렌더링하기 가장 편한 **가로 대조표 행(Row) 구조로 변환**합니다.
-
+### ① 세션 및 폴더 관리 DTO
 ```python
-# 1. 단일 평가 셀 DTO
+# 1. 세션 생성 요청 DTO
+class ComparisonSessionCreateRequest(BaseModel):
+    query: str
+    targetAId: str
+    targetBId: str
+    title: Optional[str] = None
+    folderId: Optional[str] = None
+
+# 2. 세션 메타 수정 요청 DTO
+class ComparisonSessionUpdateRequest(BaseModel):
+    title: Optional[str] = None
+    isPinned: Optional[bool] = None
+    folderId: Optional[str] = None
+
+# 3. 폴더 DTO
+class ComparisonFolderDTO(BaseModel):
+    id: str
+    name: str
+    sessionCount: int = 0
+
+# 4. 세션 목록 요약 DTO
+class ComparisonSessionSummaryDTO(BaseModel):
+    id: str
+    title: str
+    query: str
+    targetA: ConceptSummaryDTO
+    targetB: ConceptSummaryDTO
+    isPinned: bool
+    folderId: Optional[str] = None
+    updatedAt: str
+
+# 5. 세션 목록 전체 응답 DTO (페이징 + 폴더 트리 번들)
+class ComparisonSessionListResponse(BaseModel):
+    items: List[ComparisonSessionSummaryDTO]
+    totalCount: int
+    hasMore: bool
+    folders: List[ComparisonFolderDTO] = []
+
+# 6. 세션 상세 복원 응답 DTO
+class ComparisonSessionDetailResponse(BaseModel):
+    session: ComparisonSessionSummaryDTO
+    matrix: Optional["ComparisonMatrixResponse"] = None
+    tunings: List["TuningAdvisorResponse"] = []
+```
+
+### ② 대화형 질문 구체화 DTO (`POST /comparison/clarify`)
+```python
+# 7. 질문 구체화 요청 DTO
+class ComparisonClarifyRequest(BaseModel):
+    query: str
+    baseConceptId: Optional[str] = None
+
+# 8. 3대 공학 분기 카드 DTO
+class BranchCardDTO(BaseModel):
+    branchId: str
+    title: str
+    targetA: ConceptSummaryDTO
+    targetB: ConceptSummaryDTO
+    coreTradeoff: str
+    recommendedAxes: List[str]
+
+# 9. 질문 구체화 최종 응답 DTO
+class ComparisonClarifyResponse(BaseModel):
+    query: str
+    branchCards: List[BranchCardDTO]
+    inferredTargetA: Optional[str] = None
+    inferredTargetB: Optional[str] = None
+```
+
+### ③ 매트릭스 & 평가 축 DTO (`POST /matrix`, `POST /axes`)
+```python
+# 10. 단일 평가 셀 DTO
 class MatrixCellDTO(BaseModel):
     conceptId: str
     targetRole: str            # "target_a" | "target_b"
@@ -566,7 +722,7 @@ class MatrixCellDTO(BaseModel):
     isKnowledgeGap: bool       # True일 경우 화면에 [미실측 지식 갭] 뱃지 표출
     evidenceId: Optional[str] = None
 
-# 2. 매트릭스 단일 평가 행 DTO (가로 대조표 형태)
+# 11. 매트릭스 단일 평가 행 DTO (가로 대조표 형태)
 class MatrixRowDTO(BaseModel):
     axisId: int
     axisName: str              # "열저항 (Thermal Resistance)"
@@ -575,32 +731,59 @@ class MatrixRowDTO(BaseModel):
     targetB: MatrixCellDTO     # 대상 B의 셀 데이터
     isCustom: bool = False
 
-# 3. 매트릭스 전체 완성 응답 DTO
+# 12. 지식 갭 발생 시 검토 센터 발행 연동 DTO (보안 마스킹 적용)
+class GovernanceProposalDTO(BaseModel):
+    proposalId: str
+    targetConceptId: str
+    targetConceptTitle: str
+    axisName: str                      # 지식 갭이 발생한 축명
+    gapType: str                       # "missing_measurement" | "data_conflict"
+    inferredValue: str                 # 🌟 인가자: "0.42" / 비인가자: "[비식별화 보호 - L3 보안 인가 필요]"
+    isMasked: bool                     # 🌟 L3 마스킹 여부 플래그
+    unit: Optional[str] = None
+    reasonNarrative: str
+    sourceSessionId: str               # 발의 근거가 된 비교 세션 ID (데이터 계보 보존)
+
+# 13. 매트릭스 전체 완성 응답 DTO
 class ComparisonMatrixResponse(BaseModel):
     sessionId: str
     targetA: ConceptSummaryDTO
     targetB: ConceptSummaryDTO
     rows: List[MatrixRowDTO]
     overallComment: Optional[str] = None
-    governanceProposal: Optional[Dict[str, Any]] = None # 지식 갭 감지 시 검토 센터 발행 배너 데이터
+    governanceProposal: Optional[GovernanceProposalDTO] = None
 
-# 4. 평가 축 즉석 추가 단일 행 Delta 응답 DTO (POST /axes)
+# 14. 평가 축 즉석 추가 요청 DTO
+class ComparisonAxisCreateRequest(BaseModel):
+    axisName: str
+    category: str
+
+# 15. 평가 축 즉석 추가 단일 행 Delta 응답 DTO (POST /axes - 1초 미만 응답)
 class ComparisonAxisRowResponse(BaseModel):
     sessionId: str
-    row: MatrixRowDTO          # 즉석 추가된 단 1개 행만 반환 (1초 미만 응답)
+    row: MatrixRowDTO
+```
 
-# 5. 파라미터 튜닝 상담 응답 DTO
+### ④ 파라미터 튜닝 상담 DTO (`POST /tune-advisor`)
+```python
+# 16. 파라미터 튜닝 상담 요청 DTO
+class TuningAdvisorRequest(BaseModel):
+    constraintQuery: str       # "우리 라인은 가압력을 150N 이상 못 줌"
+
+# 17. 추천 보상 레시피 항목 DTO
 class TuningRecipeItemDTO(BaseModel):
     parameterName: str
     recommendedValue: str
     unit: str
     expectedTradeoff: str
 
+# 18. 추천 플랜 DTO (생산성안 / 결함방지안)
 class TuningPlanDTO(BaseModel):
     planType: str              # "plan_a" | "plan_b"
     planTitle: str             # "생산성(TAT) 우선 최적화안"
     recipes: List[TuningRecipeItemDTO]
 
+# 19. 파라미터 튜닝 상담 최종 응답 DTO
 class TuningAdvisorResponse(BaseModel):
     tuningId: int
     constraintQuery: str
@@ -610,9 +793,36 @@ class TuningAdvisorResponse(BaseModel):
 
 ---
 
-## 2.3 Repository 계층 설계 (Data Access Layer)
+## 2.3 다형성 거버넌스 연계 규격 (Tab 2 ➔ Tab 3 연동)
 
-비즈니스 가공 없이 **오직 SQLAlchemy `AsyncSession` 기반의 순수 CRUD 및 Eager Loading 쿼리만 격리 실행**합니다.
+검토의 대상이 **문서 본문(위키 글/수치)**뿐만 아니라 **도메인 구조(인과 에지 연결, 신규 개념 등록)**까지 확장되도록 다형성 DTO를 규정합니다:
+
+```python
+class ReviewTargetScope(str, Enum):
+    CONCEPT_CONTENT   = "concept_content"   # ① 위키 본문 및 수치 수정 (문서 레벨)
+    NEW_CONCEPT       = "new_concept"       # ② 사내 온톨로지 신규 개념 등록 (도메인 레벨)
+    CAUSAL_RELATION   = "causal_relation"   # ③ 두 개념 간 인과 에지 신설/수정 (관계망 레벨)
+    TAXONOMY_RECLASS  = "taxonomy_reclass"  # ④ 스케일/분류 체계 변경 (분류 레벨)
+
+class ReviewTicketCreateRequest(BaseModel):
+    targetScope: ReviewTargetScope          # 🌟 검토 대상 스코프 지정
+    title: str                              # "[비교분석 도출] MR-MUF 16단 적층 계면 전단 응력 수치 보완"
+    reason: str                             # 발의 사유
+    originType: str                         # "comparison_gap"
+    sourceSessionId: Optional[str] = None   # "csess-20261020-01" (영구 보존)
+    
+    # 문서 레벨 제안 시 바인딩
+    conceptId: Optional[str] = None
+    workingDraft: Optional[str] = None      # 🌟 단일 작업 초안 버퍼로 직결
+    
+    # 도메인 관계망/신규 개념 제안 시 바인딩
+    relationData: Optional[Dict[str, Any]] = None
+    newConceptData: Optional[Dict[str, Any]] = None
+```
+
+---
+
+## 2.4 Repository 계층 설계 (Data Access Layer - 4대 레포지토리 전수)
 
 ### ① `ComparisonSessionRepository`
 ```python
@@ -620,33 +830,102 @@ class ComparisonSessionRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def create_session(self, session_data: ComparisonSessionModel) -> ComparisonSessionModel:
-        self.db.add(session_data)
+    async def create_session(self, session: ComparisonSessionModel) -> ComparisonSessionModel:
+        self.db.add(session)
         await self.db.commit()
-        await self.db.refresh(session_data)
-        return session_data
+        await self.db.refresh(session)
+        return session
 
     async def get_by_id(self, session_id: str) -> Optional[ComparisonSessionModel]:
-        return await self.db.get(ComparisonSessionModel, session_id)
+        """대상 A, B 개념 메타 Eager Loading."""
+        stmt = (
+            select(ComparisonSessionModel)
+            .options(
+                selectinload(ComparisonSessionModel.target_a),
+                selectinload(ComparisonSessionModel.target_b)
+            )
+            .where(ComparisonSessionModel.id == session_id)
+        )
+        return (await self.db.execute(stmt)).scalars().first()
 
-    async def list_by_user(self, user_id: str, is_pinned: Optional[bool], folder_id: Optional[str], limit: int, offset: int) -> List[ComparisonSessionModel]:
+    async def get_detail(self, session_id: str) -> Optional[ComparisonSessionModel]:
+        """축, 셀, 튜닝 이력 전수 Eager Loading."""
+        stmt = (
+            select(ComparisonSessionModel)
+            .options(
+                selectinload(ComparisonSessionModel.axes).selectinload(ComparisonAxisModel.cells),
+                selectinload(ComparisonSessionModel.tunings).selectinload(ComparisonTuningModel.recipes)
+            )
+            .where(ComparisonSessionModel.id == session_id)
+        )
+        return (await self.db.execute(stmt)).scalars().first()
+
+    async def list_by_user(self, user_id: str, is_pinned: Optional[bool], folder_id: Optional[str], limit: int, offset: int) -> Tuple[List[ComparisonSessionModel], int]:
         stmt = select(ComparisonSessionModel).where(ComparisonSessionModel.user_id == user_id)
         if is_pinned is not None:
             stmt = stmt.where(ComparisonSessionModel.is_pinned == is_pinned)
         if folder_id:
             stmt = stmt.where(ComparisonSessionModel.folder_id == folder_id)
+        
+        count_stmt = select(func.count()).select_from(stmt.subquery())
+        total_count = (await self.db.execute(count_stmt)).scalar() or 0
+        
         stmt = stmt.order_by(ComparisonSessionModel.is_pinned.desc(), ComparisonSessionModel.created_at.desc()).limit(limit).offset(offset)
-        return (await self.db.execute(stmt)).scalars().all()
+        items = (await self.db.execute(stmt)).scalars().all()
+        return items, total_count
+
+    async def update_metadata(self, session_id: str, title: Optional[str], is_pinned: Optional[bool], folder_id: Optional[str]) -> Optional[ComparisonSessionModel]:
+        session = await self.get_by_id(session_id)
+        if session:
+            if title is not None: session.title = title
+            if is_pinned is not None: session.is_pinned = is_pinned
+            if folder_id is not None: session.folder_id = folder_id
+            await self.db.commit()
+            await self.db.refresh(session)
+        return session
+
+    async def delete_session(self, session_id: str) -> bool:
+        session = await self.get_by_id(session_id)
+        if session:
+            await self.db.delete(session) # ON DELETE CASCADE로 축/셀/튜닝 일괄 정리
+            await self.db.commit()
+            return True
+        return False
 ```
 
-### ② `ComparisonMatrixRepository`
+### ② `ComparisonFolderRepository`
+```python
+class ComparisonFolderRepository:
+    def __init__(self, db: AsyncSession):
+        self.db = db
+
+    async def list_folders(self, user_id: str) -> List[ComparisonFolderModel]:
+        stmt = select(ComparisonFolderModel).where(ComparisonFolderModel.user_id == user_id).order_by(ComparisonFolderModel.name.asc())
+        return (await self.db.execute(stmt)).scalars().all()
+
+    async def create_folder(self, user_id: str, name: str) -> ComparisonFolderModel:
+        folder = ComparisonFolderModel(id=f"fld-{uuid.uuid4().hex[:8]}", user_id=user_id, name=name)
+        self.db.add(folder)
+        await self.db.commit()
+        await self.db.refresh(folder)
+        return folder
+
+    async def delete_folder(self, folder_id: str) -> bool:
+        folder = await self.db.get(ComparisonFolderModel, folder_id)
+        if folder:
+            await self.db.delete(folder)
+            await self.db.commit()
+            return True
+        return False
+```
+
+### ③ `ComparisonMatrixRepository`
 ```python
 class ComparisonMatrixRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
     async def get_axes_with_cells(self, session_id: str) -> List[ComparisonAxisModel]:
-        """세션의 모든 평가 축과 이에 딸린 격자 셀들을 1번의 쿼리로 Eager Loading."""
         stmt = (
             select(ComparisonAxisModel)
             .options(selectinload(ComparisonAxisModel.cells))
@@ -655,8 +934,16 @@ class ComparisonMatrixRepository:
         )
         return (await self.db.execute(stmt)).scalars().all()
 
+    async def save_matrix_full(self, session_id: str, axes_with_cells: List[Tuple[ComparisonAxisModel, List[ComparisonCellModel]]]) -> None:
+        for axis, cells in axes_with_cells:
+            self.db.add(axis)
+            await self.db.flush()
+            for cell in cells:
+                cell.axis_id = axis.id
+                self.db.add(cell)
+        await self.db.commit()
+
     async def add_single_axis_with_cells(self, axis: ComparisonAxisModel, cells: List[ComparisonCellModel]) -> ComparisonAxisModel:
-        """Delta 신규 축 1개와 셀 2개를 단일 원자적 트랜잭션으로 고속 INSERT."""
         self.db.add(axis)
         await self.db.flush()
         for cell in cells:
@@ -667,22 +954,73 @@ class ComparisonMatrixRepository:
         return axis
 ```
 
+### ④ `ComparisonTuningRepository`
+```python
+class ComparisonTuningRepository:
+    def __init__(self, db: AsyncSession):
+        self.db = db
+
+    async def create_tuning_with_recipes(self, tuning: ComparisonTuningModel, recipes: List[ComparisonTuningRecipeModel]) -> ComparisonTuningModel:
+        self.db.add(tuning)
+        await self.db.flush()
+        for r in recipes:
+            r.tuning_id = tuning.id
+            self.db.add(r)
+        await self.db.commit()
+        await self.db.refresh(tuning)
+        return tuning
+
+    async def list_tunings_by_session(self, session_id: str) -> List[ComparisonTuningModel]:
+        stmt = (
+            select(ComparisonTuningModel)
+            .options(selectinload(ComparisonTuningModel.recipes))
+            .where(ComparisonTuningModel.session_id == session_id)
+            .order_by(ComparisonTuningModel.created_at.desc())
+        )
+        return (await self.db.execute(stmt)).scalars().all()
+```
+
 ---
 
-## 2.4 Service 계층 설계 (Business Logic Layer)
+## 2.5 Service 계층 설계 (Business Logic Layer - 7대 전문 Service 전수)
 
-### ① `ComparisonMatrixService` (매트릭스 통합 오케스트레이터)
+### ① `ComparisonSessionService` (세션 라이프사이클 총괄)
+- **책임**: 세션 생성, 단건 상세 복원, 즐겨찾기(⭐ Pin) 토글, 폴더 이동, 세션 삭제, 페이징 목록 조율.
+
+### ② `OntologyClarifierService` (🌟 전 도메인 공통 지능형 질문 구체화 및 온톨로지 추론 엔진)
 - **책임**:
-  1. 두 대상 개념(`targetA`, `targetB`)의 엔티티와 물리 수치 사양(`perspective_specifications`)을 대조.
+  - Tab 2에 국한되지 않고 Tab 4(문헌조사 스코프 도출)와 플로팅 챗봇(인과 추론 및 의도 라우팅)이 공유하는 공통 두뇌.
+  - `clarify_comparison(query)`: 온톨로지 그래프 탐색 ➔ **3대 공학 분기 카드(`BranchCardDTO`) 및 추천 축 도출**.
+  - `clarify_research_scope(query)`: 문헌 조사 3대 스코프 칩 도출.
+  - `route_chatbot_intent(utterance, context)`: 챗봇 3단 라우터 질의 처리.
+
+### ③ `ComparisonMatrixService` (매트릭스 종합 오케스트레이터)
+- **책임**:
+  1. 두 대상 개념(`targetA`, `targetB`)의 엔티티와 물리 수치 사양(`perspective_specifications`) 대조.
   2. 사내 DB에 실측치가 없는 축인 경우 `is_knowledge_gap = True`로 설정.
-  3. **`OntologyGapDetectorService` 호출**: 수치 모순(Conflict)이나 실측치 부재(Gap)가 감지되면 검토 센터 발행용 `governanceProposal` 메타데이터를 DTO에 동봉.
+  3. **`OntologyGapDetectorService` 호출**: 수치 모순(Conflict)이나 실측치 부재(Gap) 감지 시 `governanceProposal` 생성.
   4. 정규화된 `ComparisonAxisModel`과 `ComparisonCellModel`을 결합하여 가로 대조표 형태의 `ComparisonMatrixResponse` DTO로 합성.
 
-### ② `ComparisonAxisService` (신규 축 Delta 고속 추가 전담)
+### ④ `ComparisonAxisService` (신규 축 Delta 1초 미만 고속 추가 전담)
 - **책임**:
-  - `POST /axes` 호출 시 전체 매트릭스를 재계산하지 않고,
-  - 요청된 축(`axisName`)에 대해 대안 A와 B의 물리적 지표를 즉석 산출한 뒤,
-  - `ComparisonMatrixRepository.add_single_axis_with_cells()`를 통해 **단 1개 행(Row)만 원자적으로 저장하고 1초 미만으로 `ComparisonAxisRowResponse` 반환**.
+  - `POST /axes` 호출 시 전체 매트릭스를 재계산하지 않고, 요청된 1개 축에 대해서만 물리 지표를 즉석 산출한 뒤 `ComparisonMatrixRepository.add_single_axis_with_cells()`로 단일 행 저장 및 **1초 미만 고속 Delta 응답(`ComparisonAxisRowResponse`) 반환**.
+
+### ⑤ `ParameterAdvisorService` (AI 파라미터 튜닝 상담 엔진)
+- **책임**: 엔지니어의 설비 제약 조건(`constraintQuery`) 수신 ➔ `advisor_agent` 호출 ➔ 물리 모델 기반 안전 마진 계산 ➔ 생산성안/결함방지안 2종 레시피 생성 및 DB 정규화 저장.
+
+### ⑥ `OntologyGapDetectorService` (지식 갭 감지 및 보안 마스킹 전담)
+- **책임**:
+  - 매트릭스 계산 중 공인 실측치 부재(Gap)나 출처 간 수치 모순(Conflict) 감지.
+  - **`DeidentificationService` 연계**: 요청자가 비인가자(`line_engineer`)일 경우 `inferredValue`를 `"[비식별화 보호 - L3 보안 인가 필요]"`로 치환하고 `isMasked=True` 설정.
+
+### ⑦ `ComparisonExportService` (엔지니어링 리포트 내보내기 엔진)
+- **책임**: 세션 마스터, 매트릭스 테이블, 지식 갭 경고, 튜닝 레시피, AI 인과 분석을 표준 엔지니어링 마크다운(Markdown) 보고서 문서로 렌더링하여 다운로드 서빙.
+
+---
+
+# 3. ✍️ [Tab 3] 검토·승인 센터 계층 설계 (작성 예정)
+
+*(사용자님과 다음 대화에서 Tab 3 Entity/DTO/Repository/Service 설계 후 통합 수록)*
 
 ---
 
