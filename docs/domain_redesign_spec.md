@@ -448,9 +448,164 @@
 
 ---
 
-# 4. 📑 [Tab 4] 외부 문헌·백서 조사 (Deep Research) 도메인 설계 (작성 예정)
+# 4. 📑 [Tab 4] 외부 문헌·백서 조사 (Deep Research) 도메인 설계
 
-*(사용자님과 다음 대화에서 요구사항 분석 후 통합 작성)*
+## 4.1 화면 UI/UX 개편 및 듀얼 트랙(Dual Track) 워크플로우
+
+외부 문헌·백서 조사실은 사내 온톨로지 DB에 아직 등록되지 않은 첨단 패키징/소자 기술의 **공인 학회 논문(IEEE, ECTC)과 제조사 공식 백서(Intel, TSMC 등)를 지능형 에이전트가 탐색·교차 분석하여, 사내 온톨로지에 신규 지식 후보로 편입(Publish to Governance)**시키는 지식 확장 엔진입니다.
+
+```
+                  [사용자 진입: 외부 문헌 조사실]
+                                 │
+         ┌───────────────────────┴───────────────────────┐
+         ▼                                               ▼
+ [Track 1: 탐색형 (초보자 / 모호한 고민)]        [Track 2: 목적형 (숙련자 / 명확한 타깃)]
+ "유리기판 TGV 균열 어떻게 잡지?"                "대상 개념: 유리기판(TGV), 출처: IEEE + Intel 백서"
+         ↓                                               ↓
+ 에이전트 질문 구체화 (Clarify)                  온톨로지 검색창으로 개념 지정 + 출처 필터 직접 체크
+         ↓                                               ↓
+ ★ 3대 조사 범위(Scope) 칩 선택                 ★ 즉시 [심층 문헌 발굴 시작] 실행
+         └───────────────────────┬───────────────────────┘
+                                 ▼
+         [⚡ 심층 조사 실행 ➔ 스텝 2: 2-Column 결과실 이동]
+```
+
+### ① 과감히 제거된 불필요 요소 (화면 집중도 극대화)
+- **신뢰출처풀(Publisher Trust Pool) 거대 배너 전면 제거**:
+  - Intel, TSMC, IEEE 등이 나열된 상단 거대 배너를 걷어내어 첫 화면 세로 공간을 확보하고 시각적 노이즈 차단.
+- **발굴 추천 예시 칩 전면 제거**:
+  - 고정된 클릭 유도용 칩들을 모두 없애 엔지니어가 본인의 탐구 목적에만 온전히 집중하도록 정돈.
+
+### ② 좌측 사이드바: [날짜별 그룹화 (Date-based Grouping)] 이력 관리
+- 외부 문헌 조사는 **"최신성(Recency)"과 "언제 조사했는가"가 핵심**이므로, 복잡한 폴더 대신 날짜별 그룹으로 정돈:
+  - 📅 **오늘 (Today)**
+  - 📅 **어제 (Yesterday)**
+  - 📅 **이번 주 (This Week)**
+  - 📅 **이전 기록 (Older)**
+  - *(상단에 키워드 검색창 및 즐겨찾기 ⭐ Pin 기능 지원)*
+
+### ③ 스텝 2: 결과실 2-Column Split View 레이아웃
+- 발굴된 정보의 신뢰성을 엔지니어가 즉시 검증할 수 있도록 **좌측(원문 증빙 피드) vs 우측(AI 종합 분석 & 온톨로지 편입 제안)**을 한 화면에 나란히 대조 배치:
+
+```
+┌──────────────────────────────────────┬──────────────────────────────────────┐
+│ [좌측 Pane: 공인 출처 증빙 피드]     │ [우측 Pane: AI 종합 분석 & 온톨로지 편입 후보]│
+├──────────────────────────────────────┼──────────────────────────────────────┤
+│ 📄 Intel Glass Core Architecture     │ 📊 AI 교차 분석 종합 리포트          │
+│ - 출처: Intel Corp (Tier 1 공인 백서)│ - 물리적 메커니즘 요약               │
+│ - 인용: "...Aspect ratio 10:1 초과 시│ - 학계 vs 제조사 공정 마진 비교       │
+│   레이저 식각 미세 균열 경계 한계..."│ - 미세 균열 방지 보상 파라미터 도출  │
+│ - [공식 원문 PDF 열람 ↗]            │                                      │
+│                                      │ ──────────────────────────────────── │
+│ 📄 IEEE ECTC 2025 Paper              │ 💡 온톨로지 편입 제안 후보 (Candidate) │
+│ - 출처: IEEE (Tier 1 공인 학회 논문) │ - [신규 개념 제안]: TGV 미세 균열 상쇄 레시피│
+│ - 인용: "화학적 연마 15nm 처리 시..."│ - [기존 보완 제안]: 유리기판 열팽창 계수 패치│
+│                                      │ - [✍️ 검토 센터로 티켓 발행하기 ➔]   │
+└──────────────────────────────────────┴──────────────────────────────────────┘
+```
+
+---
+
+## 4.2 도메인 컨트롤러 & 서비스 계층 정의
+
+### [도메인 1] 최근 발굴 로그 및 날짜별 세션 관리 (`ResearchSessionController`)
+- **담당 역할**:
+  - 외부 문헌 조사 세션의 영속화(DB 저장), 날짜별 그룹 서빙(`today`, `yesterday`, `thisWeek`, `older`), 북마크(⭐ Pin), 검색 필터링, 이력 삭제.
+- **컨트롤러 엔드포인트**:
+  - `GET    /api/v1/research/sessions` (세션 목록 조회: 날짜별 그룹 및 Pinned 상단 고정 서빙)
+  - `GET    /api/v1/research/sessions/{session_id}` (세션 단건 상세 및 결과 복원 서빙)
+  - `PATCH  /api/v1/research/sessions/{session_id}` (세션 메타 수정: 즐겨찾기 토글, 제목 변경)
+  - `DELETE /api/v1/research/sessions/{session_id}` (세션 삭제)
+- **서비스**: `ResearchSessionService`
+- **레포지토리**: `ResearchSessionRepository`
+- **엔티티**: `ResearchSessionModel` (테이블: `research_sessions`)
+- **응답 DTO (`ResearchSessionListResponse`)**:
+  ```json
+  {
+    "groups": {
+      "today": [ ...세션 요약 DTO... ],
+      "yesterday": [ ... ],
+      "thisWeek": [ ... ],
+      "older": [ ... ]
+    },
+    "totalCount": 24
+  }
+  ```
+
+---
+
+### [도메인 2] 대화형 조사 범위 구체화 에이전트 (`ResearchClarifyController`)
+- **담당 역할**:
+  - [Track 1: 탐색형] 사용자의 자연어 질문(예: "유리기판 TGV 균열 문제") 입력 시, 온톨로지 지식 그래프와 학술 인덱스를 조회하여 **3대 조사 범위(Scope Filters) 및 핵심 검색 키워드**를 자동으로 좁혀서 도출.
+- **컨트롤러 엔드포인트**:
+  - `POST /api/v1/research/clarify`
+- **서비스**: `ResearchClarifyService` (내부적으로 `deep_research_agent.clarify` 호출)
+- **요청 DTO**: `ResearchClarifyRequest`: `{ "query": "차세대 유리기판 TGV 공정 및 물성 표준 규격" }`
+- **응답 DTO**: `ResearchClarifyResponse` (추천 조사 스코프 칩 목록, 타깃 기관 후보, 정제된 학술 검색어)
+
+---
+
+### [도메인 3] 공인 출처 증빙 피드 수집·발굴 (`ResearchDiscoverController`)
+- **담당 역할**:
+  - 확정된 키워드와 선택된 스코프/기관 필터를 기반으로 공인 출처 풀(Intel/TSMC 백서, IEEE 논문, SEMI 표준)에서 **실제 공인 원문 증빙 피드(Evidence Feed)**를 발굴 및 적재.
+  - 가짜 정보나 환각을 방지하기 위해 출처명, 발행처, 발행일자, 원문 인용구(Quote), 신뢰도 등급(Tier 1/2), 원문 링크를 엄격히 구조화하여 서빙.
+- **컨트롤러 엔드포인트**:
+  - `POST /api/v1/research/sessions/{session_id}/discover`
+- **서비스**: `ResearchDiscoverService`
+- **요청 DTO**: `ResearchDiscoverRequest`: `{ "scopeFilterIds": ["gen-ai-package", "thickness-100um"] }`
+- **응답 DTO**: `ResearchDiscoverResponse` (`evidenceFeed: List[ResearchEvidenceFeedItem]`)
+
+---
+
+### [도메인 4] 문헌 종합 교차 분석 및 온톨로지 편입 후보 도출 (`ResearchSynthesisController`)
+- **담당 역할**:
+  - 발굴된 복수의 문헌들을 지능형 에이전트가 교차 분석(Cross-Analysis)하여 **종합 분석 리포트(`synthesis_report`)**를 작성하고,
+  - 사내 온톨로지에 편입할 만한 **지식 후보(`candidates`)를 도출** (신규 개념 후보 등록 또는 기존 개념 수치 패치).
+- **컨트롤러 엔드포인트**:
+  - `POST /api/v1/research/sessions/{session_id}/synthesize`
+- **서비스**: `ResearchSynthesisService` (내부적으로 `deep_research_agent.synthesize` 호출)
+- **응답 DTO**: 
+  - `ResearchSynthesizeResponse`
+    - `synthesisReport`: 물리적 메커니즘, 기술적 한계 및 트레이드오프, 학계 vs 업계 이견 분석
+    - `candidates`: 온톨로지 편입 제안 후보 목록 (제목, 제안 사유, 대상 개념 ID, 추천 파라미터)
+
+---
+
+## 4.3 타 도메인 연계 컴포넌트 명세 (타 도메인과의 중복 신설 방지 규격)
+
+### 4.3.1 🔍 Track 2 목적형 개념 타깃팅 (전역 검색 재사용)
+- **화면 트리거**: [Track 2: 목적형] 검색실의 대상 개념 입력창
+- **처리 원칙**:
+  - 별도의 검색 컨트롤러를 신설하지 않고 전역 검색 도메인의 **`GET /api/v1/search/spotlight?type=concept&q={keyword}`**를 100% 재사용.
+  - 사내 온톨로지 DB에 이미 등록되어 있는 단위 공정/소자 개념을 0ms 자동완성으로 타깃팅.
+
+### 4.3.2 ✍️ 온톨로지 편입 후보 ➔ 검토 센터 거버넌스 티켓 직결 연동
+- **화면 트리거**: 우측 하단 온톨로지 편입 제안 후보 카드의 `[✍️ 검토 센터로 티켓 발행하기 ➔]` 버튼
+- **호출 규격**:
+  - 프론트엔드가 후보 카드 클릭 시 검토 센터의 **`POST /api/v1/review-tickets`**를 직결 호출.
+  - 요청 페이로드:
+    ```json
+    {
+      "conceptId": "concept-tgv-etching",
+      "reviewType": "literature_candidate",
+      "title": "[문헌 발굴] 유리기판 레이저 식각 미세 균열 방지 보상 레시피 반영",
+      "humanEdits": "IEEE ECTC 2025 논문 실측치 기반 가압력 및 화학적 연마 보상 조건...",
+      "originType": "research_candidate",
+      "sourceSessionId": "res-20261016-01"
+    }
+    ```
+  - 검토 센터는 이를 접수하여 티켓을 `pending` 대기열에 인양하고, 좌측 Pane에 발굴 당시의 백서 인용구와 출처 링크를 그대로 보존하여 검토관에게 서빙.
+
+---
+
+## 4.4 외부 문헌 조사 3대 엔지니어링 신뢰 원칙
+
+1. **날짜별 직관적 이력 관리 (Recency-first Memory)**:
+   - "언제 조사했는가"를 기준으로 날짜 그룹을 나누어, 빠르게 변화하는 최신 반도체 학술/백서 탐색 이력을 가장 직관적으로 재탐색할 수 있게 지원합니다.
+2. **공인 출처 근거 중심주의 (Zero Hallucination / Evidence-anchored)**:
+   - LLM 자체의 모호한 기억이 아닌, 반드시 Intel, TSMC, IEEE 등 공인 출처의 원문 인용구(Quote)와 링크를 확보한 상태에서만 분석 리포트를 렌더링합니다.
+3. **발굴에서 거버넌스 승인까지의 단일 지식 파이프라인 (Discovery-to-Governance Pipeline)**:
+   - 조사실에서 발견된 첨단 지식이 단순 일회성 열람으로 끝나지 않고, 단 한 번의 클릭으로 검토 센터(Tab 3) 큐에 안착하여 공용 위키(Tab 1)까지 공식 승계되는 선순환 구조를 완성합니다.
 
 ---
 
