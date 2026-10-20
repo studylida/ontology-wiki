@@ -190,14 +190,31 @@
 - **담당 역할**:
   - 확정된 대상 A와 대상 B, 그리고 평가 축을 기반으로 열·물성, 결함 리스크, 팹 양산성을 대조하는 **동적 매트릭스 테이블** 생성.
   - 사내 DB에 공인 실측 데이터가 없을 경우 억지 추정(환각)을 배제하고 **지식 갭(Knowledge Gap)** 태그 생성.
+  - **🌟 온톨로지 보완 제안 자동 도출 파이프라인 내장 (`OntologyGapDetectorService`)**:
+    - 매트릭스 계산 과정에서 실측치 부재(Gap)나 공인 출처 간 수치 모순(Conflict)이 감지되면, 에이전트가 "이 항목은 16단 적층 시 실측치 보완 필요"라는 `governanceProposal` 객체를 자동 생성하여 매트릭스 응답 DTO에 실어줌.
+    - 프론트엔드는 이 데이터가 있을 때만 화면 하단에 검토 센터 전송 배너를 표출함.
 - **컨트롤러 엔드포인트**:
   - `POST /api/v1/comparison-sessions/{session_id}/matrix`
-- **서비스**: `ComparisonMatrixService` (내부적으로 `comparison_agent` 호출)
-- **응답 DTO**: `ComparisonMatrixResponse` (동적 축 행 데이터, 지식 갭 경고, AI 종합 인과 코멘트)
+- **서비스**: 
+  - `ComparisonMatrixService` (매트릭스 생성 메인 오케스트레이션)
+  - `OntologyGapDetectorService` (지식 갭 및 온톨로지 보완 제안 자동 도출 전담 서비스)
+- **응답 DTO**: `ComparisonMatrixResponse` (동적 축 행 데이터, 지식 갭 경고, AI 종합 인과 코멘트, `governanceProposal` 객체)
 
 ---
 
-### [도메인 4] AI 파라미터 튜닝 상담 (스냅샷 2 시점) (`ParameterAdvisorController`)
+### [도메인 4] + 비교 평가 축 즉석 추가 (`ComparisonAxisController`)
+- **담당 역할**:
+  - 엔지니어가 기본 축 외에 "CAPEX 설비 투자비 및 감가상각" 같은 **신규 축을 즉석에서 추가했을 때, 기존 테이블을 덮어쓰거나 전체 재계산하지 않고 오직 추가된 1개 행(Delta Single Row)만 즉석 계산하여 반환**.
+  - 속도 1초 미만 보장 및 기존 매트릭스 데이터 100% 무결성 유지.
+- **컨트롤러 엔드포인트**:
+  - `POST /api/v1/comparison-sessions/{session_id}/axes`
+- **서비스**: `ComparisonAxisService`
+- **요청 DTO**: `{ "axisName": "CAPEX 설비 투자비", "category": "팹 양산성 & TAT" }`
+- **응답 DTO**: `ComparisonAxisRowResponse` (추가된 단일 평가 행 및 두 대안별 지표 데이터)
+
+---
+
+### [도메인 5] AI 파라미터 튜닝 상담 (스냅샷 2 시점) (`ParameterAdvisorController`)
 - **담당 역할**:
   - 엔지니어가 설비 한계(예: "우리 라인은 가압력을 150N 이상 못 줌")를 자연어로 제시할 때, 온톨로지 물리 인과 모델을 기반으로 **보상 수치 조합(추천안 A, B)과 트레이드오프(TAT 증가 등)를 역제안**.
 - **컨트롤러 엔드포인트**:
@@ -207,23 +224,38 @@
 
 ---
 
-### [도메인 5] 엔지니어 꼬리질문 3-Hop 역추적 (`DeepDiveCausalController`)
+### [도메인 6] 비교 분석 리포트 내보내기/다운로드 (`ComparisonExportController`)
 - **담당 역할**:
-  - "원인의 원인을 파고드는" 엔지니어의 심층 질의에 대해, 온톨로지 인과 그래프를 3-hop까지 역추적하여 인과 체인 다이어그램과 물리 방정식 기반 해설 제공.
+  - 완성된 비교 매트릭스, 튜닝 조건, AI 종합 인과 코멘트를 사내 엔지니어링 표준 마크다운(Markdown) 문서 파일로 조합하여 다운로드 서빙.
 - **컨트롤러 엔드포인트**:
-  - `POST /api/v1/comparison-sessions/{session_id}/deep-dive`
-- **서비스**: `DeepDiveCausalService` (내부적으로 `CausalGraphRepository` 및 LLM 게이트웨이 연계)
-- **응답 DTO**: `DeepDiveCausalResponse` (3-hop 인과 노드 체인, 핵심 물리 방정식, 추천 꼬리질문 칩)
+  - `GET /api/v1/comparison-sessions/{session_id}/export?format={md|json}`
+- **서비스**: `ComparisonExportService` (세션 데이터를 리포트 템플릿으로 렌더링)
 
 ---
 
-## 2.3 에이전트 호출을 컨트롤러 단에서 분리해야 하는 3대 공학적 근거
+## 2.3 타 도메인 연계 컴포넌트 명세 (비교분석 내 중복 신설 방지 규격)
+
+### 2.3.1 🔍 대안 A / 대안 B 자동완성 검색 (전역 검색 재사용)
+- **화면 트리거**: 화면 2-A 대안 A, 대안 B 입력란
+- **처리 원칙**:
+  - 별도의 비교 전용 검색 알고리즘이나 컨트롤러를 중복 신설하지 않습니다.
+  - 전역 검색 도메인의 **`GET /api/v1/search/spotlight?type=concept&q={keyword}`**를 그대로 재사용하여, 온톨로지 개념 DB에서 서로 비교 가능한 대안 개념 목록(후보 5~10개)만 0ms로 필터링하여 바인딩합니다.
+
+### 2.3.2 ✍️ 비교 분석 결과 ➔ 검토 센터 티켓 내보내기 (검토 센터 도메인 개편 시 연동)
+- **화면 트리거**: 화면 2-B 최하단 거버넌스 배너 (`✍️ 이 분석 결과를 검토 센터로 전송하여 온톨로지에 반영하기` 버튼)
+- **처리 원칙**:
+  - 비교 도메인에서 티켓을 직접 생성하는 컨트롤러를 파지 않습니다.
+  - **검토 센터가 스스로의 입력 DTO와 유효성 검증을 완벽히 통제해야 하므로, 향후 검토·승인 센터 도메인이 새로 개편될 때 정의될 정규 티켓 생성 API를 프론트엔드가 연계 호출**하도록 규정합니다.
+
+---
+
+## 2.4 에이전트 호출을 컨트롤러 단에서 분리해야 하는 3대 공학적 근거
 
 1. **DTO 타입 계약(Type Safety)의 엄격성**:
-   - `질문 구체화(분기 카드 반환)`와 `파라미터 튜닝(보상안 수치 반환)`, `꼬리질문(인과 체인 반환)`은 Request와 Response의 형태가 완전히 다릅니다.
+   - `질문 구체화(분기 카드 반환)`와 `매트릭스(대조표 반환)`, `축 추가(단일 행 반환)`, `파라미터 튜닝(보상안 수치 반환)`은 Request와 Response의 형태가 완전히 다릅니다.
    - 하나의 컨트롤러로 뭉뚱그리면 DTO가 온갖 Optional 필드로 뒤범벅된 거대 잡탕 스키마가 되어 프론트엔드 연동 시 타입 에러를 양산합니다.
 2. **RESTful 리소스 지향성**:
-   - 세션 내부의 하위 리소스(`/matrix`, `/tune-advisor`, `/deep-dive`)로 분리되어 URL만 보아도 어떤 결과물을 기대하는지 명확합니다.
+   - 세션 내부의 하위 리소스(`/matrix`, `/axes`, `/tune-advisor`, `/export`)로 분리되어 URL만 보아도 어떤 결과물을 기대하는지 명확합니다.
 3. **독립적 장애 격리**:
    - 파라미터 튜닝 상담에 일시적인 LLM 타임아웃이 발생해도, 기본 비교 매트릭스 조회나 세션 목록 조회 등 다른 기능은 100% 정상 작동합니다.
 
