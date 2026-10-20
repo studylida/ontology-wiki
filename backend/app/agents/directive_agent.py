@@ -100,7 +100,11 @@ class DirectiveAgent:
                 '보상 파라미터 규격을 무결성 검증을 거쳐 추가 반영함. [E-01]</mark>'
             )
 
-        revised_draft = f"{base_draft}\n\n{highlighted_sentence}"
+        from backend.app.core.citation_manager import EvidenceCitationManager
+        raw_draft = f"{base_draft}\n\n{highlighted_sentence}"
+        revised_draft, restored_tags = EvidenceCitationManager.validate_and_restore(base_draft, raw_draft)
+        if restored_tags:
+            logger.info(f"DirectiveAgent: Automatically restored public citations {restored_tags} to draft.")
 
         # 4. 정형 패치 생성
         structured_patches = {

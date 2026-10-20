@@ -345,13 +345,35 @@ async def approve_review_ticket(
         "role": "DomainGovernanceApprover",
         "action": "approve"
     }
-    applied_ver = body.targetVersion or ticket.target_version or "v1.3"
+    # 1. 온톨로지 세맨틱 버전(vMAJOR.MINOR.PATCH) 자동 계산
+    concept = await db.get(ConceptModel, ticket.concept_id)
+    cur_ver = (concept.version if concept else ticket.current_version) or "v1.2.0"
+    
+    # 버전 승계 규칙: 신규 개념 등록은 minor (v1.2.x -> v1.3.0), 기존 개념 수정은 patch (v1.2.0 -> v1.2.1)
+    is_new = "신규" in (ticket.review_type or "") or ticket.review_type == "new_concept"
+    auto_bump_type = "minor" if is_new else "patch"
+    
+    def _bump_version(v_str: str, b_type: str) -> str:
+        cleaned = (v_str or "").strip().lstrip("v")
+        parts = cleaned.split(".")
+        maj, min_v, pat = 1, 0, 0
+        try:
+            if len(parts) >= 1 and parts[0].isdigit(): maj = int(parts[0])
+            if len(parts) >= 2 and parts[1].isdigit(): min_v = int(parts[1])
+            if len(parts) >= 3 and parts[2].isdigit(): pat = int(parts[2])
+        except Exception:
+            pass
+        if b_type == "major": return f"v{maj + 1}.0.0"
+        elif b_type == "minor": return f"v{maj}.{min_v + 1}.0"
+        return f"v{maj}.{min_v}.{pat + 1}"
+
+    applied_ver = body.targetVersion or ticket.target_version or _bump_version(cur_ver, auto_bump_type)
     gov_snapshot = {
         "ticketId": ticket.id,
         "conceptId": ticket.concept_id,
         "conceptTitle": ticket.concept_title,
         "appliedVersion": applied_ver,
-        "previousVersion": ticket.current_version,
+        "previousVersion": cur_ver,
         "overrideReason": final_reason,
         "integrityReport": ticket.integrity_report or {},
         "humanEditsSummary": (body.humanEdits or ticket.human_edits or "")[:200]
