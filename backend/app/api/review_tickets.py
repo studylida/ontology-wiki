@@ -349,9 +349,21 @@ async def approve_review_ticket(
     concept = await db.get(ConceptModel, ticket.concept_id)
     cur_ver = (concept.version if concept else ticket.current_version) or "v1.2.0"
     
-    # 버전 승계 규칙: 신규 개념 등록은 minor (v1.2.x -> v1.3.0), 기존 개념 수정은 patch (v1.2.0 -> v1.2.1)
+    # 버전 승계 규칙:
+    # - Major: 사유에 "major", "대규모 개편", "프레임워크 개편" 명시 시 (v1.x.x -> v2.0.0)
+    # - Minor: 신규 개념 등록(new_concept) 또는 공인 출처 지식 공식 폐기 시 (v1.2.x -> v1.3.0)
+    # - Patch: 일반 파라미터/설명문/실무사례 수정 승인 시 (v1.2.0 -> v1.2.1)
+    final_reason_lower = (final_reason or "").lower()
+    is_major = "major" in final_reason_lower or "대규모 개편" in final_reason_lower or "프레임워크" in final_reason_lower
     is_new = "신규" in (ticket.review_type or "") or ticket.review_type == "new_concept"
-    auto_bump_type = "minor" if is_new else "patch"
+    is_deprecated = "폐기" in final_reason_lower or "삭제" in final_reason_lower or "deprecated" in final_reason_lower
+
+    if is_major:
+        auto_bump_type = "major"
+    elif is_new or is_deprecated:
+        auto_bump_type = "minor"
+    else:
+        auto_bump_type = "patch"
     
     def _bump_version(v_str: str, b_type: str) -> str:
         cleaned = (v_str or "").strip().lstrip("v")
