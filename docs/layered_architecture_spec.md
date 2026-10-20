@@ -1508,15 +1508,23 @@ class AuditLogRepository:
   - `get_ticket_list(status, concept_id, limit, offset)`: 기본값 `status="pending"`으로 대기열 서빙, `count_by_status()`를 병렬 호출하여 `tabCounts`를 번들 조립.
   - `get_ticket_detail(ticket_id)`: 원본 본문(`current_content`), 최신 단일 초안(`working_draft`), 3대 정합성 보고서, 지시문 대화 이력, 현재 동시 접속자 락 상태를 2-Pane DTO로 합성.
 
-### ② `PresenceLockService` (비차단 분산 편집 락 전담 엔진)
+### ② `PresenceLockService` (비차단 분산 편집 락 전담 엔진 - 10분 상한 이중 타이머)
 - **책임**:
-  - `acquire_lock(ticket_id, user_id, ttl=30)`: Redis 또는 인메모리 락 매니저를 통해 점유자 확인. 미점유 시 획득 성공, 타인 점유 시 읽기 전용 상태 안내.
-  - `renew_lock(ticket_id, user_id, ttl=30)`: 본인 락 유지 시간 연장.
+  - `acquire_lock(ticket_id, user_id, ttl=30)`: 
+    - Redis 또는 인메모리 락 매니저를 통해 점유자 확인. 미점유 시 획득 성공 및 최초 잠금 일시(`locked_at`) 기록.
+    - 타인 점유 시 읽기 전용 상태 안내.
+  - `renew_lock(ticket_id, user_id, ttl=30)`: 
+    - **15초 주기 클라이언트 Heartbeat 갱신**: 점유 엔지니어의 브라우저가 15초마다 갱신 신호를 보내 30초 단기 유효시간을 연장.
+    - **🌟 10분(600초) 절대 점유 상한선(Max Hold Timeout) 가드레일**:
+      - `locked_at` 시점으로부터 누적 10분이 경과한 경우, 하트비트 신호가 오더라도 연장을 거부하고 락을 강제 만료시킴 ("최대 편집 시간 10분 초과").
+  - `steal_lock(ticket_id, new_user_id)`:
+    - 10분 이상 자리를 비우거나 점유 중인 티켓에 대해, 다른 검토관이 "편집권 강제 회수"를 요청했을 때 이전 점유자의 락을 강제 반납시키고 새 점유권을 인계.
   - `release_lock(ticket_id, user_id)`: 탭 퇴장 또는 승인/반려 시 안전하게 락 즉시 반납.
 
 ### ③ `ReviewDirectiveService` (전문가 AI 보완 지시문 실행 엔진)
 - **책임**:
-  - 엔지니어의 자연어 지시문 수신 ➔ `directive_agent` 호출.
+  - 엔지니어의 자연어 지시문 수신 ➔ **공통 게이트웨이 `call_agent(agent_type="directive", ...)` 호출**.
+  - 30초 타임아웃 및 Graceful Fallback (타임아웃 발생 시 기존 초안 보존 및 재시도 안내).
   - 공인 온톨로지 에지(`CausalEdgeModel`) 탐색을 결합하여 상충 관계 및 보상 파라미터 백서 문체 합성.
   - 단일 작업 초안(`working_draft`)을 즉시 갱신하고, `review_directives` 테이블에 실행 이력 INSERT.
   - 3대 정합성 점검(출처 매칭률, 온톨로지 모순, 영향 범위)을 재수행하여 `review_integrity_checks` 테이블 갱신.
@@ -1543,16 +1551,19 @@ class AuditLogRepository:
   - **2. `ApprovalBlockerGate` (승인 차단 게이트웨이)**:
     - 최신 정합성 점검 결과가 `status == 'FAIL'`이거나 인과 모순(`has_ontology_conflict == True`)이 존재하는 경우:
     - 사유(`overrideReason`)가 비어 있으면 **HTTP 422 Unprocessable Entity로 승인을 물리 차단**.
-  - **3. 단일 원자적 DB 트랜잭션 (Atomic Decomposition)**:
-    - `working_draft`에 포함된 섹션별 패치를 분해(Decomposition)하여, 공용 위키의 각 정규화 물리 테이블에 반영:
-      - `concepts`: `version` 판본 승계 (예: `v1.2` ➔ `v1.3`), `summary` 갱신.
-      - `concept_principles`: 수정/추가된 작동 원리 단계 UPDATE/INSERT.
-      - `concept_limitations`: 갱신된 공정 한계 및 보상 파라미터 UPDATE/INSERT.
-      - `perspective_specifications`: 변경된 공정 관점별 물리 수치 UPDATE/INSERT.
+  - **3. 단일 원자적 DB 트랜잭션 (Atomic Decomposition & Polymorphic Apply)**:
+    - `target_scope`에 따라 기존 개념 개정과 신규 개념 등록을 자동 분기하여 단일 트랜잭션 처리:
+      - **분기 A [신규 개념 등록 승인 (`target_scope == 'new_concept'`)]**:
+        1. `concepts` 테이블에 신규 행 INSERT (새 고유 ID `concept-xxx` 발급, `version='v1.0'`, `status='adopted'`).
+        2. 발급된 신규 `concept_id`를 외래키로 바인딩하여, 제안된 원리(`concept_principles`), 공정 한계(`concept_limitations`), 관점별 수치(`perspective_specifications`)를 신규 INSERT.
+        3. 신규 개념의 기본 인과 에지(`causal_edges`) 등록.
+      - **분기 B [기존 개념 개정 승인 (`target_scope == 'existing_concept'`)]**:
+        1. `concepts`: `version` 동적 마이너 판본 승계 (예: `v1.2` ➔ `v1.3`), `summary` 갱신.
+        2. `working_draft`의 섹션별 패치를 분해하여 하위 테이블 UPDATE/INSERT (`principles`, `limitations`, `specifications`).
   - **4. WORM 머클 감사 체인 확정**:
     - 직전 `entry_hash`를 조회하여 현재 승인 스냅샷과 결합한 새 SHA-256 해시를 생성하고 HMAC 전자 서명과 함께 `audit_logs`에 INSERT.
   - **5. 위키 캐시 즉시 무효화 (0ms 전사 공표)**:
-    - `concept:detail:{id}`, `concept:subgraph:{id}:*` 캐시를 즉시 제거하여 모든 사용자가 새로 승인된 위키를 0ms 지연으로 열람 가능하도록 보장.
+    - 공통 모듈 `CacheOrchestrator.invalidate_concept_domain(concept_id)`를 호출하여 위키 상세, 서브그래프, 문맥 설명, 전역 검색 캐시를 0ms 일괄 소거.
 
 ---
 
@@ -2257,4 +2268,88 @@ class ChatbotMessageRepository:
   - 상단 헤더 및 단축키(`Ctrl + K`) 입력 시 `ConceptRepository.search_by_prefix`를 호출하여 0ms 자동완성 서빙.
   - 공정 카테고리(`processCategory`)와 1줄 설명 요약(`summarySnippet`)을 동봉하여 동음이의어 혼선 원천 차단.
   - Tab 2 비교 대안 검색 및 Tab 4 문헌 조사 개념 타깃팅에서 100% 재사용.
+
+---
+
+# 6. 🌐 [공통 코어 인프라] 4대 전역 모듈화 아키텍처 (Global Core Orchestrators)
+
+시스템 전반(Tab 1~4 및 챗봇)에 걸쳐 코드 중복을 제거하고, 모델 교체 유연성과 데이터 무결성을 단일 창구에서 일괄 통제하기 위해 **4대 전역 코어 모듈**을 구축합니다.
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                   전 도메인 서비스 계층 (Domain Services)              │
+└───────┬─────────────────┬──────────────────┬───────────────────┬───────┘
+        │                 │                  │                   │
+        ▼                 ▼                  ▼                   ▼
+┌──────────────┐  ┌──────────────┐   ┌──────────────┐    ┌──────────────┐
+│  call_agent  │  │ Evidence     │   │ Report       │    │ Cache        │
+│  (총괄게이트)│  │ CitationMgr  │   │ Renderer     │    │ Orchestrator │
+├──────────────┤  ├──────────────┤   ├──────────────┤    ├──────────────┤
+│- 모델원클릭교체│  │- [E-01]파싱  │   │- 마크다운렌더│    │- 도메인전체  │
+│- 30초타임아웃│  │- 출처자동복원│   │- KaTeX 수식  │    │  캐시일괄소거│
+│- Graceful    │  │- 사내공식승격│   │- 마진대조표  │    │- Stale Cache │
+│  Fallback    │  │  (E-05발급)  │   │- Jinja2 템플릿│   │  원천 차단   │
+└──────────────┘  └──────────────┘   └──────────────┘    └──────────────┘
+```
+
+---
+
+## 6.1 `AgentGateway` (`call_agent` 단일 총괄 함수)
+
+- **책임**: 파편화된 에이전트 클래스 호출을 단일 게이트웨이 함수로 일원화하여, 모델 교체와 타임아웃, 예외 처리를 한곳에서 통제.
+- **인터페이스 규격**:
+
+```python
+async def call_agent(
+    agent_type: Literal["clarifier", "directive", "advisor", "deep_research", "chatbot"],
+    prompt: str,
+    context: Dict[str, Any],
+    model_name: Optional[str] = None,   # 예: "gemini-2.5-pro", "gpt-4o", 사내 온프레미스 모델
+    timeout_seconds: float = 30.0,      # 기본 30초 타임아웃 (실무 테스트 후 유연 조정 가능)
+    stream: bool = False,
+    gemini_key: Optional[str] = None,
+    openai_key: Optional[str] = None
+) -> AgentResponse:
+    """전 도메인 에이전트/LLM 호출 총괄 단일 게이트웨이 함수.
+    
+    1. 모델 일괄 교체: 옵션 하나로 Gemini ➔ OpenAI ➔ 사내 온프레미스 모델 전사 일괄 전환.
+    2. 타임아웃 및 Graceful Fallback: 30초 초과 시 500 크래시 방지 및 안전 기본 응답 반환.
+    3. 감사 로깅: 입출력 토큰 및 프롬프트 인젝션 패턴 전역 검사.
+    """
+    ...
+```
+
+---
+
+## 6.2 `EvidenceCitationManager` (공인 출처 각주 총괄 매니저)
+
+- **책임**: Tab 1(위키 본문 링크), Tab 3(직접 편집 출처 삭제 방어), Tab 4(문헌 조사 각주 부여 및 승격), 챗봇(근거 출처 바인딩) 전역에서 일관된 출처 규칙 집행.
+- **주요 메서드**:
+  - `parse_citations(text: str) -> List[str]`: 본문 내 `\[E-\d+\]` 정규식 태그 전수 추출.
+  - `validate_and_restore(original: str, edited: str) -> str`: 편집 과정에서 사용자가 실수로 삭제한 공인 출처 뱃지를 감지하여 문장 끝에 자동 복원 주입.
+  - `promote_to_evidence_source(feed_id: int, db: AsyncSession) -> str`: Tab 4 외부 문헌이 검토 승인되었을 때 사내 공식 출처 마스터(`evidence_sources`)에 `E-05` 같은 정식 고유 번호를 발급하고 영구 승격.
+
+---
+
+## 6.3 `ReportRenderer` (표준 기술 보고서 렌더러)
+
+- **책임**: Tab 2 비교 분석 리포트, Tab 4 외부 문헌 6대 심층 분석 리포트, Tab 3 거버넌스 감사 보고서를 일관된 사내 표준 기술 문서 스타일의 마크다운(Markdown) 및 PDF 파일로 렌더링.
+- **주요 메서드**:
+  - `render_markdown(template_name: str, context: Dict[str, Any]) -> str`: Jinja2 기반으로 메타데이터 헤더, KaTeX 수식 블록, 학계 vs 산업계 마진 대조표, 공인 출처 상세 각주를 깔끔한 기술 문서로 합성.
+  - `export_file_response(filename: str, content: str) -> FileResponse`: 다운로드 스트림 서빙.
+
+---
+
+## 6.4 `CacheOrchestrator` (전 도메인 캐시 일괄 무효화 오케스트레이터)
+
+- **책임**: 위키 승인(`POST /approve`) 또는 개념 수정 시, 하드코딩된 문자열 오타로 인한 Stale Cache 잔존 버그를 원천 차단하고 연관 캐시를 원자적으로 일괄 소거.
+- **주요 메서드**:
+  - `invalidate_concept_domain(concept_id: str)`:
+    - 1. 위키 본문 캐시 소거: `concept:detail:{concept_id}`
+    - 2. 2-Hop 인과 서브그래프 캐시 소거: `concept:subgraph:{concept_id}:*`
+    - 3. 인라인 용어 설명 캐시 소거: `concept:explainer:{concept_id}:*`
+    - 4. 전역 스포트라이트 검색 캐시 소거: `spotlight:*`
+    - 5. 플로팅 챗봇 컨텍스트 캐시 소거: `chatbot:context:*`
+    - 단 한 번의 호출로 전 도메인의 캐시 정합성을 0ms로 보장.
+
 
