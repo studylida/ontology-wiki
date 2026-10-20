@@ -423,20 +423,41 @@ class CausalGraphRepository:
         )
         return (await self.db.execute(stmt)).scalars().all()
 
-    async def find_2hop_subgraph(self, concept_id: str, max_depth: int = 2) -> List[CausalEdgeModel]:
-        """SQLite 재귀 CTE를 실행하여 1~2단계 연쇄 결함 및 보상 에지 탐색 (하드코딩 폴백 완전 배제)."""
+    async def find_2hop_subgraph(self, concept_id: str, max_depth: int = 2) -> List[Dict[str, Any]]:
+        """SQLite 재귀 CTE를 실행하여 1~2단계 연쇄 결함 및 보상 에지 탐색 (하드코딩 폴백 완전 배제).
+        
+        🌟 노드 타입 자동 태깅: relation_type에 따라 node_type을 즉석 분류하여 프론트엔드 추가 호출 0ms 보장.
+        - causes_defect: 'defect' (결함 노드, 빨간색)
+        - compensates: 'parameter' (설비 파라미터 노드, 노란색)
+        - else: 'concept' (일반 공정/소자 개념 노드, 파란색)
+        """
         cte_query = """
-        WITH RECURSIVE causal_path(source_concept_id, target_concept_id, relation_type, depth) AS (
+        WITH RECURSIVE causal_path(source_id, target_id, rel_type, depth) AS (
             SELECT source_concept_id, target_concept_id, relation_type, 1
             FROM causal_edges
             WHERE source_concept_id = :concept_id
             UNION ALL
             SELECT e.source_concept_id, e.target_concept_id, e.relation_type, p.depth + 1
             FROM causal_edges e
-            JOIN causal_path p ON e.source_concept_id = p.target_concept_id
+            JOIN causal_path p ON e.source_concept_id = p.target_id
             WHERE p.depth < :max_depth
         )
-        SELECT * FROM causal_edges WHERE ...;
+        SELECT 
+            p.source_id, 
+            p.target_id, 
+            p.rel_type, 
+            p.depth,
+            e.polarity,
+            e.weight,
+            e.mechanism_label,
+            e.compensating_params,
+            CASE 
+                WHEN p.rel_type = 'causes_defect' THEN 'defect'
+                WHEN p.rel_type = 'compensates' THEN 'parameter'
+                ELSE 'concept'
+            END AS target_node_type
+        FROM causal_path p
+        JOIN causal_edges e ON p.source_id = e.source_concept_id AND p.target_id = e.target_concept_id AND p.rel_type = e.relation_type;
         """
         ...
 ```
@@ -473,12 +494,20 @@ class EvidenceRepository:
 
 ### ② `WikiEntryService` (위키 본문 통합 조립 엔진)
 - **책임**:
-  1. `ConceptRepository.get_by_id(entry_id)` 호출
-  2. `PerspectiveRepository.get_by_concept_id(entry_id)` 호출
-  3. `CausalGraphRepository.get_relations_by_concept(entry_id)` 호출하여 relations DTO 번들 합성
-  4. `DeidentificationService.mask_perspective_cases(perspectives, user_role)` 실행
-  5. `ExplainerService.get_preloaded_explainers(entry_id)`를 실행하여 인라인 용어 요약 사전 적재
-  6. 완전한 `WikiEntryDetailResponse` DTO로 조립하여 반환.
+  1. `entry_id == 'home'` 또는 미지정 시:
+     - 온톨로지 지식 탐색 가이드, 4대 업무 분야 바로가기, L3 보안 규정 안내를 담은 **가상 웰컴 홈 엔트리 DTO**를 즉시 반환.
+  2. 일반 개념 상세 조회 시:
+     - `ConceptRepository.get_by_id(entry_id)` 호출
+     - `PerspectiveRepository.get_by_concept_id(entry_id)` 호출
+     - `CausalGraphRepository.get_relations_by_concept(entry_id)` 호출하여 relations DTO 번들 합성
+     - `DeidentificationService.mask_perspective_cases(perspectives, user_role)` 실행
+     - **3단계 팝업 1단계(0ms) 사전 적재**: `relations`에 포함된 타깃 개념들의 `summary`를 메모리/캐시에서 긁어와 `preloadedExplainers: Dict[str, str]` 맵을 즉시 조립 (마우스 호버 시 0ms 즉시 노출). 만약 사전 적재 맵에 없는 단어에 호버할 때만 프론트가 2단계 `ContextualExplainerController` 호출.
+     - 완전한 `WikiEntryDetailResponse` DTO로 조립하여 반환.
+
+### ③ `NavigationService` (좌측 카테고리 트리 서빙 엔진)
+- **책임**:
+  - `domainFacet` 파라미터가 누락된 경우 기본값으로 메인 도메인인 **`unit_process` (단위 공정)** 트리를 자동 폴백하여 서빙.
+  - `ConceptRepository.get_by_facet(facet)` 호출 결과를 공정 분류(`process_category`) 및 스케일 레벨(`scale_level`) 순으로 그룹화하여 `CategoryTreeResponse`로 합성.
 
 ---
 
@@ -1011,6 +1040,10 @@ class ComparisonTuningRepository:
 ### ⑥ `OntologyGapDetectorService` (지식 갭 감지 및 보안 마스킹 전담)
 - **책임**:
   - 매트릭스 계산 중 공인 실측치 부재(Gap)나 출처 간 수치 모순(Conflict) 감지.
+  - **주체 개념 1:1 확정 바인딩 규칙**:
+    - 대안 A의 셀(`cell_a`)에서 갭이 발생한 경우: `targetConceptId = session.target_a_id`, `targetConceptTitle = session.target_a_title`로 확정.
+    - 대안 B의 셀(`cell_b`)에서 갭이 발생한 경우: `targetConceptId = session.target_b_id`, `targetConceptTitle = session.target_b_title`로 확정.
+    - 에이전트가 복잡한 추론 없이 구멍 난 셀의 주체 개념을 100% 무결하게 티켓 발의 대상으로 지정하도록 규정.
   - **`DeidentificationService` 연계**: 요청자가 비인가자(`line_engineer`)일 경우 `inferredValue`를 `"[비식별화 보호 - L3 보안 인가 필요]"`로 치환하고 `isMasked=True` 설정.
 
 ### ⑦ `ComparisonExportService` (엔지니어링 리포트 내보내기 엔진)
@@ -1018,17 +1051,482 @@ class ComparisonTuningRepository:
 
 ---
 
-# 3. ✍️ [Tab 3] 검토·승인 센터 계층 설계 (작성 예정)
+# 3. ✍️ [Tab 3] 검토·승인 및 지식 거버넌스 센터 계층 설계
 
-*(사용자님과 다음 대화에서 Tab 3 Entity/DTO/Repository/Service 설계 후 통합 수록)*
+## 3.1 물리 Entity 스키마 설계 (Physical Database Schema)
+
+기존의 단일 텍스트 컬럼 덮어쓰기 및 JSON 컬럼 몰빵 구조를 전면 폐기하고, **검토 티켓 마스터 ➔ 지시문 대화 이력 ➔ 정합성 점검 리포트 ➔ WORM 불변 감사 로그로 이어지는 4대 정규화 물리 테이블로 재구축**합니다.
+
+```
+┌────────────────────────────────────────────────────────┐
+│              review_tickets (검토 티켓 마스터)         │
+├────────────────────────────────────────────────────────┤
+│ PK id, target_scope (existing/new_concept/causal_edge) │
+│    FK concept_id (NULLABLE), concept_title, title      │
+│    review_type, author, department, status             │
+│    current_version, target_version                     │
+│    working_draft (★ 단일 작업 초안 버퍼)               │
+│    presence_lock_holder, presence_lock_expires_at      │
+│    ticket_version (낙관적 락), approved_at, approved_by│
+└──────────────┬──────────────────────────┬──────────────┘
+               │ 1:N                      │ 1:N
+               ▼                          ▼
+┌──────────────────────────────┐ ┌──────────────────────────────┐
+│ review_directives (지시 이력)│ │review_integrity_checks (점검)│
+├──────────────────────────────┤ ├──────────────────────────────┤
+│ PK id                        │ │ PK id                        │
+│ FK ticket_id                 │ │ FK ticket_id                 │
+│    step_order                │ │    evidence_match_rate       │
+│    directive_text            │ │    has_ontology_conflict     │
+│    target_layer (specs/prose)│ │    impact_scope_count        │
+│    revised_draft             │ │    validation_details        │
+│    override_reason           │ │    conflict_details (JSON)   │
+│    created_at                │ │    status (PASS/WARN/FAIL)   │
+└──────────────────────────────┘ └──────────────────────────────┘
+                                          │ 1:N
+                                          ▼
+                               ┌────────────────────────────────┐
+                               │     audit_logs (WORM 감사로그) │
+                               ├────────────────────────────────┤
+                               │ PK id                          │
+                               │    audit_id                    │
+                               │ FK ticket_id                   │
+                               │    action_type (approve/reject)│
+                               │    actor (JSON)                │
+                               │    governance_snapshot (JSON)  │
+                               │    previous_log_hash           │
+                               │    entry_hash (SHA-256 Merkle) │
+                               │    digital_signature (HMAC)    │
+                               │    timestamp                   │
+                               └────────────────────────────────┘
+```
 
 ---
 
-# 3. ✍️ [Tab 3] 검토·승인 센터 계층 설계 (작성 예정)
+### [테이블 1] `review_tickets` (검토 티켓 물리 마스터 테이블)
+- **테이블명**: `review_tickets`
+- **책임**: 
+  - 공용 위키 개정 발의 및 사내 신규 개념/인과 에지 발의의 생애주기를 관리하는 루트 엔티티(Aggregate Root).
+  - **단일 작업 초안(`working_draft`) 버퍼 보존**: AI 지시문 수정본과 인간 직접 편집본을 이원화하지 않고 하나의 버퍼에 보존하여 초안 유실을 원천 차단.
+  - **다형성 티켓 스코프(`target_scope`) 수용**: 기존 개념 수정(`existing_concept`), 신규 개념 등록(`new_concept`), 신규 인과 에지 제안(`causal_relation`) 3대 발의를 모두 수용.
+- **컬럼 정의**:
 
-*(사용자님과 다음 대화에서 Tab 3 Entity/DTO/Repository/Service 설계 후 통합 수록)*
+| 컬럼명 | 물리 타입 | 제약 조건 | 설명 |
+| :--- | :--- | :--- | :--- |
+| `id` | `VARCHAR(64)` | `PRIMARY KEY` | 티켓 고유 식별자 (예: `rev-20261020-a1b2`) |
+| `target_scope` | `VARCHAR(32)` | `NOT NULL, DEFAULT 'existing_concept'` | 발의 스코프 (`existing_concept`, `new_concept`, `causal_relation`) |
+| `concept_id` | `VARCHAR(64)` | `NULLABLE, FK(concepts.id ON DELETE SET NULL), INDEX` | 대상 개념 ID (신규 개념 등록 시 NULL 허용) |
+| `concept_title` | `VARCHAR(128)` | `NOT NULL` | 대상 개념 명칭 (신규 개념 시 발의된 명칭) |
+| `title` | `VARCHAR(256)` | `NOT NULL` | 검토 티켓 발의 제목 |
+| `review_type` | `VARCHAR(32)` | `NOT NULL` | 검토 유형 (`파라미터 수정`, `오류 정정`, `신규 공정 편입`, `인과 에지 보완`) |
+| `author` | `VARCHAR(64)` | `NOT NULL, INDEX` | 발의자 사번/엔지니어 ID |
+| `department` | `VARCHAR(64)` | `NULLABLE` | 발의 부서 (예: `첨단패키징개발팀`) |
+| `submitted_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP, INDEX` | 발의 일시 |
+| `status` | `VARCHAR(16)` | `NOT NULL, DEFAULT 'pending', INDEX` | 상태 (`pending`, `approved`, `rejected`) |
+| `origin_type` | `VARCHAR(32)` | `NULLABLE` | 발의 출처 (`manual_expert`, `comparison_gap`, `deep_research`) |
+| `current_version` | `VARCHAR(16)` | `DEFAULT 'v1.2', NOT NULL` | 발의 시점 기준 버전 번호 |
+| `target_version` | `VARCHAR(16)` | `DEFAULT 'v1.3', NULLABLE` | 승인 시 승계될 목표 버전 번호 |
+| `current_content` | `TEXT` | `NOT NULL` | 발의 시점의 원본 스냅샷 텍스트 |
+| `working_draft` | `TEXT` | `NOT NULL` | **단일 작업 초안 버퍼** (AI 지시/직접 편집이 누적되는 단일 원본) |
+| `proposed_payload` | `JSON` | `NULLABLE` | 신규 개념/에지 발의 시 필요한 정규화 구조체 JSON |
+| `presence_lock_holder`| `VARCHAR(64)` | `NULLABLE` | 현재 편집 락을 점유 중인 엔지니어 ID |
+| `presence_lock_expires_at`| `DATETIME` | `NULLABLE` | 편집 락 만료 일시 (TTL 기준 자동 해제) |
+| `ticket_version` | `INTEGER` | `DEFAULT 1, NOT NULL` | 낙관적 동시성 락을 위한 버전 번호 |
+| `approved_at` | `DATETIME` | `NULLABLE` | 최종 승인 일시 |
+| `approved_by` | `VARCHAR(64)` | `NULLABLE` | 최종 승인권자 ID (Chief Reviewer) |
+| `reject_reason` | `TEXT` | `NULLABLE` | 반려 시 사유 전문 |
+| `created_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP` | 티켓 생성 일시 |
+| `updated_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP` | 최종 수정 일시 |
 
-*(사용자님과 다음 대화에서 Tab 3 Entity/DTO/Repository/Service 설계 후 통합 수록)*
+---
+
+### [테이블 2] `review_directives` (전문가 AI 지시문 대화 이력 테이블)
+- **테이블명**: `review_directives`
+- **책임**: 전문가가 하단 지시문 바에서 입력한 자연어 수정 지시와 AI 재작성 초안의 누적 변경 이력을 영구 보존.
+- **컬럼 정의**:
+
+| 컬럼명 | 물리 타입 | 제약 조건 | 설명 |
+| :--- | :--- | :--- | :--- |
+| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | 지시문 이력 고유 ID |
+| `ticket_id` | `VARCHAR(64)` | `NOT NULL, FK(review_tickets.id ON DELETE CASCADE), INDEX` | 연계 검토 티켓 ID |
+| `step_order` | `INTEGER` | `NOT NULL` | 지시문 수행 회차 (1, 2, 3...) |
+| `directive_text`| `TEXT` | `NOT NULL` | 전문가가 입력한 자연어 지시문 |
+| `target_layer` | `VARCHAR(32)` | `NOT NULL, DEFAULT 'hybrid'` | 수정 대상 레이어 (`specs`, `relations`, `prose`, `hybrid`) |
+| `revised_draft` | `TEXT` | `NOT NULL` | 본 지시문 수행 후 재작성된 초안 결과 |
+| `override_reason`| `TEXT` | `NULLABLE` | 출처 수치 변경 시 필수 입력된 사유 |
+| `created_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP` | 지시문 처리 일시 |
+
+---
+
+### [테이블 3] `review_integrity_checks` (온톨로지 무결성 점검 이력 테이블)
+- **테이블명**: `review_integrity_checks`
+- **책임**: 
+  - 지시문 반영 또는 직접 편집 저장 시마다 자동 산출되는 3대 무결성 지표의 이력을 정규화 저장.
+  - 승인 집행 시 무결성 통과 여부를 검증하는 **승인 차단 게이트웨이(`ApprovalBlockerGate`)의 물리적 근거**.
+- **컬럼 정의**:
+
+| 컬럼명 | 물리 타입 | 제약 조건 | 설명 |
+| :--- | :--- | :--- | :--- |
+| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | 점검 이력 고유 ID |
+| `ticket_id` | `VARCHAR(64)` | `NOT NULL, FK(review_tickets.id ON DELETE CASCADE), INDEX` | 연계 검토 티켓 ID |
+| `evidence_match_rate` | `NUMERIC(3, 2)` | `NOT NULL, DEFAULT 1.00` | 공인 출처 불변 제약 준수율 (0.00 ~ 1.00) |
+| `has_ontology_conflict`| `BOOLEAN` | `NOT NULL, DEFAULT FALSE` | 인과 모순 및 물리적 제약 충돌 여부 |
+| `impact_scope_count` | `INTEGER` | `NOT NULL, DEFAULT 1` | 수정 시 영향받는 2-Hop 인과 연관 개념 수 |
+| `validation_details` | `TEXT` | `NOT NULL` | 점검 요약 텍스트 |
+| `conflict_details` | `JSON` | `DEFAULT '[]'` | 충돌 발생 시 상세 원인-결함 체인 목록 |
+| `status` | `VARCHAR(16)` | `NOT NULL, DEFAULT 'PASS'` | 종합 점검 판정 (`PASS`, `WARN`, `FAIL`) |
+| `created_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP` | 점검 일시 |
+
+---
+
+### [테이블 4] `audit_logs` (WORM 불변 머클 해시 감사 로그 테이블)
+- **테이블명**: `audit_logs`
+- **책임**: WORM(Write Once, Read Many) 원칙에 입각하여 승인 및 반려 시 머클 SHA-256 해시 체인과 HMAC 서명을 영구 기록.
+- **컬럼 정의**:
+
+| 컬럼명 | 물리 타입 | 제약 조건 | 설명 |
+| :--- | :--- | :--- | :--- |
+| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | 순차 물리 ID |
+| `audit_id` | `VARCHAR(64)` | `NOT NULL, UNIQUE, INDEX` | 감사 로그 고유 식별자 (`aud-YYYYMMDDHHMMSS-...`) |
+| `ticket_id` | `VARCHAR(64)` | `NOT NULL, INDEX` | 대상 검토 티켓 ID |
+| `concept_id` | `VARCHAR(64)` | `NULLABLE, INDEX` | 대상 온톨로지 개념 ID |
+| `action_type` | `VARCHAR(32)` | `NOT NULL` | 거버넌스 집행 유형 (`approve`, `reject`) |
+| `actor` | `JSON` | `NOT NULL` | 집행자 정보 (`{ "userId": "...", "role": "chief_reviewer" }`) |
+| `governance_snapshot` | `JSON` | `NOT NULL` | 승인 당시 적용 버전, 사유, 변경 초안 요약 스냅샷 |
+| `previous_log_hash` | `VARCHAR(64)` | `NOT NULL` | 직전 감사 로그의 `entry_hash` (해시 체인 연결) |
+| `entry_hash` | `VARCHAR(64)` | `NOT NULL` | 본 감사 로그의 SHA-256 머클 해시 |
+| `digital_signature` | `TEXT` | `NULLABLE` | HMAC-SHA256 디지털 서명 |
+| `timestamp` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP, INDEX` | 감사 로그 확정 일시 |
+
+---
+
+## 3.2 DTO 계약 스펙 설계 (Pydantic Data Transfer Objects - 8종 전수)
+
+### ① 티켓 목록 & 페이징 DTO (`GET /review-tickets`)
+```python
+# 1. 티켓 목록 단건 요약 DTO
+class ReviewTicketListItemDTO(BaseModel):
+    id: str
+    targetScope: str                   # "existing_concept" | "new_concept" | "causal_relation"
+    conceptId: Optional[str] = None
+    conceptTitle: str
+    title: str
+    reviewType: str
+    author: str
+    department: Optional[str] = None
+    submittedAt: str
+    status: str                        # "pending" | "approved" | "rejected"
+    originType: Optional[str] = None
+    currentVersion: str
+    targetVersion: Optional[str] = None
+    integrityStatus: str               # "PASS" | "WARN" | "FAIL"
+    impactScopeCount: int
+
+# 2. 상단 탭 숫자 뱃지 번들 DTO
+class ReviewTabCountsDTO(BaseModel):
+    pending: int
+    approved: int
+    rejected: int
+
+# 3. 티켓 목록 페이징 종합 응답 DTO (ReviewTicketPageResponse)
+class ReviewTicketPageResponse(BaseModel):
+    items: List[ReviewTicketListItemDTO]
+    totalCount: int
+    hasMore: bool
+    offset: int
+    limit: int
+    tabCounts: ReviewTabCountsDTO      # 상단 탭 [대기중(12)] [승인완료(38)] [반려됨(5)] 뱃지 번들
+```
+
+### ② 2-Pane 검토 상세 워크스페이스 DTO (`GET /review-tickets/{id}`, `POST /presence`)
+```python
+# 4. 정합성 점검 보고서 상세 DTO
+class IntegrityReportDTO(BaseModel):
+    evidenceMatchRate: float
+    hasOntologyConflict: bool
+    impactScopeCount: int
+    validationDetails: str
+    conflictDetails: List[Dict[str, Any]] = []
+    status: str                        # "PASS" | "WARN" | "FAIL"
+
+# 5. 지시문 대화 이력 항목 DTO
+class DirectiveHistoryItemDTO(BaseModel):
+    stepOrder: int
+    directiveText: str
+    targetLayer: str
+    revisedDraft: str
+    overrideReason: Optional[str] = None
+    createdAt: str
+
+# 6. 티켓 2-Pane 상세 종합 DTO (ReviewTicketDetailDTO)
+class ReviewTicketDetailDTO(BaseModel):
+    id: str
+    targetScope: str
+    conceptId: Optional[str] = None
+    conceptTitle: str
+    title: str
+    reviewType: str
+    author: str
+    department: Optional[str] = None
+    submittedAt: str
+    status: str
+    currentVersion: str
+    targetVersion: Optional[str] = None
+    currentContent: str                # 좌측 Pane: 원본 지식 본문
+    workingDraft: str                  # 우측 Pane: 단일 작업 초안 (AI+인간 누적본)
+    ticketVersion: int                 # 낙관적 동시성 락 버전 번호
+    integrityReport: IntegrityReportDTO
+    directiveHistory: List[DirectiveHistoryItemDTO]
+    currentEditor: Optional[str] = None
+    isLocked: bool = False             # 타 엔지니어 편집 락 점유 여부
+
+# 7. Presence Lock 요청 및 응답 DTO
+class PresenceLockRequest(BaseModel):
+    userId: str
+    action: str                        # "acquire" | "renew" | "release" | "status"
+    ttlSeconds: int = 30
+
+class PresenceLockResponse(BaseModel):
+    acquired: bool
+    holder: Optional[str] = None
+    isLocked: bool
+    message: str
+```
+
+### ③ 전문가 AI 보완 지시문 DTO (`POST /review-tickets/{id}/directive`)
+```python
+# 8. AI 지시문 요청 DTO
+class DirectiveRequest(BaseModel):
+    directiveText: str                 # "가압력 150N 상한선에 따른 보상 파라미터 언급 추가해줘"
+    overrideReason: Optional[str] = None # 실측치 상충 시 필수 입력 사유
+
+# 9. AI 지시문 응답 DTO
+class DirectiveResponse(BaseModel):
+    ticketId: str
+    stepOrder: int
+    workingDraft: str                  # 지시사항이 반영된 최신 단일 초안
+    integrityReport: IntegrityReportDTO
+    addedDirective: DirectiveHistoryItemDTO
+```
+
+### ④ 직접 편집 저장 & 가상 미리보기 DTO (`PUT /draft`, `GET /wiki-preview`)
+```python
+# 10. 섹션별 정규화 diff 패치 DTO
+class SectionDiffPatchDTO(BaseModel):
+    sectionKey: str                    # "principles" | "limitations" | "specifications" | "summary"
+    targetId: Optional[int] = None     # 물리 테이블 PK (신규 항목 시 None)
+    field: str                         # 수정할 컬럼명 ("description", "formula", "val_numeric")
+    oldValue: Optional[str] = None
+    newValue: str
+
+# 11. 직접 편집 저장 요청 및 응답 DTO
+class DraftSaveRequest(BaseModel):
+    editedContent: str                 # 전체 마크다운 작업 초안
+    ticketVersion: int                 # 낙관적 락 버전 번호
+    patches: Optional[List[SectionDiffPatchDTO]] = None # 정규화 분해 반영용 섹션별 패치
+
+class DraftSaveResponse(BaseModel):
+    ticketId: str
+    ticketVersion: int
+    workingDraft: str
+    integrityReport: IntegrityReportDTO
+    updatedAt: str
+
+# 12. 공용 위키 가상 렌더링 미리보기 응답 DTO (ReviewWikiPreviewResponse)
+class WikiPreviewResponse(BaseModel):
+    ticketId: str
+    conceptId: Optional[str] = None
+    targetVersion: str
+    previewConcept: Dict[str, Any]      # 메모리 상에서 가상 병합된 완전한 위키 상세 DTO
+    diffSummary: Dict[str, Any]         # 변경된 단락 개수 및 추가/수정 하이라이트 요약
+```
+
+### ⑤ 거버넌스 승인 및 반려 집행 DTO (`POST /approve`, `POST /reject`)
+```python
+# 13. 승인 집행 요청 DTO
+class ReviewApproveRequest(BaseModel):
+    approvedBy: str                    # 승인자 사번/ID (Chief Reviewer)
+    overrideReason: Optional[str] = None # 무결성 경고 또는 사유 존재 시 최종 승인 사유
+
+# 14. 반려 집행 요청 DTO
+class ReviewRejectRequest(BaseModel):
+    rejectedBy: str                    # 반려 검토관 ID
+    rejectReason: str                  # 반려 사유 상세
+
+# 15. 거버넌스 의사결정 집행 공통 응답 DTO (ReviewDecisionResponse)
+class ReviewDecisionResponse(BaseModel):
+    ticketId: str
+    status: str                        # "approved" | "rejected"
+    appliedVersion: Optional[str] = None # 승인된 새 버전 번호 (예: "v1.3")
+    auditLogId: str                    # 생성된 머클 감사 로그 ID
+    message: str
+```
+
+---
+
+## 3.3 Repository 계층 설계 (Data Access Layer - 2개 Repository)
+
+### ① `ReviewTicketRepository` 인터페이스
+```python
+class ReviewTicketRepository:
+    def __init__(self, db: AsyncSession):
+        self.db = db
+
+    async def list_tickets(
+        self, 
+        status: Optional[str], 
+        concept_id: Optional[str], 
+        limit: int = 20, 
+        offset: int = 0
+    ) -> List[ReviewTicketModel]:
+        """필터링 목록 조회 (기본값 status='pending')."""
+        stmt = select(ReviewTicketModel)
+        if status:
+            stmt = stmt.where(ReviewTicketModel.status == status)
+        if concept_id:
+            stmt = stmt.where(ReviewTicketModel.concept_id == concept_id)
+        stmt = stmt.order_by(ReviewTicketModel.submitted_at.desc()).limit(limit).offset(offset)
+        return (await self.db.execute(stmt)).scalars().all()
+
+    async def count_by_status(self) -> Dict[str, int]:
+        """상단 탭 숫자 뱃지용 상태별 건수 단일 쿼리 집계."""
+        stmt = select(ReviewTicketModel.status, func.count(ReviewTicketModel.id)).group_by(ReviewTicketModel.status)
+        rows = (await self.db.execute(stmt)).all()
+        counts = {"pending": 0, "approved": 0, "rejected": 0}
+        for st, cnt in rows:
+            if st in counts:
+                counts[st] = cnt
+        return counts
+
+    async def get_by_id_with_relations(self, ticket_id: str) -> Optional[ReviewTicketModel]:
+        """티켓 단건 조회 (directives 및 integrity_checks Eager Loading)."""
+        stmt = (
+            select(ReviewTicketModel)
+            .options(
+                selectinload(ReviewTicketModel.directives),
+                selectinload(ReviewTicketModel.integrity_checks)
+            )
+            .where(ReviewTicketModel.id == ticket_id)
+        )
+        return (await self.db.execute(stmt)).scalars().first()
+
+    async def update_draft_with_optimistic_lock(
+        self, 
+        ticket_id: str, 
+        new_draft: str, 
+        expected_version: int
+    ) -> bool:
+        """낙관적 동시성 락을 적용한 단일 작업 초안 갱신."""
+        stmt = (
+            update(ReviewTicketModel)
+            .where(ReviewTicketModel.id == ticket_id)
+            .where(ReviewTicketModel.ticket_version == expected_version)
+            .values(
+                working_draft=new_draft,
+                ticket_version=expected_version + 1,
+                updated_at=datetime.utcnow()
+            )
+        )
+        result = await self.db.execute(stmt)
+        await self.db.commit()
+        return result.rowcount > 0
+```
+
+### ② `AuditLogRepository` 인터페이스
+```python
+class AuditLogRepository:
+    def __init__(self, db: AsyncSession):
+        self.db = db
+
+    async def get_latest_entry_hash(self) -> str:
+        """머클 해시 체인 연결을 위한 최신 감사 로그의 entry_hash 조회."""
+        stmt = select(AuditLogModel.entry_hash).order_by(AuditLogModel.id.desc()).limit(1)
+        latest_hash = (await self.db.execute(stmt)).scalar()
+        return latest_hash if latest_hash else "0" * 64
+
+    async def create_audit_entry(self, entry: AuditLogModel) -> AuditLogModel:
+        """불변 WORM 감사 로그 레코드 영구 저장."""
+        self.db.add(entry)
+        await self.db.commit()
+        await self.db.refresh(entry)
+        return entry
+
+    async def list_by_ticket_id(self, ticket_id: str) -> List[AuditLogModel]:
+        """티켓에 귀속된 감사 체인 이력 조회."""
+        stmt = select(AuditLogModel).where(AuditLogModel.ticket_id == ticket_id).order_by(AuditLogModel.id.asc())
+        return (await self.db.execute(stmt)).scalars().all()
+
+    async def verify_chain_integrity(self, ticket_id: str) -> bool:
+        """해당 티켓 감사 체인의 머클 해시 및 HMAC 위변조 여부 전수 검증."""
+        logs = await self.list_by_ticket_id(ticket_id)
+        prev_hash = "0" * 64
+        for log in logs:
+            if log.previous_log_hash != prev_hash:
+                return False
+            # entry_hash 재계산 및 디지털 서명 검증
+            recalculated = hashlib.sha256(
+                f"{log.previous_log_hash}|{log.audit_id}|{log.ticket_id}|{log.action_type}|{json.dumps(log.actor, sort_keys=True)}|{json.dumps(log.governance_snapshot, sort_keys=True)}|{log.timestamp.isoformat()}".encode('utf-8')
+            ).hexdigest()
+            if recalculated != log.entry_hash:
+                return False
+            prev_hash = log.entry_hash
+        return True
+```
+
+---
+
+## 3.4 Service 계층 설계 (Business Logic Layer - 5대 전문 Service 전수)
+
+### ① `ReviewTicketService` (티켓 대기열 및 상세 오케스트레이터)
+- **책임**:
+  - `get_ticket_list(status, concept_id, limit, offset)`: 기본값 `status="pending"`으로 대기열 서빙, `count_by_status()`를 병렬 호출하여 `tabCounts`를 번들 조립.
+  - `get_ticket_detail(ticket_id)`: 원본 본문(`current_content`), 최신 단일 초안(`working_draft`), 3대 정합성 보고서, 지시문 대화 이력, 현재 동시 접속자 락 상태를 2-Pane DTO로 합성.
+
+### ② `PresenceLockService` (비차단 분산 편집 락 전담 엔진)
+- **책임**:
+  - `acquire_lock(ticket_id, user_id, ttl=30)`: Redis 또는 인메모리 락 매니저를 통해 점유자 확인. 미점유 시 획득 성공, 타인 점유 시 읽기 전용 상태 안내.
+  - `renew_lock(ticket_id, user_id, ttl=30)`: 본인 락 유지 시간 연장.
+  - `release_lock(ticket_id, user_id)`: 탭 퇴장 또는 승인/반려 시 안전하게 락 즉시 반납.
+
+### ③ `ReviewDirectiveService` (전문가 AI 보완 지시문 실행 엔진)
+- **책임**:
+  - 엔지니어의 자연어 지시문 수신 ➔ `directive_agent` 호출.
+  - 공인 온톨로지 에지(`CausalEdgeModel`) 탐색을 결합하여 상충 관계 및 보상 파라미터 백서 문체 합성.
+  - 단일 작업 초안(`working_draft`)을 즉시 갱신하고, `review_directives` 테이블에 실행 이력 INSERT.
+  - 3대 정합성 점검(출처 매칭률, 온톨로지 모순, 영향 범위)을 재수행하여 `review_integrity_checks` 테이블 갱신.
+
+### ④ `ReviewDraftSaveService` (직접 편집 실시간 저장 & 출처 불변 가드레일)
+- **책임**:
+  - **`SourceImmutabilityValidator` (출처 삭제 방어 가드레일)**:
+    - 직접 편집 초안 내에 원본 공인 출처 각주(`\[E-\d+\]`) 목록이 온전히 보존되어 있는지 정규식 전수 검사.
+    - 사용자가 백스페이스로 실수 삭제한 경우, 누락된 출처 뱃지를 문장 끝에 자동으로 복원 주입하여 공인 출처 영구 소실을 원천 차단.
+  - **낙관적 동시성 락(`ticket_version`) 검증**: 판본 충돌 발생 시 HTTP 409 Conflict 반환.
+  - 단일 버퍼 `working_draft` 저장 및 갱신된 DTO 반환.
+
+### ⑤ `ReviewWikiPreviewService` (승인 전 공용 위키 가상 미리보기 엔진)
+- **책임**:
+  - **Virtual Merge (메모리 상 가상 오버레이 병합)**:
+    - Tab 1의 `WikiEntryService` 조립 로직을 재사용.
+    - DB 원본 개념의 데이터(카테고리, 2-Hop 서브그래프, 연관 에지) 위에 현재 티켓의 최신 `working_draft`를 메모리 상에서 덮어씌움.
+    - 원본 텍스트 대비 변경된 단락에 `<mark class="diff-added">` 하이라이트 클래스를 자동 바인딩하여 완전한 `WikiEntryDetailResponse` 규격으로 사전 렌더링 서빙.
+  - 프로덕션 DB 오염 0% 보장.
+
+### ⑥ `ReviewDecisionService` (거버넌스 승인 및 원자적 위키 반영 엔진)
+- **책임**:
+  - **1. 권한 검증**: 요청 헤더 `X-User-Role`이 `chief_reviewer`인지 엄격 검증 (일반 `line_engineer`는 HTTP 403 Forbidden 차단).
+  - **2. `ApprovalBlockerGate` (승인 차단 게이트웨이)**:
+    - 최신 정합성 점검 결과가 `status == 'FAIL'`이거나 인과 모순(`has_ontology_conflict == True`)이 존재하는 경우:
+    - 사유(`overrideReason`)가 비어 있으면 **HTTP 422 Unprocessable Entity로 승인을 물리 차단**.
+  - **3. 단일 원자적 DB 트랜잭션 (Atomic Decomposition)**:
+    - `working_draft`에 포함된 섹션별 패치를 분해(Decomposition)하여, 공용 위키의 각 정규화 물리 테이블에 반영:
+      - `concepts`: `version` 판본 승계 (예: `v1.2` ➔ `v1.3`), `summary` 갱신.
+      - `concept_principles`: 수정/추가된 작동 원리 단계 UPDATE/INSERT.
+      - `concept_limitations`: 갱신된 공정 한계 및 보상 파라미터 UPDATE/INSERT.
+      - `perspective_specifications`: 변경된 공정 관점별 물리 수치 UPDATE/INSERT.
+  - **4. WORM 머클 감사 체인 확정**:
+    - 직전 `entry_hash`를 조회하여 현재 승인 스냅샷과 결합한 새 SHA-256 해시를 생성하고 HMAC 전자 서명과 함께 `audit_logs`에 INSERT.
+  - **5. 위키 캐시 즉시 무효화 (0ms 전사 공표)**:
+    - `concept:detail:{id}`, `concept:subgraph:{id}:*` 캐시를 즉시 제거하여 모든 사용자가 새로 승인된 위키를 0ms 지연으로 열람 가능하도록 보장.
 
 ---
 
