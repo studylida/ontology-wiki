@@ -84,7 +84,10 @@
 
 ### [테이블 2] `concept_principles` (공정 물리 작동 원리 및 단계 정규화 테이블)
 - **테이블명**: `concept_principles`
-- **책임**: 2번 섹션 "물리적 작동 원리"의 단계별(Step-by-Step) 공정 메커니즘과 KaTeX 수식 정규화 관리.
+- **책임**: 
+  - 2번 섹션 "물리적 작동 원리"의 단계별(Step-by-Step) 공정 메커니즘과 KaTeX 수식 정규화 관리.
+  - 공인 출처 증빙(`evidence_id`)을 물리 외래키로 연결하여 원리 지식의 신뢰성 보장.
+  - **수식 결합 원리**: 프론트엔드에서는 `formula`를 KaTeX로 시각화하고, 백엔드 AI 에이전트는 본문 `content`와 `formula`에 기술된 물리 법칙(예: 하겐-푸아죄유 방정식 \(Q = \frac{\pi r^4 \Delta P}{8 \eta L}\))을 상충 관계(Trade-off) 추론의 근거(Grounding Anchor)로 활용.
 - **컬럼 정의**:
 
 | 컬럼명 | 물리 타입 | 제약 조건 | 설명 |
@@ -95,6 +98,7 @@
 | `title` | `VARCHAR(128)` | `NOT NULL` | 단계 제목 (예: `일괄 솔더 리플로우 (Mass Reflow)`) |
 | `content` | `TEXT` | `NOT NULL` | 물리 원리 설명 본문 |
 | `formula` | `TEXT` | `NULLABLE` | KaTeX 수식 텍스트 (예: `Q = \frac{\pi r^4 \Delta P}{8 \eta L}`) |
+| `evidence_id` | `VARCHAR(64)` | `NULLABLE, FK(evidence_sources.id ON DELETE SET NULL), INDEX` | **공인 출처 증빙 ID (`E-01`)** |
 | `created_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP` | 생성 일시 |
 | `updated_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP` | 수정 일시 |
 
@@ -203,6 +207,7 @@ class PrincipleItemDTO(BaseModel):
     title: str
     content: str
     formula: Optional[str] = None
+    evidenceId: Optional[str] = None     # 🌟 공인 출처 [E-01] 외래키 연결
 
 # 2. 공정 한계 DTO
 class LimitationItemDTO(BaseModel):
@@ -210,14 +215,26 @@ class LimitationItemDTO(BaseModel):
     description: str
     evidenceId: Optional[str] = None
 
-# 3. 양산 수치 사양 DTO (마스킹 적용 결과)
-class SpecificationDTO(BaseModel):
+# 3-A. 내부 계층 전용 원시 사양 DTO (SecretStr 철통 보안 적용)
+class RawPerspectiveSpecificationDTO(BaseModel):
+    id: int
+    caseId: str
     label: str
-    value: str               # 권한 부족 시 "[비식별화 보호 - L3 보안 인가 필요]"
+    valNumeric: SecretStr                # 🌟 Pydantic SecretStr: repr/str/로그 출력 시 '**********'로 자동 마스킹 (터미널/로그 평문 유출 0% 보장)
     unit: str
     criteria: Optional[str] = None
     role: str
-    isMasked: bool           # L3 마스킹 적용 여부
+    isConfidentialL3: bool
+    evidenceId: Optional[str] = None
+
+# 3-B. 외부 클라이언트 서빙용 사양 DTO (마스킹 적용 결과)
+class SpecificationDTO(BaseModel):
+    label: str
+    value: str                           # 인가자: val_numeric.get_secret_value() ➔ "260" / 비인가자: "[비식별화 보호 - L3 보안 인가 필요]"
+    unit: str
+    criteria: Optional[str] = None
+    role: str
+    isMasked: bool                       # L3 마스킹 적용 여부
     evidenceId: Optional[str] = None
 
 # 4. 다도메인 실무 사례 DTO
@@ -382,9 +399,12 @@ class EvidenceRepository:
 
 ### ① `DeidentificationService` (보안 비식별화 전담 엔진)
 - **책임**: 요청자의 보안 권한 등급(`user_role`)과 각 수치 사양의 `is_confidential_l3` 플래그를 대조하여 수치 가림 처리.
-- **비즈니스 규칙**:
-  - `user_role`이 `chief_reviewer` 또는 `cleared_engineer`인 경우: 원본 수치(`val_numeric`) 노출 (`isMasked = False`).
-  - 일반 `line_engineer` 또는 게스트인 경우: `is_confidential_l3 == True`인 모든 사양의 `value`를 `"[비식별화 보호 - L3 보안 인가 필요]"`로 치환 (`isMasked = True`).
+- **비즈니스 규칙 (SecretStr 기반 무누출 파이프라인)**:
+  - 내부적으로 모든 수치는 `val_numeric: SecretStr`로 안전하게 래핑되어 있어 터미널/로그 평문 노출이 원천 차단됨.
+  - `user_role`이 `chief_reviewer` 또는 `cleared_engineer`인 인가자인 경우:
+    - 명시적으로 `spec.val_numeric.get_secret_value()`를 호출하여 실제 수치 평문(예: `"260"`)을 DTO `value`에 바인딩하고 `isMasked = False`로 설정.
+  - 일반 `line_engineer` 또는 게스트인 비인가자인 경우:
+    - `is_confidential_l3 == True`인 모든 사양의 DTO `value`를 `"[비식별화 보호 - L3 보안 인가 필요]"`로 치환하고 `isMasked = True` 플래그를 설정. (절대 `get_secret_value()`를 호출하지 않음)
 
 ### ② `WikiEntryService` (위키 본문 통합 조립 엔진)
 - **책임**:
