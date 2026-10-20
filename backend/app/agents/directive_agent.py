@@ -102,13 +102,13 @@ class DirectiveAgent:
 
         from backend.app.core.citation_manager import EvidenceCitationManager
         raw_draft = f"{base_draft}\n\n{highlighted_sentence}"
-        revised_draft, restored_tags, is_deprecated = EvidenceCitationManager.validate_and_restore(
-            original_text=base_draft,
-            edited_text=raw_draft,
-            override_reason=override_reason or ""
+        revised_draft, restored_tags, deprecated_tags = EvidenceCitationManager.validate_and_restore(
+            base_draft, raw_draft, override_reason=override_reason
         )
-        if restored_tags and not is_deprecated:
+        if restored_tags:
             logger.info(f"DirectiveAgent: Automatically restored public citations {restored_tags} to draft.")
+        if deprecated_tags:
+            logger.info(f"DirectiveAgent: Officially deprecated public citations {deprecated_tags} based on reason.")
 
         # 4. 정형 패치 생성
         structured_patches = {

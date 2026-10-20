@@ -53,48 +53,36 @@ class EvidenceCitationManager:
         original_text: str,
         edited_text: str,
         allow_citation_deletion: bool = False,
-        override_reason: str = ""
-    ) -> Tuple[str, List[str], bool]:
-        """사용자가 직접 편집 중 누락된 공인 출처 각주를 감지하고 복원 여부를 판단합니다.
+        override_reason: Optional[str] = None
+    ) -> Tuple[str, List[str], List[str]]:
+        """사용자가 직접 편집 중 누락된 공인 출처 각주를 감지하고 복원 또는 공식 폐기를 처리합니다.
         
-        복원 원칙:
-        1. 의도적 폐기(Deprecation) 인가:
-           사용자가 allow_citation_deletion=True로 명시했거나, 거버넌스 사유(override_reason)에
-           '폐기', '삭제', '구버전', '구 규격', '세대 교체', 'deprecated' 등의 사유를 기재한 경우
-           ➔ 강제 복원을 수행하지 않고 깔끔하게 삭제 인가 (is_deprecated=True 반환).
-        2. 단순 실수 누락:
-           - 단순 태그만 삭제된 경우: 편집문 끝에 태그 복원 주입.
-           - 출처 문장 자체가 통째로 삭제된 경우:
-             원문의 핵심 근거 문장 자체를 '[공인 출처 인용 근거 보존] 원문장 [E-xx]' 형태로 복원하여
-             공학적 데이터와 출처 문맥이 영구 소실되는 것을 원천 방어.
+        복원 및 공식 폐기(Deprecation) 원칙:
+        1. 공식 폐기 인가: 사용자가 사유(override_reason)에 '폐기', '삭제', '구버전', '세대 교체' 등을 명시했거나
+           allow_citation_deletion=True인 경우 강제 복원 없이 영구 폐기를 공식 인가합니다.
+        2. 단순 실수 누락: 명시적 폐기 사유가 없는 경우, 원문의 핵심 근거 문장과 태그를 안전하게 복원합니다.
 
         Returns:
-            Tuple[str, List[str], bool]: (최종 본문, 복원된 태그 목록, 출처 공식 폐기 여부)
+            Tuple[str, List[str], List[str]]: (처리된 본문, 복원된 태그 목록, 공식 폐기 인가된 태그 목록)
         """
         orig_citations = set(EvidenceCitationManager.parse_citations(original_text))
         edited_citations = set(EvidenceCitationManager.parse_citations(edited_text))
 
         missing_citations = orig_citations - edited_citations
         if not missing_citations:
-            return edited_text, [], False
+            return edited_text, [], []
 
         sorted_missing = sorted(list(missing_citations))
 
-        # 🌟 의도적 폐기(Deprecation) 감지
-        deprecation_keywords = ["폐기", "삭제", "구버전", "구 규격", "세대 교체", "deprecated", "대체"]
-        is_intentional_deprecation = (
-            allow_citation_deletion or
-            any(k in (override_reason or "").lower() for k in deprecation_keywords)
-        )
+        # 🌟 사람의 명시적 폐기 사유 검증 (Human-in-the-Loop 공식 폐기 인가)
+        DEPRECATION_KEYWORDS = {"폐기", "삭제", "제거", "deprecated", "구버전", "세대 교체", "호환 제외", "파기"}
+        reason_text = (override_reason or "").lower()
+        is_explicit_deprecation = allow_citation_deletion or any(k in reason_text for k in DEPRECATION_KEYWORDS)
 
-        if is_intentional_deprecation:
-            logger.info(
-                f"Citations {sorted_missing} intentionally deprecated with reason: '{override_reason}'. "
-                f"Permitting deletion without forced restoration."
-            )
-            return edited_text, sorted_missing, True
+        if is_explicit_deprecation:
+            logger.info(f"Official citation deprecation authorized for tags: {sorted_missing}. (Reason: {override_reason})")
+            return edited_text, [], sorted_missing
 
-        # 실수 누락 복원 처리
         orig_sentences = EvidenceCitationManager.extract_citation_sentences(original_text)
 
         restoration_blocks: List[str] = []
@@ -102,8 +90,11 @@ class EvidenceCitationManager:
 
         for tag in sorted_missing:
             orig_sentence = orig_sentences.get(tag)
+            # 원문 문장의 핵심 키워드가 편집문에도 없는지 확인 (문장 통째 삭제 여부 판별)
             if orig_sentence:
+                # 태그를 제외한 순수 문장
                 clean_orig_sentence = re.sub(r"\[E-\d+\]", "", orig_sentence).strip()
+                # 원문 문장의 주요 단어 중 절반 이상이 편집문에서 사라졌다면 '문장 통째 삭제'로 간주
                 words = [w for w in clean_orig_sentence.split() if len(w) >= 2]
                 match_count = sum(1 for w in words if w in edited_text)
                 is_sentence_deleted = (len(words) > 0 and (match_count / len(words)) < 0.4)
@@ -125,7 +116,7 @@ class EvidenceCitationManager:
             f"Detected missing citations in human edits: {sorted_missing}. "
             f"Automatically restored (Sentences: {len(restoration_blocks)}, Tags: {len(simple_tag_restores)})."
         )
-        return restored_text, sorted_missing, False
+        return restored_text, sorted_missing, []
 
     @staticmethod
     async def promote_to_evidence_source(
