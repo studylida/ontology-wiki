@@ -90,7 +90,7 @@ class PresenceLockRequest(BaseModel):
     model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
 
     userId: str = Field(..., alias="user_id", serialization_alias="userId", description="요청 엔지니어 ID")
-    action: Literal["acquire", "renew", "release", "status"] = Field("acquire", description="락 제어 액션")
+    action: Literal["acquire", "renew", "release", "status", "steal"] = Field("acquire", description="락 제어 액션")
     ttlSeconds: int = Field(30, alias="ttl_seconds", serialization_alias="ttlSeconds", ge=5, le=300, description="락 유효 시간(초)")
 
 

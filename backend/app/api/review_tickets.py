@@ -261,22 +261,38 @@ async def manage_presence_lock(
             )
 
     elif action == "renew":
-        holder = await cache_manager.get_presence_holder(ticket_id)
-        if holder == user_id:
-            await cache_manager.acquire_presence_lock(ticket_id, user_id, ttl_seconds=ttl)
+        success, reason = await cache_manager.renew_presence_lock(ticket_id, user_id, ttl_seconds=ttl)
+        if success:
             return PresenceLockResponse(
                 acquired=True,
                 holder=user_id,
                 is_locked=True,
                 message=f"편집 락 유지 시간이 {ttl}초로 연장되었습니다."
             )
+        elif reason == "max_hold_exceeded":
+            return PresenceLockResponse(
+                acquired=False,
+                holder=None,
+                is_locked=False,
+                message="최대 점유 상한선(10분)을 초과하여 편집 락이 자동 만료되었습니다."
+            )
         else:
+            holder = await cache_manager.get_presence_holder(ticket_id)
             return PresenceLockResponse(
                 acquired=False,
                 holder=holder,
                 is_locked=bool(holder),
                 message="락 소유권이 없거나 이미 만료되었습니다."
             )
+
+    elif action == "steal":
+        success = await cache_manager.steal_presence_lock(ticket_id, user_id, ttl_seconds=ttl)
+        return PresenceLockResponse(
+            acquired=success,
+            holder=user_id if success else None,
+            is_locked=success,
+            message="편집 락을 강제 회수(Steal Lock)하여 획득했습니다." if success else "락 회수에 실패했습니다."
+        )
 
     elif action == "release":
         success = await cache_manager.release_presence_lock(ticket_id, user_id)
