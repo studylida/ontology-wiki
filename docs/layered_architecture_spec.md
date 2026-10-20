@@ -1556,9 +1556,439 @@ class AuditLogRepository:
 
 ---
 
-# 4. 📑 [Tab 4] 외부 문헌·백서 조사 계층 설계 (작성 예정)
+# 4. 📑 [Tab 4] 외부 문헌·백서 조사 (Deep Research) 계층 설계
 
-*(사용자님과 다음 대화에서 Tab 4 Entity/DTO/Repository/Service 설계 후 통합 수록)*
+## 4.1 물리 Entity 스키마 설계 (Physical Database Schema)
+
+기존의 `synthesis_report(JSON)`, `candidates(JSON)`, `evidence_feed(JSON)` 몰빵 방식을 전면 폐기하고, **연구 세션 마스터 ➔ 공인 증빙 피드 ➔ 심층 기술 분석 리포트 ➔ 온톨로지 편입 제안 후보로 이어지는 4대 정규화 물리 테이블로 재구축**합니다.
+
+```
+┌────────────────────────────────────────────────────────┐
+│             research_sessions (연구 세션 마스터)       │
+├────────────────────────────────────────────────────────┤
+│ PK id (res-YYYYMMDD-...), user_id, search_topic        │
+│    is_pinned (⭐ 즐겨찾기), target_concept_id (선택)    │
+│    scope_filters (JSON), target_institutions (JSON)    │
+│    created_at (★ 날짜별 4단 그룹화 기준), updated_at   │
+└──────────────┬──────────────────────────┬──────────────┘
+               │ 1:N                      │ 1:1
+               ▼                          ▼
+┌──────────────────────────────┐ ┌────────────────────────────────────────┐
+│research_evidence_feeds (증빙)│ │   research_syntheses (심층 분석 리포트)│
+├──────────────────────────────┤ ├────────────────────────────────────────┤
+│ PK id (AUTOINCREMENT)        │ │ PK id (AUTOINCREMENT)                  │
+│ FK session_id                │ │ FK session_id (UNIQUE)                 │
+│    evidence_id (선택)        │ │    executive_summary (1. 총괄 요약)    │
+│    source_name (논문/백서명) │ │    physical_mechanism (2. 물리 메커니즘)│
+│    publisher (Intel, IEEE 등)│ │    academic_vs_industry (3. 마진대조)  │
+│    published_date (발행일)   │ │    tradeoff_analysis (4. 트레이드오프) │
+│    quote (핵심 원문 인용구)  │ │    actionable_recommendations (5. 권고)│
+│    credibility_tier (Tier 1) │ │    citation_notes (6. 상세 각주 JSON)  │
+│    external_url (PDF 링크)   │ │    created_at, updated_at              │
+│ ★  is_selected (엔지니어선별)│ └────────────────────────────────────────┘
+│ ★  promoted_evidence_id (승격)│
+│    created_at                │
+└──────────────────────────────┘
+               │ 1:N
+               ▼
+┌────────────────────────────────────────────────────────┐
+│       research_candidates (온톨로지 편입 제안 후보)    │
+├────────────────────────────────────────────────────────┤
+│ PK id (AUTOINCREMENT)                                  │
+│ FK session_id                                          │
+│    candidate_type (new_concept | property_patch)       │
+│    target_concept_id (기존 개념 보완 시 대상 ID)        │
+│    title (후보 제목)                                   │
+│    rationale (제안 근거 및 백서 인용 요약)             │
+│    proposed_payload (신규 개념 또는 수치 패치 JSON)    │
+│ ★  exported_ticket_id (Tab 3 검토 센터 직결 외래키)     │
+│ ★  status (draft ➔ exported ➔ adopted)                 │
+│    created_at                                          │
+└────────────────────────────────────────────────────────┘
+```
+
+---
+
+### [테이블 1] `research_sessions` (연구 세션 마스터)
+- **테이블명**: `research_sessions`
+- **책임**: 연구 작업 공간 루트 엔티티(Aggregate Root). 엔지니어의 연구 주제, 타깃 개념, 선택 필터를 관리하고 날짜별 그룹화의 기준점 제공.
+- **컬럼 정의**:
+
+| 컬럼명 | 물리 타입 | 제약 조건 | 설명 |
+| :--- | :--- | :--- | :--- |
+| `id` | `VARCHAR(64)` | `PRIMARY KEY` | 세션 고유 식별자 (`res-YYYYMMDD-UUID`) |
+| `user_id` | `VARCHAR(64)` | `NOT NULL, INDEX` | 세션 소유자 사번/엔지니어 ID |
+| `search_topic` | `VARCHAR(256)` | `NOT NULL` | 연구 테마/엔지니어링 질의 |
+| `is_pinned` | `BOOLEAN` | `NOT NULL, DEFAULT FALSE, INDEX` | 즐겨찾기 (⭐ 사이드바 그룹 최상단 고정) |
+| `target_concept_id` | `VARCHAR(64)` | `NULLABLE, FK(concepts.id ON DELETE SET NULL)` | 목적형 탐색 시 타깃 개념 ID |
+| `scope_filters` | `JSON` | `DEFAULT '[]'` | 선택된 조사 스코프 칩 ID 리스트 |
+| `target_institutions`| `JSON` | `DEFAULT '[]'` | 선택된 타깃 기관 리스트 (Intel, IEEE 등) |
+| `created_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP, INDEX` | **좌측 사이드바 날짜별 4단 그룹화 기준 일시** |
+| `updated_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP` | 세션 최종 수정 일시 |
+
+---
+
+### [테이블 2] `research_evidence_feeds` (공인 출처 증빙 피드 정규화 테이블)
+- **테이블명**: `research_evidence_feeds`
+- **책임**:
+  - 수집된 논문/백서 원문 증빙 피드를 개별 행(Row) 단위로 정규화 보존.
+  - **엔지니어 선별 상태(`is_selected`) 제어**: AI가 수집한 피드 중 엔지니어가 유효하다고 채택한 피드만 분석 및 편입에 활용.
+  - **사내 공식 출처 승격 추적(`promoted_evidence_id`)**: 검토 센터를 거쳐 공용 위키로 편입될 시 사내 공식 출처(`evidence_sources`) ID 매핑.
+- **컬럼 정의**:
+
+| 컬럼명 | 물리 타입 | 제약 조건 | 설명 |
+| :--- | :--- | :--- | :--- |
+| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | 증빙 피드 고유 물리 ID |
+| `session_id` | `VARCHAR(64)` | `NOT NULL, FK(research_sessions.id ON DELETE CASCADE), INDEX` | 연계 연구 세션 ID |
+| `evidence_id` | `VARCHAR(64)` | `NULLABLE` | 기존 공인 출처 연계 시 출처 ID |
+| `source_name` | `VARCHAR(256)` | `NOT NULL` | 공인 논문/백서 공식 명칭 |
+| `publisher` | `VARCHAR(64)` | `NOT NULL, INDEX` | 발행처 (Intel, TSMC, IEEE, ECTC, SEMI 등) |
+| `published_date` | `VARCHAR(32)` | `NULLABLE` | 발행 일자 (예: `2025.03`) |
+| `quote` | `TEXT` | `NOT NULL` | 핵심 원문 인용구 전문 |
+| `credibility_tier`| `VARCHAR(32)` | `NOT NULL, DEFAULT 'Tier 1'` | 신뢰도 등급 (`Tier 1` 공인 학회/제조사 백서) |
+| `external_url` | `TEXT` | `NOT NULL` | 공식 원문 열람 / PDF 다운로드 링크 |
+| `is_selected` | `BOOLEAN` | `NOT NULL, DEFAULT TRUE, INDEX` | **엔지니어 선별 상태 (체크박스 채택/제외 플래그)** |
+| `promoted_evidence_id`| `VARCHAR(64)` | `NULLABLE, FK(evidence_sources.id ON DELETE SET NULL)` | **사내 공식 출처 승격 번호 (예: `E-05`)** |
+| `created_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP` | 피드 수집 일시 |
+
+---
+
+### [테이블 3] `research_syntheses` (심층 기술 분석 리포트 정규화 테이블)
+- **테이블명**: `research_syntheses`
+- **책임**:
+  - 수집된 복수 문헌을 AI 에이전트가 교차 분석하여 도출한 **심층 엔지니어링 테크니컬 화이트페이퍼 수준의 종합 분석 리포트**를 보존.
+  - 6대 전문 섹션(총괄 요약, 물리 메커니즘, 공정 마진 대조표, 트레이드오프, 사내 팹 권고안, 상세 각주)을 온전히 저장.
+- **컬럼 정의**:
+
+| 컬럼명 | 물리 타입 | 제약 조건 | 설명 |
+| :--- | :--- | :--- | :--- |
+| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | 분석 리포트 고유 ID |
+| `session_id` | `VARCHAR(64)` | `NOT NULL, UNIQUE, FK(research_sessions.id ON DELETE CASCADE)` | 연계 연구 세션 ID (1:1 관계) |
+| `executive_summary` | `TEXT` | `NOT NULL` | 1. 총괄 요약 (배경, 병목, 글로벌 동향) |
+| `physical_mechanism`| `TEXT` | `NOT NULL` | 2. 물리 메커니즘 심층 해설 (KaTeX 수식 포함) |
+| `academic_vs_industry`| `JSON` | `NOT NULL` | 3. 학계 vs 제조사 공정 마진 대조 행 리스트 |
+| `tradeoff_analysis` | `TEXT` | `NOT NULL` | 4. 핵심 엔지니어링 트레이드오프 및 병목 극복 대안 |
+| `actionable_recommendations`| `TEXT`| `NOT NULL` | 5. 사내 팹 라인 적용 권고안 (단기/중기) |
+| `citation_notes` | `JSON` | `NOT NULL` | 6. 인용 백서/논문 페이지 및 DOI 각주 리스트 |
+| `created_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP` | 리포트 생성 일시 |
+| `updated_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP` | 리포트 갱신 일시 |
+
+---
+
+### [테이블 4] `research_candidates` (온톨로지 편입 제안 후보 정규화 테이블)
+- **테이블명**: `research_candidates`
+- **책임**:
+  - 외부 문헌 조사 결과 중 사내 온톨로지에 공식 편입시킬 제안 후보의 생애주기 관리.
+  - **조사실(Tab 4)과 검토센터(Tab 3)를 잇는 거버넌스 직결 브릿지**: 검토 티켓 ID(`exported_ticket_id`)를 외래키로 보존.
+- **컬럼 정의**:
+
+| 컬럼명 | 물리 타입 | 제약 조건 | 설명 |
+| :--- | :--- | :--- | :--- |
+| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | 편입 제안 후보 고유 ID |
+| `session_id` | `VARCHAR(64)` | `NOT NULL, FK(research_sessions.id ON DELETE CASCADE), INDEX` | 연계 연구 세션 ID |
+| `candidate_type` | `VARCHAR(32)` | `NOT NULL` | 후보 유형 (`new_concept` [신규 개념], `property_patch` [수치 보완]) |
+| `target_concept_id`| `VARCHAR(64)` | `NULLABLE, FK(concepts.id ON DELETE SET NULL)` | 기존 개념 보정 시 대상 개념 ID |
+| `title` | `VARCHAR(256)` | `NOT NULL` | 제안 후보 제목 (예: `TGV 미세 균열 방어 보상 레시피`) |
+| `rationale` | `TEXT` | `NOT NULL` | 제안 근거 및 문헌 인용구 요약 |
+| `proposed_payload` | `JSON` | `NOT NULL` | 신규 개념 DTO 또는 정규화 수치 패치 페이로드 |
+| `exported_ticket_id`| `VARCHAR(64)` | `NULLABLE, FK(review_tickets.id ON DELETE SET NULL), INDEX` | **Tab 3 검토 센터로 발의된 거버넌스 티켓 ID** |
+| `status` | `VARCHAR(16)` | `NOT NULL, DEFAULT 'draft'` | 발의 상태 (`draft` ➔ `exported` ➔ `adopted`) |
+| `created_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP` | 후보 생성 일시 |
+
+---
+
+## 4.2 DTO 계약 스펙 설계 (Pydantic Data Transfer Objects - 9종 전수)
+
+### ① 세션 목록 및 날짜별 4단 그룹 DTO (`GET /research/sessions`)
+```python
+# 1. 세션 단건 요약 DTO
+class ResearchSessionListItemDTO(BaseModel):
+    id: str
+    searchTopic: str
+    isPinned: bool
+    createdAt: str
+    feedCount: int
+    candidateCount: int
+
+# 2. 날짜별 4단 그룹 번들 DTO
+class ResearchSessionGroupDTO(BaseModel):
+    today: List[ResearchSessionListItemDTO]
+    yesterday: List[ResearchSessionListItemDTO]
+    thisWeek: List[ResearchSessionListItemDTO]
+    older: List[ResearchSessionListItemDTO]
+
+# 3. 세션 목록 종합 응답 DTO
+class ResearchSessionListResponse(BaseModel):
+    groups: ResearchSessionGroupDTO
+    totalCount: int
+```
+
+### ② 대화형 조사 범위 구체화 DTO (`POST /research/clarify`)
+```python
+# 4. 조사 스코프 칩 DTO
+class ResearchScopeChipDTO(BaseModel):
+    chipId: str                        # "aspect-ratio-10"
+    label: str                         # "10:1 고종횡비 공정 한계"
+    category: str                      # "공정 조건" | "결함 메커니즘"
+
+# 5. 조사 범위 구체화 요청 및 응답 DTO
+class ResearchClarifyRequest(BaseModel):
+    query: str                         # "유리기판 TGV 미세 균열 방어"
+    targetConceptId: Optional[str] = None
+
+class ResearchClarifyResponse(BaseModel):
+    query: str
+    recommendedScopes: List[ResearchScopeChipDTO]
+    targetInstitutions: List[str]      # ["Intel", "TSMC", "IEEE", "ECTC", "SEMI"]
+    refinedKeywords: List[str]         # ["TGV laser induced deep etching", "micro-crack mitigation"]
+```
+
+### ③ 공인 원문 증빙 피드 수집 및 선별 DTO (`POST /discover`, `PATCH /feeds/{id}`)
+```python
+# 6. 증빙 피드 단건 DTO
+class EvidenceFeedItemDTO(BaseModel):
+    id: int
+    sourceName: str
+    publisher: str
+    publishedDate: Optional[str] = None
+    quote: str
+    credibilityTier: str               # "Tier 1", "Tier 2"
+    externalUrl: str
+    isSelected: bool = True            # 엔지니어 선별 상태
+    promotedEvidenceId: Optional[str] = None
+
+class ResearchDiscoverRequest(BaseModel):
+    scopeFilterIds: List[str]
+    targetInstitutions: List[str]
+
+class ResearchDiscoverResponse(BaseModel):
+    sessionId: str
+    totalDiscovered: int
+    evidenceFeed: List[EvidenceFeedItemDTO]
+
+class FeedSelectionUpdateRequest(BaseModel):
+    isSelected: bool                   # 엔지니어의 체크박스 토글 요청
+```
+
+### ④ 심층 기술 분석 종합 리포트 및 편입 후보 DTO (`POST /synthesize`)
+```python
+# 7. 학계 vs 제조사 공정 마진 대조 단일 행 DTO
+class MarginComparisonRowDTO(BaseModel):
+    specName: str                      # "비아 종횡비 (Aspect Ratio)"
+    academicSpec: str                  # "20 : 1 (직경 10µm / 두께 200µm)"
+    industryMargin: str                # "10 : 1 (직경 50µm / 두께 500µm)"
+    commentary: str                    # "양산 도금 필링 시 보이드 방어를 위한 보수적 타협 해설"
+
+# 8. 인용 문헌 상세 각주 DTO
+class SynthesisCitationNoteDTO(BaseModel):
+    citationTag: str                   # "[E-01]"
+    sourceName: str                    # "Intel Glass Core Architecture Whitepaper"
+    sectionOrPage: str                 # "pp. 12-18, Section 4.2"
+    credibilityTier: str
+    url: str
+
+# 9. 심층 기술 분석 리포트 DTO (SynthesisReportDTO - 6대 전문 섹션 완비)
+class SynthesisReportDTO(BaseModel):
+    executiveSummary: str              # 1. 총괄 요약
+    physicalMechanism: str             # 2. 물리 메커니즘 심층 해설 (KaTeX 수식 포함)
+    academicVsIndustry: List[MarginComparisonRowDTO] # 3. 공정 마진 대조표
+    tradeoffAnalysis: str              # 4. 엔지니어링 트레이드오프 및 병목 극복 대안
+    actionableRecommendations: str     # 5. 사내 팹 라인 적용 권고안 (단기/중기)
+    citationNotes: List[SynthesisCitationNoteDTO]   # 6. 공인 출처 상세 각주
+
+# 10. 온톨로지 편입 제안 후보 DTO
+class ResearchCandidateItemDTO(BaseModel):
+    candidateId: int
+    candidateType: str                 # "new_concept" | "property_patch"
+    targetConceptId: Optional[str] = None
+    title: str
+    rationale: str
+    proposedPayload: Dict[str, Any]
+    status: str                        # "draft" | "exported" | "adopted"
+    exportedTicketId: Optional[str] = None
+
+# 11. 결과실 2-Column Split View 종합 응답 DTO (ResearchSessionDetailResponse)
+class ResearchSessionDetailResponse(BaseModel):
+    sessionId: str
+    searchTopic: str
+    isPinned: bool
+    createdAt: str
+    evidenceFeeds: List[EvidenceFeedItemDTO]   # 좌측 Pane: 공인 증빙 피드 (체크박스 제어)
+    synthesisReport: Optional[SynthesisReportDTO] # 우측 Pane 상단: 심층 기술 분석 리포트
+    candidates: List[ResearchCandidateItemDTO] # 우측 Pane 하단: 온톨로지 편입 후보 카드 목록
+```
+
+---
+
+## 4.3 Repository 계층 설계 (Data Access Layer - 4개 Repository)
+
+### ① `ResearchSessionRepository` 인터페이스
+```python
+class ResearchSessionRepository:
+    def __init__(self, db: AsyncSession):
+        self.db = db
+
+    async def list_by_user(self, user_id: str) -> List[ResearchSessionModel]:
+        """사용자 세션 목록 최신순 조회."""
+        stmt = (
+            select(ResearchSessionModel)
+            .where(ResearchSessionModel.user_id == user_id)
+            .order_by(ResearchSessionModel.created_at.desc())
+        )
+        return (await self.db.execute(stmt)).scalars().all()
+
+    async def get_by_id_with_relations(self, session_id: str) -> Optional[ResearchSessionModel]:
+        """세션 2-Column 상세 복원 (feeds, synthesis, candidates 1회 Eager Loading)."""
+        stmt = (
+            select(ResearchSessionModel)
+            .options(
+                selectinload(ResearchSessionModel.evidence_feeds),
+                selectinload(ResearchSessionModel.synthesis),
+                selectinload(ResearchSessionModel.candidates)
+            )
+            .where(ResearchSessionModel.id == session_id)
+        )
+        return (await self.db.execute(stmt)).scalars().first()
+
+    async def create_session(self, session: ResearchSessionModel) -> ResearchSessionModel:
+        self.db.add(session)
+        await self.db.commit()
+        await self.db.refresh(session)
+        return session
+
+    async def update_meta(self, session_id: str, is_pinned: Optional[bool], search_topic: Optional[str]) -> bool:
+        values = {}
+        if is_pinned is not None:
+            values["is_pinned"] = is_pinned
+        if search_topic:
+            values["search_topic"] = search_topic
+        values["updated_at"] = datetime.utcnow()
+        stmt = update(ResearchSessionModel).where(ResearchSessionModel.id == session_id).values(**values)
+        res = await self.db.execute(stmt)
+        await self.db.commit()
+        return res.rowcount > 0
+
+    async def delete_session_cascade(self, session_id: str) -> bool:
+        stmt = delete(ResearchSessionModel).where(ResearchSessionModel.id == session_id)
+        res = await self.db.execute(stmt)
+        await self.db.commit()
+        return res.rowcount > 0
+```
+
+### ② `ResearchEvidenceFeedRepository` 인터페이스
+```python
+class ResearchEvidenceFeedRepository:
+    def __init__(self, db: AsyncSession):
+        self.db = db
+
+    async def bulk_insert_feeds(self, session_id: str, feeds: List[ResearchEvidenceFeedModel]) -> List[ResearchEvidenceFeedModel]:
+        for f in feeds:
+            f.session_id = session_id
+            self.db.add(f)
+        await self.db.commit()
+        return feeds
+
+    async def update_feed_selection(self, feed_id: int, is_selected: bool) -> bool:
+        stmt = update(ResearchEvidenceFeedModel).where(ResearchEvidenceFeedModel.id == feed_id).values(is_selected=is_selected)
+        res = await self.db.execute(stmt)
+        await self.db.commit()
+        return res.rowcount > 0
+
+    async def list_selected_feeds(self, session_id: str) -> List[ResearchEvidenceFeedModel]:
+        """교차 분석 대상인 채택된(is_selected == True) 피드만 추출."""
+        stmt = (
+            select(ResearchEvidenceFeedModel)
+            .where(ResearchEvidenceFeedModel.session_id == session_id)
+            .where(ResearchEvidenceFeedModel.is_selected == True)
+            .order_by(ResearchEvidenceFeedModel.id.asc())
+        )
+        return (await self.db.execute(stmt)).scalars().all()
+```
+
+### ③ `ResearchSynthesisRepository` 인터페이스
+```python
+class ResearchSynthesisRepository:
+    def __init__(self, db: AsyncSession):
+        self.db = db
+
+    async def upsert_synthesis(self, session_id: str, synthesis: ResearchSynthesisModel) -> ResearchSynthesisModel:
+        """심층 분석 리포트 6대 전문 섹션 갱신/저장."""
+        stmt = select(ResearchSynthesisModel).where(ResearchSynthesisModel.session_id == session_id)
+        existing = (await self.db.execute(stmt)).scalars().first()
+        if existing:
+            existing.executive_summary = synthesis.executive_summary
+            existing.physical_mechanism = synthesis.physical_mechanism
+            existing.academic_vs_industry = synthesis.academic_vs_industry
+            existing.tradeoff_analysis = synthesis.tradeoff_analysis
+            existing.actionable_recommendations = synthesis.actionable_recommendations
+            existing.citation_notes = synthesis.citation_notes
+            existing.updated_at = datetime.utcnow()
+            await self.db.commit()
+            return existing
+        else:
+            synthesis.session_id = session_id
+            self.db.add(synthesis)
+            await self.db.commit()
+            await self.db.refresh(synthesis)
+            return synthesis
+```
+
+### ④ `ResearchCandidateRepository` 인터페이스
+```python
+class ResearchCandidateRepository:
+    def __init__(self, db: AsyncSession):
+        self.db = db
+
+    async def create_candidates_batch(self, session_id: str, candidates: List[ResearchCandidateModel]) -> List[ResearchCandidateModel]:
+        for c in candidates:
+            c.session_id = session_id
+            self.db.add(c)
+        await self.db.commit()
+        return candidates
+
+    async def update_export_status(self, candidate_id: int, ticket_id: str) -> bool:
+        """Tab 3 검토 센터로 발의 완료 시 티켓 ID 매핑 및 상태 갱신."""
+        stmt = (
+            update(ResearchCandidateModel)
+            .where(ResearchCandidateModel.id == candidate_id)
+            .values(exported_ticket_id=ticket_id, status="exported")
+        )
+        res = await self.db.execute(stmt)
+        await self.db.commit()
+        return res.rowcount > 0
+```
+
+---
+
+## 4.4 Service 계층 설계 (Business Logic Layer - 5대 전문 Service 전수)
+
+### ① `ResearchSessionService` (날짜별 세션 생애주기 총괄)
+- **책임**:
+  - `get_session_groups(user_id)`: KST 기준 세션 `created_at`을 판별하여 `today`, `yesterday`, `thisWeek`, `older` 4단으로 그룹화하고 `is_pinned` 세션을 각 그룹 최상단에 배치하여 `ResearchSessionListResponse` 반환.
+  - `get_session_detail(session_id)`: Eager Loading으로 `feeds`, `synthesis`, `candidates`를 1회 쿼리로 조립하여 2-Column Split View DTO 반환.
+  - `delete_session(session_id)`: 하위 피드/리포트/후보 원자적 Cascade 삭제.
+
+### ② `ResearchClarifyService` (조사 범위 구체화 엔진)
+- **책임**:
+  - Tab 2와 공통 두뇌(`OntologyClarifierService`)를 공유.
+  - 온톨로지 지식 그래프에서 엔지니어 질의와 관련된 결함-보상 파라미터 에지를 탐색하여 3대 스코프 칩(예: `10:1 고종횡비`, `화학적 기계 연마`, `휨 방지`)을 0ms 도출.
+
+### ③ `ResearchDiscoverService` (공인 출처 증빙 피드 수집 & 선별 엔진)
+- **책임**:
+  - 공인 출처 풀(`evidence_sources` 및 학술 인덱스)에서 Tier 1/2 공인 원문 증빙을 수집하여 `research_evidence_feeds`에 벌크 INSERT.
+  - 엔지니어가 체크박스를 끄거나 켤 때 `update_feed_selection(feed_id, is_selected)`를 통해 즉시 채택 상태 반영.
+
+### ④ `ResearchSynthesisService` (심층 기술 분석 리포트 & 편입 후보 오케스트레이터)
+- **책임**:
+  - 엔지니어가 선별한(`is_selected == True`) 피드들만 수집하여 `deep_research_agent.synthesize` 호출.
+  - LLM과 온톨로지 에지 추론기를 결합하여, **6대 심층 섹션(Executive Summary, KaTeX 메커니즘, 공정 마진 대조표, 트레이드오프, 사내 팹 권고안, 상세 각주)**을 충실한 볼륨의 엔지니어링 텍스트로 합성.
+  - `ResearchSynthesisRepository`에 정규화 저장.
+  - 사내 온톨로지 편입 제안 후보(`research_candidates`)를 자동 도출.
+
+### ⑤ `ResearchExportService` (테크니컬 화이트페이퍼 렌더러)
+- **책임**:
+  - 6대 심층 분석 섹션 + 좌측 증빙 피드 인용구 + 편입 후보를 조합하여 **"사내 공식 기술 동향 보고서 템플릿(Markdown / PDF)"**으로 렌더링하여 다운로드 스트림 서빙.
+  - 엔지니어가 팀 세미나나 결재 문서로 즉시 제출할 수 있도록 완결된 파일 제공.
 
 ---
 
