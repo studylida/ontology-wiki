@@ -619,6 +619,227 @@
 
 ---
 
-# 5. 🤖 [F-01] 플로팅 엔지니어 챗봇 & 공통 도메인 설계 (작성 예정)
+# 5. 🤖 [F-01] 플로팅 엔지니어 챗봇 & 공통 도메인 설계
 
-*(사용자님과 다음 대화에서 요구사항 분석 후 통합 작성)*
+## 5.1 탭 적응형 컨텍스트(Tab-Aware Adaptive Context) 및 3단 라우팅 아키텍처
+
+플로팅 엔지니어 챗봇은 화면 우측 하단에 상시 상주하며, 시스템 초기의 핵심 결함이었던 **"챗봇 컨텍스트 단절(현재 보고 있는 문서나 작업 맥락을 모른 채 엉뚱한 기본 응답을 하는 문제)"을 100% 원천 해결**하는 핵심 지능형 어시스턴트입니다.
+
+```
+                      [플로팅 챗봇 아이콘 클릭]
+                                 │
+     ┌───────────────────────────┴───────────────────────────┐
+     ▼                                                       ▼
+[프론트엔드 현재 상태 캡처]                             [0ms 컨텍스트 API 호출]
+Tab 1 : conceptId=concept-mrmuf                GET /api/v1/chatbot/context?tab=...
+Tab 2 : targetA=mrmuf & targetB=tcncf
+Tab 3 : ticketId=tkt-01
+Tab 4 : sessionId=res-01
+     │                                                       │
+     └───────────────────────────┬───────────────────────────┘
+                                 ▼
+         [챗봇 헤더: 현재 작업 맥락 뱃지 + 맞춤 환영 메시지]
+         [0ms 고속 렌더링 퀵 질문 칩 3종 표출 (No-LLM Instant)]
+                                 │
+                 ┌───────────────┴───────────────┐
+                 ▼                               ▼
+       [퀵 질문 칩 1-Click]              [자연어 질의 직접 타이핑]
+                 │                               │
+                 └───────────────┬───────────────┘
+                                 ▼
+          [ClarifierAgent: 시스템 프롬프트에 현재 맥락 자동 주입]
+          "현재 사용자는 Tab 2에서 MR-MUF와 TC-NCF를 비교 중입니다..."
+                                 │
+        ┌────────────────────────┼────────────────────────┐
+        ▼                        ▼                        ▼
+[① 단답/사실형 (Factoid)]  [② 인과 추론형 (Causal)]  [③ 액션 트리거 (Action)]
+공인 출처 인용 즉시 단답   2-Hop 인과망 & 보상 수치   [Tab 2 비교 스튜디오 이동]
+```
+
+---
+
+### ① 탭 1, 2, 3, 4 화면별 컨텍스트 인식 및 실현 메커니즘
+
+프론트엔드가 챗봇을 열거나 탭을 전환할 때, 현재 화면의 상태를 담아 `GET /api/v1/chatbot/context`를 호출하며, 백엔드 서비스 계층은 **LLM을 거치지 않고 DB 메타데이터를 5ms 만에 파싱하여 0ms로 맞춤 컨텍스트와 퀵 칩을 서빙**합니다:
+
+| 사용자의 현재 탭 | 프론트 전달 파라미터 | 백엔드 실현 로직 (5ms Instant Assembly) | 챗봇 맞춤 환영 인사 및 0ms 퀵 질문 칩 3종 |
+| :--- | :--- | :--- | :--- |
+| **Tab 1<br>(위키 본문)** | `tab=wiki`<br>`conceptId=concept-mrmuf` | 1. `concepts` 테이블에서 개념명, 스케일 레벨 조회<br>2. `causal_edges`에서 결함/보상 파라미터 조회 | *"현재 [{개념명}] 문서를 열람 중이시군요."*<br>1. 💡 {결함 노드명} 억제 물리 메커니즘은?<br>2. 💡 {보상 파라미터} 한계와 안전 마진은?<br>3. 💡 {대안 개념} 대비 장단점 비교 |
+| **Tab 2<br>(비교 분석실)** | `tab=comparison`<br>`targetA=concept-mrmuf`<br>`targetB=concept-tcncf`<br>`sessionId=comp-101` | 1. 두 개념의 명칭 및 `alternative_to` 에지 조회<br>2. 상충 축(TAT vs 열저항) 메타데이터 파싱 | *"현재 [{대상A}] vs [{대상B}] 비교 분석 중이시군요."*<br>1. ⚖️ 16단 적층 시 TAT가 더 유리한 쪽은?<br>2. 📉 현재 매트릭스 외에 추천할 추가 평가 축은?<br>3. 🛠️ 설비 가압력 한계 극복 파라미터 튜닝 조언 |
+| **Tab 3<br>(검토 센터)** | `tab=review`<br>`ticketId=tkt-20261019-01` | 1. `review_tickets`에서 티켓 제목 및 발의자 조회<br>2. `integrity_report`의 인과 모순 여부 확인 | *"현재 [{티켓 제목}] 거버넌스 검토를 진행 중이시군요."*<br>1. 🔍 이 제안 내용이 기존 온톨로지와 물리적 모순이 있는가?<br>2. 📜 공인 출처 불변 제약 준수율 점검 결과 요약<br>3. ✍️ 승인 시 공용 위키 버전 승계(v1.2➔v1.3) 영향도 |
+| **Tab 4<br>(문헌 조사실)** | `tab=research`<br>`sessionId=res-20261016-01`<br>`searchTopic=유리기판 TGV` | 1. `research_sessions`에서 조사 토픽 조회<br>2. 수집된 `evidence_feed`의 Tier 1 출처 목록 파싱 | *"현재 [{조사 토픽}] 문헌 탐색을 진행 중이시군요."*<br>1. 📚 수집된 백서 중 신뢰도 Tier 1 공인 출처 핵심 요약<br>2. ⚔️ IEEE 논문과 제조사 백서 간의 수치 불일치 분석<br>3. 💡 이 문헌 내용을 사내 온톨로지 신규 개념으로 편입 제안 |
+| **전역 모드<br>(홈/미선택)** | `tab=global` | 사내 최고 조회수 3대 핵심 핫토픽 메타데이터 서빙 | *"반도체 인과 온톨로지 전역 어시스턴트입니다."*<br>1. 💡 HBM 방열 대안: MR-MUF vs TC-NCF 비교<br>2. 💡 Cryo 극저온 식각 반응 메커니즘<br>3. 💡 차세대 유리기판 TGV 공정 및 물성 표준 |
+
+---
+
+### ② 인과 에지 부재 시: [3단계 계층형 폴백 (Hierarchical Fallback)] 로직
+
+실제 DB 팩트상 72개 개념 중 34개 인과 에지가 연결되어 있으며, 일부 하위 개념에는 에지가 없을 수 있습니다. 이를 위해 **DB 데이터 상태에 따라 유연하게 전환되는 3단계 폴백 로직**을 내장하여 100% 무결한 칩 서빙을 보장합니다:
+
+```
+[개념 ID 수신]
+  │
+  ├─ 1순위: causal_edges 테이블에 연결된 에지가 있는가?
+  │   ├─ [YES] ➔ 실제 결함(causes_defect) 및 보상 파라미터(compensating_params)를 꽂아 초정밀 칩 생성
+  │   │
+  │   └─ [NO] ➔ 2순위: concepts 테이블에 limitations 또는 principles 텍스트가 있는가?
+  │       ├─ [YES] ➔ limitations(공정 한계) 및 principles(작동 원리)를 파싱하여 질문 칩 생성
+  │       │          (예: "{개념}의 주요 공정 한계(limitations) 극복 방안은?")
+  │       │
+  │       └─ [NO] ➔ 3순위: 기본 표준 엔지니어링 템플릿 적용
+  │                  (예: "{개념} 관련 공인 실측 출처 보기", "{개념}의 후속 단위 공정 연계는?")
+```
+
+---
+
+### ③ 대화 질의 시 문맥 자동 주입 파이프라인 (Context Injection)
+
+사용자가 챗봇 입력창에 짧거나 대명사가 섞인 질문(예: *"둘 중에 뭐가 더 열에 강해?"*, *"이 공정 수율 한계가 뭐야?"*)을 던져도 에이전트가 찰떡같이 알아듣도록 백엔드가 요청을 다음과 같이 보강하여 `ClarifierAgent`에 전달합니다:
+
+```json
+// POST /api/v1/chatbot/messages 요청 페이로드
+{
+  "message": "둘 중에 뭐가 더 열에 강해?",
+  "context": {
+    "tab": "comparison",
+    "targetA": "concept-mrmuf",
+    "targetB": "concept-tcncf",
+    "sessionId": "comp-101"
+  }
+}
+```
+
+- **에이전트 프롬프트 주입 로직**:
+  백엔드 서비스(`ChatbotMessageService`)는 에이전트 호출 시 시스템 프롬프트 상단에 작업 맥락을 강제 주입합니다:
+  ```text
+  [현재 사용자 작업 맥락]
+  - 현재 위치: Tab 2 (기술 대안 비교 스튜디오)
+  - 비교 대상: A=MR-MUF(마이크로 범프 갭필), B=TC-NCF(열압착 비전도성 필름)
+  - 지침: 사용자가 "둘 중에", "이것", "그 공정" 등의 대명사를 사용하면 즉시 대상 A와 대상 B를 지칭하는 것으로 해석하여 답변할 것.
+  ```
+- **결과**: 에이전트가 *"현재 비교 중이신 MR-MUF와 TC-NCF 중, MR-MUF가 열저항(0.42 K/W) 측면에서 TC-NCF(0.68 K/W) 대비 약 38% 더 우수합니다..."*라고 즉시 문맥을 이어받아 완벽히 답변합니다.
+
+---
+
+### ④ 3단 지능형 라우팅 (3-Way Intent Routing)
+
+엔지니어의 입력 발화 의도를 `ClarifierAgent`가 실시간 분석하여 3가지 포맷으로 분기 서빙합니다:
+
+1. **단답/사실형 (`factoid`)**:
+   - 질문: *"TCB 본딩 가압력 권장 범위가 얼마야?"*
+   - 응답: 공인 출처 `[E-01]` 각주와 함께 절대 수치 및 권장 범위 즉시 단답 서빙.
+2. **인과 추론형 (`causal_clarifier`)**:
+   - 질문: *"HBM 방열 문제와 마이크로 보이드의 상관관계는?"*
+   - 응답: 2-Hop 인과 서브그래프 토폴로지를 기반으로 원인-결함 체인 및 보상 파라미터 수식 설명.
+3. **액션 트리거형 (`action_trigger`)**:
+   - 질문: *"MR-MUF랑 TC-NCF 장단점 비교해줘"*
+   - 응답: 텍스트 설명과 함께, 클릭 시 Tab 2 비교 화면으로 즉시 이동하여 대안 A/B가 자동 바인딩되는 **[⚡ 기술 대안 비교 스튜디오로 이동] 액션 카드 DTO** 동봉 서빙.
+
+---
+
+## 5.2 도메인 컨트롤러 & 서비스 계층 정의
+
+### [도메인 1] 탭 적응형 컨텍스트 및 0ms 퀵 칩 서빙 (`ChatbotContextController`)
+- **담당 역할**:
+  - 엔지니어의 현재 화면(`tab`), 열람 중인 대상(`conceptId`, `targetA`, `targetB`, `ticketId`, `sessionId`)을 받아 문맥 단절을 해소하고, 3단계 폴백 로직을 통해 0ms로 퀵 질문 칩 3종을 조립하여 서빙.
+- **컨트롤러 엔드포인트**:
+  - `GET /api/v1/chatbot/context?tab={tab}&conceptId={id}&targetA={id}&targetB={id}&ticketId={id}&sessionId={id}`
+- **서비스**: `ChatbotContextService.get_context(tab, params)`
+- **레포지토리**: `ConceptRepository`, `CausalGraphRepository`, `ReviewTicketRepository`, `ResearchSessionRepository`
+- **응답 DTO (`ChatbotContextResponse`)**:
+  ```json
+  {
+    "tab": "comparison",
+    "contextTitle": "MR-MUF vs TC-NCF 비교 분석 중",
+    "badgeText": "Scale 3 · 첨단 패키징 비교 모드",
+    "engineMode": "live",
+    "welcomeMessage": "현재 MR-MUF와 TC-NCF 비교 분석을 진행 중이시군요. 무엇이 궁금하신가요?",
+    "quickQuestionChips": [
+      "⚖️ 16단 적층 시 TAT가 더 유리한 쪽은?",
+      "📉 현재 매트릭스 외에 추천할 추가 평가 축은?",
+      "🛠️ 설비 가압력 한계 극복 파라미터 튜닝 조언"
+    ]
+  }
+  ```
+
+---
+
+### [도메인 2] 지능형 3단 라우터 대화 질의 (`ChatbotMessageController`)
+- **담당 역할**:
+  - 엔지니어의 자연어 질의를 수신하고, 주입된 작업 맥락을 바탕으로 3단 의도(Factoid / Causal / Action)를 판별하여 답변 서빙.
+  - 고속 반응성을 위한 **SSE(Server-Sent Events) 실시간 토큰 스트리밍** 지원.
+- **컨트롤러 엔드포인트**:
+  - `POST /api/v1/chatbot/messages` (단건 동기 JSON 응답)
+  - `POST /api/v1/chatbot/messages/stream` (SSE 실시간 토큰 스트리밍 응답)
+- **서비스**: `ChatbotMessageService` (내부적으로 `ClarifierAgent` 호출)
+- **요청 DTO**: `ChatbotMessageRequest`: `{ "message": "...", "context": { ... } }`
+- **응답 DTO**: `ChatbotMessageResponse` (`intentType`, `answerMarkdown`, `actionCard: { title, targetTab, payload }`)
+
+---
+
+### [도메인 3] 챗봇 세션 및 대화 이력 초기화 (`ChatbotSessionController`)
+- **담당 역할**:
+  - 대화 스레드를 비우고, 현재 열람 중인 화면 컨텍스트에 맞춘 초기 환영 상태와 퀵 칩으로 즉시 복원.
+- **컨트롤러 엔드포인트**:
+  - `DELETE /api/v1/chatbot/messages?tab={tab}&conceptId={id}`
+- **서비스**: `ChatbotSessionService.reset_session()`
+- **응답 DTO**: `ChatbotResetResponse`
+
+---
+
+## 5.3 🌐 [공통 도메인] 전역 스포트라이트 검색 (`SpotlightSearchController`)
+
+- **담당 역할**:
+  - 상단 헤더 검색창 및 단축키(`Ctrl + K`) 입력 시, 온톨로지 전역 개념을 0ms 자동완성으로 탐색하는 공통 게이트웨이.
+  - Tab 2 비교 대안 검색 및 Tab 4 문헌 조사 개념 타깃팅에서 100% 재사용.
+- **컨트롤러 엔드포인트**:
+  - `GET /api/v1/search/spotlight?q={keyword}&facet={domain_facet}&limit=10`
+- **서비스**: `SpotlightSearchService.search_concepts(query, facet, limit)`
+- **레포지토리**: `ConceptRepository.search_by_prefix(query, facet)`
+- **응답 DTO**: `SpotlightSearchResponse` (`results: List[ConceptSummaryDTO]`)
+
+---
+
+## 5.4 챗봇 & 공통 도메인 3대 엔지니어링 신뢰 원칙
+
+1. **문맥 연속성 보장 (Zero Disconnection)**:
+   - 탭 1, 2, 3, 4 어디에서 챗봇을 열든 현재 작업 중인 대상을 에이전트가 완벽히 인지하여 대명사나 짧은 질문에도 정확한 맥락 답변을 제공합니다.
+2. **0ms 룰 기반 경량성 (No-LLM Instant Context)**:
+   - 컨텍스트 헤더와 퀵 칩을 LLM 호출 없이 DB 메타데이터 기반 3단계 폴백으로 5ms 만에 조립하여, 챗봇을 여는 즉시 기다림 없이 렌더링합니다.
+3. **공인 온톨로지 에지 결합 (Grounded Inference)**:
+   - LLM 자체의 환각을 차단하고, 실제 DB의 `causal_edges`에 기록된 결함-보상 파라미터 및 공인 출처 각주를 근거로만 답변을 구성합니다.
+
+---
+
+# 6. 🏛️ 전 도메인 컨트롤러 & 서비스 통합 아키텍처 맵 (총 22대 컨트롤러 전수 정리)
+
+본 시스템 전체의 **Controller ➔ Service ➔ Repository ➔ Entity** 계층별 책임 구조를 한눈에 파악할 수 있는 전수 통합 맵입니다:
+
+| 영역 | 도메인 컨트롤러명 | HTTP 엔드포인트 규격 | 핵심 담당 서비스 | 연계 엔티티 |
+| :--- | :--- | :--- | :--- | :--- |
+| **Tab 1**<br>(공용 위키) | `CategoryHierarchyController` | `GET /api/v1/navigation/tree` | `NavigationService` | `ConceptModel` |
+| | `WikiEntryController` | `GET /api/v1/wiki-entries/{id}` | `WikiEntryService`, `DeidentificationService` | `ConceptModel`, `PerspectiveCaseModel` |
+| | `EvidenceController` | `GET /api/v1/evidences/{id}` | `EvidenceService` | `EvidenceSourceModel` |
+| | `ContextualExplainerController`| `GET /api/v1/explainers/contextual` | `ExplainerService` | `ConceptModel`, `CausalEdgeModel` |
+| | `CausalGraphController` | `GET /api/v1/causal-graphs/{id}/2hop` | `CausalGraphService` (CTE 쿼리) | `CausalEdgeModel` |
+| **Tab 2**<br>(비교 분석) | `ComparisonSessionController` | `GET,POST,PATCH,DELETE /comparison-sessions` | `ComparisonSessionService` | `ComparisonSessionModel` |
+| | `ComparisonClarifierController` | `POST /comparison/clarify` | `ComparisonClarifierService` | `clarifier_agent` |
+| | `ComparisonMatrixController` | `POST /comparison-sessions/{id}/matrix` | `ComparisonMatrixService`, `OntologyGapDetectorService` | `ComparisonSessionModel` |
+| | `ComparisonAxisController` | `POST /comparison-sessions/{id}/axes` | `ComparisonAxisService` (1행 Delta) | `ComparisonSessionModel` |
+| | `ParameterAdvisorController` | `POST /comparison-sessions/{id}/tune-advisor` | `ParameterAdvisorService` | `advisor_agent` |
+| | `ComparisonExportController` | `GET /comparison-sessions/{id}/export` | `ComparisonExportService` | Markdown 렌더러 |
+| **Tab 3**<br>(검토 센터) | `ReviewTicketListController` | `GET /review-tickets?status=...` | `ReviewTicketService` (PageResponse+TabCounts) | `ReviewTicketModel` |
+| | `ReviewTicketDetailController` | `GET,POST /review-tickets/{id}, /presence` | `ReviewTicketService`, `PresenceLockService` | `ReviewTicketModel` |
+| | `ReviewDirectiveController` | `POST /review-tickets/{id}/directive` | `ReviewDirectiveService` (working_draft 갱신) | `directive_agent` |
+| | `ReviewDraftSaveController` | `PUT /review-tickets/{id}/draft` | `ReviewTicketService` (낙관적 락) | `ReviewTicketModel` |
+| | `ReviewWikiPreviewController` | `GET /review-tickets/{id}/wiki-preview` | `ReviewWikiPreviewService` (Virtual Merge) | In-Memory Overlay |
+| | `ReviewDecisionController` | `POST /review-tickets/{id}/approve, /reject` | `ReviewDecisionService` (원자적 위키 반영) | `ConceptModel`, `ReviewTicketModel` |
+| **Tab 4**<br>(문헌 조사) | `ResearchSessionController` | `GET,PATCH,DELETE /research/sessions` | `ResearchSessionService` (날짜별 그룹) | `ResearchSessionModel` |
+| | `ResearchClarifyController` | `POST /research/clarify` | `ResearchClarifyService` | `deep_research_agent` |
+| | `ResearchDiscoverController` | `POST /research/sessions/{id}/discover` | `ResearchDiscoverService` | `EvidenceSourceModel` |
+| | `ResearchSynthesisController` | `POST /research/sessions/{id}/synthesize` | `ResearchSynthesisService` (후보 도출) | `deep_research_agent` |
+| | `ResearchExportController` | `GET /research/sessions/{id}/export` | `ResearchExportService` | Markdown 렌더러 |
+| **플로팅 챗** | `ChatbotContextController` | `GET /api/v1/chatbot/context` | `ChatbotContextService` (3단계 폴백) | DB 전역 메타데이터 |
+| | `ChatbotMessageController` | `POST /api/v1/chatbot/messages{,/stream}` | `ChatbotMessageService` (Context Injection) | `ClarifierAgent` |
+| | `ChatbotSessionController` | `DELETE /api/v1/chatbot/messages` | `ChatbotSessionService` | Session Cache |
+| **공통** | `SpotlightSearchController` | `GET /api/v1/search/spotlight` | `SpotlightSearchService` (0ms 전역 검색) | `ConceptModel` |
