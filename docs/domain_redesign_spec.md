@@ -268,19 +268,22 @@
 검토·승인 센터는 라인 엔지니어의 수정 제안이나 AI 에이전트의 온톨로지 보완 제안을 **지식 검토관(Chief Reviewer)이 검증하고, AI 지시문 및 직접 편집을 거쳐 공용 위키에 안전하게 공식 반영(Publish)**하는 거버넌스 핵심 허브입니다.
 
 ```
-[검토 대기 티켓 큐 (Left Pane)]
+[상단 상태 탭 필터: 검토 대기 (12) | 승인 완료 (38) | 반려됨 (5)]
+                       │
+[좌측 Pane: 검토 대기 티켓 큐 (기본값: status=pending)]
   │
   ├─ 티켓 선택 (MR-MUF 열저항 수치 보완 건 등)
   ▼
 [2-Pane 비교·편집 워크스페이스]
   ├─ 좌측 Pane : [변경 전 원본 본문] vs [제안 발의 배경 및 사유]
-  ├─ 우측 Pane : [AI 통합 초안] ⇄ [전문가 직접 편집 모드 (In-Place)]
-  │                └─ AI 지시문 바: "불변 제약 유지하고 가압력 범위만 재조정해줘"
+  ├─ 우측 Pane : ★ [단일 작업 초안 (working_draft)] 통합 버퍼
+  │                ├─ AI 지시문 바: "불변 제약 유지하고 가압력 범위만 재조정해줘" (지시 시 초안 자동 갱신)
+  │                └─ 직접 편집 모드: 에디터에서 문장/수치 직접 타이핑 수정 (저장 시 초안 갱신)
   ▼
-[실시간 가상 위키 미리보기 모달]  ◀── 원본 DB 오염 없이 메모리 상 가상 병합 (Virtual Merge)
+[실시간 가상 위키 미리보기 모달]  ◀── 원본 DB 오염 없이 working_draft를 메모리 상 가상 병합 (Virtual Merge)
   │
-  ▼
-[승인 및 공용 위키에 즉시 게시]  ◀── 단일 원자적 트랜잭션 (위키 버전 승계 v1.2➔v1.3 + WORM 감사 로그 영구 기록)
+  ├─ [승인 및 공용 위키에 즉시 게시]  ◀── 단일 원자적 트랜잭션 (위키 버전 승계 v1.2➔v1.3 + 캐시 무효화)
+  └─ [반려 (탈락 처리)]              ◀── 반려 사유 기록 ➔ status="rejected" ➔ 기본 대기열에서 즉시 탈락
 ```
 
 ### ① 과감히 제거된 불필요 요소
@@ -288,8 +291,21 @@
   - 엔지니어링 실무에서 반도체 공정 지식 검토는 정형화된 버튼 클릭 몇 번으로 때울 수 없는 고도의 맥락적 작업입니다.
   - 불필요한 시각적 노이즈를 없애고 검토관이 정확한 의도를 자연어 지시문이나 직접 편집으로 전달하도록 집중도를 극대화합니다.
 
-### ② 임시 초안의 엄격한 프로덕션 DB 격리 원칙
-- 검토관이 AI 지시문을 수행하거나 직접 편집기를 통해 글을 고쳐도, **승인 전까지는 `review_tickets` 테이블의 임시 필드(`human_edits`, `ai_merged_draft`)에만 보관**됩니다.
+### ② 초안 충돌 및 누락 방지: [단일 작업 초안 (working_draft)] 일원화
+- AI 초안과 전문가 직접 편집본을 별개 필드로 나누어 두면, 사람이 고친 내용을 AI 지시문이 날려버리거나 미리보기 시 기준이 꼬이는 치명적 결함이 발생합니다.
+- 따라서 **`working_draft` (현재 작업 중인 단일 초안)** 버퍼 하나로 완전히 일원화합니다:
+  1. 티켓 진입 시: 발의된 초안이 `working_draft`에 로드됨.
+  2. **AI 수정 지시 시**: 에이전트가 현재 `working_draft`를 읽어 보완한 뒤 다시 `working_draft`를 갱신.
+  3. **직접 편집 시**: 현재 `working_draft`를 에디터에 띄워 타이핑 수정 후 저장 (`working_draft` 갱신).
+  4. **미리보기 시**: 항상 최신의 `working_draft` 하나만 원본과 대조하므로 충돌·누락 원천 차단.
+
+### ③ 반려(Reject) 기본 원칙: [즉시 탈락 & 아카이브 분리]
+- 검토관이 부적절한 제안을 반려할 경우, 반려 사유를 입력받고 상태를 `status="rejected"`로 변경합니다.
+- 기본 검토 대기열(`status=pending`)에서는 **즉시 제외(탈락)**되어 검토관의 대기열이 항상 깨끗하게 유지됩니다.
+- 탈락된 반려 건은 상단 탭에서 **[반려됨]**을 클릭했을 때만 사유와 함께 조회할 수 있습니다.
+
+### ④ 임시 초안의 엄격한 프로덕션 DB 격리 원칙
+- 검토관이 AI 지시문을 수행하거나 직접 편집기를 통해 글을 고쳐도, **승인 전까지는 `review_tickets` 테이블의 임시 필드(`working_draft`)에만 보관**됩니다.
 - 공식 위키 본문 DB(`concepts` 테이블)는 **단 1바이트도 수정되지 않으며**, 승인(`POST /approve`)이 최종 집행되는 순간에만 원자적(Atomic)으로 공용 위키에 복사·반영됩니다.
 
 ---
@@ -298,20 +314,37 @@
 
 ### [도메인 1] 검토 대기 큐 및 티켓 목록 서빙 (`ReviewTicketListController`)
 - **담당 역할**:
-  - 상태별(검토 대기 `pending`, 승인 완료 `approved`, 반려 `rejected`), 출처별(위키 간이 제안 `wiki_feedback`, 비교분석 도출 `comparison_gap`), 심각도별 티켓 목록을 페이징/정렬하여 서빙.
+  - 검토 티켓 목록을 서빙하며, **기본 대기열에서는 반려/승인 건을 자동 제외(탈락)**하여 표출.
+  - 상단 탭 숫자 뱃지(`[대기중 (12)] | [승인완료 (38)] | [반려됨 (5)]`)를 위한 **상태별 집계 카운트(`tabCounts`)** 번들 제공.
+  - 무한 스크롤 및 "더 불러오기"를 위한 페이징 메타데이터(`PageResponse`) 완비.
 - **컨트롤러 엔드포인트**:
   - `GET /api/v1/review-tickets?status={pending|approved|rejected}&limit=20&offset=0`
+  - *(쿼리 생략 시 기본값: `status=pending`)*
 - **서비스**: `ReviewTicketService.get_ticket_list(status, limit, offset)`
-- **레포지토리**: `ReviewTicketRepository.find_all(status, ...)`
+- **레포지토리**: `ReviewTicketRepository.find_tickets(status, limit, offset)`, `ReviewTicketRepository.count_by_status()`
 - **엔티티**: `ReviewTicketModel`
-- **응답 DTO**: `List[ReviewTicketDTO]`
+- **응답 DTO (`ReviewTicketPageResponse`)**:
+  ```json
+  {
+    "items": [ ...티켓 DTO 리스트... ],
+    "totalCount": 12,
+    "hasMore": false,
+    "offset": 0,
+    "limit": 20,
+    "tabCounts": {
+      "pending": 12,
+      "approved": 38,
+      "rejected": 5
+    }
+  }
+  ```
 
 ---
 
 ### [도메인 2] 2-Pane 검토 상세 워크스페이스 & 동시 편집 락 (`ReviewTicketDetailController`)
 - **담당 역할**:
   - 목록에서 특정 티켓 클릭 시 2-Pane 검토에 필요한 전체 데이터 패키지 서빙:
-    - 원본 지식 본문(`current_content`), AI 통합 개정 초안(`ai_merged_draft`), 전문가 직접 수정본(`human_edits`)
+    - 원본 지식 본문(`current_content`), 현재 단일 작업 초안(`working_draft`)
     - 온톨로지 정합성 점검 보고서(`integrity_report`: 인과 모순 여부, 공인 출처 불변 제약 준수율)
     - 과거 지시문 대화 이력(`directive_history`)
   - **분산 프레즌스 락(Presence Lock)**: 동일 티켓을 다른 검토관이 열람/수정 중인지 실시간 감지하여 편집 충돌 사전 차단.
@@ -328,36 +361,36 @@
 ### [도메인 3] 전문가 AI 보완 지시문 실행 (`ReviewDirectiveController`)
 - **담당 역할**:
   - 하단 지시문 입력창에서 전문가가 자연어로 보완 명령(예: "가압력 150N 상한선에 따른 보상 파라미터 언급을 추가하고 공인 출처 [E-01] 인용구는 유지해줘")을 내렸을 때 에이전트를 가동.
-  - 출처 불변 제약(Immutable Source Constraints)을 엄격히 검증하며 AI 초안을 실시간 재작성하고 온톨로지 정합성 보고서를 재계산.
+  - 현재의 `working_draft`를 기반으로 공인 출처 불변 제약을 보존하면서 초안을 재작성하고 `working_draft`를 자동 갱신.
 - **컨트롤러 엔드포인트**:
   - `POST /api/v1/review-tickets/{ticket_id}/directive`
 - **서비스**: `ReviewDirectiveService` (내부적으로 `directive_agent` 호출)
 - **요청 DTO**: 
   - `DirectiveRequest`: `{ "directiveText": "...", "overrideReason": "..." }`
-- **응답 DTO**: `ReviewTicketDTO` (갱신된 `ai_merged_draft`, 누적된 `directive_history`, 최신 정합성 보고서)
+- **응답 DTO**: `ReviewTicketDTO` (갱신된 `working_draft`, 누적된 `directive_history`, 최신 정합성 보고서)
 
 ---
 
 ### [도메인 4] 전문가 직접 편집 모드 실시간 임시 저장 (`ReviewDraftSaveController`)
 - **담당 역할**:
-  - 우측 Pane의 인플레이스 직접 편집기(In-Place Editor)에서 전문가가 수치나 문장을 타이핑하여 수정한 내용을 임시 저장.
+  - 우측 Pane의 인플레이스 직접 편집기(In-Place Editor)에서 전문가가 수치나 문장을 타이핑하여 수정한 내용을 `working_draft` 단일 버퍼에 임시 저장.
   - **낙관적 동시성 락(Optimistic Concurrency Lock)**: `ticket_version` 검사를 수행하여 다른 세션의 덮어쓰기 유실을 원천 차단.
-  - **임시성 보장**: 오직 `ReviewTicketModel.human_edits` 컬럼에만 저장되며 공식 위키 DB에는 일절 영향을 주지 않음.
+  - **임시성 보장**: 오직 `ReviewTicketModel.working_draft` 컬럼에만 저장되며 공식 위키 DB에는 일절 영향을 주지 않음.
 - **컨트롤러 엔드포인트**:
-  - `PUT /api/v1/review-tickets/{ticket_id}/human-edits`
-- **서비스**: `ReviewTicketService.save_human_draft(ticket_id, edited_content, ticket_version)`
-- **요청 DTO**: `HumanEditsRequest`: `{ "editedContent": "...", "ticketVersion": 2 }`
-- **응답 DTO**: `HumanEditsResponse`
+  - `PUT /api/v1/review-tickets/{ticket_id}/draft`
+- **서비스**: `ReviewTicketService.save_draft(ticket_id, edited_content, ticket_version)`
+- **요청 DTO**: `DraftSaveRequest`: `{ "editedContent": "...", "ticketVersion": 2 }`
+- **응답 DTO**: `DraftSaveResponse` (갱신된 `ticketVersion`, `updatedAt`)
 
 ---
 
 ### [도메인 5] 승인 전 공용 위키 페이지 가상 미리보기 (`ReviewWikiPreviewController`)
 - **담당 역할**:
   - 최종 승인 전, 본 개정안이 공용 위키에 게시되었을 때의 완성된 위키 상세 화면을 **메모리 상에서 가상 병합(Virtual Merge)**하여 미리 렌더링.
-  - 변경된 단락, 추가된 수치에 diff 하이라이트(`<mark class="diff-added">`)를 부여하여 검토관이 최종 시각적 검증을 완료할 수 있도록 지원.
+  - DB 원본 개념의 연관 데이터(출처 목록, 2-Hop 인과 서브그래프 등) 위에 최신 `working_draft`를 메모리 상에서 오버레이하고 변경 diff(`<mark class="diff-added">`)를 입혀서 서빙.
 - **아키텍처 결정 (별도 컨트롤러 분리)**:
   - 기존 위키 본문 컨트롤러(`GET /api/v1/wiki-entries/{id}`)는 **공식 승인된 DB 데이터만 읽는 공개 게이트웨이**이므로 절대 오염시키지 않습니다.
-  - 검토 센터 전용 미리보기 컨트롤러를 분리하여, 서비스 계층에서 기존 `WikiEntry` 조립 로직을 재사용하되 DB 원본 위에 현재 티켓의 `human_edits` 또는 `ai_merged_draft`를 메모리 상에서 오버레이 병합하여 안전하게 서빙합니다.
+  - 검토 센터 전용 미리보기 컨트롤러를 분리하여, 서비스 계층에서 기존 `WikiEntry` 조립 로직을 재사용하되 DB 원본 위에 현재 티켓의 `working_draft`를 메모리 상에서 오버레이 병합하여 안전하게 서빙합니다.
 - **컨트롤러 엔드포인트**:
   - `GET /api/v1/review-tickets/{ticket_id}/wiki-preview?highlightChanges=true`
 - **서비스**: `ReviewWikiPreviewService.generate_virtual_preview(ticket_id, highlight_changes)`
@@ -365,33 +398,25 @@
 
 ---
 
-### [도메인 6] 승인 집행 및 공용 위키 즉시 게시 (`ReviewApproveController`)
+### [도메인 6] 거버넌스 결정 집행 (승인 및 즉시 게시 / 반려 및 대기열 탈락) (`ReviewDecisionController`)
 - **담당 역할**:
-  - 지식 검토관이 승인 버튼을 클릭했을 때 공용 위키 DB에 최종 영구 승계 및 즉시 게시(Publish).
-  - **단일 원자적 DB 트랜잭션 (ACID All-or-Nothing)** 보장:
+  - 지식 검토관이 승인 또는 반려 버튼을 클릭했을 때의 최종 거버넌스 액션 집행.
+  - **① 승인 집행 (`POST /approve`)**:
     1. **권한 검증**: 요청 헤더 `X-User-Role`이 Chief Reviewer(승인권자)인지 엄격 판별 (일반 `line_engineer`는 403 차단).
-    2. **위키 본문 영구 승계**: `concepts` 테이블의 `summary`, `principles`, `limitations` 등을 확정 초안으로 갱신.
-    3. **동적 판본 승계**: 버전 번호를 기존 하드코딩 `v1.3`이 아닌, 직전 버전(`current_version: v1.2`)을 기준으로 동적 마이너 판본 승계(`target_version: v1.3`) 자동 반영.
-    4. **티켓 상태 완결**: `status="approved"`, `approved_at`, `approved_by` 확정 기록.
-    5. **WORM 감사 로그 영구 보존**: `audit_logs` 테이블에 머클 해시 체인 및 서명 영구 기록.
-    6. **위키 캐시 즉시 무효화**: 공개 위키 엔트리 캐시를 즉시 제거하여 모든 사용자가 0ms로 새 버전을 열람 가능하도록 보장.
+    2. **단일 원자적 DB 트랜잭션**:
+       - `concepts` 테이블의 공식 지식 본문을 최신 `working_draft`로 갱신.
+       - 버전 번호를 기존 하드코딩 `v1.3`이 아닌 직전 버전(`v1.2`) 기준 동적 마이너 판본 승계(`v1.3`) 자동 반영.
+       - 티켓 상태를 `status="approved"`, `approved_at`, `approved_by`로 확정.
+    3. **위키 캐시 즉시 무효화**: 공개 위키 엔트리 캐시를 즉시 제거하여 모든 사용자가 0ms로 새 버전을 열람 가능하도록 보장.
+  - **② 반려 집행 (`POST /reject`)**:
+    1. **권한 검증**: Chief Reviewer 권한 확인.
+    2. **반려 사유 기록 및 상태 변경**: `rejectReason` 기록 및 `status="rejected"`로 전환.
+    3. **기본 대기열 즉시 탈락**: 상태가 변경되어 기본 대기열(`status=pending`)에서 즉시 사라지고 상단 [반려됨] 탭으로 아카이브.
 - **컨트롤러 엔드포인트**:
   - `POST /api/v1/review-tickets/{ticket_id}/approve` (헤더: `X-User-Role`)
-- **서비스**: `ReviewApproveService.approve_and_publish(ticket_id, user_role, override_reason)`
-- **요청 DTO**: `ReviewTicketApproveRequest`: `{ "overrideReason": "..." }`
-- **응답 DTO**: `ReviewTicketActionResponse` (승계된 신규 버전 번호, 승인 확정 메시지)
-
----
-
-### [도메인 7] 티켓 반려 및 WORM 감사 이력 검증 (`ReviewAuditController`)
-- **담당 역할**:
-  - 수정 제안이 타당하지 않거나 공정 물리 모델에 위배될 경우 반려 사유와 함께 거절 집행.
-  - 규제 준수(Compliance) 및 내부 감사용 머클 해시 체인(Merkle Audit Trail) 이력 서빙.
-- **컨트롤러 엔드포인트**:
-  - `POST /api/v1/review-tickets/{ticket_id}/reject` (헤더: `X-User-Role`, 사유 기록)
-  - `GET  /api/v1/review-tickets/{ticket_id}/audit-logs` (감사 로그 및 머클 무결성 체인 조회)
-- **서비스**: `ReviewAuditService`
-- **응답 DTO**: `ReviewTicketActionResponse`, `List[AuditLogDTO]`
+  - `POST /api/v1/review-tickets/{ticket_id}/reject` (헤더: `X-User-Role`)
+- **서비스**: `ReviewDecisionService.approve(ticket_id, user_role, override_reason)` / `reject(ticket_id, user_role, reject_reason)`
+- **응답 DTO**: `ReviewDecisionResponse` (처리 결과 상태, 승계된 버전 번호, 안내 메시지)
 
 ---
 
@@ -412,16 +437,14 @@
 
 ---
 
-## 3.4 거버넌스 4대 기술 안전성 보장 원칙
+## 3.4 거버넌스 기술 안전성 3대 원칙
 
-1. **WORM (Write-Once-Read-Many) 불변 머클 감사 추적**:
-   - 모든 승인 및 반려 행위는 이전 로그 해시(`previous_log_hash`)와 결합된 SHA-256 머클 해시 체인으로 `audit_logs` 테이블에 기록되며, 사후 변조가 수학적으로 불가능합니다.
+1. **단일 작업 초안 (Single Working Draft) 무결성**:
+   - AI 초안과 사람 수정본을 분리하지 않고 하나의 버퍼로 관리하여, 수정 지시나 직접 타이핑 중 데이터가 덮어써지거나 미리보기에서 누락되는 문제를 원천 차단합니다.
 2. **이중 잠금 편집 충돌 방지 (Distributed Presence Lock + Optimistic Lock)**:
    - 입장 시 Redis/메모리 기반 비차단 프레즌스 락으로 동시 접속자를 안내하고, 저장 시 `ticket_version` 낙관적 락으로 덮어쓰기 사고를 원천 차단합니다.
-3. **가상 병합(Virtual Merge)을 통한 프로덕션 DB 무결성 유지**:
-   - 미리보기 시 실제 DB를 변경하지 않고 메모리 상에서만 초안을 오버레이하므로, 검토 중인 미검증 데이터가 일반 사용자에게 유출될 위험이 0%입니다.
-4. **단일 원자적 트랜잭션 즉시 게시 (Atomic Publishing)**:
-   - 위키 본문 업데이트, 버전 승계, 티켓 완료 처리, 감사 로그 기록이 단 하나의 DB 트랜잭션으로 묶여 실행되므로 중간 실패로 인한 지식 불일치가 발생하지 않습니다.
+3. **가상 병합(Virtual Merge)과 단일 원자적 게시 (Atomic Publishing)**:
+   - 승인 전까지는 메모리 상 가상 병합으로만 미리보기를 서빙하여 프로덕션 DB를 100% 무결하게 유지하며, 최종 승인 시에만 단일 DB 트랜잭션으로 공용 위키에 즉시 반영하고 캐시를 갱신합니다.
 
 ---
 
