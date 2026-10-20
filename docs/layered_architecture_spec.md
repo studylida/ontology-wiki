@@ -1236,6 +1236,21 @@ class ReviewTicketPageResponse(BaseModel):
     offset: int
     limit: int
     tabCounts: ReviewTabCountsDTO      # 상단 탭 [대기중(12)] [승인완료(38)] [반려됨(5)] 뱃지 번들
+
+# 4. 티켓 신규 발행 요청 DTO (POST /review-tickets - 위키 모달 M-05 및 비교분석 연동)
+class ReviewTicketCreateRequest(BaseModel):
+    targetScope: str = "existing_concept" # "existing_concept" | "new_concept" | "causal_relation"
+    conceptId: Optional[str] = None    # 신규 개념 등록 시 None 가능
+    conceptTitle: Optional[str] = None
+    title: str                         # 발의 제목
+    reviewType: str                    # "파라미터 수정", "오류 정정", "신규 공정 편입", "인과 에지 보완"
+    author: str                        # 발의자 사번/ID
+    department: Optional[str] = None
+    originType: str = "manual_expert"  # "manual_expert" | "comparison_gap" | "deep_research"
+    userNote: Optional[str] = None     # 엔지니어 제안 의견
+    suggestedDraft: Optional[str] = None # 제안 초안
+    sourceSessionId: Optional[str] = None # 비교분석 세션 연계 시 세션 ID
+    proposedPayload: Optional[Dict[str, Any]] = None # 신규 개념/에지 등록 시 구조화 페이로드
 ```
 
 ### ② 2-Pane 검토 상세 워크스페이스 DTO (`GET /review-tickets/{id}`, `POST /presence`)
@@ -1430,6 +1445,13 @@ class ReviewTicketRepository:
         result = await self.db.execute(stmt)
         await self.db.commit()
         return result.rowcount > 0
+
+    async def create_ticket(self, ticket: ReviewTicketModel) -> ReviewTicketModel:
+        """신규 검토 티켓 발행 저장 (기존 개념 개정, 신규 개념 편입, 인과 에지 보완)."""
+        self.db.add(ticket)
+        await self.db.commit()
+        await self.db.refresh(ticket)
+        return ticket
 ```
 
 ### ② `AuditLogRepository` 인터페이스
@@ -1479,6 +1501,10 @@ class AuditLogRepository:
 
 ### ① `ReviewTicketService` (티켓 대기열 및 상세 오케스트레이터)
 - **책임**:
+  - `create_ticket(request)`: 
+    - 위키 모달 `[M-05]` 또는 비교분석 지식 갭 배너에서 접수된 발의 수신.
+    - `targetScope`에 따라 기존 개념(`existing_concept`)이면 `ConceptRepository.get_by_id`로 원본 스냅샷 취득, 신규 개념(`new_concept`)이면 404 없이 `proposed_payload` 구조체 보존.
+    - 단일 작업 초안 `working_draft` 초기화, 3대 무결성 점검 기본값 세팅 후 `ReviewTicketRepository.create_ticket` 호출.
   - `get_ticket_list(status, concept_id, limit, offset)`: 기본값 `status="pending"`으로 대기열 서빙, `count_by_status()`를 병렬 호출하여 `tabCounts`를 번들 조립.
   - `get_ticket_detail(ticket_id)`: 원본 본문(`current_content`), 최신 단일 초안(`working_draft`), 3대 정합성 보고서, 지시문 대화 이력, 현재 동시 접속자 락 상태를 2-Pane DTO로 합성.
 
