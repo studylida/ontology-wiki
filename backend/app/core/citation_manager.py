@@ -49,18 +49,71 @@ class EvidenceCitationManager:
         return tag_to_sentence
 
     @staticmethod
-    def validate_and_restore(
+    async def is_deprecation_intended(
+        reason: Optional[str],
+        missing_tags: Optional[List[str]] = None,
+        gemini_key: Optional[str] = None,
+        openai_key: Optional[str] = None
+    ) -> bool:
+        """사유(override_reason)의 자연어 문맥을 분석하여 공인 출처의 의도적 폐기/대체 의도인지 판별합니다.
+        
+        1단계: 빠른 결정 (Quick Rule) - 명시적 폐기/교체 키워드 존재 시 0ms 즉시 승인.
+        2단계: Tier 1 초고속 AI(gpt-4o-mini) - 고정 키워드가 없더라도 자연어 문맥(예: '28nm 측정치는 3nm에서 무효')을 인과적으로 해석.
+        """
+        if not reason or not reason.strip():
+            return False
+        
+        reason_clean = reason.strip().lower()
+        FAST_KEYWORDS = {
+            "폐기", "삭제", "제거", "deprecated", "구버전", "세대 교체",
+            "호환 제외", "파기", "무효", "무효화", "대체됨", "만료", "퇴출", "배제"
+        }
+        if any(k in reason_clean for k in FAST_KEYWORDS):
+            return True
+
+        # 2단계: Tier 1 AI 문맥 의도 판별
+        try:
+            from backend.app.core.llm_gateway import llm_gateway
+            prompt = (
+                f"사용자가 반도체 위키 문서에서 기존 공인 출처/인용을 제외하면서 작성한 사유입니다:\n"
+                f"사유: \"{reason}\"\n"
+                f"제외 대상 출처 태그: {missing_tags or '기존 출처'}\n\n"
+                "질문: 위 사유가 해당 기존 출처나 측정값의 '의도적 폐기, 대체, 유효성 만료, 공정 세대 교체로 인한 배제'를 의미합니까?\n"
+                "반드시 단 한 단어로만 답변하세요: YES 또는 NO"
+            )
+            resp = await llm_gateway.generate_text(
+                prompt=prompt,
+                system_instruction="You are a strict compliance auditor determining if an engineering note expresses intent to deprecate or replace an old reference. Reply only YES or NO.",
+                model_tier="tier1_fast",
+                temperature=0.0,
+                max_tokens=10,
+                gemini_key=gemini_key,
+                openai_key=openai_key
+            )
+            if resp and "yes" in resp.strip().lower():
+                logger.info(f"AI classified reason '{reason}' as intentional deprecation (YES).")
+                return True
+        except Exception as e:
+            logger.warning(f"Tier 1 AI deprecation check fallback: {e}")
+
+        return False
+
+    @staticmethod
+    async def validate_and_restore(
         original_text: str,
         edited_text: str,
         allow_citation_deletion: bool = False,
-        override_reason: Optional[str] = None
+        deprecated_citations: Optional[List[str]] = None,
+        override_reason: Optional[str] = None,
+        gemini_key: Optional[str] = None,
+        openai_key: Optional[str] = None
     ) -> Tuple[str, List[str], List[str]]:
         """사용자가 직접 편집 중 누락된 공인 출처 각주를 감지하고 복원 또는 공식 폐기를 처리합니다.
         
-        복원 및 공식 폐기(Deprecation) 원칙:
-        1. 공식 폐기 인가: 사용자가 사유(override_reason)에 '폐기', '삭제', '구버전', '세대 교체' 등을 명시했거나
-           allow_citation_deletion=True인 경우 강제 복원 없이 영구 폐기를 공식 인가합니다.
-        2. 단순 실수 누락: 명시적 폐기 사유가 없는 경우, 원문의 핵심 근거 문장과 태그를 안전하게 복원합니다.
+        복원 및 공식 폐기(Deprecation) 거버넌스 원칙 (대안 1 + 대안 2 결합형):
+        1. 명시적 플래그 및 태그: allow_citation_deletion=True이거나 deprecated_citations에 포함된 태그는 즉시 폐기 인가.
+        2. AI 자연어 사유 분석: 강제 키워드가 없더라도 작성된 사유의 문맥이 의도적 폐기/대체로 판별되면 공식 폐기 인가.
+        3. 단순 실수 누락: 위 사유가 없는 경우, 원문의 핵심 근거 문장과 태그를 안전하게 자동 복원.
 
         Returns:
             Tuple[str, List[str], List[str]]: (처리된 본문, 복원된 태그 목록, 공식 폐기 인가된 태그 목록)
@@ -73,28 +126,42 @@ class EvidenceCitationManager:
             return edited_text, [], []
 
         sorted_missing = sorted(list(missing_citations))
+        explicit_deprecated_set = set(deprecated_citations or [])
 
-        # 🌟 사람의 명시적 폐기 사유 검증 (Human-in-the-Loop 공식 폐기 인가)
-        DEPRECATION_KEYWORDS = {"폐기", "삭제", "제거", "deprecated", "구버전", "세대 교체", "호환 제외", "파기"}
-        reason_text = (override_reason or "").lower()
-        is_explicit_deprecation = allow_citation_deletion or any(k in reason_text for k in DEPRECATION_KEYWORDS)
+        # 사유 문맥을 통한 의도적 폐기 여부 판별
+        reason_is_deprecation = await EvidenceCitationManager.is_deprecation_intended(
+            override_reason,
+            missing_tags=sorted_missing,
+            gemini_key=gemini_key,
+            openai_key=openai_key
+        )
 
-        if is_explicit_deprecation:
-            logger.info(f"Official citation deprecation authorized for tags: {sorted_missing}. (Reason: {override_reason})")
-            return edited_text, [], sorted_missing
+        officially_deprecated: List[str] = []
+        tags_to_restore: List[str] = []
+
+        for tag in sorted_missing:
+            if allow_citation_deletion or (tag in explicit_deprecated_set) or reason_is_deprecation:
+                officially_deprecated.append(tag)
+            else:
+                tags_to_restore.append(tag)
+
+        if officially_deprecated:
+            logger.info(
+                f"Official citation deprecation authorized for tags: {officially_deprecated}. "
+                f"(Reason: {override_reason}, ExplicitFlag: {allow_citation_deletion})"
+            )
+
+        if not tags_to_restore:
+            return edited_text, [], officially_deprecated
 
         orig_sentences = EvidenceCitationManager.extract_citation_sentences(original_text)
-
         restoration_blocks: List[str] = []
         simple_tag_restores: List[str] = []
 
-        for tag in sorted_missing:
+        for tag in tags_to_restore:
             orig_sentence = orig_sentences.get(tag)
-            # 원문 문장의 핵심 키워드가 편집문에도 없는지 확인 (문장 통째 삭제 여부 판별)
             if orig_sentence:
-                # 태그를 제외한 순수 문장
                 clean_orig_sentence = re.sub(r"\[E-\d+\]", "", orig_sentence).strip()
-                # 원문 문장의 주요 단어 중 절반 이상이 편집문에서 사라졌다면 '문장 통째 삭제'로 간주
                 words = [w for w in clean_orig_sentence.split() if len(w) >= 2]
                 match_count = sum(1 for w in words if w in edited_text)
                 is_sentence_deleted = (len(words) > 0 and (match_count / len(words)) < 0.4)
@@ -113,10 +180,42 @@ class EvidenceCitationManager:
             restored_text += "\n\n" + "\n".join(restoration_blocks)
 
         logger.warning(
-            f"Detected missing citations in human edits: {sorted_missing}. "
+            f"Detected missing citations in human edits: {tags_to_restore}. "
             f"Automatically restored (Sentences: {len(restoration_blocks)}, Tags: {len(simple_tag_restores)})."
         )
-        return restored_text, sorted_missing, []
+        return restored_text, tags_to_restore, officially_deprecated
+
+    @staticmethod
+    def validate_and_restore_sync(
+        original_text: str,
+        edited_text: str,
+        allow_citation_deletion: bool = False,
+        override_reason: Optional[str] = None
+    ) -> Tuple[str, List[str], List[str]]:
+        """동기 호출용 래퍼 (AI 비동기 호출 없이 순수 규칙 기반으로 즉시 판별)."""
+        import asyncio
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                reason_clean = (override_reason or "").lower()
+                is_explicit = allow_citation_deletion or any(
+                    k in reason_clean for k in ["폐기", "삭제", "제거", "deprecated", "구버전", "세대 교체", "호환 제외"]
+                )
+                orig_c = set(EvidenceCitationManager.parse_citations(original_text))
+                edit_c = set(EvidenceCitationManager.parse_citations(edited_text))
+                missing = sorted(list(orig_c - edit_c))
+                if not missing:
+                    return edited_text, [], []
+                if is_explicit:
+                    return edited_text, [], missing
+                return edited_text + " " + " ".join(f"[{t}]" for t in missing), missing, []
+            return loop.run_until_complete(
+                EvidenceCitationManager.validate_and_restore(
+                    original_text, edited_text, allow_citation_deletion=allow_citation_deletion, override_reason=override_reason
+                )
+            )
+        except Exception:
+            return edited_text, [], []
 
     @staticmethod
     async def promote_to_evidence_source(

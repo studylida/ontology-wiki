@@ -112,6 +112,8 @@ class ReviewTicketApproveRequest(BaseModel):
     overrideReason: Optional[str] = Field(None, alias="override_reason", serialization_alias="overrideReason", description="🌟 표준 사유 / overrideReason")
     targetVersion: Optional[str] = Field(None, alias="target_version", serialization_alias="targetVersion", description="반영할 온톨로지 개념 버전 (미지정 시 티켓의 target_version)")
     humanEdits: Optional[str] = Field(None, alias="human_edits", serialization_alias="humanEdits", description="승인 시 최종 수정한 본문 내용 (미지정 시 기존 초안 유지)")
+    allowCitationDeletion: bool = Field(False, alias="allow_citation_deletion", serialization_alias="allowCitationDeletion", description="공인 출처 공식 폐기 명시적 인가 플래그")
+    deprecatedCitations: Optional[List[str]] = Field(None, alias="deprecated_citations", serialization_alias="deprecatedCitations", description="공식 폐기할 공인 출처 태그 목록 (예: ['E-01'])")
 
 
 class ReviewTicketRejectRequest(BaseModel):
@@ -156,6 +158,8 @@ class DirectiveRequest(BaseModel):
 
     directiveText: str = Field(..., alias="directive_text", serialization_alias="directiveText")
     overrideReason: Optional[str] = Field(None, alias="override_reason", serialization_alias="overrideReason")
+    allowCitationDeletion: bool = Field(False, alias="allow_citation_deletion", serialization_alias="allowCitationDeletion", description="공인 출처 공식 폐기 명시적 인가 플래그")
+    deprecatedCitations: Optional[List[str]] = Field(None, alias="deprecated_citations", serialization_alias="deprecatedCitations", description="공식 폐기할 공인 출처 태그 목록 (예: ['E-01'])")
 
 
 class DirectiveResponse(BaseModel):
@@ -177,6 +181,9 @@ class HumanEditsRequest(BaseModel):
 
     editedContent: str = Field(..., alias="edited_content", serialization_alias="editedContent")
     ticketVersion: Optional[int] = Field(None, alias="ticket_version", serialization_alias="ticketVersion")
+    overrideReason: Optional[str] = Field(None, alias="override_reason", serialization_alias="overrideReason")
+    allowCitationDeletion: bool = Field(False, alias="allow_citation_deletion", serialization_alias="allowCitationDeletion", description="공인 출처 공식 폐기 명시적 인가 플래그")
+    deprecatedCitations: Optional[List[str]] = Field(None, alias="deprecated_citations", serialization_alias="deprecatedCitations", description="공식 폐기할 공인 출처 태그 목록 (예: ['E-01'])")
 
 
 class HumanEditsResponse(BaseModel):

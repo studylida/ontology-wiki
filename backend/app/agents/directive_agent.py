@@ -9,7 +9,7 @@ Implements:
 """
 from datetime import datetime, timezone
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
@@ -29,6 +29,8 @@ class DirectiveAgent:
         override_reason: Optional[str],
         db: AsyncSession,
         target_layer: Optional[str] = "hybrid",
+        allow_citation_deletion: bool = False,
+        deprecated_citations: Optional[List[str]] = None,
         gemini_key: Optional[str] = None,
         openai_key: Optional[str] = None
     ) -> DirectiveResponse:
@@ -102,8 +104,14 @@ class DirectiveAgent:
 
         from backend.app.core.citation_manager import EvidenceCitationManager
         raw_draft = f"{base_draft}\n\n{highlighted_sentence}"
-        revised_draft, restored_tags, deprecated_tags = EvidenceCitationManager.validate_and_restore(
-            base_draft, raw_draft, override_reason=override_reason
+        revised_draft, restored_tags, deprecated_tags = await EvidenceCitationManager.validate_and_restore(
+            base_draft,
+            raw_draft,
+            allow_citation_deletion=allow_citation_deletion,
+            deprecated_citations=deprecated_citations,
+            override_reason=override_reason,
+            gemini_key=gemini_key,
+            openai_key=openai_key
         )
         if restored_tags:
             logger.info(f"DirectiveAgent: Automatically restored public citations {restored_tags} to draft.")

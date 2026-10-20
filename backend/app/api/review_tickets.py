@@ -311,6 +311,8 @@ async def approve_review_ticket(
     ticket_id: str,
     body: ReviewTicketApproveRequest,
     x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
+    x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
+    x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
     db: AsyncSession = Depends(get_db)
 ):
     if x_user_role and x_user_role.lower() == "line_engineer":
@@ -351,9 +353,17 @@ async def approve_review_ticket(
     
     # 버전 승계 규칙:
     # 1. 신규 개념 등록 (new_concept) 또는 공인 출처 공식 폐기(Breaking Change) -> minor (v1.2.x -> v1.3.0)
+    #    (명시적 플래그/목록 또는 Tier 1 AI 사유 문맥 의도 판별을 통해 Human-in-the-Loop 인가)
     # 2. 일상적 파라미터/문맥 수정 -> patch (v1.2.0 -> v1.2.1)
+    from backend.app.core.citation_manager import EvidenceCitationManager
     is_new = "신규" in (ticket.review_type or "") or ticket.review_type == "new_concept"
-    has_deprecation = any(k in final_reason.lower() for k in ["폐기", "deprecated", "구버전", "세대 교체", "호환 제외"])
+    has_deprecation_flag = body.allowCitationDeletion or bool(body.deprecatedCitations)
+    has_deprecation_reason = await EvidenceCitationManager.is_deprecation_intended(
+        final_reason,
+        gemini_key=x_gemini_key,
+        openai_key=x_openai_key
+    )
+    has_deprecation = has_deprecation_flag or has_deprecation_reason
     auto_bump_type = "minor" if (is_new or has_deprecation) else "patch"
     
     def _bump_version(v_str: str, b_type: str) -> str:
@@ -619,6 +629,8 @@ async def apply_directive(
         directive_text=text_input,
         override_reason=body.overrideReason,
         db=db,
+        allow_citation_deletion=body.allowCitationDeletion,
+        deprecated_citations=body.deprecatedCitations,
         gemini_key=x_gemini_key,
         openai_key=x_openai_key
     )
@@ -660,7 +672,20 @@ async def update_human_edits(
             detail=f"버전 충돌 감지: 현재 티켓 버전은 {ticket.ticket_version}입니다."
         )
 
-    ticket.human_edits = body.editedContent
+    # 🌟 공인 출처 불변성 검증 및 자동 복원 / 공식 폐기 인가
+    from backend.app.core.citation_manager import EvidenceCitationManager
+    base_text = ticket.current_content or ticket.ai_merged_draft or ""
+    final_content, restored_tags, deprecated_tags = await EvidenceCitationManager.validate_and_restore(
+        original_text=base_text,
+        edited_text=body.editedContent,
+        allow_citation_deletion=body.allowCitationDeletion,
+        deprecated_citations=body.deprecatedCitations,
+        override_reason=body.overrideReason
+    )
+
+    ticket.human_edits = final_content
+    if body.overrideReason:
+        ticket.override_reason = body.overrideReason
     ticket.ticket_version += 1
     ticket.updated_at = datetime.utcnow()
 
