@@ -417,13 +417,278 @@ class EvidenceRepository:
 
 ---
 
-# 2. ⚖️ [Tab 2] 기술 대안 비교분석 계층 설계 (작성 예정)
+# 2. ⚖️ [Tab 2] 기술 대안 비교분석 (Perspective Studio) 계층 설계
 
-*(사용자님과 다음 대화에서 Tab 2 Entity/DTO/Repository/Service 설계 후 통합 수록)*
+## 2.1 물리 Entity 스키마 설계 (Physical Database Schema)
+
+기존의 `snapshots`, `context_params` 등 거대 JSON 덤프와 `val_a`, `val_b` 화면 중심의 비정규화 컬럼을 전면 폐기하고, **세션 ➔ 평가 축 ➔ 격자 셀 ➔ 튜닝 레시피로 이어지는 4대 정규화 물리 테이블로 재구축**합니다.
+
+```
+┌────────────────────────────────────────────────────────┐
+│              comparison_sessions (세션 마스터)         │
+├────────────────────────────────────────────────────────┤
+│ PK id, user_id, title, query, target_a_id, target_b_id │
+│    is_pinned, folder_id, ai_summary, created_at        │
+└──────────────┬──────────────────────────┬──────────────┘
+               │ 1:N                      │ 1:N
+               ▼                          ▼
+┌──────────────────────────────┐ ┌──────────────────────────────┐
+│  comparison_axes (평가 축)   │ │  comparison_tunings (상담)   │
+├──────────────────────────────┤ ├──────────────────────────────┤
+│ PK id                        │ │ PK id                        │
+│ FK session_id                │ │ FK session_id                │
+│    axis_name, category       │ │    constraint_query          │
+│    display_order, is_custom  │ │    tradeoff_analysis         │
+└──────────────┬───────────────┘ └──────────────┬───────────────┘
+               │ 1:N                            │ 1:N
+               ▼                                ▼
+┌──────────────────────────────┐ ┌──────────────────────────────┐
+│  comparison_cells (격자 셀)  │ │  comparison_tuning_recipes   │
+│  (★ 3정규형 독립 셀 보존)    │ │  (★ 보상 레시피 정규화 행)   │
+├──────────────────────────────┤ ├──────────────────────────────┤
+│ PK id                        │ │ PK id                        │
+│ FK axis_id                   │ │ FK tuning_id                 │
+│ FK target_concept_id (대안)  │ │    plan_type (생산성/결함)   │
+│    target_role (target_a/b)  │ │    parameter_name (파라미터) │
+│    val_text (수치/텍스트)    │ │    recommended_value (추천값) │
+│    unit (물리 단위)          │ │    unit (단위)               │
+│    is_knowledge_gap (갭 여부)│ │    expected_tradeoff(페널티) │
+│ FK evidence_id (공인 출처)   │ └──────────────────────────────┘
+└──────────────────────────────┘
+```
+
+---
+
+### [테이블 1] `comparison_sessions` (비교 연구 자산 세션 마스터)
+- **테이블명**: `comparison_sessions`
+- **책임**: 엔지니어가 수행한 비교 분석 작업 공간(Workspace)의 루트 엔티티(Aggregate Root).
+- **컬럼 정의**:
+
+| 컬럼명 | 물리 타입 | 제약 조건 | 설명 |
+| :--- | :--- | :--- | :--- |
+| `id` | `VARCHAR(64)` | `PRIMARY KEY` | 세션 고유 식별자 (예: `csess-20261020-01`) |
+| `user_id` | `VARCHAR(64)` | `NOT NULL, INDEX` | 작성자 사번/엔지니어 ID |
+| `title` | `VARCHAR(256)` | `NOT NULL` | 세션 제목 (예: `HBM3E 16단 적층 열방열 대안 비교`) |
+| `query` | `TEXT` | `NOT NULL` | 엔지니어의 최초 자연어 고민 문장 |
+| `target_a_id` | `VARCHAR(64)` | `NOT NULL, FK(concepts.id), INDEX` | 비교 대상 A 개념 ID (예: `concept-mrmuf`) |
+| `target_b_id` | `VARCHAR(64)` | `NOT NULL, FK(concepts.id), INDEX` | 비교 대상 B 개념 ID (예: `concept-tcncf`) |
+| `is_pinned` | `BOOLEAN` | `DEFAULT FALSE, NOT NULL` | 상단 즐겨찾기 고정 여부 |
+| `folder_id` | `VARCHAR(64)` | `NULLABLE, INDEX` | 소속 프로젝트 폴더 ID |
+| `ai_summary` | `TEXT` | `NULLABLE` | 두 대안에 대한 AI 종합 인과 코멘트 |
+| `created_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP` | 생성 일시 |
+| `updated_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP` | 수정 일시 |
+
+> **🚨 개편 핵심**: 기존의 `snapshots`, `context_params` JSON 덤프 컬럼을 영구 삭제함.
+
+---
+
+### [테이블 2] `comparison_axes` (평가 축 척도 마스터)
+- **테이블명**: `comparison_axes`
+- **책임**: 두 대안을 평가하는 세로 행(Row) 기준(열저항, TAT, CAPEX 등) 정규화 관리 및 Delta 신규 축 추가 지원.
+- **컬럼 정의**:
+
+| 컬럼명 | 물리 타입 | 제약 조건 | 설명 |
+| :--- | :--- | :--- | :--- |
+| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | 축 고유 식별자 |
+| `session_id` | `VARCHAR(64)` | `NOT NULL, FK(comparison_sessions.id ON DELETE CASCADE), INDEX` | 소속 세션 ID |
+| `axis_name` | `VARCHAR(128)` | `NOT NULL` | 평가 축 명칭 (예: `열저항 (Thermal Resistance)`) |
+| `category` | `VARCHAR(64)` | `NOT NULL` | 축 분류 (`물성 및 열특성`, `공정 결함 리스크`, `팹 양산성 & CAPEX`) |
+| `display_order` | `INTEGER` | `NOT NULL` | 테이블 행 정렬 순서 |
+| `is_custom` | `BOOLEAN` | `DEFAULT FALSE, NOT NULL` | 엔지니어가 `POST /axes`로 즉석 추가한 사용자 정의 축 여부 |
+| `created_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP` | 생성 일시 |
+
+---
+
+### [테이블 3] `comparison_cells` (대안별 평가 격자 셀 정규화 테이블)
+- **테이블명**: `comparison_cells`
+- **책임**: 
+  - 특정 평가 축(`axis_id`)에서 특정 대상(`target_concept_id`)이 갖는 실제 값, 단위, 지식 갭 상태, 공인 출처 증빙을 1:1로 물리 보존.
+  - `val_a`, `val_b` 안티패턴을 완전히 폐기하고, 각 대안의 독립적인 출처(`evidence_id`)와 지식 갭(`is_knowledge_gap`)을 개별 행으로 엄격 격리.
+- **컬럼 정의**:
+
+| 컬럼명 | 물리 타입 | 제약 조건 | 설명 |
+| :--- | :--- | :--- | :--- |
+| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | 셀 고유 식별자 |
+| `axis_id` | `INTEGER` | `NOT NULL, FK(comparison_axes.id ON DELETE CASCADE), INDEX` | 소속된 평가 축 ID |
+| `target_concept_id`| `VARCHAR(64)` | `NOT NULL, FK(concepts.id), INDEX` | **평가 대상 개념 ID (MR-MUF, TC-NCF 등)** |
+| `target_role` | `VARCHAR(16)` | `NOT NULL` | 대안 역할 (`target_a` 또는 `target_b`) |
+| `val_text` | `VARCHAR(128)` | `NOT NULL` | 평가 수치/텍스트 (예: `"0.42"`, `"양호"`, `"미세 보이드 위험"`) |
+| `unit` | `VARCHAR(32)` | `NULLABLE` | 물리 단위 (예: `"K/W"`, `"초"`, `"%"` 등) |
+| `is_knowledge_gap` | `BOOLEAN` | `DEFAULT FALSE, NOT NULL` | 사내 공인 실측치 부재(지식 갭) 여부 |
+| `evidence_id` | `VARCHAR(64)` | `NULLABLE, FK(evidence_sources.id ON DELETE SET NULL), INDEX` | 공인 출처 증빙 ID (`E-01`) |
+| `created_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP` | 생성 일시 |
+
+---
+
+### [테이블 4] `comparison_tunings` (AI 파라미터 튜닝 상담 마스터)
+- **테이블명**: `comparison_tunings`
+- **책임**: 엔지니어가 입력한 설비 제약 조건과 AI의 종합 트레이드오프 분석 코멘트 이력 보존.
+- **컬럼 정의**:
+
+| 컬럼명 | 물리 타입 | 제약 조건 | 설명 |
+| :--- | :--- | :--- | :--- |
+| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | 튜닝 상담 고유 식별자 |
+| `session_id` | `VARCHAR(64)` | `NOT NULL, FK(comparison_sessions.id ON DELETE CASCADE), INDEX` | 소속 세션 ID |
+| `constraint_query` | `TEXT` | `NOT NULL` | 엔지니어가 입력한 설비 제약 (예: `"가압력 150N 상한"`) |
+| `tradeoff_analysis`| `TEXT` | `NOT NULL` | AI 종합 트레이드오프 및 결함 리스크 분석 해설 |
+| `created_at` | `DATETIME` | `DEFAULT CURRENT_TIMESTAMP` | 생성 일시 |
+
+---
+
+### [테이블 5] `comparison_tuning_recipes` (추천 파라미터 보상 레시피 정규화 테이블)
+- **테이블명**: `comparison_tuning_recipes`
+- **책임**: AI가 추천한 보상 레시피(파라미터명, 추천값, 단위, 페널티)를 JSON 덤프 없이 정규화 행(Row)으로 관리하여 사내 팹 통계 쿼리 지원.
+- **컬럼 정의**:
+
+| 컬럼명 | 물리 타입 | 제약 조건 | 설명 |
+| :--- | :--- | :--- | :--- |
+| `id` | `INTEGER` | `PRIMARY KEY AUTOINCREMENT` | 레시피 항목 고유 식별자 |
+| `tuning_id` | `INTEGER` | `NOT NULL, FK(comparison_tunings.id ON DELETE CASCADE), INDEX` | 소속 튜닝 상담 ID |
+| `plan_type` | `VARCHAR(16)` | `NOT NULL` | 플랜 유형 (`plan_a`: 생산성 우선, `plan_b`: 결함 방지 우선) |
+| `parameter_name` | `VARCHAR(128)` | `NOT NULL` | 보상 파라미터명 (예: `초음파 인가 시간`, `몰딩 온도`) |
+| `recommended_value`| `VARCHAR(64)` | `NOT NULL` | 추천 수치 (예: `"240ms"`, `"175℃"`) |
+| `unit` | `VARCHAR(32)` | `NOT NULL` | 물리 단위 (`"ms"`, `"℃"`) |
+| `expected_tradeoff`| `VARCHAR(256)` | `NOT NULL` | 예상 페널티 (예: `"택트타임 8.5% 증가"`) |
+
+---
+
+## 2.2 계약 DTO 설계 (API Contract Schemas)
+
+DB의 정규화된 `comparison_axes`와 `comparison_cells`를 Service 계층에서 조립하여, 프론트엔드가 렌더링하기 가장 편한 **가로 대조표 행(Row) 구조로 변환**합니다.
+
+```python
+# 1. 단일 평가 셀 DTO
+class MatrixCellDTO(BaseModel):
+    conceptId: str
+    targetRole: str            # "target_a" | "target_b"
+    value: str                 # "0.42"
+    unit: Optional[str] = None # "K/W"
+    isKnowledgeGap: bool       # True일 경우 화면에 [미실측 지식 갭] 뱃지 표출
+    evidenceId: Optional[str] = None
+
+# 2. 매트릭스 단일 평가 행 DTO (가로 대조표 형태)
+class MatrixRowDTO(BaseModel):
+    axisId: int
+    axisName: str              # "열저항 (Thermal Resistance)"
+    category: str              # "물성 및 열특성"
+    targetA: MatrixCellDTO     # 대상 A의 셀 데이터
+    targetB: MatrixCellDTO     # 대상 B의 셀 데이터
+    isCustom: bool = False
+
+# 3. 매트릭스 전체 완성 응답 DTO
+class ComparisonMatrixResponse(BaseModel):
+    sessionId: str
+    targetA: ConceptSummaryDTO
+    targetB: ConceptSummaryDTO
+    rows: List[MatrixRowDTO]
+    overallComment: Optional[str] = None
+    governanceProposal: Optional[Dict[str, Any]] = None # 지식 갭 감지 시 검토 센터 발행 배너 데이터
+
+# 4. 평가 축 즉석 추가 단일 행 Delta 응답 DTO (POST /axes)
+class ComparisonAxisRowResponse(BaseModel):
+    sessionId: str
+    row: MatrixRowDTO          # 즉석 추가된 단 1개 행만 반환 (1초 미만 응답)
+
+# 5. 파라미터 튜닝 상담 응답 DTO
+class TuningRecipeItemDTO(BaseModel):
+    parameterName: str
+    recommendedValue: str
+    unit: str
+    expectedTradeoff: str
+
+class TuningPlanDTO(BaseModel):
+    planType: str              # "plan_a" | "plan_b"
+    planTitle: str             # "생산성(TAT) 우선 최적화안"
+    recipes: List[TuningRecipeItemDTO]
+
+class TuningAdvisorResponse(BaseModel):
+    tuningId: int
+    constraintQuery: str
+    tradeoffAnalysis: str
+    plans: List[TuningPlanDTO]
+```
+
+---
+
+## 2.3 Repository 계층 설계 (Data Access Layer)
+
+비즈니스 가공 없이 **오직 SQLAlchemy `AsyncSession` 기반의 순수 CRUD 및 Eager Loading 쿼리만 격리 실행**합니다.
+
+### ① `ComparisonSessionRepository`
+```python
+class ComparisonSessionRepository:
+    def __init__(self, db: AsyncSession):
+        self.db = db
+
+    async def create_session(self, session_data: ComparisonSessionModel) -> ComparisonSessionModel:
+        self.db.add(session_data)
+        await self.db.commit()
+        await self.db.refresh(session_data)
+        return session_data
+
+    async def get_by_id(self, session_id: str) -> Optional[ComparisonSessionModel]:
+        return await self.db.get(ComparisonSessionModel, session_id)
+
+    async def list_by_user(self, user_id: str, is_pinned: Optional[bool], folder_id: Optional[str], limit: int, offset: int) -> List[ComparisonSessionModel]:
+        stmt = select(ComparisonSessionModel).where(ComparisonSessionModel.user_id == user_id)
+        if is_pinned is not None:
+            stmt = stmt.where(ComparisonSessionModel.is_pinned == is_pinned)
+        if folder_id:
+            stmt = stmt.where(ComparisonSessionModel.folder_id == folder_id)
+        stmt = stmt.order_by(ComparisonSessionModel.is_pinned.desc(), ComparisonSessionModel.created_at.desc()).limit(limit).offset(offset)
+        return (await self.db.execute(stmt)).scalars().all()
+```
+
+### ② `ComparisonMatrixRepository`
+```python
+class ComparisonMatrixRepository:
+    def __init__(self, db: AsyncSession):
+        self.db = db
+
+    async def get_axes_with_cells(self, session_id: str) -> List[ComparisonAxisModel]:
+        """세션의 모든 평가 축과 이에 딸린 격자 셀들을 1번의 쿼리로 Eager Loading."""
+        stmt = (
+            select(ComparisonAxisModel)
+            .options(selectinload(ComparisonAxisModel.cells))
+            .where(ComparisonAxisModel.session_id == session_id)
+            .order_by(ComparisonAxisModel.display_order.asc())
+        )
+        return (await self.db.execute(stmt)).scalars().all()
+
+    async def add_single_axis_with_cells(self, axis: ComparisonAxisModel, cells: List[ComparisonCellModel]) -> ComparisonAxisModel:
+        """Delta 신규 축 1개와 셀 2개를 단일 원자적 트랜잭션으로 고속 INSERT."""
+        self.db.add(axis)
+        await self.db.flush()
+        for cell in cells:
+            cell.axis_id = axis.id
+            self.db.add(cell)
+        await self.db.commit()
+        await self.db.refresh(axis)
+        return axis
+```
+
+---
+
+## 2.4 Service 계층 설계 (Business Logic Layer)
+
+### ① `ComparisonMatrixService` (매트릭스 통합 오케스트레이터)
+- **책임**:
+  1. 두 대상 개념(`targetA`, `targetB`)의 엔티티와 물리 수치 사양(`perspective_specifications`)을 대조.
+  2. 사내 DB에 실측치가 없는 축인 경우 `is_knowledge_gap = True`로 설정.
+  3. **`OntologyGapDetectorService` 호출**: 수치 모순(Conflict)이나 실측치 부재(Gap)가 감지되면 검토 센터 발행용 `governanceProposal` 메타데이터를 DTO에 동봉.
+  4. 정규화된 `ComparisonAxisModel`과 `ComparisonCellModel`을 결합하여 가로 대조표 형태의 `ComparisonMatrixResponse` DTO로 합성.
+
+### ② `ComparisonAxisService` (신규 축 Delta 고속 추가 전담)
+- **책임**:
+  - `POST /axes` 호출 시 전체 매트릭스를 재계산하지 않고,
+  - 요청된 축(`axisName`)에 대해 대안 A와 B의 물리적 지표를 즉석 산출한 뒤,
+  - `ComparisonMatrixRepository.add_single_axis_with_cells()`를 통해 **단 1개 행(Row)만 원자적으로 저장하고 1초 미만으로 `ComparisonAxisRowResponse` 반환**.
 
 ---
 
 # 3. ✍️ [Tab 3] 검토·승인 센터 계층 설계 (작성 예정)
+
+*(사용자님과 다음 대화에서 Tab 3 Entity/DTO/Repository/Service 설계 후 통합 수록)*
 
 *(사용자님과 다음 대화에서 Tab 3 Entity/DTO/Repository/Service 설계 후 통합 수록)*
 
