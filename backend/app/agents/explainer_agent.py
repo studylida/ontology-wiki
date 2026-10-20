@@ -92,10 +92,12 @@ class ExplainerAgent:
                 "concept-dry-etch": f"{guardrail_prefix} 고종횡비(HARC) 채널 식각 시 이온 충격과 라디칼 반응으로 수직 프로파일을 형성하는 핵심 식각 공정입니다.",
                 "concept-cryo-etch": f"{guardrail_prefix} -60℃ 극저온에서 화학 반응 보호막을 냉동 고착시켜 보잉 결함을 차단하는 대안 공정입니다."
             }
-            explanation_text = fallback_map.get(
-                child_id,
-                f"{guardrail_prefix} {parent_name}의 공학적 신뢰성 및 수율 안정성을 확보하기 위해 직접적으로 연계되는 핵심 구성 요소입니다."
-            )
+            if child_id in fallback_map:
+                explanation_text = fallback_map[child_id]
+            elif not child_concept:
+                explanation_text = f"{guardrail_prefix} 해당 용어('{child_id}')는 온톨로지에 정식 등록되지 않은 미분류 용어입니다. {parent_name} 공정과의 상세 인과 메커니즘은 신규 검토 티켓 발급이 필요합니다."
+            else:
+                explanation_text = f"{guardrail_prefix} {child_name} 개념은 등록되어 있으나, {parent_name} 공정과의 구체적인 물리·화학적 인과 연계 메커니즘은 현재 심의 및 보완 중입니다."
 
         resp = ContextualExplainerResponse(
             childConceptId=child_id,

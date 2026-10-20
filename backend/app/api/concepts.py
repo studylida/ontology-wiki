@@ -461,12 +461,18 @@ async def get_contextual_explainer(
         c_title = child_concept.title if child_concept else term_id
         c_def = child_concept.summary if child_concept else f"{term_id} 정의"
 
+        guardrail_prefix = f"현재 공정 맥락({p_name}):"
+        if not child_concept:
+            context_sentence = f"{guardrail_prefix} 해당 용어('{term_id}')는 온톨로지에 정식 등록되지 않은 미분류 용어입니다. {p_name} 공정과의 상세 인과 메커니즘은 신규 검토 티켓 발급이 필요합니다."
+        else:
+            context_sentence = f"{guardrail_prefix} {c_title} 개념은 등록되어 있으나, {p_name} 공정과의 구체적인 물리·화학적 인과 연계 메커니즘은 현재 심의 및 보완 중입니다."
+
         return ContextualExplanationDTO(
             child_concept_id=term_id,
             parent_concept_id=concept_id,
             title=c_title,
             definition=c_def,
-            context_sentence=f"현재 공정 맥락({p_name}): {p_name}의 신뢰성 및 수율 안정성을 확보하기 위해 직접적으로 연계되는 핵심 구성 요소입니다.",
+            context_sentence=context_sentence,
             cached=True,
             source_evidence=None,
             deep_link=f"/wiki?concept={term_id}"
