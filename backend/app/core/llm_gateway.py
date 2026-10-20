@@ -20,7 +20,7 @@ logger = logging.getLogger("llm_gateway")
 
 
 class LLMGateway:
-    def __init__(self, timeout_sec: float = 3.0):
+    def __init__(self, timeout_sec: float = 8.0):
         self.timeout_sec = timeout_sec
 
     async def generate_text(
@@ -30,12 +30,14 @@ class LLMGateway:
         session_id: str = "default",
         gemini_key: Optional[str] = None,
         openai_key: Optional[str] = None,
-        preferred_provider: str = "gemini"
+        preferred_provider: Optional[str] = None
     ) -> Optional[str]:
-        """Calls external LLM with DLP tokenization, circuit-breaker safety, and fallback.
+        """Calls external LLM with DLP tokenization, active failover, circuit-breaker safety, and fallback.
         
-        Returns None if circuit is open, timeout occurs, or no valid key is provided,
-        prompting the caller agent to use its deterministic ontology fallback.
+        Failover Strategy:
+        1. Both Alive: Executes preferred provider (default: OpenAI gpt-4o-mini).
+        2. One Dead: Automatically cross-fails over to the surviving provider (e.g. Gemini or OpenAI).
+        3. Both Dead: Returns None to trigger local deterministic ontology inference engine.
         """
         # 1. 서킷 브레이커 상태 확인
         if not circuit_breaker.can_execute():
@@ -47,40 +49,59 @@ class LLMGateway:
         active_openai_key = openai_key or settings.OPENAI_API_KEY
 
         if not active_gemini_key and not active_openai_key:
-            # 키 미등록 시 즉시 정적 결정론적 폴백 유도
             return None
 
-        # 3. 구간 인지형 가명화 (DLP Tokenization)
+        # 3. 우선순위 결정 (Active Failover Chain 구성)
+        pref = (preferred_provider or getattr(settings, "PREFERRED_LLM_PROVIDER", "openai")).lower()
+        provider_chain = []
+        if pref == "openai":
+            if active_openai_key:
+                provider_chain.append(("openai", active_openai_key))
+            if active_gemini_key:
+                provider_chain.append(("gemini", active_gemini_key))
+        else:
+            if active_gemini_key:
+                provider_chain.append(("gemini", active_gemini_key))
+            if active_openai_key:
+                provider_chain.append(("openai", active_openai_key))
+
+        if not provider_chain:
+            return None
+
+        # 4. 구간 인지형 가명화 (DLP Tokenization)
         tokenized_prompt, _ = dlp_tokenizer.tokenize(prompt, session_id=session_id)
 
         start_time = time.time()
-        try:
-            response_text = None
-            if active_gemini_key and (preferred_provider == "gemini" or not active_openai_key):
-                response_text = await self._call_gemini(tokenized_prompt, system_instruction, active_gemini_key)
-            elif active_openai_key:
-                response_text = await self._call_openai(tokenized_prompt, system_instruction, active_openai_key)
+        response_text = None
+        used_provider = None
 
-            duration_ms = (time.time() - start_time) * 1000
+        # 🌟 Active Failover: 1순위 실패 시 2순위로 즉시 교차 재시도
+        for prov_name, key in provider_chain:
+            try:
+                if prov_name == "openai":
+                    response_text = await self._call_openai(tokenized_prompt, system_instruction, key)
+                elif prov_name == "gemini":
+                    response_text = await self._call_gemini(tokenized_prompt, system_instruction, key)
 
-            if response_text:
-                # 서킷 브레이커 성공 기록
-                await circuit_breaker.record_call(success=True, duration_ms=duration_ms)
-                # 4. 역치환 (Detokenization)
-                detokenized = dlp_tokenizer.detokenize(response_text, session_id=session_id)
-                return detokenized
-            else:
-                await circuit_breaker.record_call(success=False, duration_ms=duration_ms)
-                return None
+                if response_text and response_text.strip():
+                    used_provider = prov_name
+                    logger.info(f"[LLM Gateway] Successfully generated text using provider: {prov_name}")
+                    break
+                else:
+                    logger.warning(f"[LLM Gateway] Provider '{prov_name}' failed or returned empty. Switching to next available provider in failover chain.")
+            except (httpx.TimeoutException, httpx.RequestError) as e:
+                logger.warning(f"[LLM Gateway] Provider '{prov_name}' network/timeout error: {e}. Switching to failover provider.")
+            except Exception as e:
+                logger.error(f"[LLM Gateway] Provider '{prov_name}' unexpected error: {e}. Switching to failover provider.")
 
-        except (httpx.TimeoutException, httpx.RequestError) as e:
-            duration_ms = (time.time() - start_time) * 1000
-            logger.warning(f"LLM Gateway call timed out or network error ({duration_ms:.0f}ms): {e}")
-            await circuit_breaker.record_call(success=False, duration_ms=duration_ms)
-            return None
-        except Exception as e:
-            duration_ms = (time.time() - start_time) * 1000
-            logger.error(f"LLM Gateway unexpected error: {e}")
+        duration_ms = (time.time() - start_time) * 1000
+
+        if response_text:
+            await circuit_breaker.record_call(success=True, duration_ms=duration_ms)
+            detokenized = dlp_tokenizer.detokenize(response_text, session_id=session_id)
+            return detokenized
+        else:
+            logger.warning("[LLM Gateway] All available LLM providers failed. Triggering deterministic ontology fallback.")
             await circuit_breaker.record_call(success=False, duration_ms=duration_ms)
             return None
 
