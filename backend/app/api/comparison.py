@@ -701,8 +701,6 @@ async def export_to_review_ticket(
     await db.commit()
 
     message = f"비교 분석 세션이 거버넌스 티켓 [{ticket_id}]로 성공적으로 내보내졌습니다."
-    if "전문가 사유" in (body.overrideReason or ""):
-        message += " (💡 안내: 승인율을 높이기 위해 검토 센터에서 '전문가 사유' 대신 구체적 실측 데이터나 공인 백서 근거를 보완하실 수 있습니다.)"
 
     return ExportReviewResponse(
         session_id=session.id,

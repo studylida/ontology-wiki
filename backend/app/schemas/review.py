@@ -52,7 +52,7 @@ class ReviewTicketDTO(BaseModel):
     integrityReport: Dict[str, Any] = Field(..., alias="integrity_report", serialization_alias="integrityReport")
     directiveHistory: List[Dict[str, Any]] = Field(default_factory=list, alias="directive_history", serialization_alias="directiveHistory")
     
-    # 🌟 도메인 필수 용어: 사유 / overrideReason (금지어 "전문가 사유" 절대 사용 금지)
+    # 사유 / overrideReason (실측 근거 및 변경 사유)
     overrideReason: Optional[str] = Field(None, alias="override_reason", serialization_alias="overrideReason", description="사유 / overrideReason")
     
     approvedAt: Optional[str] = Field(None, alias="approved_at", serialization_alias="approvedAt")

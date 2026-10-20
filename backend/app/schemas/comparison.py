@@ -74,7 +74,7 @@ class ExportReviewRequest(BaseModel):
 
     conceptId: str = Field(..., alias="concept_id", serialization_alias="conceptId", description="관련 개념 ID")
     title: str = Field(..., description="검토 티켓 제목")
-    overrideReason: str = Field(..., alias="override_reason", serialization_alias="overrideReason", description="🌟 도메인 필수 사유 (공인 백서/실측 근거 강제, 금지어 '전문가 사유' 배제)")
+    overrideReason: str = Field(..., alias="override_reason", serialization_alias="overrideReason", description="검토 티켓 발급 사유 (실측 데이터 또는 공정 분석 근거)")
     author: str = Field("엔지니어", description="티켓 작성자")
     reviewType: str = Field("파라미터 수정", alias="review_type", serialization_alias="reviewType")
 

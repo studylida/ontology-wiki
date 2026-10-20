@@ -331,11 +331,7 @@ async def approve_review_ticket(
 
     now_utc = datetime.utcnow()
     final_reason = body.overrideReason or ticket.override_reason or ""
-
-    # UX 친절 안내: "전문가 사유"와 같은 주관적 단어가 들어있더라도 차단하지 않고 안전 저장하며 팁 안내
     guide_tip = None
-    if "전문가 사유" in final_reason:
-        guide_tip = "💡 안내: 표준 승인 절차를 위해 '전문가 사유' 대신 정량적 공인 백서/실측 수치를 명시해 주시면 거버넌스 품질 신뢰도가 한층 높아집니다."
 
     # 1. 이전 최신 감사 로그 조회 (머클 해시 체인 연결)
     latest_audit_stmt = select(AuditLogModel).order_by(AuditLogModel.id.desc()).limit(1)

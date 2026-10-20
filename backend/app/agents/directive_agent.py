@@ -5,7 +5,7 @@ Implements:
 2. Immutability Anchoring: Preserves public evidence quotes ([E-01], [E-02]).
 3. Multi-Target Constrained Patching with diff-added highlights.
 4. 3-Pillar Integrity Audit (Evidence Match Rate, Ontology Conflict, Impact Scope Count).
-5. Strict adherence to user mandate: Never block "전문가 사유" with 400 error!
+5. Safe handling of override reasons without unnecessary block.
 """
 from datetime import datetime, timezone
 import logging

@@ -154,7 +154,7 @@ class ReviewTicketModel(Base):
     integrity_report = Column(JSON, nullable=False)
     directive_history = Column(JSON, default=list, nullable=False)
     
-    # 🌟 도메인 필수 용어: 사유 / overrideReason (금지어 '전문가 사유' 엄격 배제)
+    # 사유 / overrideReason
     override_reason = Column(Text, nullable=True)
     
     approved_at = Column(DateTime(timezone=True), nullable=True)
