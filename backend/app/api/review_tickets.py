@@ -138,6 +138,7 @@ async def list_review_tickets(
 )
 async def create_review_ticket(
     body: ReviewTicketCreate,
+    # TODO(RBAC-Migration): 사내 Auth 구축 완료 후 current_user: UserModel = Depends(require_min_level(2)) 주입 및 proposer_id=current_user.id 바인딩
     db: AsyncSession = Depends(get_db)
 ):
     today_str = datetime.utcnow().strftime("%Y%m%d")
@@ -357,6 +358,7 @@ async def manage_presence_lock(
 async def approve_review_ticket(
     ticket_id: str,
     body: ReviewTicketApproveRequest,
+    # TODO(RBAC-Migration): 사내 Auth 구축 완료 후 x_user_role 제거 ➔ current_user: UserModel = Depends(require_min_level(3)) 주입 및 audit_logs.actor에 current_user.id 기록
     x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
     x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
@@ -576,6 +578,7 @@ async def approve_review_ticket(
 async def reject_review_ticket(
     ticket_id: str,
     body: ReviewTicketRejectRequest,
+    # TODO(RBAC-Migration): 사내 Auth 구축 완료 후 x_user_role 제거 ➔ current_user: UserModel = Depends(require_min_level(3)) 주입
     x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     db: AsyncSession = Depends(get_db)
 ):

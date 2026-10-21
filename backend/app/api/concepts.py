@@ -146,6 +146,7 @@ async def get_concept_tree(
 )
 async def get_concept_detail(
     concept_id: str,
+    # TODO(RBAC-Migration): 사내 Auth 구축 완료 후 x_user_role 제거 ➔ current_user: Optional[UserModel] = Depends(get_current_user_optional) 주입 및 can_view_confidential_l3(current_user, concept_id, db) 호출
     x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     db: AsyncSession = Depends(get_db)
 ):

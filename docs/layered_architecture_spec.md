@@ -2547,5 +2547,32 @@ async def call_agent(
 - **`require_min_level(min_level: int)` 가드 데코레이터**:
   - `Depends(require_min_level(3))` 선언만으로 수석검토관 미달 시 `403 Forbidden` 자동 방어.
 
+---
+
+## 7.7 기존 라우터 및 서비스의 RBAC 실연동 전환 로드맵 (Migration Roadmap & TODO)
+
+> **전환 원칙**: 사내 Auth & RBAC 핵심 인프라(Entity ➔ DTO ➔ Repository ➔ Service ➔ `/api/v1/auth` 라우터) 구현 및 검증이 완료된 즉시, 기존의 취약한 `X-User-Role` 임시 헤더 기반 로직을 아래 표준 가드레일로 전면 교체한다.
+
+### 1. `backend/app/api/review_tickets.py`
+- **`POST /api/v1/review-tickets/{ticket_id}/approve` & `reject`**:
+  - `x_user_role` 임시 헤더 제거 ➔ `current_user: UserModel = Depends(require_min_level(3))` 주입.
+  - WORM 감사로그(`audit_logs.actor`)에 임시 문자열 대신 실제 인증된 `current_user.id` 및 `current_user.name` 영구 기록.
+- **`POST /api/v1/review-tickets` (새 문서/티켓 발의)**:
+  - `current_user: UserModel = Depends(require_min_level(2))` 주입 (Level 1 게스트 발의 차단).
+  - `proposer_id`에 실제 로그인된 `current_user.id` 자동 바인딩.
+- **`POST /api/v1/review-tickets/{ticket_id}/directive` (보완 지시문)**:
+  - `current_user: UserModel = Depends(require_min_level(2))` 주입.
+
+### 2. `backend/app/api/concepts.py`
+- **`GET /api/v1/concepts/{concept_id}` (위키 상세 본문 서빙)**:
+  - `x_user_role` 임시 헤더 ➔ `current_user: Optional[UserModel] = Depends(get_current_user_optional)` 주입.
+  - `can_view = await access_control_service.can_view_confidential_l3(current_user, concept_id, db)` 호출.
+  - `can_view == True`인 경우(Level >= 3 이거나 해당 공정에 대해 승인된 `access_requests` 티켓 보유 시) L3 절대 수치 원문 서빙, 그 외에는 `[🔒 대외비 마스킹]` 및 열람 신청 CTA 유지.
+
+### 3. `backend/app/api/system.py`
+- **`POST /api/v1/security/access-requests`**:
+  - DB 미연동 Mock 엔드포인트 폐기 ➔ 정규화된 물리 테이블 연동 엔드포인트 `POST /api/v1/auth/access-requests`로 단일화.
+
+
 
 
