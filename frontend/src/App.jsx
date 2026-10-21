@@ -12,12 +12,14 @@ import { useWikiController } from './controllers/useWikiController';
 import { useDashboardController } from './controllers/useDashboardController';
 import { useReviewController } from './controllers/useReviewController';
 import { useComparisonController } from './controllers/useComparisonController';
+import { useResearchController } from './controllers/useResearchController';
 
 import { TopBar } from './views/TopBar';
 import { DashboardView } from './views/dashboard/DashboardView';
 import { WikiView } from './views/wiki/WikiView';
 import { ReviewCenterView } from './views/review/ReviewCenterView';
 import { ComparisonCenterView } from './views/comparison/ComparisonCenterView';
+import { ResearchCenterView } from './views/research/ResearchCenterView';
 import { AuthModal } from './views/AuthModal';
 import { SpotlightModal } from './views/SpotlightModal';
 
@@ -57,12 +59,25 @@ export default function App() {
     currentUser: auth.currentUser
   });
 
+  const research = useResearchController({
+    currentUser: auth.currentUser,
+    onNavigateToTab: (targetTab, params) => {
+      topbar.setActiveTab(targetTab);
+      if (targetTab === 'review' && params?.ticketId) {
+        review.selectTicket(params.ticketId);
+      }
+    }
+  });
+
   const comparison = useComparisonController({
     currentUser: auth.currentUser,
     onNavigateToTab: (targetTab, params) => {
       topbar.setActiveTab(targetTab);
       if (targetTab === 'review' && params?.ticketId) {
         review.selectTicket(params.ticketId);
+      } else if (targetTab === 'research' && params?.query) {
+        research.setSearchTopic(params.query);
+        research.handleDiscover(params.query);
       }
     }
   });
@@ -121,11 +136,10 @@ export default function App() {
         )}
 
         {topbar.activeTab === 'research' && (
-          <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '48px', textAlign: 'center' }}>
-            <SearchCheck size={48} style={{ color: 'var(--accent-primary)', margin: '0 auto 16px auto', display: 'block' }} />
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 8px 0' }}>[Tab 4] 외부 문헌·백서 조사실</h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Phase 5에서 글로벌 학술지 및 교차 분석 종합 리포트가 구현됩니다.</p>
-          </div>
+          <ResearchCenterView
+            {...research}
+            currentUser={auth.currentUser}
+          />
         )}
 
         {topbar.activeTab === 'admin' && (
