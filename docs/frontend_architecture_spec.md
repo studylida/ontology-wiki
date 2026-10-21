@@ -126,17 +126,29 @@ js/
 
 ## 3.1 [Tab 1] 위키 본문 브라우저 (Wiki Knowledge Browser)
 
+### [화면 재설계 핵심 원칙 (Domain Redesign Alignment)]
+1. **비인가 지식 열람 권한 4단계 라이프사이클 화면 표출**:
+   - 엔지니어의 L3 극비 파라미터 열람 권한 상태를 4단계로 본문에 실시간 피드백:
+     - ① **미신청**: `🔒 L3 극비 파라미터 [열람 권한 신청 ➔]` (클릭 시 사유 입력 모달)
+     - ② **심사 대기 (`pending`)**: `⏳ 열람 심사 대기 중 (신청일: 10/21) [신청 취소]`
+     - ③ **승인 완료 (`approved`)**: 마스킹 즉시 해제 및 `🔓 인가된 지식 (열람 만료: ~2026.11.20)` 녹색 뱃지 노출
+     - ④ **반려됨 (`rejected`)**: `❌ 열람 반려됨 [사유 확인]` (클릭 시 관리자 코멘트 팝업 표출 및 `[재신청]` 버튼 지원)
+2. **위키 본문 '새 개정안 발의하기' 원클릭 진입로**:
+   - 위키 문서 상단에 **`[✍️ 이 문서 개정 발의하기]`** 버튼을 상시 배치.
+   - 클릭 시 간이 제안 모달(제안 사유, 대상 섹션, 수정 내용)이 뜨고, 제출 시 백엔드 **`POST /api/v1/review-tickets`** (`ReviewTicketCreate`)로 직행하여 Tab 3 거버넌스 대기열(`pending`)에 즉시 등록.
+
 ### [1단계: View - 화면 및 사용자 액션]
 - **사용자 시각 영역**:
   - 좌측: 4대 패싯(Device, Process, Fab, Infra) 및 Scale 레벨 트리 탐색기
-  - 중앙 상단: 개념 헤더 (명칭, 스케일 뱃지, 동적 버전 v1.2, 공인 출처 배지)
-  - 중앙 본문: 1번 개요 / 2번 물리 원리(KaTeX 수식) / 3번 물리 한계 / 4번 실무 사례
+  - 중앙 상단: 개념 헤더 (명칭, 스케일 뱃지, 세맨틱 버전 v1.2.0, 공인 출처 배지, **`[✍️ 이 문서 개정 발의하기]`** 액션 버튼)
+  - 중앙 본문: 1번 개요 / 2번 물리 원리(KaTeX 수식) / 3번 물리 한계 / 4번 실무 사례 (L3 파라미터 옆 4단계 열람 권한 뱃지)
   - 우측: 2-Hop 인과 서브그래프 시각화 캔버스, Contextual Explainer 플로팅 카드
 - **사용자 액션 (Actions)**:
   1. 좌측 트리에서 개념 클릭 (`selectConcept`)
   2. 본문 텍스트 내 온톨로지 키워드 클릭 시 인라인 문맥 해설 호출 (`openExplainer`)
   3. 우측 서브그래프 노드 클릭 시 해당 개념으로 즉시 이동 (`navigateGraphNode`)
-  4. 본문 하단 '오류 수정 제안' 버튼 클릭 시 간이 모달 오픈 (`openProposalModal`)
+  4. L3 마스킹 옆 열람 권한 신청/취소/사유 확인 클릭 (`requestAccess`, `cancelAccess`, `viewRejectReason`)
+  5. 상단 '이 문서 개정 발의하기' 클릭 시 간이 모달 오픈 및 제출 (`openProposalModal`, `submitRevisionTicket`)
 
 ### [2단계: Controller - 상태 및 액션 핸들러]
 - **`WikiController` 소유 State**:
@@ -144,13 +156,15 @@ js/
   - `conceptDetail`: 개념 전체 상세 데이터
   - `subgraphData`: 2-Hop 인과 그래프 노드 및 엣지
   - `explainerCard`: 현재 활성화된 인라인 문맥 해설
+  - `accessRequestStatus`: 현재 사용자의 L3 열람 권한 상태 (`none` | `pending` | `approved` | `rejected`)
   - `currentUserRole`: `line_engineer` 또는 `chief_reviewer`
 - **Controller 메서드**:
   - `init()`: 초기 개념(예: `concept-tcb`) 로드 및 View 초기 바인딩
-  - `loadConcept(conceptId)`: Repository 호출 ➔ View 렌더링 지시
+  - `loadConcept(conceptId)`: Repository 호출 ➔ View 렌더링 지시 ➔ 내 열람 신청 상태 조회 연동
   - `loadSubgraph(conceptId, depth)`: Repository 호출 ➔ 서브그래프 뷰 렌더링 지시
   - `showExplainer(conceptId, term, x, y)`: Explainer 서비스/리포지토리 호출 ➔ 플로팅 뷰 렌더링 지시
-  - `switchUserRole(newRole)`: 보안 권한 변경 ➔ L3 마스킹 재렌더링 트리거
+  - `handleAccessRequest(conceptId, reason)`: AuthRepository 호출 ➔ 신청 상태 `pending` 전환 ➔ 뱃지 갱신
+  - `submitRevisionTicket(formData)`: ReviewRepository `POST /api/v1/review-tickets` 호출 ➔ 성공 토스트 및 Tab 3 티켓 링크 안내
 
 ### [3단계: Service - 도메인 비즈니스 로직]
 - `FormulaRenderService`: LaTeX 텍스트를 파싱하여 KaTeX 수식 블록으로 안전 변환
@@ -254,27 +268,33 @@ js/
    - ❌ **빠른 요청 칩(Quick Prompt Chips) 4종 전면 제거**: 정형화된 버튼 클릭 몇 번으로 때울 수 없는 고도의 맥락적 검토 작업이므로, 시각적 노이즈를 없애고 자연어 지시문과 직접 편집에만 온전히 집중하도록 정돈.
 2. **단일 작업 초안 (working_draft) 일원화**:
    - AI 합성 초안과 검토관 수정을 분리하지 않고 단일 작업 초안으로 관리하여 동시성 충돌 및 누락 방지.
-3. **10분 편집 점유 락(Presence Lock) 상한 만료 & 클라이언트 안전망(Client Guard)**:
-   - **백엔드 원천 통제**: 백엔드가 10분(600초) 절대 점유 상한선 초과 시 `max_hold_exceeded`로 락을 강제 회수하고 다른 검토관의 락 획득/탈취를 허용함.
+3. **10분 편집 점유 락(Presence Lock) 상한 만료 & [편집 세션 인계받기] 협업 가드레일**:
+   - **백엔드 원천 통제**: 백엔드가 10분(600초) 절대 점유 상한선 초과 시 `max_hold_exceeded`로 락을 강제 회수하고 다른 검토관의 세션 인계를 허용함 (`action: "steal"`).
    - **프론트엔드 실시간 UX 보호**:
-     1) 상단 배너에 실시간 `⏳ 남은 편집 시간: MM:SS` 카운트다운 타이머 노출.
-     2) 9분 경과(1분 전) 시 `ToastService.warning("1분 후 편집 세션이 자동 만료됩니다. 작업 내용을 저장하세요.")` 사전 경고.
-     3) 10분 도달 시 즉시 편집기 비활성화(`isEditorDisabled = true`, 텍스트영역 Read-only 잠금) 및 *"10분 독점 방지 정책에 의해 편집 권한이 반환되었습니다"* 안내 모달 표출. (작성 내용 유실 방지)
+     1) **상단 카운트다운 타이머**: 락 획득 시 `⏳ 남은 편집 시간: MM:SS` 실시간 노출.
+     2) **사전 경고 (9분 경과 / 1분 전)**: `ToastService.warning("1분 후 편집 세션이 자동 만료됩니다. 작업 내용을 저장하세요.")` 1회 알림.
+     3) **10분 도달 시 즉시 아웃**: 편집기 입력창들을 즉시 비활성화(`isEditorDisabled = true`, Read-only 잠금)하고 *"10분 독점 방지 정책에 의해 편집 권한이 반환되었습니다"* 모달 표출.
+     4) **타인 만료 시 [⚡ 편집 세션 인계받기]**: 앞선 검토관의 10분이 만료되었을 때, 다른 검토관 화면에 **`[⚡ 편집 세션 인계받기]`** (Takeover Editing Session) 버튼이 활성화되어 안전하게 이어서 검토 진행.
+4. **최종 승인 시 [세맨틱 버전(vMAJOR.MINOR.PATCH) 승계 모달]**:
+   - 승인 클릭 시 바로 처리하지 않고, 변경 영향도에 따라 자동 계산된 세맨틱 버전을 안내하는 확인 모달 표출:
+     - 📌 **PATCH 승계 (예: v1.2.0 ➔ v1.2.1)**: 일상적인 수치/파라미터 및 문맥 보완 시.
+     - 📌 **MINOR 승계 (예: v1.2.0 ➔ v1.3.0)**: 신규 개념 등록(`new_concept`) 또는 공인 출처 공식 폐기(`deprecatedCitations`) 시.
+     - 최종 승인 사유 입력 ➔ WORM 불변 머클 해시 감사 로그(`audit_logs`)에 영구 기록.
 
 ### [1단계: View - 화면 및 사용자 액션]
 - **사용자 시각 영역**:
   - 좌측: 거버넌스 티켓 목록 (상태별: 대기 중 / 승인 완료 / 반려됨)
-  - 중앙 상단: 동시 편집 락(Presence Lock) 상태 배너 및 **실시간 10분 카운트다운 타이머 (`⏳ 09:59`)**
+  - 중앙 상단: 동시 편집 락(Presence Lock) 상태 배너, **실시간 10분 카운트다운 타이머 (`⏳ 09:59`)**, **`[⚡ 편집 세션 인계받기]`** 버튼 (타인 만료 시)
   - 중앙 본문: 2-Segment 개정 초안 뷰 (좌: AI 합성 백서 초안 vs 우: 전문가 직접 편집기 / 10분 만료 시 Read-only 전환)
   - 중앙 하단: 전문가 자연어 보완 지시문 입력 바 및 3대 무결성 지표 대시보드
   - 우측/헤더: '위키 미리보기' 모달 버튼, '최종 승인', '반려' 의결 버튼
 - **사용자 액션 (Actions)**:
   1. 티켓 목록에서 항목 클릭 (`selectTicket`)
-  2. 동시 편집 락 획득/연장/탈취 클릭 (`acquireLock`, `renewLock`, `stealLock`, `releaseLock`)
+  2. 동시 편집 락 획득/연장/인계받기 클릭 (`acquireLock`, `renewLock`, `takeoverLock`, `releaseLock`)
   3. 보완 지시문 입력 및 엔터 (`submitDirective`)
   4. 우측 직접 편집기 텍스트 수정 및 저장 (`saveHumanEdits`)
   5. '위키 미리보기' 모달 열기 (`openWikiPreview`)
-  6. '승인' 버튼 클릭 및 사유/버전 승계 모달 확인 (`approveTicket`)
+  6. '승인' 버튼 클릭 시 [세맨틱 버전 승계 및 승인 사유 확인 모달] 확인 (`approveTicket`)
   7. '반려' 버튼 클릭 및 반려 사유 입력 (`rejectTicket`)
 
 ### [2단계: Controller - 상태 및 액션 핸들러]
@@ -435,6 +455,13 @@ js/
 
 ## 3.6 [Home] 서비스 소개 및 온톨로지 안내 대시보드 (Home Landing Dashboard)
 
+### [화면 재설계 핵심 원칙 (Domain Redesign Alignment)]
+1. **네비게이션 및 홈 복귀 규칙**:
+   - 상단 네비게이션 바에는 별도의 '홈 탭'을 추가하지 않고 기존 4대 탭(`Tab 1~4`)을 단정하게 유지.
+   - **좌측 상단 로고(`Semiconductor Causal Wiki`) 클릭 시 홈(`#home`)으로 즉시 복귀**하는 표준 웹 UX 적용.
+   - 브라우저 히스토리(뒤로가기/앞으로가기)를 자연스럽게 지원하는 **URL 해시 라우팅** 지원:
+     - `#home` (홈 대시보드), `#wiki` (위키 브라우저), `#comparison` (인과 탐구실), `#review` (검토 센터), `#research` (문헌 조사실), `#admin` (관리자 콘솔).
+
 ### [1단계: View - 화면 및 사용자 액션]
 - **사용자 시각 영역**:
   - 상단 히어로: 반도체 인과 온톨로지 지식 위키의 핵심 미션 및 4-Tier AI 하이브리드 아키텍처 개요
@@ -457,9 +484,14 @@ js/
 
 ## 3.7 [Auth & Admin] 자체 인증, 권한 관리 및 관리자 콘솔
 
+### [화면 재설계 핵심 원칙 (Domain Redesign Alignment)]
+1. **관리자 콘솔 버튼 양방향 자동 토글 UX**:
+   - 일반 사용자 작업 공간(Tab 1~4, 홈) 열람 시: TopBar 우측에 **`[관리자 콘솔 ⚙️]`** 노출 (`level >= 3` 사용자 한정).
+   - 관리자 콘솔 화면(`#view-admin`) 진입 시: 해당 버튼이 자동으로 **`[사용자 화면 ➔]`** (또는 `[위키 작업 공간으로 돌아가기 ➔]`)으로 토글되어, 심사 완료 후 언제든 원클릭으로 이전 작업 화면에 복귀.
+
 ### [1단계: View - 화면 및 사용자 액션]
 - **사용자 시각 영역**:
-  - TopBar 우측: [로그인/회원가입] 버튼 또는 로그인된 [엔지니어 프로필(이름/부서/레벨)] + `level >= 3`일 때 [관리자 콘솔 ⚙️] 바로가기 버튼 (현장 엔지니어는 미노출)
+  - TopBar 우측: [로그인/회원가입] 버튼 또는 로그인된 [엔지니어 프로필(이름/부서/레벨)] + `level >= 3`일 때 [관리자 콘솔 ⚙️ ↔ 사용자 화면 ➔] 양방향 토글 버튼 (현장 엔지니어는 미노출)
   - 인증 모달: 자체 회원가입 폼 (사번, 비밀번호, 이름, 부서) / 로그인 폼
   - [Tab 1 본문]: L3 마스킹(`***`) 옆 [열람 권한 신청] 버튼 클릭 시 나타나는 사유 입력 모달
   - [관리자 콘솔 화면 (`#view-admin`)]:
