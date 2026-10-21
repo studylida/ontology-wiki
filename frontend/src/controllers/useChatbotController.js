@@ -200,6 +200,14 @@ export function useChatbotController({
     handleSendMessage,
     handleReset,
     handleActionClick,
+    onChangeInput: setInputText,
+    onSendMessage: handleSendMessage,
+    onReset: handleReset,
+    onActionClick: handleActionClick,
+    sendWithText: (text) => {
+      setIsOpen(true);
+      handleSendMessage(text);
+    },
     toggleOpen: () => setIsOpen((prev) => !prev),
     openChatbot: () => setIsOpen(true),
     closeChatbot: () => setIsOpen(false)

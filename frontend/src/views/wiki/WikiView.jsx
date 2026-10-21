@@ -4,21 +4,29 @@
  * - 비즈니스 로직 0줄: 모든 상태는 useWikiController에서 주입받음
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { FacetTreeExplorer } from './FacetTreeExplorer';
 import { ConceptHeader } from './ConceptHeader';
 import { SectionOverview } from './SectionOverview';
 import { SectionPrinciples } from './SectionPrinciples';
 import { SectionLimitations } from './SectionLimitations';
 import { SectionPerspectives } from './SectionPerspectives';
+import { SectionRelations } from './SectionRelations';
+import { SectionEvidences } from './SectionEvidences';
 import { CausalSubgraphCanvas } from './CausalSubgraphCanvas';
 import { ContextualExplainerCard } from './ContextualExplainerCard';
+import { ContextualPopover } from './ContextualPopover';
 import { AccessRequestModal } from './AccessRequestModal';
 import { RevisionModal } from './RevisionModal';
 import { NewConceptModal } from './NewConceptModal';
 import { CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
 
-export function WikiView({ wiki, currentUser }) {
+export function WikiView({ wiki, currentUser, onAskChatbot }) {
+  const [popoverState, setPopoverState] = useState({
+    isOpen: false,
+    position: null,
+    data: null
+  });
   const {
     activeFacet,
     activeConceptId,
@@ -59,9 +67,43 @@ export function WikiView({ wiki, currentUser }) {
     clearNotification
   } = wiki;
 
+  // 마우스 드래그 텍스트 선택 시 플로팅 문맥 해설 팝오버 트리거
+  const handleArticleMouseUp = (e) => {
+    if (e.target.closest('.concept-popover, button, a, input, textarea, modal')) return;
+
+    const selection = window.getSelection();
+    if (!selection || selection.isCollapsed) return;
+
+    const text = selection.toString().trim();
+    if (text.length < 2 || text.length > 60) return;
+
+    try {
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      const x = Math.min(window.innerWidth - 340, Math.max(16, rect.left));
+      const y = Math.min(window.innerHeight - 240, rect.bottom + 8);
+
+      const pre = conceptDetail?.preloadedExplainers?.[text.toLowerCase()];
+
+      setPopoverState({
+        isOpen: true,
+        position: { x, y },
+        data: {
+          title: text,
+          term: text,
+          definition: pre?.definition || `${text}에 대한 반도체 온톨로지 핵심 도메인 개념입니다.`,
+          contextSentence: pre?.contextSentence || `현재 보고 있는 [${conceptDetail?.title || '공정'}] 문서와 밀접한 인과 연관성을 지닙니다.`,
+          conceptId: pre?.targetConceptId || null
+        }
+      });
+    } catch (err) {
+      console.warn('Selection parse error:', err);
+    }
+  };
+
   return (
     <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
-      {/* ── 좌측 패널: 4축 패싯 트리 탐색기 ── */}
+      {/* ── 좌측 패널: 4축 패싯 트리 탐색기 (규모별/분야별 2-Way) ── */}
       <FacetTreeExplorer
         activeFacet={activeFacet}
         activeConceptId={activeConceptId}
@@ -72,8 +114,8 @@ export function WikiView({ wiki, currentUser }) {
         onOpenNewConceptModal={openNewConceptModal}
       />
 
-      {/* ── 중앙 패널: 위키 본문 4대 섹션 ── */}
-      <div style={{ flex: 1, minWidth: 0 }}>
+      {/* ── 중앙 패널: 위키 본문 5대 섹션 ── */}
+      <div style={{ flex: 1, minWidth: 0 }} onMouseUp={handleArticleMouseUp}>
         {/* 알림 토스트 / 피드백 배너 */}
         {notification && (
           <div
@@ -157,13 +199,24 @@ export function WikiView({ wiki, currentUser }) {
             {/* 3번 섹션: 물리적 한계 및 트레이드오프 ([E-01] 출처 배지) */}
             <SectionLimitations limitations={conceptDetail.limitations} />
 
-            {/* 4번 섹션: 적응형 실무 사례 & L3 파라미터 (4단계 인가 배지) */}
+            {/* 3번 섹션: 적응형 실무 사례 & L3 파라미터 (4단계 인가 배지) */}
             <SectionPerspectives
               perspectives={conceptDetail.perspectives}
               l3AccessStatus={l3AccessStatus}
               currentUser={currentUser}
               onOpenAccessModal={openAccessModal}
               onCancelAccessRequest={cancelAccessRequest}
+            />
+
+            {/* 4번 섹션: 온톨로지 관계망 & 물리적 규모(Scale) 계층 */}
+            <SectionRelations
+              conceptDetail={conceptDetail}
+              onSelectConcept={selectConcept}
+            />
+
+            {/* 5번 섹션: 공식 검증 출처 원문 (Evidence References) */}
+            <SectionEvidences
+              conceptDetail={conceptDetail}
             />
           </>
         ) : null}
@@ -215,6 +268,22 @@ export function WikiView({ wiki, currentUser }) {
         onClose={closeNewConceptModal}
         onRequestRecommendation={requestPlacementRecommendation}
         onSubmit={submitNewConceptTicket}
+      />
+
+      {/* ── 텍스트 드래그 및 인라인 용어 문맥 해설 팝오버 ── */}
+      <ContextualPopover
+        isOpen={popoverState.isOpen}
+        position={popoverState.position}
+        data={popoverState.data}
+        onClose={() => setPopoverState((prev) => ({ ...prev, isOpen: false }))}
+        onAskChatbot={(term) => {
+          if (onAskChatbot) {
+            onAskChatbot(term);
+          }
+        }}
+        onNavigateConcept={(targetId) => {
+          selectConcept(targetId);
+        }}
       />
     </div>
   );

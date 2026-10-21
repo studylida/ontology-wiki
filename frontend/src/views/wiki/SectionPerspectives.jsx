@@ -50,10 +50,10 @@ export function SectionPerspectives({
               fontSize: '0.8125rem'
             }}
           >
-            4
+            3
           </div>
           <h2 style={{ fontSize: '1.125rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
-            적응형 실무 사례 및 파라미터 (Adaptive Perspectives & L3 Specs)
+            3. 적응형 실무 사례 및 파라미터 (Adaptive Perspectives & L3 Specs)
           </h2>
         </div>
 

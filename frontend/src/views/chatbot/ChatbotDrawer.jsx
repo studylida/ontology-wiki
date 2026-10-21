@@ -10,18 +10,27 @@ import { ChatMessageItem } from './ChatMessageItem';
 
 export function ChatbotDrawer({
   isOpen,
-  contextData,
-  messages,
-  inputText,
-  isStreaming,
-  isThinking,
+  contextData = {},
+  messages = [],
+  inputText = '',
+  isStreaming = false,
+  isThinking = false,
   onClose,
   onChangeInput,
+  setInputText,
   onSendMessage,
+  handleSendMessage,
   onReset,
-  onActionClick
+  handleReset,
+  onActionClick,
+  handleActionClick
 }) {
   const messagesEndRef = useRef(null);
+
+  const changeTextHandler = onChangeInput || setInputText;
+  const sendMessageHandler = onSendMessage || handleSendMessage;
+  const resetHandler = onReset || handleReset;
+  const actionClickHandler = onActionClick || handleActionClick;
 
   // 새 메시지 및 스트리밍 시 자동 하단 스크롤
   useEffect(() => {
@@ -35,28 +44,32 @@ export function ChatbotDrawer({
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!inputText.trim() || isStreaming) return;
-    onSendMessage(inputText.trim());
+    if (sendMessageHandler) {
+      sendMessageHandler(inputText.trim());
+    }
   };
 
   return (
     <div
-      className="panel-reveal-drawer"
+      className="floating-chat-widget active"
       style={{
         position: 'fixed',
-        bottom: '90px',
+        bottom: '80px',
         right: '24px',
-        width: '400px',
+        width: '420px',
         maxWidth: 'calc(100vw - 32px)',
-        height: '580px',
-        maxHeight: 'calc(100vh - 120px)',
+        height: '620px',
+        maxHeight: 'calc(100vh - 110px)',
         background: 'var(--bg-surface)',
         border: '1px solid var(--border-color)',
         borderRadius: '16px',
-        boxShadow: '0 16px 48px rgba(0, 0, 0, 0.22)',
-        zIndex: 1000,
+        boxShadow: '0 20px 50px rgba(0, 0, 0, 0.28)',
+        zIndex: 10000,
         display: 'flex',
         flexDirection: 'column',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        opacity: 1,
+        pointerEvents: 'auto'
       }}
     >
       {/* 헤더 바 */}
@@ -74,8 +87,8 @@ export function ChatbotDrawer({
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
           <div
             style={{
-              width: '26px',
-              height: '26px',
+              width: '28px',
+              height: '28px',
               borderRadius: '50%',
               background: 'var(--accent-primary)',
               color: '#fff',
@@ -85,7 +98,7 @@ export function ChatbotDrawer({
               flexShrink: 0
             }}
           >
-            <Bot size={15} />
+            <Bot size={16} />
           </div>
           <div style={{ overflow: 'hidden' }}>
             <div
@@ -98,12 +111,12 @@ export function ChatbotDrawer({
                 whiteSpace: 'nowrap'
               }}
             >
-              {contextData.conceptTitle}
+              {contextData.conceptTitle || '반도체 인과 온톨로지 어시스턴트'}
             </div>
             <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', display: 'flex', gap: '6px' }}>
-              <span>{contextData.scaleBadge}</span>
+              <span>{contextData.scaleBadge || '전역 탐색'}</span>
               <span>•</span>
-              <span style={{ color: '#10b981', fontWeight: 600 }}>{contextData.engineModeLabel}</span>
+              <span style={{ color: '#10b981', fontWeight: 600 }}>{contextData.engineModeLabel || '🟢 Live'}</span>
             </div>
           </div>
         </div>
@@ -111,7 +124,7 @@ export function ChatbotDrawer({
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <button
             type="button"
-            onClick={onReset}
+            onClick={resetHandler}
             title="대화 이력 초기화"
             style={{
               background: 'none',
@@ -159,9 +172,9 @@ export function ChatbotDrawer({
             <button
               key={idx}
               type="button"
-              onClick={() => onSendMessage(chip)}
+              onClick={() => sendMessageHandler && sendMessageHandler(chip)}
               style={{
-                padding: '4px 8px',
+                padding: '4px 10px',
                 borderRadius: '12px',
                 border: '1px solid var(--border-color)',
                 background: 'var(--bg-surface-2)',
@@ -200,8 +213,8 @@ export function ChatbotDrawer({
           <ChatMessageItem
             key={idx}
             message={msg}
-            onFollowUpClick={onSendMessage}
-            onActionClick={onActionClick}
+            onFollowUpClick={sendMessageHandler}
+            onActionClick={actionClickHandler}
           />
         ))}
 
@@ -230,7 +243,7 @@ export function ChatbotDrawer({
         <input
           type="text"
           value={inputText}
-          onChange={(e) => onChangeInput(e.target.value)}
+          onChange={(e) => changeTextHandler && changeTextHandler(e.target.value)}
           placeholder="공정 인과 관계 또는 물리 규격을 질문하세요..."
           style={{
             flex: 1,

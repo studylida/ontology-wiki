@@ -141,6 +141,9 @@ export default function App() {
           <WikiView
             wiki={wiki}
             currentUser={auth.currentUser}
+            onAskChatbot={(text) => {
+              chatbot.sendWithText(`'${text}' 개념의 공정상 역할과 주요 인과 메커니즘을 설명해주세요.`);
+            }}
           />
         )}
 
