@@ -23,7 +23,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.core.config import settings
 from backend.app.core.database import get_db
 from backend.app.core.cache import cache_manager
-from backend.app.models.entities import ReviewTicketModel, AuditLogModel, ConceptModel, CausalEdgeModel
+from backend.app.core.security import get_current_user_optional, require_min_level
+from backend.app.models.entities import ReviewTicketModel, AuditLogModel, ConceptModel, CausalEdgeModel, UserModel
 from backend.app.schemas.review import (
     ReviewTicketDTO,
     ReviewTicketDetailDTO,
@@ -138,9 +139,22 @@ async def list_review_tickets(
 )
 async def create_review_ticket(
     body: ReviewTicketCreate,
-    # TODO(RBAC-Migration): 사내 Auth 구축 완료 후 current_user: UserModel = Depends(require_min_level(2)) 주입 및 proposer_id=current_user.id 바인딩
+    current_user: Optional[UserModel] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db)
 ):
+    # 🌟 Level 2 현장 엔지니어 이상 발의 권한 가드레일 (게스트 차단)
+    if current_user:
+        if current_user.level < 2:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={"code": "INSUFFICIENT_LEVEL", "message": "위키 거버넌스 티켓 발의 권한은 '현장 엔지니어(Level 2)' 이상만 가능합니다."}
+            )
+        author = current_user.name
+        department = current_user.department
+    else:
+        author = body.author
+        department = body.department or "도메인개발팀"
+
     today_str = datetime.utcnow().strftime("%Y%m%d")
     ticket_id = f"rev-{today_str}-{uuid.uuid4().hex[:4]}"
 
@@ -178,7 +192,7 @@ async def create_review_ticket(
         current_version = concept.version
         target_version = "v1.3.0"
         current_content = concept.summary
-        merged_draft = f"{concept.summary}\n\n[제안 반영안 ({body.author})]: {body.userNote or body.title}"
+        merged_draft = f"{concept.summary}\n\n[제안 반영안 ({author})]: {body.userNote or body.title}"
         structured_patches = [
             {"op": "replace", "path": f"/{body.targetSection or 'summary'}", "value": body.userNote or body.title}
         ]
@@ -190,8 +204,8 @@ async def create_review_ticket(
         concept_title=concept_title,
         title=body.title,
         review_type=review_type,
-        author=body.author,
-        department=body.department or "도메인개발팀",
+        author=author,
+        department=department,
         submitted_at=datetime.utcnow(),
         status="pending",
         origin_type=body.originType or "manual_expert",
@@ -261,6 +275,7 @@ async def get_review_ticket_detail(
 async def manage_presence_lock(
     ticket_id: str,
     body: PresenceLockRequest,
+    current_user: Optional[UserModel] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db)
 ):
     ticket = await db.get(ReviewTicketModel, ticket_id)
@@ -271,7 +286,15 @@ async def manage_presence_lock(
         )
 
     action = body.action
-    user_id = body.userId
+    if current_user:
+        if current_user.level < 2:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={"code": "INSUFFICIENT_LEVEL", "message": "동시 편집 락 권한은 '현장 엔지니어(Level 2)' 이상만 가능합니다."}
+            )
+        user_id = current_user.name or current_user.id
+    else:
+        user_id = body.userId
     ttl = body.ttlSeconds
 
     if action == "acquire":
@@ -357,21 +380,43 @@ async def manage_presence_lock(
 )
 async def approve_review_ticket(
     ticket_id: str,
-    body: ReviewTicketApproveRequest,
-    # TODO(RBAC-Migration): 사내 Auth 구축 완료 후 x_user_role 제거 ➔ current_user: UserModel = Depends(require_min_level(3)) 주입 및 audit_logs.actor에 current_user.id 기록
+    body: Optional[ReviewTicketApproveRequest] = None,
+    current_user: Optional[UserModel] = Depends(get_current_user_optional),
     x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
     x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
     db: AsyncSession = Depends(get_db)
 ):
-    if x_user_role and x_user_role.lower() == "line_engineer":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail={
-                "code": "CHIEF_REVIEWER_ONLY",
-                "message": "위키 버전 승인 및 거버넌스 집행 권한은 '수석검토관(chief_reviewer)' 전용입니다. 현장 엔지니어(line_engineer)는 승인 권한이 없습니다."
-            }
-        )
+    if body is None:
+        body = ReviewTicketApproveRequest()
+
+    # 🌟 수석검토관(Level 3) 이상 거버넌스 승인 인가 가드레일
+    if current_user:
+        if current_user.level < 3:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={
+                    "code": "INSUFFICIENT_LEVEL",
+                    "message": "위키 버전 승인 및 거버넌스 집행 권한은 '수석검토관(Level 3)' 이상 전용입니다. 현장 엔지니어(Level 2)는 승인 권한이 없습니다."
+                }
+            )
+        approver_id = current_user.id
+        approver_name = current_user.name
+        approver_role = current_user.role
+        approver_dept = current_user.department
+    else:
+        if x_user_role and x_user_role.lower() == "line_engineer":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={
+                    "code": "CHIEF_REVIEWER_ONLY",
+                    "message": "위키 버전 승인 및 거버넌스 집행 권한은 '수석검토관(chief_reviewer)' 전용입니다. 현장 엔지니어(line_engineer)는 승인 권한이 없습니다."
+                }
+            )
+        approver_id = body.approvedBy or "EMP-CHIEF-001"
+        approver_name = body.approvedBy or "김수석 검토관"
+        approver_role = "chief_reviewer"
+        approver_dept = "HBM 수율거버넌스팀"
 
     ticket = await db.get(ReviewTicketModel, ticket_id)
     if not ticket:
@@ -392,8 +437,10 @@ async def approve_review_ticket(
     # 2. WORM 감사 로그 데이터 조립
     audit_id = f"aud-{now_utc.strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:6]}"
     actor_info = {
-        "userId": body.approvedBy,
-        "role": "DomainGovernanceApprover",
+        "userId": approver_id,
+        "name": approver_name,
+        "role": approver_role,
+        "department": approver_dept,
         "action": "approve"
     }
     # 1. 온톨로지 세맨틱 버전(vMAJOR.MINOR.PATCH) 자동 계산
@@ -470,7 +517,7 @@ async def approve_review_ticket(
     # 3. 티켓 상태 갱신
     ticket.status = "approved"
     ticket.approved_at = now_utc
-    ticket.approved_by = body.approvedBy
+    ticket.approved_by = approver_name
     ticket.applied_concept_version = applied_ver
     if body.humanEdits:
         ticket.human_edits = body.humanEdits
@@ -578,18 +625,37 @@ async def approve_review_ticket(
 async def reject_review_ticket(
     ticket_id: str,
     body: ReviewTicketRejectRequest,
-    # TODO(RBAC-Migration): 사내 Auth 구축 완료 후 x_user_role 제거 ➔ current_user: UserModel = Depends(require_min_level(3)) 주입
+    current_user: Optional[UserModel] = Depends(get_current_user_optional),
     x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     db: AsyncSession = Depends(get_db)
 ):
-    if x_user_role and x_user_role.lower() == "line_engineer":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail={
-                "code": "CHIEF_REVIEWER_ONLY",
-                "message": "위키 거버넌스 반려 권한은 '수석검토관(chief_reviewer)' 전용입니다. 현장 엔지니어(line_engineer)는 반려 권한이 없습니다."
-            }
-        )
+    # 🌟 수석검토관(Level 3) 이상 거버넌스 반려 인가 가드레일
+    if current_user:
+        if current_user.level < 3:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={
+                    "code": "INSUFFICIENT_LEVEL",
+                    "message": "위키 거버넌스 반려 권한은 '수석검토관(Level 3)' 이상 전용입니다. 현장 엔지니어(Level 2)는 반려 권한이 없습니다."
+                }
+            )
+        rejector_id = current_user.id
+        rejector_name = current_user.name
+        rejector_role = current_user.role
+        rejector_dept = current_user.department
+    else:
+        if x_user_role and x_user_role.lower() == "line_engineer":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={
+                    "code": "CHIEF_REVIEWER_ONLY",
+                    "message": "위키 거버넌스 반려 권한은 '수석검토관(chief_reviewer)' 전용입니다. 현장 엔지니어(line_engineer)는 반려 권한이 없습니다."
+                }
+            )
+        rejector_id = body.rejectedBy or "EMP-CHIEF-001"
+        rejector_name = body.rejectedBy or "김수석 검토관"
+        rejector_role = "chief_reviewer"
+        rejector_dept = "HBM 수율거버넌스팀"
 
     ticket = await db.get(ReviewTicketModel, ticket_id)
     if not ticket:
@@ -607,8 +673,10 @@ async def reject_review_ticket(
 
     audit_id = f"aud-{now_utc.strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:6]}"
     actor_info = {
-        "userId": body.rejectedBy,
-        "role": "DomainGovernanceReviewer",
+        "userId": rejector_id,
+        "name": rejector_name,
+        "role": rejector_role,
+        "department": rejector_dept,
         "action": "reject"
     }
     gov_snapshot = {
@@ -700,11 +768,19 @@ async def get_ticket_audit_logs(
 async def apply_directive(
     ticket_id: str,
     body: DirectiveRequest,
+    current_user: Optional[UserModel] = Depends(get_current_user_optional),
     x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
     x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
     x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     db: AsyncSession = Depends(get_db)
 ):
+    # 🌟 Level 2 현장 엔지니어 이상 가드레일 (게스트 차단)
+    if current_user and current_user.level < 2:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={"code": "INSUFFICIENT_LEVEL", "message": "전문가 보완 지시문 전달 권한은 '현장 엔지니어(Level 2)' 이상만 가능합니다."}
+        )
+
     ticket = await db.get(ReviewTicketModel, ticket_id)
     if not ticket:
         raise HTTPException(
@@ -747,8 +823,16 @@ async def apply_directive(
 async def update_human_edits(
     ticket_id: str,
     body: HumanEditsRequest,
+    current_user: Optional[UserModel] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db)
 ):
+    # 🌟 Level 2 현장 엔지니어 이상 가드레일 (게스트 차단)
+    if current_user and current_user.level < 2:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={"code": "INSUFFICIENT_LEVEL", "message": "전문가 직접 편집 저장 권한은 '현장 엔지니어(Level 2)' 이상만 가능합니다."}
+        )
+
     ticket = await db.get(ReviewTicketModel, ticket_id)
     if not ticket:
         raise HTTPException(

@@ -12,7 +12,7 @@ import asyncio
 from datetime import datetime, timezone
 import hashlib
 from typing import Optional, Dict, Any, List
-from fastapi import APIRouter, Depends, Query, status, Header, Body
+from fastapi import APIRouter, Depends, Query, status, Header, Body, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -23,7 +23,8 @@ from backend.app.core.database import get_db, check_db_connection
 from backend.app.core.cache import cache_manager
 from backend.app.core.circuit_breaker import circuit_breaker, CircuitState
 from backend.app.schemas.system import HealthResponse, HealthServicesStatus, VersionResponse
-from backend.app.models.entities import ConceptModel, EvidenceSourceModel, AuditLogModel
+from backend.app.models.entities import ConceptModel, EvidenceSourceModel, AuditLogModel, UserModel
+from backend.app.core.security import get_current_user_optional, require_min_level
 
 router = APIRouter(tags=["System"])
 
@@ -115,8 +116,22 @@ async def get_system_version(
 
 
 @router.get("/system/audit/verify-integrity")
-async def verify_audit_integrity(db: AsyncSession = Depends(get_db)):
-    """5.3.3 WORM Merkle Hash Chain Cryptographic Integrity Verification."""
+async def verify_audit_integrity(
+    current_user: Optional[UserModel] = Depends(get_current_user_optional),
+    db: AsyncSession = Depends(get_db)
+):
+    """5.3.3 WORM Merkle Hash Chain Cryptographic Integrity Verification (수석검토관 Level 3+ 권장)."""
+    if not current_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"code": "MISSING_TOKEN", "message": "WORM 머클 감사 체인 무결성 검증을 위해 로그인이 필요합니다."}
+        )
+    if current_user.level < 3:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={"code": "INSUFFICIENT_LEVEL", "message": "WORM 머클 감사 체인 무결성 검증은 '수석검토관(Level 3)' 이상 전용 기능입니다."}
+        )
+
     stmt = select(AuditLogModel).order_by(AuditLogModel.id.asc())
     logs = (await db.execute(stmt)).scalars().all()
 
@@ -160,15 +175,33 @@ class AccessRequestPayload(BaseModel):
     reason: Optional[str] = "실무 공정 트러블슈팅 및 수율 상관성 대조"
 
 
-@router.post("/security/access-requests")
-async def create_access_request(
+@router.post("/security/access-requests", deprecated=True)
+async def create_access_request_legacy(
     payload: AccessRequestPayload,
-    x_user_role: Optional[str] = Header(None, alias="X-User-Role")
+    current_user: Optional[UserModel] = Depends(get_current_user_optional),
+    x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
+    db: AsyncSession = Depends(get_db)
 ):
-    """5.4.2 POST /api/v1/security/access-requests
+    """5.4.2 POST /api/v1/security/access-requests (레거시 하위 호환 엔드포인트).
 
-    미인가 엔지니어의 Tier 3 대외비 수치 열람 권한 신청 티켓 발급.
+    정규 엔드포인트 POST /api/v1/auth/access-requests 로 위임 연동.
     """
+    if current_user:
+        from backend.app.schemas.auth import AccessRequestCreateDTO
+        from backend.app.services.auth_service import AccessControlService
+        req = await AccessControlService.create_access_request(
+            db, current_user, AccessRequestCreateDTO(concept_id=payload.conceptId, reason=payload.reason or "실무 공정 트러블슈팅 및 수율 대조")
+        )
+        return {
+            "requestId": req.id,
+            "conceptId": req.concept_id,
+            "perspectiveId": payload.perspectiveId,
+            "userRole": current_user.role,
+            "status": req.status,
+            "submittedAt": req.created_at.isoformat() if req.created_at else datetime.now(timezone.utc).isoformat(),
+            "message": f"열람 권한 신청 번호 [{req.id}]가 정식 발급되었습니다. 수석 리뷰어 승인 후 열람이 활성화됩니다."
+        }
+
     req_id = f"REQ-{datetime.now().strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
     return {
         "requestId": req_id,
@@ -177,7 +210,7 @@ async def create_access_request(
         "userRole": x_user_role or "line_engineer",
         "status": "pending_approval",
         "submittedAt": datetime.now(timezone.utc).isoformat(),
-        "message": f"열람 권한 신청 번호 [{req_id}]가 발급되었습니다. 수석 리뷰어 승인 후 열람이 활성화됩니다."
+        "message": f"열람 권한 신청 번호 [{req_id}]가 발급되었습니다. 정식 거버넌스를 위해 /api/v1/auth/access-requests 엔드포인트를 이용해주세요."
     }
 
 

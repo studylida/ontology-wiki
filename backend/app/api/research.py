@@ -17,10 +17,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
 from backend.app.core.database import get_db, engine, Base
+from backend.app.core.security import get_current_user_optional
 from backend.app.models.entities import (
     ResearchSessionModel,
     ReviewTicketModel,
-    EvidenceSourceModel
+    EvidenceSourceModel,
+    UserModel
 )
 from backend.app.schemas.research import (
     ResearchSessionSummary,
@@ -429,8 +431,22 @@ async def get_research_session(
 async def export_candidate_to_review_ticket(
     candidate_id: str,
     body: ExportCandidateTicketRequest,
+    current_user: Optional[UserModel] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db)
 ):
+    # 🌟 Level 2 현장 엔지니어 이상 발의 권한 가드레일 (게스트 차단)
+    if current_user:
+        if current_user.level < 2:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={"code": "INSUFFICIENT_LEVEL", "message": "발굴 문헌 지식 티켓 발의 권한은 '현장 엔지니어(Level 2)' 이상만 가능합니다."}
+            )
+        author = current_user.name
+        department = current_user.department
+    else:
+        author = body.author
+        department = body.department
+
     await ensure_research_table_exists()
 
     session = await db.get(ResearchSessionModel, body.sessionId)
@@ -466,8 +482,8 @@ async def export_candidate_to_review_ticket(
         concept_title=concept_title,
         title=f"[외부문헌 발굴] {concept_title}",
         review_type=candidate.get("candidateType", "신규 개념"),
-        author=body.author,
-        department=body.department,
+        author=author,
+        department=department,
         submitted_at=datetime.utcnow(),
         status="pending",
         source_session_id=session.id,

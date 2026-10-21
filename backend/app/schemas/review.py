@@ -89,7 +89,7 @@ class PresenceLockRequest(BaseModel):
     """동시 편집 사전 차단 Presence Lock 요청."""
     model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
 
-    userId: str = Field(..., alias="user_id", serialization_alias="userId", description="요청 엔지니어 ID")
+    userId: Optional[str] = Field(None, alias="user_id", serialization_alias="userId", description="요청 엔지니어 ID (토큰 인증 시 자동 주입)")
     action: Literal["acquire", "renew", "release", "status", "steal"] = Field("acquire", description="락 제어 액션")
     ttlSeconds: int = Field(30, alias="ttl_seconds", serialization_alias="ttlSeconds", ge=5, le=300, description="락 유효 시간(초)")
 
@@ -108,7 +108,7 @@ class ReviewTicketApproveRequest(BaseModel):
     """지식 거버넌스 승인 집행 요청."""
     model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
 
-    approvedBy: str = Field(..., alias="approved_by", serialization_alias="approvedBy", description="승인자 ID 또는 서명자")
+    approvedBy: Optional[str] = Field(None, alias="approved_by", serialization_alias="approvedBy", description="승인자 ID 또는 서명자 (토큰 인증 시 자동 주입)")
     overrideReason: Optional[str] = Field(None, alias="override_reason", serialization_alias="overrideReason", description="🌟 표준 사유 / overrideReason")
     targetVersion: Optional[str] = Field(None, alias="target_version", serialization_alias="targetVersion", description="반영할 온톨로지 개념 버전 (미지정 시 티켓의 target_version)")
     humanEdits: Optional[str] = Field(None, alias="human_edits", serialization_alias="humanEdits", description="승인 시 최종 수정한 본문 내용 (미지정 시 기존 초안 유지)")
@@ -120,7 +120,7 @@ class ReviewTicketRejectRequest(BaseModel):
     """지식 거버넌스 반려 요청."""
     model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
 
-    rejectedBy: str = Field(..., alias="rejected_by", serialization_alias="rejectedBy", description="반려 검토자 ID")
+    rejectedBy: Optional[str] = Field(None, alias="rejected_by", serialization_alias="rejectedBy", description="반려 검토자 ID (토큰 인증 시 자동 주입)")
     rejectReason: str = Field(..., alias="reject_reason", serialization_alias="rejectReason", description="반려 사유 상세")
 
 
@@ -144,7 +144,7 @@ class ReviewTicketCreate(BaseModel):
     isNewConcept: bool = Field(False, alias="is_new_concept", serialization_alias="isNewConcept")
     title: str
     engName: Optional[str] = Field(None, alias="eng_name", serialization_alias="engName")
-    author: str
+    author: Optional[str] = Field("익명 엔지니어", description="발의자 (로그인 시 토큰 실명 자동 주입)")
     department: Optional[str] = "도메인개발팀"
     reviewType: str = Field("파라미터 수정", alias="review_type", serialization_alias="reviewType")
     originType: Optional[str] = Field("manual_expert", alias="origin_type", serialization_alias="originType")

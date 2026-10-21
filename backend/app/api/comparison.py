@@ -17,11 +17,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from backend.app.core.database import get_db
+from backend.app.core.security import get_current_user_optional
 from backend.app.models.entities import (
     ComparisonSessionModel,
     ReviewTicketModel,
     ConceptModel,
-    CausalEdgeModel
+    CausalEdgeModel,
+    UserModel
 )
 from backend.app.schemas.comparison import (
     ComparisonSessionDTO,
@@ -239,6 +241,7 @@ async def list_comparison_sessions(
 )
 async def create_comparison_session(
     body: ComparisonSessionCreate,
+    current_user: Optional[UserModel] = Depends(get_current_user_optional),
     x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
     x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
     x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
@@ -247,6 +250,7 @@ async def create_comparison_session(
     today_str = datetime.utcnow().strftime("%Y%m%d")
     random_hex = uuid.uuid4().hex[:6]
     session_id = f"sess-{today_str}-{random_hex}"
+    owner_user_id = current_user.id if current_user else (body.userId or "EMP-GUEST")
 
     target_a_id = (body.contextParams or {}).get("targetA", "concept-tcb")
     target_b_id = (body.contextParams or {}).get("targetB", "concept-mrmuf")
@@ -306,7 +310,7 @@ async def create_comparison_session(
 
     new_session = ComparisonSessionModel(
         id=session_id,
-        user_id=body.userId,
+        user_id=owner_user_id,
         title=body.title,
         is_pinned=False,
         folder_id=body.folderId,
@@ -629,8 +633,21 @@ async def tune_advisor(
 async def export_to_review_ticket(
     session_id: str,
     body: ExportReviewRequest,
+    current_user: Optional[UserModel] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db)
 ):
+    # 🌟 Level 2 현장 엔지니어 이상 발의 권한 가드레일 (게스트 차단)
+    if current_user:
+        if current_user.level < 2:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={"code": "INSUFFICIENT_LEVEL", "message": "비교 분석 결과 티켓 발의 권한은 '현장 엔지니어(Level 2)' 이상만 가능합니다."}
+            )
+        author = current_user.name
+        department = current_user.department
+    else:
+        author = body.author
+        department = "비교분석연구팀"
 
     session = await db.get(ComparisonSessionModel, session_id)
     if not session:
@@ -664,8 +681,8 @@ async def export_to_review_ticket(
         concept_title=concept.title,
         title=body.title,
         review_type=body.reviewType,
-        author=body.author,
-        department="비교분석연구팀",
+        author=author,
+        department=department,
         submitted_at=datetime.utcnow(),
         status="pending",
         source_session_id=session.id,
