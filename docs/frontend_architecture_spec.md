@@ -140,11 +140,13 @@ js/
      - **클릭 시 동작**: 화면 전환 없이 부드럽게 열리는 **[신규 온톨로지 개념 발의 전역 팝업 모달]** (`transitions.dev: modal-backdrop & modal-box`).
      - **온톨로지 트리 편입 위치 지정 입력 항목**:
        - 신규 기술/개념명 (`title`, `engName`)
+       - 핵심 기술 정의 및 도입 목적 (`summary`, `purpose`)
+       - **🌟 `[🤖 AI 에이전트 위치 추천 받기]` 원클릭 버튼**:
+         - 엔지니어가 개념명과 개요를 입력한 후 클릭 시, 에이전트가 온톨로지 그래프를 스캔하여 최적의 패싯/스케일/상위개념을 추론하고 아래 드롭다운들을 **자동 채우기(Auto-fill)** 지원 (인지 부하 및 분류 실수 방지).
        - 소속 패싯 (`domainFacet`: `device` | `unit_process` | `fab` | `infra`)
        - 공정 스케일 (`scaleLevel`: `1` 원자/물성 ~ `5` 첨단 패키징)
        - 세부 공정군 (`processCategory`: 예: 첨단 패키징, 극저온 식각)
        - 상위 연계 개념 (`parentConceptId` / `relations.is_a`)
-       - 핵심 기술 정의 및 도입 목적 (`summary`, `purpose`)
        - 발의 근거 및 공인 출처 링크 (DOI, 백서)
      - **제출 시 연동**: 백엔드 `POST /api/v1/review-tickets` (`isNewConcept: true`)로 직행하여 Tab 3 대기열에 신규 편입 티켓으로 등록.
 
@@ -160,7 +162,9 @@ js/
   3. 우측 서브그래프 노드 클릭 시 해당 개념으로 즉시 이동 (`navigateGraphNode`)
   4. L3 마스킹 옆 열람 권한 신청/취소/사유 확인 클릭 (`requestAccess`, `cancelAccess`, `viewRejectReason`)
   5. 상단 '이 문서 개정 발의하기' 클릭 시 간이 모달 오픈 및 제출 (`openProposalModal`, `submitRevisionTicket`)
-  6. 좌측 또는 상단 '새 문서 추가 발의하기' 클릭 시 전역 팝업 모달 오픈 및 온톨로지 위치 지정 제출 (`openNewConceptModal`, `submitNewConceptTicket`)
+  6. 좌측 또는 상단 '새 문서 추가 발의하기' 클릭 시 전역 팝업 모달 오픈 (`openNewConceptModal`)
+  7. 모달 내 '에이전트 위치 추천 받기' 클릭 시 온톨로지 위치 자동 채우기 (`requestAgentPlacement`)
+  8. 온톨로지 위치 지정 확인 및 티켓 제출 (`submitNewConceptTicket`)
 
 ### [2단계: Controller - 상태 및 액션 핸들러]
 - **`WikiController` 소유 State**:
