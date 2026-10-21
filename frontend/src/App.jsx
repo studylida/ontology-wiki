@@ -1,8 +1,8 @@
 /**
  * [Application Root Component]
  * 5계층 아키텍처 조율:
- * - Controllers: useAuthController, useTopBarController, useWikiController, useDashboardController
- * - Views: TopBar, DashboardView, WikiView, AuthModal, SpotlightModal
+ * - Controllers: useAuthController, useTopBarController, useWikiController, useDashboardController, useReviewController
+ * - Views: TopBar, DashboardView, WikiView, ReviewCenterView, AuthModal, SpotlightModal
  */
 
 import React, { useState, useEffect } from 'react';
@@ -10,16 +10,17 @@ import { useAuthController } from './controllers/useAuthController';
 import { useTopBarController } from './controllers/useTopBarController';
 import { useWikiController } from './controllers/useWikiController';
 import { useDashboardController } from './controllers/useDashboardController';
+import { useReviewController } from './controllers/useReviewController';
 
 import { TopBar } from './views/TopBar';
 import { DashboardView } from './views/dashboard/DashboardView';
 import { WikiView } from './views/wiki/WikiView';
+import { ReviewCenterView } from './views/review/ReviewCenterView';
 import { AuthModal } from './views/AuthModal';
 import { SpotlightModal } from './views/SpotlightModal';
 
 import {
   GitCompare,
-  CheckSquare,
   SearchCheck,
   ShieldAlert
 } from 'lucide-react';
@@ -47,6 +48,10 @@ export default function App() {
   });
 
   const dashboard = useDashboardController({
+    currentUser: auth.currentUser
+  });
+
+  const review = useReviewController({
     currentUser: auth.currentUser
   });
 
@@ -97,11 +102,11 @@ export default function App() {
         )}
 
         {topbar.activeTab === 'review' && (
-          <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '48px', textAlign: 'center' }}>
-            <CheckSquare size={48} style={{ color: 'var(--accent-primary)', margin: '0 auto 16px auto', display: 'block' }} />
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 8px 0' }}>[Tab 3] 지식 검토·승인 거버넌스 센터</h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Phase 3에서 10분 Presence Lock, [E-01] 자동 복원 엔진 및 WORM 감사로그가 구현됩니다.</p>
-          </div>
+          <ReviewCenterView
+            review={review}
+            currentUser={auth.currentUser}
+            wiki={wiki}
+          />
         )}
 
         {topbar.activeTab === 'research' && (
