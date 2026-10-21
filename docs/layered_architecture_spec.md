@@ -1022,6 +1022,7 @@ class ComparisonTuningRepository:
   - `clarify_comparison(query)`: 온톨로지 그래프 탐색 ➔ **3대 공학 분기 카드(`BranchCardDTO`) 및 추천 축 도출**.
   - `clarify_research_scope(query)`: 문헌 조사 3대 스코프 칩 도출.
   - `route_chatbot_intent(utterance, context)`: 챗봇 3단 라우터 질의 처리.
+  - `recommend_concept_placement(title, summary)`: 신규 문서 발의 시 온톨로지 그래프를 스캔하여 **최적 패싯(`domainFacet`), 스케일(`scaleLevel`), 공정군(`processCategory`), 상위개념(`parentConceptId`) 원클릭 자동 추천** (`POST /api/v1/ontology/recommend-placement`).
 
 ### ③ `ComparisonMatrixService` (매트릭스 종합 오케스트레이터)
 - **책임**:
