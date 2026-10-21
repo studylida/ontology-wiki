@@ -11,11 +11,13 @@ import { useTopBarController } from './controllers/useTopBarController';
 import { useWikiController } from './controllers/useWikiController';
 import { useDashboardController } from './controllers/useDashboardController';
 import { useReviewController } from './controllers/useReviewController';
+import { useComparisonController } from './controllers/useComparisonController';
 
 import { TopBar } from './views/TopBar';
 import { DashboardView } from './views/dashboard/DashboardView';
 import { WikiView } from './views/wiki/WikiView';
 import { ReviewCenterView } from './views/review/ReviewCenterView';
+import { ComparisonCenterView } from './views/comparison/ComparisonCenterView';
 import { AuthModal } from './views/AuthModal';
 import { SpotlightModal } from './views/SpotlightModal';
 
@@ -53,6 +55,16 @@ export default function App() {
 
   const review = useReviewController({
     currentUser: auth.currentUser
+  });
+
+  const comparison = useComparisonController({
+    currentUser: auth.currentUser,
+    onNavigateToTab: (targetTab, params) => {
+      topbar.setActiveTab(targetTab);
+      if (targetTab === 'review' && params?.ticketId) {
+        review.selectTicket(params.ticketId);
+      }
+    }
   });
 
   return (
@@ -94,11 +106,10 @@ export default function App() {
         )}
 
         {topbar.activeTab === 'comparison' && (
-          <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '48px', textAlign: 'center' }}>
-            <GitCompare size={48} style={{ color: 'var(--accent-primary)', margin: '0 auto 16px auto', display: 'block' }} />
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 8px 0' }}>[Tab 2] 기술 대안 인과 탐구실</h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Phase 4에서 2-Track 듀얼 입력 및 4단계 비교 매트릭스가 구현됩니다.</p>
-          </div>
+          <ComparisonCenterView
+            {...comparison}
+            currentUser={auth.currentUser}
+          />
         )}
 
         {topbar.activeTab === 'review' && (
