@@ -49,7 +49,7 @@
 ### 계층별 금지 사항 (Backend Anti-Patterns)
 1. **Router에서 DB 직접 조회 금지**: Controller/Router에서 `db.execute(select(...))` 등 ORM 쿼리를 직접 수행하지 않고 Service/Repository를 통해 처리한다.
 2. **Entity를 클라이언트에 직접 노출 금지**: ORM Entity(`ConceptModel` 등)를 그대로 반환하지 않고 반드시 직렬화 DTO(`ConceptDetailDTO` 등)로 변환하여 응답한다.
-3. **L3 극비 데이터 무단 누출 금지**: `X-User-Role`이 `line_engineer` 또는 `guest`일 경우 L3 핵심 파라미터는 Service 계층에서 반드시 마스킹(`***`) 처리되어야 한다.
+3. **L3 극비 데이터 무단 누출 금지**: 요청자의 권한 레벨이 Level 2 이하이거나 L3 열람 인가를 받지 않은 경우 핵심 파라미터는 Service 계층에서 반드시 마스킹(`***`) 처리되어야 한다.
 
 ---
 
@@ -84,7 +84,7 @@
 ┌─────────────────────────────────────────────────────────────┐
 │ 4. Repositories / API Clients (js/repositories/)            │
 │    - 백엔드 REST API / SSE 스트림과 1:1 통신하는 순수 I/O   │
-│    - fetch/EventSource 래핑, 헤더(X-User-Role) 주입, 에러 처리 │
+│    - fetch/EventSource 래핑, JWT Bearer 토큰 주입, 에러 처리 │
 └──────────────────────────────┬──────────────────────────────┘
                                │ HTTP JSON / SSE
                                ▼
@@ -134,20 +134,20 @@ js/
 2. **글로벌 전역 변수 남용 금지**: `window.someState = ...` 형태의 전역 오염을 금지하고, 각 탭의 Controller 인스턴스가 상태를 캡슐화하여 관리한다.
 3. **단일 거대 파일 복구 금지**: 분할된 모듈을 다시 한 파일로 뭉치는 행위를 엄격히 금지한다.
 
-### 3.3 UI 인터랙션 및 애니메이션 규약 (transitions.dev 필수 준수)
-- 모든 화면 전환, 탭 슬라이딩, 모달, 토스트, 스켈레톤, 스트리밍 텍스트 애니메이션은 **반드시 [transitions.dev](https://transitions.dev/)의 정밀 인터랙션 패턴(`css/transitions.css`)을 엄격히 준수**한다.
-- 임의의 난해한 CSS `@keyframes`나 부자연스러운 타이밍 함수(`ease-in-out` 남용) 작성을 금지하며, `transitions.dev`의 10대 공인 클래스를 활용한다:
-  1. `sliding-tabs-container` & `sliding-tab-indicator` (Tab 1~4 슬라이딩 전환)
-  2. `panel-reveal-drawer` (우측 서브그래프/편집 패널)
-  3. `accordion-item` & `accordion-trigger` (인과 트리/공정 단계 접기)
-  4. `toast-notification` (거버넌스 승인/반려/에러 알림)
-  5. `tooltip-bubble` (L3 보안 마스킹 및 공인 출처 배지 호버)
-  6. `streaming-text-char` (AI 추론 및 챗봇 토큰 실시간 타이핑)
-  7. `success-check-icon` (WORM 감사로그 승인 완료 체크 애니메이션)
-  8. `skeleton-shimmer` (API 데이터 로딩 인디케이터)
-  9. `reasoning-stream` & `matrix-dot-loader` (비교 매트릭스 추론 중)
-  10. `modal-backdrop` & `modal-box` (사유 입력 및 위키 미리보기 팝업)
-- **신규 애니메이션 확장 원칙**: 기존 10대 패턴 외에 추가적인 인터랙션(예: 드롭다운, 카운터 플립, 펄스 인디케이터 등)이 필요할 경우, 임의의 CSS를 자체 생성하지 않고 **[transitions.dev 라이브러리](https://transitions.dev/library.html)에서 적합한 정식 패턴을 검색·도입하여 `css/transitions.css`에 표준화된 방식으로 확장**한다.
+### 3.3 UI 인터랙션 및 애니메이션 규약 (transitions.dev 라이브러리 표준 준수)
+- 모든 화면 전환, 탭 슬라이딩, 모달, 토스트, 드롭다운, 스켈레톤, 스트리밍 텍스트 등 인터랙션/애니메이션은 임의의 파편화된 CSS `@keyframes`를 자체 제작하지 않고, **[transitions.dev 라이브러리](https://transitions.dev/library.html)의 정식 인터랙션 패턴을 자유롭게 가져와 `css/transitions.css`에 표준화하여 확장 사용**한다.
+- **초기 대표 도입 패턴 예시 (기본 탑재)**:
+  1. `tabs-sliding`: `sliding-tabs-container`, `sliding-tab-indicator` (Tab 1~4 슬라이딩 전환)
+  2. `panel-reveal`: `panel-reveal-drawer` (우측 서브그래프/편집 패널)
+  3. `accordion`: `accordion-item`, `accordion-trigger` (인과 트리/공정 단계 접기)
+  4. `toast-open-close`: `toast-notification` (거버넌스 승인/반려/에러 알림)
+  5. `tooltip-open-close`: `tooltip-bubble` (L3 보안 마스킹 및 공인 출처 배지 호버)
+  6. `streaming-text`: `streaming-text-char` (AI 추론 및 챗봇 토큰 실시간 타이핑)
+  7. `success-check`: `success-check-icon` (WORM 감사로그 승인 완료 체크)
+  8. `skeleton-loader-and-reveal`: `skeleton-shimmer` (API 데이터 로딩 인디케이터)
+  9. `reasoning-stream & matrix-dot-loader`: (비교 매트릭스 추론 인디케이터)
+  10. `modal-open-close`: `modal-backdrop`, `modal-box` (사유 입력 및 위키 미리보기 팝업)
+- **자유로운 라이브러리 확장 원칙**: 위 대표 패턴 예시 외에도 개발 중 새로운 UI 인터랙션(드롭다운, 카운터 플립, 펄스 인디케이터, 뱃지 트랜지션 등)이 필요한 경우, 특정 패턴에 얽매이지 않고 **[transitions.dev 전체 라이브러리](https://transitions.dev/library.html)에서 적합한 패턴을 언제든 자유롭게 채택하여 `css/transitions.css`에 누적 등록**한다.
 
 ---
 

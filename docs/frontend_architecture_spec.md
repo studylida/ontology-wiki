@@ -43,7 +43,7 @@
 ┌─────────────────────────────────────────────────────────────┐
 │ 4. Repositories / API Clients (js/repositories/)            │
 │    - 책임: 백엔드 REST API / SSE 스트림과 1:1 통신 (순수 I/O)│
-│    - 규칙: 헤더(X-User-Role) 주입, HTTP 상태 코드 매핑       │
+│    - 규칙: JWT Bearer 토큰 자동 주입, 401 갱신, 에러 핸들링  │
 └──────────────────────────────┬──────────────────────────────┘
                                │ HTTP JSON / SSE Data
                                ▼
@@ -72,7 +72,7 @@ js/
 │   ├── research.dto.js      # Tab 4: 조사 세션, 문헌 피드, 지식 후보 DTO
 │   └── chatbot.dto.js       # F-01: 챗봇 컨텍스트, 메시지, 액션카드 DTO
 ├── repositories/            # 4. 백엔드 통신 API 클라이언트 (순수 I/O)
-│   ├── http_client.js       # 공통 Fetch 래퍼 (Base URL, X-User-Role 헤더, 에러 핸들링)
+│   ├── http_client.js       # 공통 Fetch 래퍼 (Base URL, JWT Bearer 토큰 자동 주입, 401 갱신, 에러 핸들링)
 │   ├── concept_repo.js      # Tab 1 백엔드 API 클라이언트
 │   ├── comparison_repo.js   # Tab 2 백엔드 API 클라이언트
 │   ├── review_repo.js       # Tab 3 백엔드 API 클라이언트
@@ -111,7 +111,7 @@ js/
 | **S-02** | `diff_service.js` | 지식 개정 전/후 문장 diff 비교 및 `<mark class="diff-added">`, `<del>` 마크업 합성 | Tab 1, 2, 3 | Tab 3 지시문 머지 또는 Tab 1 위키 미리보기 개발 시 |
 | **S-03** | `safety_service.js` | 인가 본딩 압력(140N 이하 등) 물리 안전 마진 이탈 검사 및 `overrideReason` 가드레일 판별 | Tab 2, Tab 3 | Tab 2 꼬리질문 상담 또는 Tab 3 지시문 입력 개발 시 |
 | **S-04** | `formula_service.js` | 본문 내 LaTeX 수식 텍스트(`formula`)를 브라우저 KaTeX 수식 블록으로 안전 변환 | Tab 1, Tab 2 | Tab 1 2번 섹션 '작동 원리 수식' 렌더링 개발 시 |
-| **S-05** | `masking_service.js` | 엔지니어 보안 등급(`line_engineer`)에 따라 L3 극비 파라미터를 `*** (권한 제한)`으로 마스킹 | Tab 1, Tab 3 | Tab 1 스펙 테이블 렌더링 및 RBAC 전환 개발 시 |
+| **S-05** | `masking_service.js` | 사용자 권한 등급(Level 1~2) 및 L3 인가 여부에 따라 극비 파라미터를 `*** (권한 제한)`으로 마스킹 | Tab 1, Tab 3 | Tab 1 스펙 테이블 렌더링 및 RBAC 전환 개발 시 |
 | **S-06** | `term_linker.js` | 본문 텍스트 내 온톨로지 개념 명칭/동의어를 자동 인식하여 하이라이트 링크 및 팝오버 바인딩 | Tab 1, F-01 | Tab 1 위키 본문 1~4섹션 리치 텍스트 렌더링 개발 시 |
 | **S-07** | `toast_service.js` | transitions.dev 패턴 기반 성공/경고/에러 토스트 알림 큐 스케줄링 및 DOM 바인딩 | 전 탭 공통 | Tab 3 승인/반려 의결 알림 개발 시 |
 | **S-08** | `modal_service.js` | transitions.dev 패턴 기반 사유 입력 모달, 위키 미리보기 팝업 라이프사이클 제어 | Tab 2, Tab 3 | Tab 3 위키 미리보기 모달 개발 시 |
@@ -173,7 +173,7 @@ js/
   - `subgraphData`: 2-Hop 인과 그래프 노드 및 엣지
   - `explainerCard`: 현재 활성화된 인라인 문맥 해설
   - `accessRequestStatus`: 현재 사용자의 L3 열람 권한 상태 (`none` | `pending` | `approved` | `rejected`)
-  - `currentUserRole`: `line_engineer` 또는 `chief_reviewer`
+  - `currentUser`: 현재 로그인된 사용자 객체 (`UserDTO`: `id`, `username`, `level`, `role` 등)
 - **Controller 메서드**:
   - `init()`: 초기 개념(예: `concept-tcb`) 로드 및 View 초기 바인딩
   - `loadConcept(conceptId)`: Repository 호출 ➔ View 렌더링 지시 ➔ 내 열람 신청 상태 조회 연동
@@ -184,14 +184,14 @@ js/
 
 ### [3단계: Service - 도메인 비즈니스 로직]
 - `FormulaRenderService`: LaTeX 텍스트를 파싱하여 KaTeX 수식 블록으로 안전 변환
-- `MaskingService`: `line_engineer` 권한일 때 L3 핵심 파라미터를 `*** (권한 제한)`으로 필터링
+- `MaskingService`: 사용자 권한이 Level 2 이하이고 승인된 L3 열람 권한이 없을 때 L3 핵심 파라미터를 `*** (권한 제한)`으로 필터링
 - `GraphLayoutService`: 서브그래프 2-Hop 인과 관계 노드 좌표 및 엣지 극성(polarity) 스타일 계산
 
 ### [4단계: Repository - 순수 HTTP 클라이언트]
 - `ConceptRepository`:
   - `getConceptDetail(id)` ➔ `GET /api/v1/concepts/{id}`
-  - `getConceptSubgraph(id, depth)` ➔ `GET /api/v1/concepts/{id}/subgraph`
-  - `getContextualExplainer(id, targetTerm)` ➔ `GET /api/v1/concepts/{id}/explainer`
+  - `getConceptSubgraph(id, depth)` ➔ `GET /api/v1/concepts/{id}/causal-subgraph`
+  - `getContextualExplainer(id, targetTerm)` ➔ `GET /api/v1/concepts/{id}/contextual-explainer`
   - `searchConcepts(query)` ➔ `GET /api/v1/search/spotlight`
 
 ### [5단계: DTO - 데이터 스키마]
@@ -268,9 +268,10 @@ js/
   - `createSession(payload)` ➔ `POST /api/v1/comparison-sessions`
   - `getSession(sessionId)` ➔ `GET /api/v1/comparison-sessions/{id}`
   - `getMatrix(sessionId, payload)` ➔ `POST /api/v1/comparison-sessions/{id}/matrix`
-  - `addCustomAxis(sessionId, payload)` ➔ `POST /api/v1/comparison-sessions/{id}/axes`
+  - `addCustomAxis(sessionId, payload)` ➔ `POST /api/v1/comparison-sessions/{id}/matrix`
+  - `addDeepDiveQuestion(sessionId, payload)` ➔ `POST /api/v1/comparison-sessions/{id}/deep-dive`
   - `tuneAdvisor(sessionId, payload)` ➔ `POST /api/v1/comparison-sessions/{id}/tune-advisor`
-  - `exportReport(sessionId, format)` ➔ `GET /api/v1/comparison-sessions/{id}/export`
+  - `exportToReviewTicket(sessionId, payload)` ➔ `POST /api/v1/comparison-sessions/{id}/export-review`
 
 ### [5단계: DTO - 데이터 스키마]
 - `ComparisonClarifyDTO`, `ComparisonSessionDTO`, `MatrixRowDTO`, `TuningAdvisorDTO`, `ComparisonExportDTO`
@@ -362,8 +363,8 @@ js/
   - `applyDirective(id, payload)` ➔ `POST /api/v1/review-tickets/{id}/directive`
   - `saveHumanEdits(id, payload)` ➔ `PUT /api/v1/review-tickets/{id}/human-edits`
   - `getWikiPreview(id, highlight)` ➔ `GET /api/v1/review-tickets/{id}/wiki-preview`
-  - `approveTicket(id, payload, role)` ➔ `POST /api/v1/review-tickets/{id}/approve`
-  - `rejectTicket(id, payload, role)` ➔ `POST /api/v1/review-tickets/{id}/reject`
+  - `approveTicket(id, payload)` ➔ `POST /api/v1/review-tickets/{id}/approve`
+  - `rejectTicket(id, payload)` ➔ `POST /api/v1/review-tickets/{id}/reject`
   - `getAuditLogs(id)` ➔ `GET /api/v1/review-tickets/{id}/audit-logs`
 
 ### [5단계: DTO - 데이터 스키마]
@@ -573,7 +574,7 @@ js/
 > **공식 표준**: [transitions.dev](https://transitions.dev/) & [transitions.dev Library](https://transitions.dev/library.html)  
 > **스타일시트 단일 진실 원천**: `css/transitions.css`
 
-본 시스템의 모든 UI 인터랙션, 상태 전이, 팝업, 스트리밍 타이핑 애니메이션은 임의의 인라인 CSS나 파편화된 `@keyframes` 작성을 금지하며, **반드시 `transitions.dev` 기반의 10대 공인 인터랙션 패턴을 엄격히 준수**한다.
+본 시스템의 모든 UI 인터랙션, 상태 전이, 팝업, 스트리밍 타이핑 애니메이션은 임의의 인라인 CSS나 파편화된 `@keyframes` 자체 작성을 지양하며, **[transitions.dev 라이브러리](https://transitions.dev/library.html)의 정식 인터랙션 패턴을 자유롭게 채택하여 `css/transitions.css`에 표준 규격으로 등록하여 사용**한다. 아래 표는 초기에 기본 탑재된 대표적 도입 패턴 예시이다.
 
 | 번호 | 패턴명 (Pattern) | transitions.dev 레퍼런스 | 적용 대상 UI 컴포넌트 | CSS 클래스 규약 |
 | :---: | :--- | :--- | :--- | :--- |
@@ -591,7 +592,7 @@ js/
 ### 애니메이션 타이밍 및 가속도 표준:
 - **물리적 가속도 (Natural Easing)**: 기본 가속도는 `cubic-bezier(0.16, 1, 0.3, 1)` (Spring-like Smooth Deceleration)을 채택하여 전문 산업용 엔지니어링 툴다운 절제된 반응성을 유지한다.
 - **지연 시간 제한 (Latency Budget)**: 모든 UI 피드백 애니메이션은 320ms 이내에 완료되어야 하며, 데이터 로딩이 150ms 이상 지속될 때만 `skeleton-shimmer`를 노출한다.
-- **신규 패턴 확장 원칙 (Extensibility)**: 기존 10대 패턴 외에 화면별로 새로운 UI 인터랙션(예: 드롭다운 메뉴, 탭 카운터 플립, 펄스 인디케이터, 태그 필터 배지 전이 등)이 필요할 경우, 임의로 CSS keyframe을 작성하지 않고 **[transitions.dev 공식 라이브러리](https://transitions.dev/library.html)에서 적합한 패턴을 검색·채택하여 `css/transitions.css`에 표준 규격으로 누적 등록**한다.
+- **자유로운 라이브러리 확장 원칙 (Extensibility)**: 위 대표 예시 외에도 화면별로 필요한 새로운 UI 인터랙션(예: 드롭다운 메뉴, 탭 카운터 플립, 펄스 인디케이터, 태그 필터 배지 전이 등)이 있을 경우, 특정 개수나 정적 목록에 얽매이지 않고 **[transitions.dev 전체 라이브러리](https://transitions.dev/library.html)에서 적합한 패턴을 언제든 자유롭게 채택하여 `css/transitions.css`에 표준 규격으로 누적 등록**한다.
 
 ---
 
@@ -631,7 +632,7 @@ js/
 | **S-02** | `diff_service.js` | 지식 개정 전/후 문장 diff 비교 및 `<mark class="diff-added">`, `<del>` 마크업 합성 | Tab 1, 2, 3 | Tab 3 지시문 머지 또는 Tab 1 위키 미리보기 개발 시 |
 | **S-03** | `safety_service.js` | 인가 본딩 압력(140N 이하 등) 물리 안전 마진 이탈 검사 및 `overrideReason` 가드레일 판별 | Tab 2, Tab 3 | Tab 2 꼬리질문 상담 또는 Tab 3 지시문 입력 개발 시 |
 | **S-04** | `formula_service.js` | 본문 내 LaTeX 수식 텍스트(`formula`)를 브라우저 KaTeX 수식 블록으로 안전 변환 | Tab 1, Tab 2 | Tab 1 2번 섹션 '작동 원리 수식' 렌더링 개발 시 |
-| **S-05** | `masking_service.js` | 엔지니어 보안 등급(`line_engineer`)에 따라 L3 극비 파라미터를 `*** (권한 제한)`으로 마스킹 | Tab 1, Tab 3 | Tab 1 스펙 테이블 렌더링 및 RBAC 전환 개발 시 |
+| **S-05** | `masking_service.js` | 사용자 권한 등급(Level 1~2) 및 L3 인가 여부에 따라 극비 파라미터를 `*** (권한 제한)`으로 마스킹 | Tab 1, Tab 3 | Tab 1 스펙 테이블 렌더링 및 RBAC 전환 개발 시 |
 | **S-06** | `term_linker.js` | 본문 텍스트 내 온톨로지 개념 명칭/동의어를 자동 인식하여 하이라이트 링크 및 팝오버 바인딩 | Tab 1, F-01 | Tab 1 위키 본문 1~4섹션 리치 텍스트 렌더링 개발 시 |
 | **S-07** | `toast_service.js` | transitions.dev 패턴 기반 성공/경고/에러 토스트 알림 큐 스케줄링 및 DOM 바인딩 | 전 탭 공통 | Tab 3 승인/반려 의결 알림 개발 시 |
 | **S-08** | `modal_service.js` | transitions.dev 패턴 기반 사유 입력 모달, 위키 미리보기 팝업 라이프사이클 제어 | Tab 2, Tab 3 | Tab 3 위키 미리보기 모달 개발 시 |

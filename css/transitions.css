@@ -2,7 +2,7 @@
  * Transitions.dev 기반 정밀 애니메이션 정의
  * Reference: https://transitions.dev/ & https://transitions.dev/library.html
  * 
- * Included Patterns:
+ * Initial Reference Patterns (초기 대표 탑재 예시 / transitions.dev 전체 라이브러리에서 언제든 자유롭게 추가 확장 가능):
  * 1. Tabs sliding (tabs-sliding)
  * 2. Panel reveal (panel-reveal)
  * 3. Accordion (accordion)
