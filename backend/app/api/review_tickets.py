@@ -23,7 +23,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.core.config import settings
 from backend.app.core.database import get_db
 from backend.app.core.cache import cache_manager
-from backend.app.models.entities import ReviewTicketModel, AuditLogModel, ConceptModel
+from backend.app.models.entities import ReviewTicketModel, AuditLogModel, ConceptModel, CausalEdgeModel
 from backend.app.schemas.review import (
     ReviewTicketDTO,
     ReviewTicketDetailDTO,
@@ -37,7 +37,9 @@ from backend.app.schemas.review import (
     DirectiveRequest,
     HumanEditsRequest,
     HumanEditsResponse,
-    WikiPreviewResponse
+    WikiPreviewResponse,
+    ConceptPlacementRecommendRequest,
+    ConceptPlacementRecommendResponse
 )
 
 
@@ -138,42 +140,71 @@ async def create_review_ticket(
     body: ReviewTicketCreate,
     db: AsyncSession = Depends(get_db)
 ):
-    concept = await db.get(ConceptModel, body.conceptId)
-    if not concept:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"온톨로지 개념 '{body.conceptId}'을(를) 찾을 수 없습니다."
-        )
-
     today_str = datetime.utcnow().strftime("%Y%m%d")
     ticket_id = f"rev-{today_str}-{uuid.uuid4().hex[:4]}"
 
-    merged_draft = f"{concept.summary}\n\n[제안 반영안 ({body.author})]: {body.userNote or body.title}"
+    if body.isNewConcept:
+        # 🌟 완전 신규 개념/문서 발의: 404 차단 바이패스 및 신규 개념 티켓 생성
+        concept_id = f"concept-{uuid.uuid4().hex[:8]}"
+        concept_title = body.title
+        current_version = "v1.0.0"
+        target_version = "v1.1.0"
+        current_content = "### 1. 기술 정의\n(사내 온톨로지 미등록 신규 개념)"
+        merged_draft = f"### 1. 기술 정의\n{body.userNote or body.title}"
+        placement_meta = {
+            "is_new_concept": True,
+            "eng_name": body.engName or body.title,
+            "domain_facet": body.domainFacet or "unit_process",
+            "scale_level": body.scaleLevel or 3,
+            "scale_name": body.scaleName or "Scale 3: 단위 공정",
+            "process_category": body.processCategory or "첨단 패키징",
+            "parent_concept_id": body.parentConceptId
+        }
+        structured_patches = [
+            {"op": "add", "path": "/concept", "value": placement_meta}
+        ]
+        review_type = "신규 개념 등록"
+    else:
+        # 기존 문서 개정 발의: 기존처럼 DB 실존 여부 검증 (없으면 404)
+        concept = await db.get(ConceptModel, body.conceptId)
+        if not concept:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"온톨로지 개념 '{body.conceptId}'을(를) 찾을 수 없습니다."
+            )
+        concept_id = concept.id
+        concept_title = concept.title
+        current_version = concept.version
+        target_version = "v1.3.0"
+        current_content = concept.summary
+        merged_draft = f"{concept.summary}\n\n[제안 반영안 ({body.author})]: {body.userNote or body.title}"
+        structured_patches = [
+            {"op": "replace", "path": f"/{body.targetSection or 'summary'}", "value": body.userNote or body.title}
+        ]
+        review_type = body.reviewType
 
     new_ticket = ReviewTicketModel(
         id=ticket_id,
-        concept_id=concept.id,
-        concept_title=concept.title,
+        concept_id=concept_id,
+        concept_title=concept_title,
         title=body.title,
-        review_type=body.reviewType,
+        review_type=review_type,
         author=body.author,
         department=body.department or "도메인개발팀",
         submitted_at=datetime.utcnow(),
         status="pending",
         origin_type=body.originType or "manual_expert",
-        current_version=concept.version,
-        target_version="v1.3",
-        current_content=concept.summary,
+        current_version=current_version,
+        target_version=target_version,
+        current_content=current_content,
         ai_merged_draft=merged_draft,
         human_edits=None,
-        structured_patches=[
-            {"op": "replace", "path": f"/{body.targetSection or 'summary'}", "value": body.userNote or body.title}
-        ],
+        structured_patches=structured_patches,
         integrity_report={
             "evidence_match_rate": 1.0,
             "has_ontology_conflict": False,
             "impact_scope_count": 1,
-            "validation_details": "위키 본문 전문가 간이 제안 접수 완료",
+            "validation_details": "위키 본문 전문가 제안 접수 완료",
             "conflict_details": []
         },
         directive_history=[],
@@ -456,6 +487,53 @@ async def approve_review_ticket(
             concept.summary = ticket.ai_merged_draft
         concept.updated_at = now_utc
         concept_updated = True
+    else:
+        # 🌟 완전 신규 개념 승인 분기: ConceptModel 신규 생성 및 온톨로지 트리 영구 편입
+        placement = {}
+        if ticket.structured_patches and isinstance(ticket.structured_patches, list):
+            for patch in ticket.structured_patches:
+                if patch.get("path") == "/concept" and isinstance(patch.get("value"), dict):
+                    placement = patch.get("value")
+                    break
+
+        new_concept = ConceptModel(
+            id=ticket.concept_id,
+            title=ticket.concept_title or ticket.title,
+            eng_name=placement.get("eng_name", ticket.concept_title or ticket.title),
+            aliases=[],
+            domain_facet=placement.get("domain_facet", "unit_process"),
+            process_category=placement.get("process_category", "첨단 패키징"),
+            scale_level=placement.get("scale_level", 3),
+            scale_name=placement.get("scale_name", "Scale 3: 단위 공정"),
+            version=applied_ver or "v1.0.0",
+            status="adopted",
+            last_reviewed_at=now_utc,
+            last_reviewed_by=body.approvedBy,
+            summary=ticket.human_edits or ticket.ai_merged_draft or "### 1. 기술 정의\n(신규 온톨로지 개념)",
+            purpose=ticket.override_reason or "신규 공정 개념 편입",
+            principles=[],
+            limitations=[],
+            relations={"is_a": placement.get("parent_concept_id")} if placement.get("parent_concept_id") else {},
+            created_at=now_utc,
+            updated_at=now_utc
+        )
+        db.add(new_concept)
+        concept_updated = True
+
+        # 상위 개념과의 인과 에지(CausalEdgeModel) 자동 연결
+        parent_id = placement.get("parent_concept_id")
+        if parent_id:
+            parent_concept = await db.get(ConceptModel, parent_id)
+            if parent_concept:
+                new_edge = CausalEdgeModel(
+                    source_concept_id=new_concept.id,
+                    target_concept_id=parent_id,
+                    relation_type="is_a",
+                    polarity="+",
+                    weight=1.00,
+                    mechanism_label=f"{new_concept.title} is a subtype of {parent_concept.title}"
+                )
+                db.add(new_edge)
 
     # 5. Presence Lock 자동 해제
     await cache_manager.release_presence_lock(ticket.id, body.approvedBy)
@@ -774,5 +852,78 @@ async def get_wiki_preview(
             "modifiedCount": 1,
             "status": "preview"
         }
+    )
+
+
+@router.post(
+    "/recommend-placement",
+    response_model=ConceptPlacementRecommendResponse,
+    response_model_by_alias=True,
+    summary="신규 개념 온톨로지 편입 위치 AI 자동 추천 API",
+    description="엔지니어가 입력한 기술명과 개요를 바탕으로 온톨로지 지식 그래프를 스캔하여 최적의 패싯, 스케일 레벨, 공정군 및 상위 개념을 자동 추천합니다."
+)
+async def recommend_concept_placement(
+    body: ConceptPlacementRecommendRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    query_text = f"{body.title} {body.summary or ''}".lower()
+
+    # 1. 반도체 도메인 공학적 규칙 기반 위치 판별
+    if any(k in query_text for k in ["패키징", "packaging", "본딩", "bonding", "muf", "ncf", "tgv", "인터포저", "기판", "substrate", "wlp", "2.5d", "3d"]):
+        facet = "unit_process"
+        scale = 5 if any(k in query_text for k in ["tgv", "기판", "모듈", "2.5d", "3d", "서브시스템"]) else 3
+        scale_name = "Scale 5: 첨단 패키징 / 서브시스템" if scale == 5 else "Scale 3: 단위 공정"
+        category = "첨단 패키징"
+        reasoning = f"'{body.title}'의 핵심 키워드에서 칩간 접합 및 패키징 기판 연계 특성이 분석되어 [{scale_name}]의 [{category}] 공정군으로 편입을 추천합니다."
+    elif any(k in query_text for k in ["식각", "etch", "rie", "플라즈마", "plasma", "cryo", "이온"]):
+        facet = "unit_process"
+        scale = 3
+        scale_name = "Scale 3: 단위 공정"
+        category = "식각 공정"
+        reasoning = f"'{body.title}'에서 미세 패턴 제거 및 플라즈마 반응 특성이 감지되어 [{scale_name}]의 [{category}] 공정군으로 편입을 추천합니다."
+    elif any(k in query_text for k in ["원자", "atomic", "ald", "박막", "증착", "cvd", "단분자"]):
+        facet = "unit_process"
+        scale = 1
+        scale_name = "Scale 1: 원자·분자 물성"
+        category = "박막 증착"
+        reasoning = f"'{body.title}'에서 원자 수준 표면 반응 메커니즘이 감지되어 [{scale_name}]으로 편입을 추천합니다."
+    elif any(k in query_text for k in ["팹", "fab", "클린룸", "배관", "용수", "공조", "스크러버", "환경"]):
+        facet = "fab"
+        scale = 4
+        scale_name = "Scale 4: 팹 / 모듈 라인"
+        category = "팹 인프라"
+        reasoning = f"'{body.title}'에서 팹 유틸리티 및 환경 제어 특성이 감지되어 [{scale_name}]의 [팹 인프라]로 편입을 추천합니다."
+    else:
+        facet = "unit_process"
+        scale = 3
+        scale_name = "Scale 3: 단위 공정"
+        category = "단위 공정 기술"
+        reasoning = f"'{body.title}'의 기술적 범위를 고려하여 표준 반도체 [{scale_name}]으로 기본 편입을 추천합니다."
+
+    # 2. 가장 인접한 기존 상위 개념 탐색 (유사도 매칭)
+    parent_concept_id = None
+    parent_concept_title = None
+    stmt = select(ConceptModel).where(ConceptModel.scale_level <= scale).order_by(ConceptModel.scale_level.desc())
+    result = await db.execute(stmt)
+    candidate_concepts = result.scalars().all()
+    if candidate_concepts:
+        # 패싯 일치 및 카테고리 일치 우선
+        for c in candidate_concepts:
+            if c.domain_facet == facet and (c.process_category == category or c.scale_level == scale):
+                parent_concept_id = c.id
+                parent_concept_title = c.title
+                break
+        if not parent_concept_id:
+            parent_concept_id = candidate_concepts[0].id
+            parent_concept_title = candidate_concepts[0].title
+
+    return ConceptPlacementRecommendResponse(
+        domain_facet=facet,
+        scale_level=scale,
+        scale_name=scale_name,
+        process_category=category,
+        parent_concept_id=parent_concept_id,
+        parent_concept_title=parent_concept_title,
+        reasoning=reasoning
     )
 

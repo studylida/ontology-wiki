@@ -3,7 +3,7 @@
 Covers ReviewTicket (2-Segment), overrideReason (사유), and WORM AuditLog with camelCase serialization.
 """
 from typing import List, Optional, Dict, Any, Literal
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, model_validator
 
 
 class IntegrityReportSchema(BaseModel):
@@ -137,11 +137,13 @@ class ReviewTicketActionResponse(BaseModel):
 
 
 class ReviewTicketCreate(BaseModel):
-    """위키 본문 간이 제안 모달을 통한 티켓 생성 DTO."""
+    """위키 본문 간이 제안 모달 및 신규 문서 추가 발의 DTO."""
     model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
 
-    conceptId: str = Field(..., alias="concept_id", serialization_alias="conceptId")
+    conceptId: Optional[str] = Field(None, alias="concept_id", serialization_alias="conceptId")
+    isNewConcept: bool = Field(False, alias="is_new_concept", serialization_alias="isNewConcept")
     title: str
+    engName: Optional[str] = Field(None, alias="eng_name", serialization_alias="engName")
     author: str
     department: Optional[str] = "도메인개발팀"
     reviewType: str = Field("파라미터 수정", alias="review_type", serialization_alias="reviewType")
@@ -150,6 +152,42 @@ class ReviewTicketCreate(BaseModel):
     userNote: Optional[str] = Field(None, alias="user_note", serialization_alias="userNote")
     overrideReason: Optional[str] = Field(None, alias="override_reason", serialization_alias="overrideReason")
     evidencePayload: Optional[Dict[str, Any]] = Field(None, alias="evidence_payload", serialization_alias="evidencePayload")
+
+    # 🌟 온톨로지 편입 위치 지정 메타데이터 (신규 개념 등록 시 사용)
+    domainFacet: Optional[str] = Field("unit_process", alias="domain_facet", serialization_alias="domainFacet")
+    scaleLevel: Optional[int] = Field(3, alias="scale_level", serialization_alias="scaleLevel")
+    scaleName: Optional[str] = Field("Scale 3: 단위 공정", alias="scale_name", serialization_alias="scaleName")
+    processCategory: Optional[str] = Field("첨단 패키징", alias="process_category", serialization_alias="processCategory")
+    parentConceptId: Optional[str] = Field(None, alias="parent_concept_id", serialization_alias="parentConceptId")
+
+    @model_validator(mode="after")
+    def validate_ticket_payload(self) -> "ReviewTicketCreate":
+        if not self.isNewConcept and not self.conceptId:
+            raise ValueError("기존 문서 개정 발의 시 conceptId는 필수입니다.")
+        if self.isNewConcept and not self.title.strip():
+            raise ValueError("신규 문서 발의 시 기술명(title)은 필수입니다.")
+        return self
+
+
+class ConceptPlacementRecommendRequest(BaseModel):
+    """신규 개념 온톨로지 편입 위치 AI 추천 요청 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    title: str = Field(..., description="신규 기술/개념명")
+    summary: Optional[str] = Field("", description="핵심 기술 정의 및 도입 목적")
+
+
+class ConceptPlacementRecommendResponse(BaseModel):
+    """신규 개념 온톨로지 편입 위치 AI 추천 응답 DTO."""
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
+
+    domainFacet: str = Field("unit_process", alias="domain_facet", serialization_alias="domainFacet")
+    scaleLevel: int = Field(3, alias="scale_level", serialization_alias="scaleLevel")
+    scaleName: str = Field("Scale 3: 단위 공정", alias="scale_name", serialization_alias="scaleName")
+    processCategory: str = Field("첨단 패키징", alias="process_category", serialization_alias="processCategory")
+    parentConceptId: Optional[str] = Field(None, alias="parent_concept_id", serialization_alias="parentConceptId")
+    parentConceptTitle: Optional[str] = Field(None, alias="parent_concept_title", serialization_alias="parentConceptTitle")
+    reasoning: str = Field("", description="에이전트 추천 사유")
 
 
 class DirectiveRequest(BaseModel):

@@ -34,10 +34,29 @@ from backend.app.schemas.ontology import (
     ConceptTreeNode,
     ConceptTreeResponse
 )
+from backend.app.schemas.review import (
+    ConceptPlacementRecommendRequest,
+    ConceptPlacementRecommendResponse
+)
 
 logger = logging.getLogger("ontology_wiki.concepts")
 
 router = APIRouter(prefix="/concepts", tags=["Concepts & Causal Ontology"])
+
+
+@router.post(
+    "/recommend-placement",
+    response_model=ConceptPlacementRecommendResponse,
+    response_model_by_alias=True,
+    summary="신규 개념 온톨로지 편입 위치 AI 자동 추천 API (Concepts 별칭)",
+    description="엔지니어가 입력한 기술명과 개요를 바탕으로 온톨로지 지식 그래프를 스캔하여 최적의 패싯, 스케일 레벨, 공정군 및 상위 개념을 자동 추천합니다."
+)
+async def recommend_concept_placement_alias(
+    body: ConceptPlacementRecommendRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    from backend.app.api.review_tickets import recommend_concept_placement
+    return await recommend_concept_placement(body, db)
 
 
 @router.get(
