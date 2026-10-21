@@ -13,6 +13,8 @@ import { useDashboardController } from './controllers/useDashboardController';
 import { useReviewController } from './controllers/useReviewController';
 import { useComparisonController } from './controllers/useComparisonController';
 import { useResearchController } from './controllers/useResearchController';
+import { useChatbotController } from './controllers/useChatbotController';
+import { useAdminController } from './controllers/useAdminController';
 
 import { TopBar } from './views/TopBar';
 import { DashboardView } from './views/dashboard/DashboardView';
@@ -20,6 +22,9 @@ import { WikiView } from './views/wiki/WikiView';
 import { ReviewCenterView } from './views/review/ReviewCenterView';
 import { ComparisonCenterView } from './views/comparison/ComparisonCenterView';
 import { ResearchCenterView } from './views/research/ResearchCenterView';
+import { AdminConsoleView } from './views/admin/AdminConsoleView';
+import { FloatingChatbotButton } from './views/chatbot/FloatingChatbotButton';
+import { ChatbotDrawer } from './views/chatbot/ChatbotDrawer';
 import { AuthModal } from './views/AuthModal';
 import { SpotlightModal } from './views/SpotlightModal';
 
@@ -79,6 +84,25 @@ export default function App() {
         research.setSearchTopic(params.query);
         research.handleDiscover(params.query);
       }
+    }
+  });
+
+  const admin = useAdminController({
+    currentUser: auth.currentUser
+  });
+
+  const chatbot = useChatbotController({
+    currentConceptId: wiki.selectedConceptId,
+    activeTab: topbar.activeTab,
+    onNavigateToTab: (targetTab, params) => {
+      topbar.setActiveTab(targetTab);
+      if (targetTab === 'review' && params?.ticketId) {
+        review.selectTicket(params.ticketId);
+      }
+    },
+    onSelectConcept: (conceptId) => {
+      wiki.selectConcept(conceptId);
+      topbar.setActiveTab('wiki');
     }
   });
 
@@ -143,13 +167,22 @@ export default function App() {
         )}
 
         {topbar.activeTab === 'admin' && (
-          <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '48px', textAlign: 'center' }}>
-            <ShieldAlert size={48} style={{ color: 'var(--accent-danger)', margin: '0 auto 16px auto', display: 'block' }} />
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 8px 0' }}>[Admin] 수석 검토관 거버넌스 콘솔</h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Phase 6에서 L3 비인가 열람 신청 심사 큐 및 엔지니어 계정 관리가 구현됩니다.</p>
-          </div>
+          <AdminConsoleView
+            {...admin}
+            currentUser={auth.currentUser}
+          />
         )}
       </main>
+
+      {/* ── 계층 1 View: [F-01] 플로팅 실시간 챗봇 ── */}
+      <FloatingChatbotButton
+        isOpen={chatbot.isOpen}
+        onToggle={chatbot.toggleOpen}
+      />
+      <ChatbotDrawer
+        {...chatbot}
+        onClose={chatbot.closeChatbot}
+      />
 
       {/* ── 계층 1 View: 인증 모달 ── */}
       <AuthModal
