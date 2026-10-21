@@ -125,20 +125,18 @@ async def root_health_check():
 
 # 프론트엔드 정적 리소스 및 SPA 라우팅 서빙
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-css_dir = os.path.join(BASE_DIR, "css")
-js_dir = os.path.join(BASE_DIR, "js")
-index_html = os.path.join(BASE_DIR, "index.html")
+frontend_dist = os.path.join(BASE_DIR, "frontend", "dist")
+frontend_assets = os.path.join(frontend_dist, "assets")
+dist_index_html = os.path.join(frontend_dist, "index.html")
 
-if os.path.exists(css_dir):
-    app.mount("/css", StaticFiles(directory=css_dir), name="css")
-if os.path.exists(js_dir):
-    app.mount("/js", StaticFiles(directory=js_dir), name="js")
+if os.path.exists(frontend_assets):
+    app.mount("/assets", StaticFiles(directory=frontend_assets), name="assets")
 
 
 @app.get("/", tags=["Frontend"])
 async def serve_frontend_index():
-    """웹 브라우저 접속 시 온톨로지 위키 SPA 화면을 직접 서빙합니다."""
-    if os.path.exists(index_html):
-        return FileResponse(index_html)
+    """웹 브라우저 접속 시 신규 React+Vite SPA(frontend/dist/index.html)를 직접 서빙합니다."""
+    if os.path.exists(dist_index_html):
+        return FileResponse(dist_index_html)
     return {"message": "Semiconductor Causal Ontology Wiki Core Service"}
 
