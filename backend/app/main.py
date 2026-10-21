@@ -17,6 +17,7 @@ from backend.app.api.review_tickets import router as review_tickets_router
 from backend.app.api.evidences import router as evidences_router
 from backend.app.api.research import router as research_router
 from backend.app.api.chatbot import router as chatbot_router
+from backend.app.api.auth import router as auth_router
 
 logging.basicConfig(
     level=logging.INFO if not settings.DEBUG else logging.DEBUG,
@@ -30,6 +31,54 @@ async def lifespan(app: FastAPI):
     """Application startup and shutdown lifecycle management."""
     logger.info("Initializing Ontology Wiki Core Services...")
     await cache_manager.init()
+
+    # 🌟 물리 DB 테이블 동기화 및 초기 시스템 계정 시딩
+    from datetime import datetime
+    from sqlalchemy import select
+    from backend.app.core.database import engine, Base, async_session_factory
+    from backend.app.models.entities import UserModel
+    from backend.app.core.security import PasswordSecurityService
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    async with async_session_factory() as session:
+        # 1. 초기 시스템 관리자 (Level 4) 시딩
+        admin_res = await session.execute(select(UserModel).where(UserModel.username == "admin"))
+        if not admin_res.scalar_one_or_none():
+            now = datetime.utcnow()
+            session.add(UserModel(
+                id="EMP-ADMIN-001",
+                username="admin",
+                password_hash=PasswordSecurityService.hash_password("admin2026!"),
+                name="시스템 관리자",
+                department="온톨로지 인프라팀",
+                role="admin",
+                level=4,
+                is_active=True,
+                created_at=now,
+                updated_at=now
+            ))
+
+        # 2. 초기 수석 검토관 (Level 3) 시딩
+        chief_res = await session.execute(select(UserModel).where(UserModel.username == "chief_reviewer"))
+        if not chief_res.scalar_one_or_none():
+            now = datetime.utcnow()
+            session.add(UserModel(
+                id="EMP-CHIEF-001",
+                username="chief_reviewer",
+                password_hash=PasswordSecurityService.hash_password("chief2026!"),
+                name="김수석 검토관",
+                department="HBM 수율거버넌스팀",
+                role="chief_reviewer",
+                level=3,
+                is_active=True,
+                created_at=now,
+                updated_at=now
+            ))
+        await session.commit()
+    logger.info("Database tables and system admin accounts initialized.")
+
     yield
     logger.info("Shutting down Ontology Wiki Core Services...")
     await cache_manager.close()
@@ -65,6 +114,7 @@ app.include_router(review_tickets_router, prefix="/api/v1")
 app.include_router(evidences_router, prefix="/api/v1")
 app.include_router(research_router, prefix="/api/v1")
 app.include_router(chatbot_router, prefix="/api/v1")
+app.include_router(auth_router, prefix="/api/v1")
 
 
 @app.get("/healthz", tags=["System"])

@@ -41,6 +41,18 @@ from backend.app.schemas.review import (
     ReviewTicketActionResponse
 )
 
+from backend.app.schemas.auth import (
+    UserRegisterDTO,
+    UserLoginDTO,
+    UserDTO,
+    TokenResponseDTO,
+    PasswordChangeDTO,
+    AccessRequestCreateDTO,
+    AccessRequestDTO,
+    AccessReviewDTO,
+    UserLevelUpdateDTO
+)
+
 __all__ = [
     "HealthResponse",
     "HealthServicesStatus",

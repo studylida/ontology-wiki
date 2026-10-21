@@ -195,3 +195,48 @@ class ResearchSessionModel(Base):
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
 
+
+# ---------------------------------------------------------------------------
+# Section 7: Security Governance & RBAC Entities (사내 계정 및 L3 열람 신청)
+# ---------------------------------------------------------------------------
+
+class UserModel(Base):
+    """사내 반도체 엔지니어 계정 마스터 테이블 (Section 7.1)."""
+    __tablename__ = "users"
+
+    id = Column(String(64), primary_key=True)  # 사번 또는 고유식별자 (예: EMP-2026-001)
+    username = Column(String(64), unique=True, nullable=False, index=True)
+    password_hash = Column(String(256), nullable=False)
+    name = Column(String(64), nullable=False)
+    department = Column(String(64), nullable=False)
+    role = Column(String(32), nullable=False, default="line_engineer")  # guest | line_engineer | chief_reviewer | admin
+    level = Column(Integer, nullable=False, default=2)  # 1: guest, 2: line_engineer, 3: chief_reviewer, 4: admin
+    is_active = Column(Boolean, nullable=False, default=True)  # Soft Delete 플래그 (WORM 감사 무결성 보존)
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # 1:N 열람 신청 관계
+    access_requests = relationship("AccessRequestModel", foreign_keys="AccessRequestModel.user_id", back_populates="user", cascade="all, delete-orphan")
+
+
+class AccessRequestModel(Base):
+    """Tier 3 대외비/L3 비인가 지식 열람 권한 신청 및 심사 테이블 (Section 7.1)."""
+    __tablename__ = "access_requests"
+
+    id = Column(String(64), primary_key=True)  # req-YYYYMMDD-xxxx
+    user_id = Column(String(64), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    concept_id = Column(String(64), ForeignKey("concepts.id", ondelete="CASCADE"), nullable=False, index=True)
+    concept_title = Column(String(128), nullable=False)  # WORM 감사 및 1ms 조회용 경량 역정규화
+    reason = Column(Text, nullable=False)  # 열람 목적 상세 사유
+    status = Column(String(16), nullable=False, default="pending", index=True)  # pending | approved | rejected | revoked
+    reviewed_by = Column(String(64), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    reviewed_at = Column(DateTime(timezone=True), nullable=True)
+    review_comment = Column(Text, nullable=True)  # 관리자 심사 의견/반려 사유
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # N:1 관계
+    user = relationship("UserModel", foreign_keys=[user_id], back_populates="access_requests")
+    reviewer = relationship("UserModel", foreign_keys=[reviewed_by])
+
+
