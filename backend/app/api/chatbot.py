@@ -90,7 +90,6 @@ async def post_chatbot_message(
     body: ChatbotMessageRequest,
     x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
     x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
-    x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     db: AsyncSession = Depends(get_db)
 ):
     msg = body.message.strip()
@@ -115,7 +114,6 @@ async def stream_chatbot_message(
     body: ChatbotMessageRequest,
     x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
     x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
-    x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     db: AsyncSession = Depends(get_db)
 ):
     """5.2.2 Server-Sent Events (SSE) Chatbot Real-time Token Streaming."""

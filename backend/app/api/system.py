@@ -4,8 +4,7 @@ Implements:
 1. 4.1.1 GET /api/v1/system/health - 3-tier status (🟢 healthy | 🟡 degraded | ⚫ maintenance)
 2. 4.1.2 GET /api/v1/system/version - Ontology version metadata
 3. 5.3.3 GET /api/v1/system/audit/verify-integrity - WORM Merkle hash chain cryptographic audit
-4. 5.4.2 POST /api/v1/security/access-requests - Tier 3 data access request workflow
-5. 5.2.2 GET /api/v1/events/stream - Real-Time Server-Sent Events (SSE) broadcast
+4. 5.2.2 GET /api/v1/events/stream - Real-Time Server-Sent Events (SSE) broadcast
 """
 import uuid
 import asyncio
@@ -168,50 +167,6 @@ async def verify_audit_integrity(
         "verifiedAt": datetime.now(timezone.utc).isoformat()
     }
 
-
-class AccessRequestPayload(BaseModel):
-    conceptId: str
-    perspectiveId: Optional[str] = "default"
-    reason: Optional[str] = "실무 공정 트러블슈팅 및 수율 상관성 대조"
-
-
-@router.post("/security/access-requests", deprecated=True)
-async def create_access_request_legacy(
-    payload: AccessRequestPayload,
-    current_user: Optional[UserModel] = Depends(get_current_user_optional),
-    x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
-    db: AsyncSession = Depends(get_db)
-):
-    """5.4.2 POST /api/v1/security/access-requests (레거시 하위 호환 엔드포인트).
-
-    정규 엔드포인트 POST /api/v1/auth/access-requests 로 위임 연동.
-    """
-    if current_user:
-        from backend.app.schemas.auth import AccessRequestCreateDTO
-        from backend.app.services.auth_service import AccessControlService
-        req = await AccessControlService.create_access_request(
-            db, current_user, AccessRequestCreateDTO(concept_id=payload.conceptId, reason=payload.reason or "실무 공정 트러블슈팅 및 수율 대조")
-        )
-        return {
-            "requestId": req.id,
-            "conceptId": req.concept_id,
-            "perspectiveId": payload.perspectiveId,
-            "userRole": current_user.role,
-            "status": req.status,
-            "submittedAt": req.created_at.isoformat() if req.created_at else datetime.now(timezone.utc).isoformat(),
-            "message": f"열람 권한 신청 번호 [{req.id}]가 정식 발급되었습니다. 수석 리뷰어 승인 후 열람이 활성화됩니다."
-        }
-
-    req_id = f"REQ-{datetime.now().strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
-    return {
-        "requestId": req_id,
-        "conceptId": payload.conceptId,
-        "perspectiveId": payload.perspectiveId,
-        "userRole": x_user_role or "line_engineer",
-        "status": "pending_approval",
-        "submittedAt": datetime.now(timezone.utc).isoformat(),
-        "message": f"열람 권한 신청 번호 [{req_id}]가 발급되었습니다. 정식 거버넌스를 위해 /api/v1/auth/access-requests 엔드포인트를 이용해주세요."
-    }
 
 
 @router.get("/events/stream")

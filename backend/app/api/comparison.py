@@ -174,7 +174,6 @@ async def clarify_comparison_query(
     body: ClarifyRequest,
     x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
     x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
-    x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     db: AsyncSession = Depends(get_db)
 ):
     q = body.query.strip()
@@ -244,7 +243,6 @@ async def create_comparison_session(
     current_user: Optional[UserModel] = Depends(get_current_user_optional),
     x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
     x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
-    x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     db: AsyncSession = Depends(get_db)
 ):
     today_str = datetime.utcnow().strftime("%Y%m%d")
@@ -509,7 +507,6 @@ async def add_deep_dive_question(
     body: DeepDiveRequest,
     x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
     x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
-    x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     db: AsyncSession = Depends(get_db)
 ):
     session = await db.get(ComparisonSessionModel, session_id)

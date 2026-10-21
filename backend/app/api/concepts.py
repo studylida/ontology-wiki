@@ -16,7 +16,7 @@ from sqlalchemy.orm import selectinload
 
 from backend.app.core.database import get_db
 from backend.app.core.cache import cache_manager
-from backend.app.core.security import mask_tier3_perspective, get_current_user_role, get_current_user_optional
+from backend.app.core.security import mask_tier3_perspective, get_current_user_optional
 from backend.app.services.auth_service import AccessControlService
 from backend.app.agents import explainer_agent
 from backend.app.models.entities import (
@@ -149,19 +149,14 @@ async def get_concept_tree(
 async def get_concept_detail(
     concept_id: str,
     current_user: Optional[UserModel] = Depends(get_current_user_optional),
-    x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     db: AsyncSession = Depends(get_db)
 ):
     # 🌟 5.4.1 & 7.4절 동적 L3 대외비 열람 인가 판정:
-    # 1. Bearer JWT 로그인 유저: AccessControlService.can_view_confidential_l3 (Level 3 이상이거나 승인 티켓 보유)
-    # 2. 미로그인 시 레거시 x_user_role 헤더 폴백 (하위 호환성)
+    # 오직 Bearer JWT 로그인 유저의 권한 또는 승인 티켓으로만 판정 (Level 3 이상이거나 승인 티켓 보유)
     can_view = False
     if current_user:
         can_view = await AccessControlService.can_view_confidential_l3(current_user, concept_id, db)
-    elif x_user_role:
-        can_view = (get_current_user_role(x_user_role) in ["chief_reviewer", "ontology_admin", "admin"])
 
-    role_for_mask = "chief_reviewer" if can_view else "line_engineer"
     cache_key = f"concept:detail:{concept_id}:{'unmasked' if can_view else 'masked'}"
     cached = await cache_manager.get(cache_key)
     if cached:
@@ -198,7 +193,7 @@ async def get_concept_detail(
             "evidence_id": p.evidence_id,
             "is_masked": False
         }
-        processed = mask_tier3_perspective(raw_dict, role_for_mask)
+        processed = mask_tier3_perspective(raw_dict, can_view_confidential=can_view)
         perspectives_dto.append(PerspectiveCaseDTO(**processed))
 
     # 3. 0ms 팝오버를 위한 연관 개념 사전 적재 (Preloaded Explainers)

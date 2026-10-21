@@ -210,7 +210,6 @@ async def clarify_research_topic(
     body: ResearchClarifyRequest,
     x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
     x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
-    x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     db: AsyncSession = Depends(get_db)
 ):
     topic = body.searchTopic.strip()
@@ -242,7 +241,6 @@ async def discover_research_evidences(
     body: ResearchDiscoverRequest,
     x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
     x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
-    x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     db: AsyncSession = Depends(get_db)
 ):
     await ensure_research_table_exists()
@@ -307,7 +305,6 @@ async def synthesize_research_report(
     body: ResearchSynthesizeRequest,
     x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
     x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
-    x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     db: AsyncSession = Depends(get_db)
 ):
     await ensure_research_table_exists()

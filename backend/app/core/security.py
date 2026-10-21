@@ -4,7 +4,7 @@ Implements:
 1. PBKDF2-HMAC-SHA256 Password Security (with salt and constant-time verify).
 2. HMAC-SHA256 JWT Token Management (creation, validation, expiration).
 3. 4-Tier RBAC Guardrails & Dependencies (get_current_active_user, require_min_level).
-4. Legacy & Backward Compatibility (get_current_user_role, mask_tier3_perspective).
+4. Tier 3 Confidential Data Masking Engine (mask_tier3_perspective).
 """
 import hashlib
 import hmac
@@ -203,27 +203,17 @@ def require_min_level(min_level: int) -> Callable:
 
 
 # ---------------------------------------------------------------------------
-# 4. 하위 호환성 유지 함수 (Section 5.4 Legacy)
+# 4. Tier 3 대외비 데이터 마스킹 엔진 (Data Confidentiality Masking)
 # ---------------------------------------------------------------------------
-def get_current_user_role(x_user_role: Optional[str] = Header(None, alias="X-User-Role")) -> str:
-    """Extracts user role from X-User-Role header (default: chief_reviewer)."""
-    if not x_user_role:
-        return "chief_reviewer"
-    role = x_user_role.strip().lower()
-    if role in ["line_engineer", "chief_reviewer", "ontology_admin"]:
-        return role
-    return "chief_reviewer"
-
-
-def mask_tier3_perspective(p_data: Dict[str, Any], user_role: str) -> Dict[str, Any]:
-    """Masks Tier 3 sensitive manufacturing/yield metrics if user_role is line_engineer."""
+def mask_tier3_perspective(p_data: Dict[str, Any], can_view_confidential: bool = False) -> Dict[str, Any]:
+    """Masks Tier 3 sensitive manufacturing/yield metrics if can_view_confidential is False."""
     result = dict(p_data)
 
-    if user_role == "line_engineer":
+    if not can_view_confidential:
         result["isMasked"] = True
         result["is_masked"] = True
-        result["maskReason"] = "Tier 3 양산 수율 및 결함 대외비 데이터 (일반 엔지니어 열람 제한)"
-        result["mask_reason"] = "Tier 3 양산 수율 및 결함 대외비 데이터 (일반 엔지니어 열람 제한)"
+        result["maskReason"] = "Tier 3 양산 수율 및 결함 대외비 데이터 (열람 승인 필요)"
+        result["mask_reason"] = "Tier 3 양산 수율 및 결함 대외비 데이터 (열람 승인 필요)"
         trend_text = (
             "상대적 경향성(Relative Trend): 본딩 가압력(145N) 제어 시 마이크로범프 크랙율 0.05% 이하로 안정화되며, "
             "피크 온도 상승에 따라 보이드 발생 위험이 지수 함수적으로 감소하는 양산 경향 확인됨."
@@ -250,5 +240,6 @@ def mask_tier3_perspective(p_data: Dict[str, Any], user_role: str) -> Dict[str, 
         result["context_narrative"] = narrative
     else:
         result["isMasked"] = False
+        result["is_masked"] = False
 
     return result

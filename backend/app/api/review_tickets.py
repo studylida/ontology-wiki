@@ -382,7 +382,6 @@ async def approve_review_ticket(
     ticket_id: str,
     body: Optional[ReviewTicketApproveRequest] = None,
     current_user: Optional[UserModel] = Depends(get_current_user_optional),
-    x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
     x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
     db: AsyncSession = Depends(get_db)
@@ -390,33 +389,24 @@ async def approve_review_ticket(
     if body is None:
         body = ReviewTicketApproveRequest()
 
-    # 🌟 수석검토관(Level 3) 이상 거버넌스 승인 인가 가드레일
-    if current_user:
-        if current_user.level < 3:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail={
-                    "code": "INSUFFICIENT_LEVEL",
-                    "message": "위키 버전 승인 및 거버넌스 집행 권한은 '수석검토관(Level 3)' 이상 전용입니다. 현장 엔지니어(Level 2)는 승인 권한이 없습니다."
-                }
-            )
-        approver_id = current_user.id
-        approver_name = current_user.name
-        approver_role = current_user.role
-        approver_dept = current_user.department
-    else:
-        if x_user_role and x_user_role.lower() == "line_engineer":
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail={
-                    "code": "CHIEF_REVIEWER_ONLY",
-                    "message": "위키 버전 승인 및 거버넌스 집행 권한은 '수석검토관(chief_reviewer)' 전용입니다. 현장 엔지니어(line_engineer)는 승인 권한이 없습니다."
-                }
-            )
-        approver_id = body.approvedBy or "EMP-CHIEF-001"
-        approver_name = body.approvedBy or "김수석 검토관"
-        approver_role = "chief_reviewer"
-        approver_dept = "HBM 수율거버넌스팀"
+    # 🌟 수석검토관(Level 3) 이상 거버넌스 승인 인가 가드레일 (오직 인증된 수석검토관 토큰 필수)
+    if not current_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"code": "MISSING_TOKEN", "message": "위키 버전 승인 및 거버넌스 집행을 위해 로그인이 필요합니다."}
+        )
+    if current_user.level < 3:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={
+                "code": "INSUFFICIENT_LEVEL",
+                "message": "위키 버전 승인 및 거버넌스 집행 권한은 '수석검토관(Level 3)' 이상 전용입니다. 현장 엔지니어(Level 2)는 승인 권한이 없습니다."
+            }
+        )
+    approver_id = current_user.id
+    approver_name = current_user.name
+    approver_role = current_user.role
+    approver_dept = current_user.department
 
     ticket = await db.get(ReviewTicketModel, ticket_id)
     if not ticket:
@@ -626,36 +616,26 @@ async def reject_review_ticket(
     ticket_id: str,
     body: ReviewTicketRejectRequest,
     current_user: Optional[UserModel] = Depends(get_current_user_optional),
-    x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     db: AsyncSession = Depends(get_db)
 ):
-    # 🌟 수석검토관(Level 3) 이상 거버넌스 반려 인가 가드레일
-    if current_user:
-        if current_user.level < 3:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail={
-                    "code": "INSUFFICIENT_LEVEL",
-                    "message": "위키 거버넌스 반려 권한은 '수석검토관(Level 3)' 이상 전용입니다. 현장 엔지니어(Level 2)는 반려 권한이 없습니다."
-                }
-            )
-        rejector_id = current_user.id
-        rejector_name = current_user.name
-        rejector_role = current_user.role
-        rejector_dept = current_user.department
-    else:
-        if x_user_role and x_user_role.lower() == "line_engineer":
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail={
-                    "code": "CHIEF_REVIEWER_ONLY",
-                    "message": "위키 거버넌스 반려 권한은 '수석검토관(chief_reviewer)' 전용입니다. 현장 엔지니어(line_engineer)는 반려 권한이 없습니다."
-                }
-            )
-        rejector_id = body.rejectedBy or "EMP-CHIEF-001"
-        rejector_name = body.rejectedBy or "김수석 검토관"
-        rejector_role = "chief_reviewer"
-        rejector_dept = "HBM 수율거버넌스팀"
+    # 🌟 수석검토관(Level 3) 이상 거버넌스 반려 인가 가드레일 (오직 인증된 수석검토관 토큰 필수)
+    if not current_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"code": "MISSING_TOKEN", "message": "거버넌스 반려 처리를 위해 로그인이 필요합니다."}
+        )
+    if current_user.level < 3:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={
+                "code": "INSUFFICIENT_LEVEL",
+                "message": "위키 거버넌스 반려 권한은 '수석검토관(Level 3)' 이상 전용입니다. 현장 엔지니어(Level 2)는 반려 권한이 없습니다."
+            }
+        )
+    rejector_id = current_user.id
+    rejector_name = current_user.name
+    rejector_role = current_user.role
+    rejector_dept = current_user.department
 
     ticket = await db.get(ReviewTicketModel, ticket_id)
     if not ticket:
@@ -771,7 +751,6 @@ async def apply_directive(
     current_user: Optional[UserModel] = Depends(get_current_user_optional),
     x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
     x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
-    x_user_role: Optional[str] = Header(None, alias="X-User-Role"),
     db: AsyncSession = Depends(get_db)
 ):
     # 🌟 Level 2 현장 엔지니어 이상 가드레일 (게스트 차단)
