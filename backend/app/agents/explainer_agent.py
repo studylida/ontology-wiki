@@ -80,24 +80,42 @@ class ExplainerAgent:
 
         # 프롬프트 가드레일 강제 확인
         guardrail_prefix = f"현재 공정 맥락({parent_name}):"
+        evidence_ids = [edge.evidence_id] if (edge and edge.evidence_id) else ["E-01"]
+
         if llm_text and llm_text.startswith(guardrail_prefix):
             explanation_text = llm_text
         elif llm_text:
             explanation_text = f"{guardrail_prefix} {llm_text}"
         else:
-            # 결정론적 온톨로지 폴백
-            fallback_map = {
-                "concept-mrmuf": f"{guardrail_prefix} 고발열 16단 적층 시 NCF 필름의 열저항 한계를 대체하여 하부 언더필과 몰딩을 일괄 수행하는 상호 경쟁 대안 공정입니다.",
-                "concept-tcb": f"{guardrail_prefix} 고정밀 마이크로범프 용융 접합을 위해 145N의 정밀 가압력을 가하는 단위 열압착 공정입니다.",
-                "concept-dry-etch": f"{guardrail_prefix} 고종횡비(HARC) 채널 식각 시 이온 충격과 라디칼 반응으로 수직 프로파일을 형성하는 핵심 식각 공정입니다.",
-                "concept-cryo-etch": f"{guardrail_prefix} -60℃ 극저온에서 화학 반응 보호막을 냉동 고착시켜 보잉 결함을 차단하는 대안 공정입니다."
-            }
-            if child_id in fallback_map:
-                explanation_text = fallback_map[child_id]
-            elif not child_concept:
-                explanation_text = f"{guardrail_prefix} 해당 용어('{child_id}')는 온톨로지에 정식 등록되지 않은 미분류 용어입니다. {parent_name} 공정과의 상세 인과 메커니즘은 신규 검토 티켓 발급이 필요합니다."
+            # 🌟 Tier 4 (Deterministic Zero-AI Ontology Fallback): 단일 진실 원천(DB) 기반 동적 합성
+            if not child_concept:
+                explanation_text = (
+                    f"{guardrail_prefix} 해당 용어('{child_id}')는 온톨로지에 정식 등록되지 않은 미분류 용어입니다. "
+                    f"{parent_name} 공정과의 상세 인과 메커니즘은 신규 검토 티켓 발급이 필요합니다."
+                )
+            elif edge and edge.mechanism_label:
+                rel_desc_map = {
+                    "causes": "직접적인 물리·화학적 인과를 유발하는",
+                    "causes_defect": "공정 결함/불량을 유발하는",
+                    "mitigates": "결함 및 공정 변동을 억제·완화하는",
+                    "prevents": "물리적 한계 및 손상을 예방하는",
+                    "alternative_to": "기술적 한계를 대체하거나 상호 경쟁하는 대안 공정",
+                    "competes_with": "상호 경쟁 관계의 차세대 대안",
+                    "part_of": "하위 구성 단위 공정/요소",
+                    "depends_on": "선행 요구되거나 의존하는 핵심 요소",
+                    "controls": "수율 및 품질을 제어하는 핵심 인자",
+                }
+                rel_korean = rel_desc_map.get(relation_type, f"'{relation_type}' 인과 연계")
+                child_summary = f" ({child_concept.summary})" if child_concept.summary else ""
+                explanation_text = (
+                    f"{guardrail_prefix} {parent_name} 공정 맥락에서 {child_name}은(는) {rel_korean} 메커니즘({edge.mechanism_label})을 갖습니다.{child_summary}"
+                )
             else:
-                explanation_text = f"{guardrail_prefix} {child_name} 개념은 등록되어 있으나, {parent_name} 공정과의 구체적인 물리·화학적 인과 연계 메커니즘은 현재 심의 및 보완 중입니다."
+                child_summary = f" ({child_concept.summary})" if child_concept.summary else ""
+                explanation_text = (
+                    f"{guardrail_prefix} {child_name} 개념은 온톨로지에 등록되어 있으나{child_summary}, "
+                    f"{parent_name} 공정과의 구체적인 물리·화학적 인과 연계 메커니즘은 현재 검토 티켓을 통해 정밀 모델링 중입니다."
+                )
 
         resp = ContextualExplainerResponse(
             childConceptId=child_id,
@@ -107,7 +125,7 @@ class ExplainerAgent:
             relationType=relation_type,
             contextualExplanation=explanation_text,
             fallbackDefinition=child_concept.summary if child_concept else f"{child_name} 기본 정의",
-            evidenceIds=["E-01"]
+            evidenceIds=evidence_ids
         )
 
         # 캐시에 저장 (5분 TTL)

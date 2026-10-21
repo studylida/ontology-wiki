@@ -163,13 +163,6 @@ async def infer_causal_chain(
     summary="비교 분석 전 질문 구체화 API",
     description="모호한 질문으로부터 ClarifierAgent를 통해 3대 공학 분기, 동적 비교 축 후보 풀 및 구체화 질문을 도출합니다."
 )
-@router.post(
-    "/comparison-sessions/clarify",
-    response_model=ClarifyResponse,
-    response_model_by_alias=True,
-    response_model_exclude_none=True,
-    include_in_schema=False
-)
 async def clarify_comparison_query(
     body: ClarifyRequest,
     x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
@@ -495,13 +488,6 @@ async def update_comparison_matrix(
     summary="엔지니어 꼬리질문(Deep-Dive) 등록 및 4단계 인과 체인 기록 API",
     description="엔지니어의 심층 질문에 대해 4단계 물리 인과 체인(Causal Chain)을 도출하고 세션의 Step 3 스냅샷에 영구 저장합니다."
 )
-@router.post(
-    "/comparison-sessions/{session_id}/tail-question",
-    response_model=DeepDiveResponse,
-    response_model_by_alias=True,
-    response_model_exclude_none=True,
-    include_in_schema=False
-)
 async def add_deep_dive_question(
     session_id: str,
     body: DeepDiveRequest,
@@ -619,13 +605,6 @@ async def tune_advisor(
     response_model_exclude_none=True,
     summary="비교 세션 ➔ 검토 센터 티켓 내보내기 API",
     description="비교 분석 결과를 바탕으로 지식 거버넌스 티켓을 생성합니다."
-)
-@router.post(
-    "/comparison-sessions/{session_id}/export-ticket",
-    response_model=ExportReviewResponse,
-    response_model_by_alias=True,
-    response_model_exclude_none=True,
-    include_in_schema=False
 )
 async def export_to_review_ticket(
     session_id: str,

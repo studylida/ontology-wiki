@@ -444,13 +444,6 @@ async def get_causal_subgraph(
     summary="용어 호버 시 0ms 인라인 문맥 해설 조회 API",
     description="위키 본문 용어에 마우스를 올렸을 때 인라인으로 띄워줄 공학적 정의와 부모 문맥 문장을 서빙합니다."
 )
-@router.get(
-    "/{concept_id}/contextual-explain",
-    response_model=ContextualExplanationDTO,
-    response_model_by_alias=True,
-    response_model_exclude_none=True,
-    include_in_schema=False
-)
 async def get_contextual_explainer(
     concept_id: str,
     term_id: str = Query(..., description="마우스오버된 용어/하위 개념 식별자"),
