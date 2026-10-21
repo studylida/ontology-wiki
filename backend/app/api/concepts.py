@@ -58,7 +58,7 @@ async def recommend_concept_placement_alias(
     db: AsyncSession = Depends(get_db)
 ):
     from backend.app.api.review_tickets import recommend_concept_placement
-    return await recommend_concept_placement(body, db)
+    return await recommend_concept_placement(body=body, db=db)
 
 
 @router.get(
