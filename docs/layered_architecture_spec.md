@@ -2562,16 +2562,35 @@ async def call_agent(
   - `proposer_id`에 실제 로그인된 `current_user.id` 자동 바인딩.
 - **`POST /api/v1/review-tickets/{ticket_id}/directive` (보완 지시문)**:
   - `current_user: UserModel = Depends(require_min_level(2))` 주입.
+- **`POST /api/v1/review-tickets/{ticket_id}/presence` (동시 편집 락)**:
+  - 클라이언트 임의 `body.userId` 대신 실제 인증된 `current_user: UserModel = Depends(require_min_level(2))`의 ID로 락 홀더 바인딩.
+- **`PUT /api/v1/review-tickets/{ticket_id}/human-edits` (전문가 직접 본문 편집 저장)**:
+  - `current_user: UserModel = Depends(require_min_level(2))` 주입 (비인가자의 위키 본문 임의 덮어쓰기 방어).
 
 ### 2. `backend/app/api/concepts.py`
 - **`GET /api/v1/concepts/{concept_id}` (위키 상세 본문 서빙)**:
   - `x_user_role` 임시 헤더 ➔ `current_user: Optional[UserModel] = Depends(get_current_user_optional)` 주입.
-  - `can_view = await access_control_service.can_view_confidential_l3(current_user, concept_id, db)` 호출.
+  - `can_view = await AccessControlService.can_view_confidential_l3(current_user, concept_id, db)` 호출.
   - `can_view == True`인 경우(Level >= 3 이거나 해당 공정에 대해 승인된 `access_requests` 티켓 보유 시) L3 절대 수치 원문 서빙, 그 외에는 `[🔒 대외비 마스킹]` 및 열람 신청 CTA 유지.
 
-### 3. `backend/app/api/system.py`
+### 3. `backend/app/api/comparison.py` (Tab 2 비교 분석실)
+- **`POST /api/v1/comparison-sessions` (신규 비교 세션 생성)**:
+  - 클라이언트 임의 `body.userId` 조작 방지 ➔ `current_user: Optional[UserModel] = Depends(get_current_user_optional)`로 실제 로그인 세션 소유자 자동 매핑.
+- **`POST /api/v1/comparison-sessions/{session_id}/export-review` & `/export-ticket` (검토 센터 티켓 발의)**:
+  - `current_user: UserModel = Depends(require_min_level(2))` 주입 (공식 위키 개정 발의 권한 가드).
+  - `ticket.author`에 실제 인증된 `current_user.name` 및 부서 바인딩.
+
+### 4. `backend/app/api/research.py` (Tab 4 외부 문헌 조사실)
+- **`POST /api/v1/research/candidates/{candidate_id}/export-ticket` (발굴 지식 검토 센터 티켓 발의)**:
+  - `current_user: UserModel = Depends(require_min_level(2))` 주입.
+  - `ticket.author`에 실제 인증된 `current_user.name` 및 부서 바인딩.
+
+### 5. `backend/app/api/system.py`
 - **`POST /api/v1/security/access-requests`**:
-  - DB 미연동 Mock 엔드포인트 폐기 ➔ 정규화된 물리 테이블 연동 엔드포인트 `POST /api/v1/auth/access-requests`로 단일화.
+  - DB 미연동 Mock 엔드포인트 폐기 ➔ 정규화된 물리 테이블 연동 엔드포인트 `POST /api/v1/auth/access-requests`로 리다이렉트 또는 안내 메시지 반환.
+- **`GET /api/v1/system/audit/verify-integrity` (WORM 감사 무결성 검증)**:
+  - `current_user: UserModel = Depends(require_min_level(3))` 주입 (수석검토관 이상 전용 감사 검증 가드).
+
 
 
 
