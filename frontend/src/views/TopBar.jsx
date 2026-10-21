@@ -45,8 +45,7 @@ export function TopBar({
           >
             <Cpu size={18} />
           </div>
-          <span>반도체 인과 온톨로지 지식 위키</span>
-          <span className="brand-badge">v1.2</span>
+          <span>Ontology Wiki</span>
         </div>
 
         {/* ── 중앙: 4대 작업 공간 탭 스위처 (Transitions.dev sliding-tabs) ── */}

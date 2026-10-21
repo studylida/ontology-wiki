@@ -64,10 +64,71 @@ export default function App() {
     currentUser: auth.currentUser
   });
 
+  // ── History API 동기화 (브라우저 앞으로가기/뒤로가기 완벽 지원) ──
+  const navigateTab = (targetTab, params = null, push = true) => {
+    topbar.setActiveTab(targetTab);
+    const hash = targetTab === 'wiki' && wiki.activeConceptId ? `#concept/${wiki.activeConceptId}` : `#${targetTab}`;
+    if (push && window.location.hash !== hash) {
+      window.history.pushState({ tab: targetTab, conceptId: wiki.activeConceptId, params }, '', hash);
+    }
+  };
+
+  const navigateConcept = (conceptId, push = true) => {
+    wiki.selectConcept(conceptId);
+    topbar.setActiveTab('wiki');
+    const hash = `#concept/${conceptId}`;
+    if (push && window.location.hash !== hash) {
+      window.history.pushState({ tab: 'wiki', conceptId }, '', hash);
+    }
+  };
+
+  useEffect(() => {
+    // 1. 초기 URL 해시 복원
+    const hash = window.location.hash;
+    if (hash.startsWith('#concept/')) {
+      const cid = hash.replace('#concept/', '').trim();
+      if (cid) {
+        wiki.selectConcept(cid);
+        topbar.setActiveTab('wiki');
+      }
+    } else if (hash.startsWith('#')) {
+      const tab = hash.replace('#', '').trim();
+      if (['home', 'wiki', 'comparison', 'review', 'research', 'admin'].includes(tab)) {
+        topbar.setActiveTab(tab);
+      }
+    }
+
+    // 2. 브라우저 뒤로가기 / 앞으로가기 (popstate) 이벤트 핸들러
+    const handlePopState = (e) => {
+      const state = e.state;
+      if (state?.tab) {
+        topbar.setActiveTab(state.tab);
+        if (state.tab === 'wiki' && state.conceptId) {
+          wiki.selectConcept(state.conceptId);
+        }
+      } else {
+        const currentHash = window.location.hash;
+        if (currentHash.startsWith('#concept/')) {
+          const cid = currentHash.replace('#concept/', '').trim();
+          if (cid) {
+            wiki.selectConcept(cid);
+            topbar.setActiveTab('wiki');
+          }
+        } else if (currentHash.startsWith('#')) {
+          const tab = currentHash.replace('#', '').trim();
+          if (tab) topbar.setActiveTab(tab);
+        }
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   const research = useResearchController({
     currentUser: auth.currentUser,
     onNavigateToTab: (targetTab, params) => {
-      topbar.setActiveTab(targetTab);
+      navigateTab(targetTab, params);
       if (targetTab === 'review' && params?.ticketId) {
         review.selectTicket(params.ticketId);
       }
@@ -77,7 +138,7 @@ export default function App() {
   const comparison = useComparisonController({
     currentUser: auth.currentUser,
     onNavigateToTab: (targetTab, params) => {
-      topbar.setActiveTab(targetTab);
+      navigateTab(targetTab, params);
       if (targetTab === 'review' && params?.ticketId) {
         review.selectTicket(params.ticketId);
       } else if (targetTab === 'research' && params?.query) {
@@ -95,14 +156,13 @@ export default function App() {
     currentConceptId: wiki.selectedConceptId,
     activeTab: topbar.activeTab,
     onNavigateToTab: (targetTab, params) => {
-      topbar.setActiveTab(targetTab);
+      navigateTab(targetTab, params);
       if (targetTab === 'review' && params?.ticketId) {
         review.selectTicket(params.ticketId);
       }
     },
     onSelectConcept: (conceptId) => {
-      wiki.selectConcept(conceptId);
-      topbar.setActiveTab('wiki');
+      navigateConcept(conceptId);
     }
   });
 
@@ -112,7 +172,7 @@ export default function App() {
       <TopBar
         tabs={topbar.tabs}
         activeTab={topbar.activeTab}
-        onSelectTab={topbar.setActiveTab}
+        onSelectTab={navigateTab}
         onOpenSearch={topbar.openSearch}
         currentUser={auth.currentUser}
         isAuthenticated={auth.isAuthenticated}
@@ -206,8 +266,7 @@ export default function App() {
         isOpen={topbar.isSearchOpen}
         onClose={topbar.closeSearch}
         onSelectConcept={(conceptId) => {
-          wiki.selectConcept(conceptId);
-          topbar.setActiveTab('wiki');
+          navigateConcept(conceptId);
         }}
       />
     </div>

@@ -13,6 +13,7 @@ export function NewConceptModal({
   currentUser,
   isRecommending,
   placementRecommendation,
+  initialData,
   onClose,
   onRequestRecommendation,
   onSubmit
@@ -30,6 +31,18 @@ export function NewConceptModal({
     parentConceptId: 'concept-tcb',
     reason: ''
   });
+
+  // 미등록 개념에서 [+ 발의하기] 클릭 시 초기값 자동 주입
+  useEffect(() => {
+    if (isOpen && initialData) {
+      setForm((prev) => ({
+        ...prev,
+        title: initialData.title || prev.title,
+        parentConceptId: initialData.parentConceptId || prev.parentConceptId,
+        reason: initialData.reason || `[${initialData.parentTitle || initialData.parentConceptId || '단위 공정'}]의 연계 개념으로 참조되었으나 아직 지식 위키에 상세 문서가 부재하여 신규 작성을 발의합니다.`
+      }));
+    }
+  }, [isOpen, initialData]);
 
   // 추천 결과가 들어오면 폼 자동 채우기(Auto-fill)
   useEffect(() => {

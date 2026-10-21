@@ -51,7 +51,7 @@ export function ChatbotDrawer({
 
   return (
     <div
-      className="floating-chat-widget active"
+      className="floating-chat-widget open"
       style={{
         position: 'fixed',
         bottom: '80px',
@@ -69,6 +69,7 @@ export function ChatbotDrawer({
         flexDirection: 'column',
         overflow: 'hidden',
         opacity: 1,
+        visibility: 'visible',
         pointerEvents: 'auto'
       }}
     >

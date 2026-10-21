@@ -10,7 +10,9 @@ import { reviewRepo } from '../repositories/reviewRepo';
 import { authService } from '../services/authService';
 
 export function useWikiController({ initialConceptId = 'concept-tcb', currentUser, myAccessRequests = [], onRefreshAuth } = {}) {
+  const [navMode, setNavMode] = useState('domain'); // 'domain' | 'scale'
   const [activeFacet, setActiveFacet] = useState('unit_process');
+  const [activeScale, setActiveScale] = useState(3);
   const [activeConceptId, setActiveConceptId] = useState(initialConceptId);
 
   // 데이터 상태
@@ -32,16 +34,17 @@ export function useWikiController({ initialConceptId = 'concept-tcb', currentUse
   const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
   const [isRevisionModalOpen, setIsRevisionModalOpen] = useState(false);
   const [isNewConceptModalOpen, setIsNewConceptModalOpen] = useState(false);
+  const [newConceptInitialData, setNewConceptInitialData] = useState(null);
   const [isRecommendingPlacement, setIsRecommendingPlacement] = useState(false);
   const [placementRecommendation, setPlacementRecommendation] = useState(null);
 
   /**
-   * 온톨로지 네비게이션 트리 로드
+   * 온톨로지 네비게이션 트리 로드 (실무분야 또는 물리규모 필터 지원)
    */
-  const loadTree = useCallback(async (facet, expandedId = null) => {
+  const loadTree = useCallback(async (optionsOrFacet = 'unit_process', expandedId = null) => {
     setIsTreeLoading(true);
     try {
-      const res = await conceptRepo.getTree(facet, expandedId);
+      const res = await conceptRepo.getTree(optionsOrFacet, expandedId);
       setTreeData(res);
     } catch (err) {
       console.error('Failed to load concept tree:', err);
@@ -84,11 +87,29 @@ export function useWikiController({ initialConceptId = 'concept-tcb', currentUse
     }
   }, [loadSubgraph, subgraphDepth, subgraphDirection]);
 
-  // 패싯 변경 액션
+  // 패싯(실무분야) 변경 액션
   const changeFacet = useCallback((facet) => {
     setActiveFacet(facet);
-    loadTree(facet);
+    setNavMode('domain');
+    loadTree({ facet });
   }, [loadTree]);
+
+  // 물리적 규모(Scale 1~5) 변경 액션
+  const changeScale = useCallback((scale) => {
+    setActiveScale(scale);
+    setNavMode('scale');
+    loadTree({ scale });
+  }, [loadTree]);
+
+  // 관점 모드(실무분야 vs 물리규모) 토글 액션
+  const changeNavMode = useCallback((mode) => {
+    setNavMode(mode);
+    if (mode === 'scale') {
+      loadTree({ scale: activeScale });
+    } else {
+      loadTree({ facet: activeFacet });
+    }
+  }, [activeScale, activeFacet, loadTree]);
 
   // 개념 선택 액션
   const selectConcept = useCallback((conceptId) => {
@@ -216,11 +237,20 @@ export function useWikiController({ initialConceptId = 'concept-tcb', currentUse
 
   // 마운트 시 초기 트리 및 개념 로드
   useEffect(() => {
-    loadTree(activeFacet, initialConceptId);
+    loadTree({ facet: activeFacet }, initialConceptId);
     loadConcept(initialConceptId);
   }, []);
 
+  // 🌟 사용자 로그인/인가 변경 시(Level 4 관리자 전환 등) 활성 문서 자동 재조회
+  useEffect(() => {
+    if (activeConceptId) {
+      loadConcept(activeConceptId);
+    }
+  }, [currentUser?.id, currentUser?.level]);
+
   return {
+    navMode,
+    activeScale,
     activeFacet,
     activeConceptId,
     treeData,
@@ -238,9 +268,12 @@ export function useWikiController({ initialConceptId = 'concept-tcb', currentUse
     isAccessModalOpen,
     isRevisionModalOpen,
     isNewConceptModalOpen,
+    newConceptInitialData,
     isRecommendingPlacement,
     placementRecommendation,
     changeFacet,
+    changeScale,
+    changeNavMode,
     selectConcept,
     changeSubgraphDepth,
     changeSubgraphDirection,
@@ -250,9 +283,13 @@ export function useWikiController({ initialConceptId = 'concept-tcb', currentUse
     closeAccessModal: () => setIsAccessModalOpen(false),
     openRevisionModal: () => setIsRevisionModalOpen(true),
     closeRevisionModal: () => setIsRevisionModalOpen(false),
-    openNewConceptModal: () => setIsNewConceptModalOpen(true),
+    openNewConceptModal: (initialData = null) => {
+      setNewConceptInitialData(initialData);
+      setIsNewConceptModalOpen(true);
+    },
     closeNewConceptModal: () => {
       setIsNewConceptModalOpen(false);
+      setNewConceptInitialData(null);
       setPlacementRecommendation(null);
     },
     submitAccessRequest,

@@ -37,7 +37,7 @@ export function ContextualPopover({
 
   return (
     <div
-      className="concept-popover"
+      className="concept-popover open"
       style={{
         position: 'fixed',
         left: `${position.x}px`,
@@ -52,6 +52,10 @@ export function ContextualPopover({
         display: 'flex',
         flexDirection: 'column',
         gap: '8px',
+        opacity: 1,
+        visibility: 'visible',
+        pointerEvents: 'auto',
+        transform: 'translateY(0) scale(1)',
         animation: 'fadeIn 0.15s ease'
       }}
     >

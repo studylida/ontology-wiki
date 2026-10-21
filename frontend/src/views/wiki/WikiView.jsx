@@ -28,6 +28,8 @@ export function WikiView({ wiki, currentUser, onAskChatbot }) {
     data: null
   });
   const {
+    navMode,
+    activeScale,
     activeFacet,
     activeConceptId,
     treeData,
@@ -45,9 +47,12 @@ export function WikiView({ wiki, currentUser, onAskChatbot }) {
     isAccessModalOpen,
     isRevisionModalOpen,
     isNewConceptModalOpen,
+    newConceptInitialData,
     isRecommendingPlacement,
     placementRecommendation,
     changeFacet,
+    changeScale,
+    changeNavMode,
     selectConcept,
     changeSubgraphDepth,
     changeSubgraphDirection,
@@ -103,13 +108,17 @@ export function WikiView({ wiki, currentUser, onAskChatbot }) {
 
   return (
     <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
-      {/* ── 좌측 패널: 4축 패싯 트리 탐색기 (규모별/분야별 2-Way) ── */}
+      {/* ── 좌측 패널: 2-Way (실무분야별 vs 물리규모별) 계층 트리 탐색기 ── */}
       <FacetTreeExplorer
+        navMode={navMode}
+        activeScale={activeScale}
         activeFacet={activeFacet}
         activeConceptId={activeConceptId}
         treeData={treeData}
         isLoading={isTreeLoading}
+        onChangeNavMode={changeNavMode}
         onSelectFacet={changeFacet}
+        onSelectScale={changeScale}
         onSelectConcept={selectConcept}
         onOpenNewConceptModal={openNewConceptModal}
       />
@@ -208,10 +217,12 @@ export function WikiView({ wiki, currentUser, onAskChatbot }) {
               onCancelAccessRequest={cancelAccessRequest}
             />
 
-            {/* 4번 섹션: 온톨로지 관계망 & 물리적 규모(Scale) 계층 */}
+            {/* 4번 섹션: 온톨로지 인과 관계망 (전·후 공정 및 인과 연결) */}
             <SectionRelations
               conceptDetail={conceptDetail}
+              treeData={treeData}
               onSelectConcept={selectConcept}
+              onOpenNewConceptModal={openNewConceptModal}
             />
 
             {/* 5번 섹션: 공식 검증 출처 원문 (Evidence References) */}
@@ -221,28 +232,6 @@ export function WikiView({ wiki, currentUser, onAskChatbot }) {
           </>
         ) : null}
       </div>
-
-      {/* ── 우측 패널: 2-Hop 인과 서브그래프 & 문맥 해설 ── */}
-      <aside style={{ width: '360px', flexShrink: 0 }}>
-        {/* 문맥 해설 카드 (활성화 시 표출) */}
-        <ContextualExplainerCard
-          explainerData={explainerCard}
-          onClose={closeExplainer}
-          onNavigate={(targetId) => selectConcept(targetId)}
-        />
-
-        {/* 2-Hop 인과 서브그래프 캔버스 */}
-        <CausalSubgraphCanvas
-          subgraphData={subgraphData}
-          centralConceptId={activeConceptId}
-          depth={subgraphDepth}
-          direction={subgraphDirection}
-          isLoading={isSubgraphLoading}
-          onChangeDepth={changeSubgraphDepth}
-          onChangeDirection={changeSubgraphDirection}
-          onSelectConcept={selectConcept}
-        />
-      </aside>
 
       {/* ── 전역 모달 팝업들 ── */}
       <AccessRequestModal
@@ -263,6 +252,7 @@ export function WikiView({ wiki, currentUser, onAskChatbot }) {
       <NewConceptModal
         isOpen={isNewConceptModalOpen}
         currentUser={currentUser}
+        initialData={newConceptInitialData}
         isRecommending={isRecommendingPlacement}
         placementRecommendation={placementRecommendation}
         onClose={closeNewConceptModal}

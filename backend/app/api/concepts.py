@@ -70,26 +70,38 @@ async def recommend_concept_placement_alias(
     description="4대 업무 분류(소자, 공정, 운영, 소재) 및 단위 공정 카테고리별 계층형 온톨로지 트리를 서빙합니다."
 )
 async def get_concept_tree(
-    facet: Optional[Literal["device", "unit_process", "operations", "materials_infra"]] = Query(
+    facet: Optional[str] = Query(
         default="unit_process",
-        description="4대 업무 분야 분류 필터"
+        description="4대 업무 분야 분류 필터 (device, unit_process, operations, materials_infra)"
+    ),
+    scale: Optional[int] = Query(
+        default=None,
+        description="물리적 규모(Scale 1~5) 필터"
     ),
     expanded_id: Optional[str] = Query(default=None, alias="expandedId", description="기본 활성화할 개념 ID"),
     db: AsyncSession = Depends(get_db)
 ):
     target_facet = facet or "unit_process"
-    cache_key = f"concept:tree:{target_facet}"
+    cache_key = f"concept:tree:scale:{scale}" if scale is not None else f"concept:tree:{target_facet}"
     cached = await cache_manager.get(cache_key)
     if cached:
         return ConceptTreeResponse(**cached)
 
-    # 1. 대상 패싯의 개념 전체 조회
-    stmt = (
-        select(ConceptModel)
-        .options(selectinload(ConceptModel.perspectives))
-        .where(ConceptModel.domain_facet == target_facet)
-        .order_by(ConceptModel.scale_level.asc(), ConceptModel.title.asc())
-    )
+    # 1. 대상 패싯 또는 스케일의 개념 전체 조회
+    if scale is not None:
+        stmt = (
+            select(ConceptModel)
+            .options(selectinload(ConceptModel.perspectives))
+            .where(ConceptModel.scale_level == scale)
+            .order_by(ConceptModel.title.asc())
+        )
+    else:
+        stmt = (
+            select(ConceptModel)
+            .options(selectinload(ConceptModel.perspectives))
+            .where(ConceptModel.domain_facet == target_facet)
+            .order_by(ConceptModel.scale_level.asc(), ConceptModel.title.asc())
+        )
     concepts = (await db.execute(stmt)).scalars().all()
 
     # 2. 카테고리(process_category)별 그룹화하여 트리 구성

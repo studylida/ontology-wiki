@@ -7,14 +7,24 @@ import { httpClient } from './httpClient';
 
 export const conceptRepo = {
   /**
-   * 좌측 4축 계층형 온톨로지 네비게이션 트리 조회
-   * @param {'device'|'unit_process'|'operations'|'materials_infra'} [facet='unit_process']
+   * 좌측 4축 계층형 온톨로지 네비게이션 트리 조회 (업무 분야 또는 물리 규모 필터 지원)
+   * @param {string|{ facet?: string, scale?: number, expandedId?: string }} [facetOrOptions='unit_process']
    * @param {string} [expandedId]
    * @returns {Promise<import('../types/concept.dto').ConceptTreeResponseDTO>}
    */
-  async getTree(facet = 'unit_process', expandedId = null) {
-    const params = new URLSearchParams({ facet });
-    if (expandedId) params.append('expandedId', expandedId);
+  async getTree(facetOrOptions = 'unit_process', expandedId = null) {
+    const params = new URLSearchParams();
+    if (typeof facetOrOptions === 'object' && facetOrOptions !== null) {
+      if (facetOrOptions.scale !== null && facetOrOptions.scale !== undefined) {
+        params.append('scale', String(facetOrOptions.scale));
+      } else if (facetOrOptions.facet) {
+        params.append('facet', facetOrOptions.facet);
+      }
+      if (facetOrOptions.expandedId) params.append('expandedId', facetOrOptions.expandedId);
+    } else {
+      if (facetOrOptions) params.append('facet', facetOrOptions);
+      if (expandedId) params.append('expandedId', expandedId);
+    }
     return httpClient.get(`/concepts/tree?${params.toString()}`);
   },
 
