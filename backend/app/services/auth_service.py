@@ -139,6 +139,13 @@ class AccessControlService:
                 detail=f"대상 공정 개념 '{dto.conceptId}'을(를) 찾을 수 없습니다."
             )
 
+        # 0. 수석검토관(Level >= 3) 이상은 이미 전 공정 무조건 열람 권한 보유
+        if user.level >= 3:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={"code": "ALREADY_HAS_FULL_ACCESS", "message": "수석 검토관(Level 3) 이상의 계정은 이미 전 공정 L3 대외비에 대한 무조건 열람 권한을 보유하고 있어 별도 신청이 불필요합니다."}
+            )
+
         # 1. 이미 승인된 권한이 있는지 확인
         if await AccessRequestRepository.has_active_approval(db, user.id, dto.conceptId):
             raise HTTPException(
@@ -197,13 +204,33 @@ class AccessControlService:
         request_id: str,
         comment: Optional[str]
     ) -> AccessRequestModel:
-        """수석검토관(Level >= 3) 열람 승인 ➔ 대상 유저에게 L3 마스킹 영구 해제."""
+        """수석검토관(Level >= 3) 열람 승인 ➔ 대상 유저에게 L3 마스킹 영구 해제 (자가 승인 방지 및 상태 전이 검증)."""
         req = await AccessRequestRepository.get_by_id(db, request_id)
         if not req:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"열람 신청 티켓 '{request_id}'을(를) 찾을 수 없습니다."
             )
+
+        # 🌟 도메인 거버넌스 가드레일 1: 자가 승인(Self-Approval) 방어 (직무 분리 원칙)
+        if req.user_id == admin_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={"code": "SELF_APPROVAL_FORBIDDEN", "message": "직무 분리(Separation of Duties) 원칙에 따라 본인이 신청한 열람 티켓을 직접 승인할 수 없습니다."}
+            )
+
+        # 🌟 도메인 거버넌스 가드레일 2: 상태 전이 무결성 (오직 pending 상태만 승인 가능)
+        if req.status == "approved":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={"code": "ALREADY_APPROVED", "message": "이미 승인 완료된 열람 신청 티켓입니다."}
+            )
+        if req.status != "pending":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={"code": "INVALID_STATE_TRANSITION", "message": f"현재 상태('{req.status}')의 티켓은 승인할 수 없습니다. 대기(pending) 상태의 티켓만 승인이 가능합니다."}
+            )
+
         req.status = "approved"
         req.reviewed_by = admin_user.id
         req.reviewed_at = datetime.now(timezone.utc)
@@ -221,7 +248,7 @@ class AccessControlService:
         request_id: str,
         comment: Optional[str]
     ) -> AccessRequestModel:
-        """수석검토관(Level >= 3) 열람 반려 (반려 사유 필수)."""
+        """수석검토관(Level >= 3) 열람 반려 (반려 사유 필수, 상태 전이 검증)."""
         if not comment or not comment.strip():
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -233,6 +260,19 @@ class AccessControlService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"열람 신청 티켓 '{request_id}'을(를) 찾을 수 없습니다."
             )
+
+        # 🌟 도메인 거버넌스 가드레일: 오직 pending 상태만 반려 가능
+        if req.status == "rejected":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={"code": "ALREADY_REJECTED", "message": "이미 반려 처리된 열람 신청 티켓입니다."}
+            )
+        if req.status != "pending":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={"code": "INVALID_STATE_TRANSITION", "message": f"현재 상태('{req.status}')의 티켓은 반려할 수 없습니다. 대기(pending) 상태의 티켓만 반려가 가능합니다 (기승인 권한은 회수(Revoke)를 이용하세요)."}
+            )
+
         req.status = "rejected"
         req.reviewed_by = admin_user.id
         req.reviewed_at = datetime.now(timezone.utc)
@@ -250,19 +290,29 @@ class AccessControlService:
         request_id: str,
         comment: Optional[str]
     ) -> AccessRequestModel:
-        """기승인된 L3 열람 권한 강제 회수 (마스킹 재적용)."""
+        """기승인된 L3 열람 권한 강제 회수 (오직 approved 상태만 회수 가능)."""
         req = await AccessRequestRepository.get_by_id(db, request_id)
         if not req:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"열람 신청 티켓 '{request_id}'을(를) 찾을 수 없습니다."
             )
+
+        # 🌟 도메인 거버넌스 가드레일: 오직 approved 상태인 권한만 회수 가능
+        if req.status != "approved":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={"code": "INVALID_STATE_TRANSITION", "message": f"현재 상태('{req.status}')의 티켓은 회수할 수 없습니다. 기승인(approved) 상태인 권한만 회수가 가능합니다."}
+            )
+
         req.status = "revoked"
         req.reviewed_by = admin_user.id
         req.reviewed_at = datetime.now(timezone.utc)
         req.review_comment = comment.strip() if comment else "관리자 권한 강제 회수"
         req.updated_at = datetime.now(timezone.utc)
         await db.commit()
+        await db.refresh(req)
+        return req
         await db.refresh(req)
         return req
 
@@ -307,14 +357,21 @@ class UserAdminService:
         db: AsyncSession,
         admin_user: UserModel,
         target_user_id: str,
-        new_level: int
+        new_level: int,
+        is_active: Optional[bool] = None
     ) -> UserModel:
-        """특정 엔지니어의 권한 등급(Level 1~4) 승격/강등. (자기 자신 강등 방어)."""
-        if admin_user.id == target_user_id and new_level < 4:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail={"code": "CANNOT_DEMOTE_SELF", "message": "관리자 본인의 권한 등급을 스스로 강등할 수 없습니다."}
-            )
+        """특정 엔지니어의 권한 등급(Level 1~4) 승격/강등 및 활성화 상태 변경 (자기 자신 강등/탈퇴 방어)."""
+        if admin_user.id == target_user_id:
+            if new_level < 4:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail={"code": "CANNOT_DEMOTE_SELF", "message": "관리자 본인의 권한 등급을 스스로 강등할 수 없습니다."}
+                )
+            if is_active is False:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail={"code": "CANNOT_DELETE_SELF", "message": "관리자 본인의 계정을 스스로 비활성화/삭제할 수 없습니다."}
+                )
 
         target = await UserRepository.get_by_id(db, target_user_id)
         if not target:
@@ -322,6 +379,10 @@ class UserAdminService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"대상 사용자 '{target_user_id}'을(를) 찾을 수 없습니다."
             )
+
+        if is_active is not None:
+            target.is_active = is_active
+            target.updated_at = datetime.now(timezone.utc)
 
         return await UserRepository.update_level(db, target, new_level)
 

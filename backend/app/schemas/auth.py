@@ -92,7 +92,9 @@ class AccessReviewDTO(BaseModel):
 
 
 class UserLevelUpdateDTO(BaseModel):
-    """시스템 관리자 전용 권한 레벨 변경 DTO."""
+    """시스템 관리자 전용 권한 레벨 및 계정 활성화 상태 변경 DTO."""
     model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
 
     level: int = Field(..., ge=1, le=4, description="권한 등급 (1: 게스트, 2: 현장 엔지니어, 3: 수석 검토관, 4: 시스템 관리자)")
+    isActive: Optional[bool] = Field(None, alias="is_active", serialization_alias="isActive", description="계정 활성화 상태 (퇴사자 복직/차단 해제 지원)")
+

@@ -331,7 +331,7 @@ async def update_user_level(
     current_user: UserModel = Depends(require_min_level(4)),
     db: AsyncSession = Depends(get_db)
 ):
-    updated = await UserAdminService.update_user_level(db, current_user, user_id, body.level)
+    updated = await UserAdminService.update_user_level(db, current_user, user_id, body.level, body.isActive)
     return UserDTO.model_validate(updated)
 
 
