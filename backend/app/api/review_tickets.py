@@ -690,7 +690,7 @@ async def update_human_edits(
 
     # 🌟 공인 출처 불변성 검증 및 자동 복원 / 공식 폐기 인가
     from backend.app.core.citation_manager import EvidenceCitationManager
-    base_text = ticket.current_content or ticket.ai_merged_draft or ""
+    base_text = f"{ticket.current_content or ''}\n{ticket.ai_merged_draft or ''}".strip()
     final_content, restored_tags, deprecated_tags = await EvidenceCitationManager.validate_and_restore(
         original_text=base_text,
         edited_text=body.editedContent,
