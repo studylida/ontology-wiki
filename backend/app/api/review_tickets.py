@@ -860,15 +860,84 @@ async def get_wiki_preview(
     response_model=ConceptPlacementRecommendResponse,
     response_model_by_alias=True,
     summary="신규 개념 온톨로지 편입 위치 AI 자동 추천 API",
-    description="엔지니어가 입력한 기술명과 개요를 바탕으로 온톨로지 지식 그래프를 스캔하여 최적의 패싯, 스케일 레벨, 공정군 및 상위 개념을 자동 추천합니다."
+    description="엔지니어가 입력한 기술명과 개요를 바탕으로 4-Tier AI(OpenAI/Gemini) 및 온톨로지 지식 그래프를 스캔하여 최적의 패싯, 스케일 레벨, 공정군 및 상위 개념을 자동 추천합니다."
 )
 async def recommend_concept_placement(
     body: ConceptPlacementRecommendRequest,
+    x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
+    x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
     db: AsyncSession = Depends(get_db)
 ):
+    # 🌟 Tier 1 AI 클라우드 추론 시도 (API 키 제공 시)
+    active_key = x_openai_key or x_gemini_key or settings.OPENAI_API_KEY or settings.GEMINI_API_KEY
+    if active_key:
+        try:
+            from backend.app.core.llm_gateway import LLMGateway
+            gateway = LLMGateway(default_timeout_sec=10.0)
+
+            # DB의 기존 개념 후보 목록 조회 (상위 개념 매칭용)
+            stmt = select(ConceptModel.id, ConceptModel.title, ConceptModel.scale_level, ConceptModel.domain_facet).limit(30)
+            res_c = await db.execute(stmt)
+            known_concepts = [{"id": r[0], "title": r[1], "scale": r[2], "facet": r[3]} for r in res_c.all()]
+
+            system_instruction = (
+                "당신은 첨단 반도체 공정 및 소자 인과 온톨로지(Semiconductor Causal Ontology) 수석 아키텍트입니다.\n"
+                "엔지니어가 제안한 신규 기술/문서의 제목과 개요를 분석하여 온톨로지 지식 체계에서 최적의 편입 위치를 정확히 판별하세요.\n\n"
+                "온톨로지 4대 패싯 (domainFacet):\n"
+                "- 'device': 트랜지스터, 메모리 셀 등 소자 물성 및 구조\n"
+                "- 'unit_process': 노광, 식각, 박막, 세정, 본딩 등 단위 공정 메커니즘\n"
+                "- 'fab': 팹 유틸리티, 챔버 설비, 진공, 배관, OES FDC 등 팹 단위 기술\n"
+                "- 'infra': 클린룸 환경, 케미컬 공급, 스크러버 등 인프라\n\n"
+                "온톨로지 5대 스케일 (scaleLevel / scaleName):\n"
+                "1: Scale 1: 원자·분자 물성 (ALD, 계면 화학, 격자 변형)\n"
+                "2: Scale 2: 나노 디바이스 (FinFET, GAA, CFET, 비트라인 에어갭)\n"
+                "3: Scale 3: 단위 공정 (TCB, Cryo 식각, High-NA 노광, CMP)\n"
+                "4: Scale 4: 팹 / 모듈 라인 (FDC 제어, 챔버 매칭, 수율 라인)\n"
+                "5: Scale 5: 첨단 패키징 / 서브시스템 (HBM, MR-MUF, 3D IC, TGV 유리기판, SiP)\n\n"
+                f"현재 등록된 주요 온톨로지 개념 후보:\n{json.dumps(known_concepts, ensure_ascii=False)}\n\n"
+                "반드시 아래 JSON 포맷으로만 응답하세요:\n"
+                "{\n"
+                '  "domainFacet": "unit_process",\n'
+                '  "scaleLevel": 5,\n'
+                '  "scaleName": "Scale 5: 첨단 패키징 / 서브시스템",\n'
+                '  "processCategory": "첨단 패키징",\n'
+                '  "parentConceptId": "가장 인접한 개념 ID 또는 null",\n'
+                '  "parentConceptTitle": "상위 개념명 또는 null",\n'
+                '  "reasoning": "도메인 물리 공학적 위치 추천 사유 (1~2문장)"\n'
+                "}"
+            )
+
+            user_prompt = f"신규 기술명: {body.title}\n핵심 기술 정의 및 개요: {body.summary or '상세 개요 미입력'}"
+
+            llm_res = await gateway.generate_text(
+                prompt=user_prompt,
+                system_instruction=system_instruction,
+                openai_key=x_openai_key,
+                gemini_key=x_gemini_key,
+                tier="tier1_fast",
+                timeout_sec=8.0
+            )
+
+            if llm_res:
+                clean_json = llm_res.strip()
+                if clean_json.startswith("```"):
+                    clean_json = clean_json.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+                parsed = json.loads(clean_json)
+                return ConceptPlacementRecommendResponse(
+                    domain_facet=parsed.get("domainFacet", "unit_process"),
+                    scale_level=int(parsed.get("scaleLevel", 3)),
+                    scale_name=parsed.get("scaleName", f"Scale {parsed.get('scaleLevel', 3)}"),
+                    process_category=parsed.get("processCategory", "첨단 반도체 공정"),
+                    parent_concept_id=parsed.get("parentConceptId"),
+                    parent_concept_title=parsed.get("parentConceptTitle"),
+                    reasoning=f"[AI 지능형 온톨로지 분석] {parsed.get('reasoning', '')}"
+                )
+        except Exception as e:
+            logger.warning(f"Tier 1 AI placement recommendation failed, falling back to deterministic heuristic: {e}")
+
+    # 🌟 Tier 4: 결정론적 도메인 공학 규칙 기반 Fallback
     query_text = f"{body.title} {body.summary or ''}".lower()
 
-    # 1. 반도체 도메인 공학적 규칙 기반 위치 판별
     if any(k in query_text for k in ["패키징", "packaging", "본딩", "bonding", "muf", "ncf", "tgv", "인터포저", "기판", "substrate", "wlp", "2.5d", "3d"]):
         facet = "unit_process"
         scale = 5 if any(k in query_text for k in ["tgv", "기판", "모듈", "2.5d", "3d", "서브시스템"]) else 3
@@ -900,14 +969,13 @@ async def recommend_concept_placement(
         category = "단위 공정 기술"
         reasoning = f"'{body.title}'의 기술적 범위를 고려하여 표준 반도체 [{scale_name}]으로 기본 편입을 추천합니다."
 
-    # 2. 가장 인접한 기존 상위 개념 탐색 (유사도 매칭)
+    # 가장 인접한 기존 상위 개념 탐색 (유사도 매칭)
     parent_concept_id = None
     parent_concept_title = None
     stmt = select(ConceptModel).where(ConceptModel.scale_level <= scale).order_by(ConceptModel.scale_level.desc())
     result = await db.execute(stmt)
     candidate_concepts = result.scalars().all()
     if candidate_concepts:
-        # 패싯 일치 및 카테고리 일치 우선
         for c in candidate_concepts:
             if c.domain_facet == facet and (c.process_category == category or c.scale_level == scale):
                 parent_concept_id = c.id
