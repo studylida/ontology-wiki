@@ -1237,20 +1237,28 @@ class ReviewTicketPageResponse(BaseModel):
     limit: int
     tabCounts: ReviewTabCountsDTO      # 상단 탭 [대기중(12)] [승인완료(38)] [반려됨(5)] 뱃지 번들
 
-# 4. 티켓 신규 발행 요청 DTO (POST /review-tickets - 위키 모달 M-05 및 비교분석 연동)
+# 4. 티켓 신규 발행 요청 DTO (POST /review-tickets - 위키 모달 M-05, 비교분석 연동 및 신규 개념 발의)
 class ReviewTicketCreateRequest(BaseModel):
     targetScope: str = "existing_concept" # "existing_concept" | "new_concept" | "causal_relation"
-    conceptId: Optional[str] = None    # 신규 개념 등록 시 None 가능
-    conceptTitle: Optional[str] = None
+    conceptId: Optional[str] = None    # 기존 개념 수정 시 필수, 완전 신규 개념 등록 시 None 가능
+    conceptTitle: Optional[str] = None # 신규 기술/개념명
+    engName: Optional[str] = None      # 영문 명칭
     title: str                         # 발의 제목
-    reviewType: str                    # "파라미터 수정", "오류 정정", "신규 공정 편입", "인과 에지 보완"
+    reviewType: str                    # "파라미터 수정", "오류 정정", "신규 개념 등록", "인과 에지 보완"
     author: str                        # 발의자 사번/ID
     department: Optional[str] = None
     originType: str = "manual_expert"  # "manual_expert" | "comparison_gap" | "deep_research"
     userNote: Optional[str] = None     # 엔지니어 제안 의견
-    suggestedDraft: Optional[str] = None # 제안 초안
+    suggestedDraft: Optional[str] = None # 제안 초안 및 기술 개요 (Summary & Purpose)
     sourceSessionId: Optional[str] = None # 비교분석 세션 연계 시 세션 ID
-    proposedPayload: Optional[Dict[str, Any]] = None # 신규 개념/에지 등록 시 구조화 페이로드
+    proposedPayload: Optional[Dict[str, Any]] = None # 구조화 페이로드
+
+    # 🌟 온톨로지 트리 편입 위치 지정 필드 (targetScope == "new_concept" 또는 reviewType == "신규 개념 등록" 시 필수)
+    domainFacet: Optional[str] = "unit_process" # "device" | "unit_process" | "fab" | "infra"
+    processCategory: Optional[str] = "첨단 패키징" # 세부 공정군
+    scaleLevel: Optional[int] = 3               # 온톨로지 5대 스케일 (1~5)
+    scaleName: Optional[str] = "Scale 3: 단위 공정"
+    parentConceptId: Optional[str] = None       # 상위 개념 ID (relations.is_a)
 ```
 
 ### ② 2-Pane 검토 상세 워크스페이스 DTO (`GET /review-tickets/{id}`, `POST /presence`)
@@ -1553,12 +1561,13 @@ class AuditLogRepository:
     - 사유(`overrideReason`)가 비어 있으면 **HTTP 422 Unprocessable Entity로 승인을 물리 차단**.
   - **3. 단일 원자적 DB 트랜잭션 (Atomic Decomposition & Polymorphic Apply)**:
     - `target_scope`에 따라 기존 개념 개정과 신규 개념 등록을 자동 분기하여 단일 트랜잭션 처리:
-      - **분기 A [신규 개념 등록 승인 (`target_scope == 'new_concept'`)]**:
-        1. `concepts` 테이블에 신규 행 INSERT (새 고유 ID `concept-xxx` 발급, `version='v1.0'`, `status='adopted'`).
-        2. 발급된 신규 `concept_id`를 외래키로 바인딩하여, 제안된 원리(`concept_principles`), 공정 한계(`concept_limitations`), 관점별 수치(`perspective_specifications`)를 신규 INSERT.
-        3. 신규 개념의 기본 인과 에지(`causal_edges`) 등록.
+      - **분기 A [신규 개념 등록 승인 (`target_scope == 'new_concept'` 또는 `is_new == True`)]**:
+        1. **온톨로지 편입 위치 바인딩**: 티켓 발의 시 지정된 메타데이터(`domain_facet`, `scale_level`, `process_category`, `scale_name`, `relations.is_a`)를 취득.
+        2. **`concepts` 테이블 신규 행 INSERT**: 고유 ID `concept-xxx` 발급, 취득한 패싯/스케일 레벨에 배치, `version='v1.0'`, `status='adopted'`, `summary=working_draft`.
+        3. **하위 인과 엔티티 연동**: 발급된 `concept_id`를 외래키로 바인딩하여 제안된 원리(`concept_principles`), 공정 한계(`concept_limitations`), 관점별 실무 사례(`perspectives`) 신규 INSERT.
+        4. **온톨로지 인과 에지(`causal_edges`) 등록**: `parent_concept_id`와의 상위 계층 에지(`is_a`) 및 공정 전후 인과 관계 에지 자동 생성.
       - **분기 B [기존 개념 개정 승인 (`target_scope == 'existing_concept'`)]**:
-        1. `concepts`: `version` 동적 마이너 판본 승계 (예: `v1.2` ➔ `v1.3`), `summary` 갱신.
+        1. `concepts`: 세맨틱 버전 자동 승계 (일반 수정 ➔ `PATCH`, 공인 출처 폐기 ➔ `MINOR`), `summary` 갱신.
         2. `working_draft`의 섹션별 패치를 분해하여 하위 테이블 UPDATE/INSERT (`principles`, `limitations`, `specifications`).
   - **4. WORM 머클 감사 체인 확정**:
     - 직전 `entry_hash`를 조회하여 현재 승인 스냅샷과 결합한 새 SHA-256 해시를 생성하고 HMAC 전자 서명과 함께 `audit_logs`에 INSERT.
