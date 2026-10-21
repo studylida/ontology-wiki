@@ -2363,4 +2363,179 @@ async def call_agent(
     - 5. 플로팅 챗봇 컨텍스트 캐시 소거: `chatbot:context:*`
     - 단 한 번의 호출로 전 도메인의 캐시 정합성을 0ms로 보장.
 
+---
+
+# 7. 🛡️ 보안 거버넌스 및 사용자 권한(Auth & RBAC) 계층 설계
+
+> **책임 및 도메인 목적**:  
+> 사내 폐쇄망 환경에서 구글 등 외부 인증 의존성 없이 자체 엔지니어 계정을 안전하게 발급/관리하고,  
+> 4단계 권한 레벨(Level 1~4) 기반의 엄격한 역할 기반 접근 제어(RBAC)와 비인가 지식(L3 극비 레시피) 열람 신청·심사·승인·회수 거버넌스를 관장한다.  
+> 반도체 WORM 무결성 원칙에 따라 사용자 계정 삭제는 물리 삭제(Hard Delete)를 금지하고 비활성화(Soft Delete: `is_active = False`) 방식으로 안전하게 처리한다.
+
+---
+
+## 7.1 물리 Entity 스키마 설계 (Physical Database Schema)
+
+```
+┌─────────────────────────────────┐
+│              users              │
+├─────────────────────────────────┤
+│ PK  id (사번/고유식별자)        │
+│     username (로그인 ID)        │
+│     password_hash (솔팅 해시)   │
+│     name, department            │
+│     role (기본 'line_engineer') │
+│     level (1~4 정수형 등급)     │
+│     is_active (Soft Delete 플래그)
+│     created_at, updated_at      │
+└──────────────┬──────────────────┘
+               │ 1:N
+               ▼
+┌─────────────────────────────────┐
+│         access_requests         │
+│ (비인가 지식 열람 권한 신청 큐) │
+├─────────────────────────────────┤
+│ PK  id (req-YYYYMMDD-xxxx)      │
+│ FK  user_id (신청 엔지니어)     │
+│ FK  concept_id (대상 공정 개념) │
+│     concept_title               │
+│     reason (열람 목적 사유)     │
+│     status                      │
+│     (pending/approved/rejected/ │
+│      revoked)                   │
+│ FK  reviewed_by (심사 관리자)   │
+│     reviewed_at                 │
+│     review_comment              │
+│     created_at, updated_at      │
+└─────────────────────────────────┘
+```
+
+### [테이블 1] `users` (사내 엔지니어 계정 마스터 테이블)
+- **테이블명**: `users`
+- **컬럼 정의**:
+  - `id`: `VARCHAR(64) PRIMARY KEY` (사번 또는 고유 ID, 예: `EMP-2026-001`)
+  - `username`: `VARCHAR(64) UNIQUE NOT NULL` (로그인 아이디)
+  - `password_hash`: `VARCHAR(256) NOT NULL` (PBKDF2-HMAC-SHA256 솔팅 암호문)
+  - `name`: `VARCHAR(64) NOT NULL` (엔지니어 실명)
+  - `department`: `VARCHAR(64) NOT NULL` (소속 부서, 예: `HBM패키징개발팀`)
+  - `role`: `VARCHAR(32) NOT NULL DEFAULT 'line_engineer'` (`line_engineer` | `chief_reviewer` | `admin`)
+  - `level`: `INTEGER NOT NULL DEFAULT 2` (1: 게스트, 2: 현장 엔지니어, 3: 수석 검토관, 4: 시스템 관리자)
+  - `is_active`: `BOOLEAN NOT NULL DEFAULT 1` (계정 활성화 상태, 탈퇴/차단 시 0)
+  - `created_at`: `DATETIME DEFAULT CURRENT_TIMESTAMP`
+  - `updated_at`: `DATETIME DEFAULT CURRENT_TIMESTAMP`
+
+### [테이블 2] `access_requests` (비인가 지식 열람 신청 및 거버넌스 심사 테이블)
+- **테이블명**: `access_requests`
+- **컬럼 정의**:
+  - `id`: `VARCHAR(64) PRIMARY KEY` (신청 티켓 ID, 예: `req-20261021-001`)
+  - `user_id`: `VARCHAR(64) NOT NULL, FK(users.id ON DELETE CASCADE)`
+  - `concept_id`: `VARCHAR(64) NOT NULL, FK(concepts.id ON DELETE CASCADE)`
+  - `concept_title`: `VARCHAR(128) NOT NULL` (대상 공정 명칭)
+  - `reason`: `TEXT NOT NULL` (열람 신청 목적 및 사유)
+  - `status`: `VARCHAR(16) NOT NULL DEFAULT 'pending'` (`pending` | `approved` | `rejected` | `revoked`)
+  - `reviewed_by`: `VARCHAR(64) NULLABLE, FK(users.id ON DELETE SET NULL)`
+  - `reviewed_at`: `DATETIME NULLABLE`
+  - `review_comment`: `TEXT NULLABLE` (관리자 심사 의견/반려 사유)
+  - `created_at`: `DATETIME DEFAULT CURRENT_TIMESTAMP`
+  - `updated_at`: `DATETIME DEFAULT CURRENT_TIMESTAMP`
+
+---
+
+## 7.2 Pydantic DTO 계약 스펙 (Contract Schemas)
+
+1. **`UserRegisterDTO`**: `username`, `password`, `name`, `department` (사내 회원가입 입력)
+2. **`UserLoginDTO`**: `username`, `password` (로그인 입력)
+3. **`TokenResponseDTO`**: `accessToken`, `tokenType: "Bearer"`, `expiresIn: 86400`, `user: UserDTO`
+4. **`UserDTO`**: `id`, `username`, `name`, `department`, `role`, `level`, `isActive`, `createdAt` (비밀번호 제외)
+5. **`PasswordChangeDTO`**: `oldPassword`, `newPassword`
+6. **`AccessRequestCreateDTO`**: `conceptId`, `reason` (최소 5자 이상 상세 기술)
+7. **`AccessRequestDTO`**: `id`, `userId`, `userName`, `userDepartment`, `conceptId`, `conceptTitle`, `reason`, `status`, `reviewedBy`, `reviewedAt`, `reviewComment`, `createdAt`
+8. **`AccessReviewDTO`**: `comment` (승인/반려/회수 코멘트)
+9. **`UserLevelUpdateDTO`**: `level: int` (1~4 유효성 검증)
+
+---
+
+## 7.3 Repository 계층 (Data Access Layer)
+
+- **`UserRepository`**:
+  - `get_by_id(user_id)` / `get_by_username(username)`
+  - `create_user(user_entity)`
+  - `list_users(role, level, search, limit, offset)`
+  - `update_level(user_id, new_level)`
+  - `soft_delete_user(user_id)`: `is_active = False` 처리
+- **`AccessRequestRepository`**:
+  - `create_request(request_entity)`
+  - `get_by_id(request_id)`
+  - `list_by_user(user_id)`: 본인 신청 내역
+  - `list_for_admin(status_filter, limit, offset)`: 관리자 큐 조회
+  - `find_pending_or_approved(user_id, concept_id)`: 중복 신청 및 기승인 여부 확인
+  - `has_active_approval(user_id, concept_id)`: 현재 시점에 유효한 승인 티켓 존재 여부 (0.5ms 초고속 쿼리)
+
+---
+
+## 7.4 Service 계층 (Domain & Security Services)
+
+1. **`PasswordSecurityService`**:
+   - `hash_password(plain: str) -> str`: 솔트(32바이트) 생성 + `hashlib.pbkdf2_hmac` 암호화.
+   - `verify_password(plain: str, hashed: str) -> bool`: 일정 시간 비교(`hmac.compare_digest`)로 타이밍 공격 방어.
+2. **`TokenManagerService`**:
+   - `create_access_token(user: UserModel, expires_delta: timedelta) -> str`: HMAC-SHA256 기반 JWT 서명.
+   - `decode_access_token(token: str) -> Dict[str, Any]`: 위조 검사, 서명 확인, `exp` 만료 판정.
+3. **`AuthService`**:
+   - `register(dto)`: 중복 아이디 방어(`409 Conflict`), 기본 `level=2` 부여.
+   - `authenticate(dto)`: 자격 증명 검증, 비활성화 계정 차단(`403`), 성공 시 토큰 발급.
+   - `change_password(user, old_pw, new_pw)`: 기존 비밀번호 대조 후 신규 해시 갱신.
+   - `deactivate_self(user)`: 본인 회원 탈퇴 (Soft Delete).
+4. **`AccessControlService` (비인가 지식 권한 심사 총괄)**:
+   - `create_access_request(user, dto)`: 중복 대기 방지(`409`), 기승인 차단(`400`).
+   - `cancel_access_request(user, request_id)`: 대기(`pending`) 중인 본인 신청 자진 취소(`DELETE`).
+   - `approve_request(admin_user, request_id, comment)`: 관리자 승인(`POST /approve`) ➔ 승인 상태 갱신.
+   - `reject_request(admin_user, request_id, comment)`: 관리자 반려(`POST /reject`) ➔ 반려 사유 기록.
+   - `revoke_approval(admin_user, request_id, comment)`: 기승인 권한 강제 회수(`POST /revoke`) ➔ `status='revoked'`.
+   - **`can_view_confidential_l3(user: Optional[UserModel], concept_id: str) -> bool`**:
+     - 1차: `user.level >= 3`이면 100% 열람 허가 (True).
+     - 2차: `user.level < 3`이더라도 `has_active_approval(user.id, concept_id)`가 True이면 **L3 마스킹을 해제하고 실제 수치 반환 (True)**.
+     - 3차: 비로그인 또는 미승인 상태면 마스킹 처리 (False).
+5. **`UserAdminService`**:
+   - `update_user_level(admin_user, target_user_id, new_level)`: 슈퍼 어드민 자기 자신 강등 방어(`400`), 대상 엔지니어 레벨 조정.
+   - `deactivate_user_by_admin(admin_user, target_user_id)`: 관리자에 의한 퇴사자 계정 차단 (Soft Delete).
+
+---
+
+## 7.5 Router / Controller 계층 (`/api/v1/auth`)
+
+모든 보안, 인증, 인가, 권한 열람 신청 엔드포인트는 단일 라우터(`/api/v1/auth`)로 통합된다.
+
+| HTTP 메서드 | 엔드포인트 URL | 인가 가드레일 | 주요 동작 및 설명 |
+| :--- | :--- | :--- | :--- |
+| **POST** | `/api/v1/auth/register` | Public | 사내 자체 회원가입 (기본 Level 2 현장 엔지니어 부여) |
+| **POST** | `/api/v1/auth/login` | Public | 자체 로그인 ➔ 24시간 유효 JWT 토큰 및 사용자 정보 반환 |
+| **POST** | `/api/v1/auth/refresh` | Bearer Token | 만료 직전 토큰 무중단 갱신 (새 Access Token 발급) |
+| **GET** | `/api/v1/auth/me` | Bearer Token | 내 프로필 및 권한 레벨(`level`) 조회 (SPA 새로고침 세션 복원) |
+| **POST** | `/api/v1/auth/change-password` | Bearer Token | 비밀번호 변경 (기존 비밀번호 확인 ➔ 새 암호 해시 갱신) |
+| **DELETE**| `/api/v1/auth/me` | Bearer Token | 본인 회원 탈퇴 (Soft Delete: `is_active=False`) |
+| **POST** | `/api/v1/auth/access-requests` | Bearer Token | L3 비인가 지식 열람 권한 신청 (사유 제출 ➔ `pending` 티켓 생성) |
+| **GET** | `/api/v1/auth/access-requests/my` | Bearer Token | 내가 신청한 열람 내역 및 승인 상태 확인 |
+| **DELETE**| `/api/v1/auth/access-requests/{id}` | Bearer Token | 본인의 대기 중(`pending`)인 열람 신청 자진 취소 |
+| **GET** | `/api/v1/auth/access-requests` | `level >= 3` | 관리자 전용: 미결 열람 신청 큐 목록 조회 |
+| **POST** | `/api/v1/auth/access-requests/{id}/approve` | `level >= 3` | 관리자 승인 (승인 시 해당 유저에게 해당 개념 L3 마스킹 영구 해제) |
+| **POST** | `/api/v1/auth/access-requests/{id}/reject` | `level >= 3` | 관리자 반려 (반려 사유 필수 요구) |
+| **POST** | `/api/v1/auth/access-requests/{id}/revoke` | `level >= 3` | 관리자의 기승인 권한 강제 회수 (`status='revoked'`, 마스킹 재적용) |
+| **GET** | `/api/v1/auth/users` | `level >= 4` | 시스템 관리자 전용: 전체 엔지니어 목록 및 level 현황 조회 |
+| **PATCH** | `/api/v1/auth/users/{user_id}/level` | `level >= 4` | 시스템 관리자 전용: 특정 엔지니어 level(권한 등급) 승격/강등 |
+| **DELETE**| `/api/v1/auth/users/{user_id}` | `level >= 4` | 시스템 관리자 전용: 퇴사자/비인가자 계정 강제 비활성화 (Soft Delete) |
+
+---
+
+## 7.6 토큰 만료 및 유효성 검사 아키텍처 (FastAPI 의존성 주입)
+
+- **`get_current_active_user` 의존성**:
+  - 보호된 모든 라우터는 라우터 내부에서 일일이 토큰을 검사하지 않고, FastAPI 의존성 `Depends(get_current_active_user)`를 통해 선제 검증된다.
+  - 토큰 누락 시 `401 Unauthorized (MISSING_TOKEN)`
+  - 토큰 만료 시 `401 Unauthorized (TOKEN_EXPIRED)`
+  - 계정 비활성화 시 `403 Forbidden (USER_INACTIVE)`
+- **`require_min_level(min_level: int)` 가드 데코레이터**:
+  - `Depends(require_min_level(3))` 선언만으로 수석검토관 미달 시 `403 Forbidden` 자동 방어.
+
+
 
