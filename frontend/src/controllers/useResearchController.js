@@ -4,16 +4,11 @@
  * (1단계: 주제 검색/필터 ➔ 2단계: 공인 문헌 피드 ➔ 3단계: 종합 리포트 및 지식 후보 발행)
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { researchRepo } from '../repositories/researchRepo';
+import { usableEvidenceIds } from '../services/researchService';
 
-const DEFAULT_INSTITUTIONS = [
-  'Intel Foundry',
-  'IEEE ECTC',
-  'SEMI 3D Packaging',
-  'Samsung Tech Day',
-  'TSMC OIP'
-];
+const DEFAULT_INSTITUTIONS = [];
 
 export function useResearchController({ currentUser, initialQuery = '', onNavigateToTab } = {}) {
   // 화면 단계: 'search' | 'feed' | 'report'
@@ -26,6 +21,9 @@ export function useResearchController({ currentUser, initialQuery = '', onNaviga
   // 세션 목록 및 현재 세션
   const [pastSessions, setPastSessions] = useState([]);
   const [currentSessionId, setCurrentSessionId] = useState(null);
+  const [comparisonContext, setComparisonContext] = useState(null);
+  const [discoveryNotice, setDiscoveryNotice] = useState('');
+  const discoveryRequest = useRef(0);
 
   // 문헌 피드 & 종합 리포트 결과
   const [evidenceFeed, setEvidenceFeed] = useState([]);
@@ -74,52 +72,71 @@ export function useResearchController({ currentUser, initialQuery = '', onNaviga
    * 과거 조사 세션 클릭 ➔ 상세 리포트 및 지식 후보 복원
    */
   const selectPastSession = useCallback(async (sessionId) => {
+    const requestId = ++discoveryRequest.current;
+    setIsDiscovering(false);
     setIsSynthesizing(true);
     try {
       const res = await researchRepo.getSession(sessionId);
+      if (requestId !== discoveryRequest.current) return;
       setCurrentSessionId(res.sessionId);
       setSearchTopic(res.searchTopic || '');
+      setEvidenceFeed(res.evidenceFeed || []);
+      setSelectedEvidenceIds(usableEvidenceIds(res.evidenceFeed || [], (res.evidenceFeed || []).map((e) => e.id)));
+      setComparisonContext(res.comparisonContext || null);
+      setDiscoveryNotice(res.notice || '');
       setSynthesisReport(res.synthesisReport || null);
       setCandidates(res.candidates || []);
-      setActiveStep('report');
+      setActiveStep(res.synthesisReport ? 'report' : 'feed');
     } catch (err) {
       setNotification({ type: 'error', message: err.message || '세션 정보를 불러오지 못했습니다.' });
     } finally {
-      setIsSynthesizing(false);
+      if (requestId === discoveryRequest.current) setIsSynthesizing(false);
     }
   }, []);
 
   /**
    * 1단계 ➔ 2단계: 실측 문헌 피드 발굴 실행
    */
-  const handleDiscover = useCallback(async (overrideTopic) => {
+  const handleDiscover = useCallback(async (overrideTopic, context = comparisonContext) => {
     const topic = (overrideTopic || searchTopic).trim();
     if (topic.length < 2) {
       setNotification({ type: 'warning', message: '조사할 기술 주제를 2자 이상 입력해주세요.' });
       return;
     }
 
+    const requestId = ++discoveryRequest.current;
     setIsDiscovering(true);
+    setIsSynthesizing(false);
     setSearchTopic(topic);
+    setComparisonContext(context);
+    setSynthesisReport(null);
+    setCandidates([]);
+    setCurrentSessionId(null);
+    setEvidenceFeed([]);
+    setSelectedEvidenceIds([]);
+    setActiveStep('search');
     try {
       const res = await researchRepo.discoverEvidences({
         searchTopic: topic,
-        targetInstitutions
+        targetInstitutions,
+        comparisonContext: context
       });
+      if (requestId !== discoveryRequest.current) return;
 
       setCurrentSessionId(res.sessionId);
       setEvidenceFeed(res.evidenceFeed || []);
-      // 기본적으로 모든 발굴 문헌 선택
-      setSelectedEvidenceIds((res.evidenceFeed || []).map((e) => e.id));
+      setSelectedEvidenceIds(usableEvidenceIds(res.evidenceFeed || [], (res.evidenceFeed || []).map((e) => e.id)));
+      setComparisonContext(res.comparisonContext || null);
+      setDiscoveryNotice(res.notice || '');
       setActiveStep('feed');
       // 세션 목록 갱신
       loadSessions();
     } catch (err) {
-      setNotification({ type: 'error', message: err.message || '문헌 발굴 요청에 실패했습니다.' });
+      if (requestId === discoveryRequest.current) setNotification({ type: 'error', message: err.message || '문헌 발굴 요청에 실패했습니다.' });
     } finally {
-      setIsDiscovering(false);
+      if (requestId === discoveryRequest.current) setIsDiscovering(false);
     }
-  }, [searchTopic, targetInstitutions, loadSessions]);
+  }, [searchTopic, targetInstitutions, loadSessions, comparisonContext]);
 
   /**
    * 문헌 선택 토글
@@ -143,7 +160,7 @@ export function useResearchController({ currentUser, initialQuery = '', onNaviga
    */
   const handleSynthesizeReport = useCallback(async () => {
     if (!currentSessionId) return;
-    if (selectedEvidenceIds.length === 0) {
+    if (usableEvidenceIds(evidenceFeed, selectedEvidenceIds).length === 0) {
       setNotification({ type: 'warning', message: '종합 분석을 생성할 공인 문헌을 1건 이상 선택해주세요.' });
       return;
     }
@@ -151,7 +168,7 @@ export function useResearchController({ currentUser, initialQuery = '', onNaviga
     setIsSynthesizing(true);
     try {
       const res = await researchRepo.synthesizeReport(currentSessionId, {
-        selectedEvidenceIds
+        selectedEvidenceIds: usableEvidenceIds(evidenceFeed, selectedEvidenceIds)
       });
 
       setSynthesisReport(res.synthesisReport || null);
@@ -163,7 +180,7 @@ export function useResearchController({ currentUser, initialQuery = '', onNaviga
     } finally {
       setIsSynthesizing(false);
     }
-  }, [currentSessionId, selectedEvidenceIds, loadSessions]);
+  }, [currentSessionId, selectedEvidenceIds, evidenceFeed, loadSessions]);
 
   /**
    * 기관 필터 토글
@@ -179,7 +196,7 @@ export function useResearchController({ currentUser, initialQuery = '', onNaviga
    */
   const openExportCandidateModal = useCallback((candidate) => {
     // Level 2 이상 권한 가드레일 (게스트 차단 알림)
-    if (currentUser && currentUser.level < 2) {
+    if (!currentUser || currentUser.level < 2) {
       setNotification({
         type: 'warning',
         message: '발굴 문헌 지식 티켓 발의 권한은 "현장 엔지니어(Level 2)" 이상만 가능합니다.'
@@ -232,13 +249,29 @@ export function useResearchController({ currentUser, initialQuery = '', onNaviga
    * 새 문헌 조사 시작 (검색 단계로 리셋)
    */
   const handleResetSearch = useCallback(() => {
+    discoveryRequest.current += 1;
+    setIsDiscovering(false);
+    setIsSynthesizing(false);
     setActiveStep('search');
     setSearchTopic('');
     setEvidenceFeed([]);
     setSelectedEvidenceIds([]);
     setSynthesisReport(null);
     setCandidates([]);
+    setCurrentSessionId(null);
+    setComparisonContext(null);
+    setDiscoveryNotice('');
   }, []);
+
+  const usableSelectedIds = usableEvidenceIds(evidenceFeed, selectedEvidenceIds);
+  const handleReturnToComparison = useCallback((useEvidence = false) => {
+    if (!comparisonContext?.comparisonSessionId) return;
+    onNavigateToTab?.('comparison', {
+      comparisonSessionId: comparisonContext.comparisonSessionId,
+      researchSessionId: useEvidence ? currentSessionId : undefined,
+      selectedEvidenceIds: useEvidence ? usableEvidenceIds(evidenceFeed, selectedEvidenceIds) : []
+    });
+  }, [comparisonContext, currentSessionId, evidenceFeed, selectedEvidenceIds, onNavigateToTab]);
 
   return {
     activeStep,
@@ -246,6 +279,10 @@ export function useResearchController({ currentUser, initialQuery = '', onNaviga
     targetInstitutions,
     pastSessions,
     currentSessionId,
+    comparisonContext,
+    discoveryNotice,
+    usableSelectedIds,
+    handleReturnToComparison,
     evidenceFeed,
     selectedEvidenceIds,
     synthesisReport,

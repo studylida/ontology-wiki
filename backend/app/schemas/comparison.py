@@ -6,6 +6,13 @@ from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field, ConfigDict
 
 
+class ComparisonConceptOption(BaseModel):
+    id: str
+    title: str
+    engName: str
+    domain: str
+
+
 class TailQuestionEntry(BaseModel):
     """🌟 도메인 필수 용어: 꼬리질문 이력."""
     model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
@@ -105,6 +112,8 @@ class TuneAdvisorResponse(BaseModel):
     riskDetected: str = Field(..., alias="risk_detected", serialization_alias="riskDetected")
     advisorRecommendation: Dict[str, Any] = Field(..., alias="advisor_recommendation", serialization_alias="advisorRecommendation")
     appliedResult: Optional[Dict[str, Any]] = Field(None, alias="applied_result", serialization_alias="appliedResult")
+    advice: str = ""
+    session: Optional[ComparisonSessionDTO] = None
 
 
 class ClarifyBranch(BaseModel):
@@ -117,6 +126,8 @@ class ClarifyBranch(BaseModel):
     targetA: str = Field(..., alias="target_a", serialization_alias="targetA")
     targetB: str = Field(..., alias="target_b", serialization_alias="targetB")
     domain: str
+    targetAName: Optional[str] = None
+    targetBName: Optional[str] = None
 
 
 # 호환용 별칭
@@ -196,6 +207,12 @@ class ComparisonMatrixRow(BaseModel):
     evidenceA: Optional[str] = Field(None, alias="evidence_a", serialization_alias="evidenceA")
     evidenceB: Optional[str] = Field(None, alias="evidence_b", serialization_alias="evidenceB")
     isGap: bool = Field(False, alias="is_gap", serialization_alias="isGap")
+    basis: Optional[str] = None
+
+
+class ResearchEnrichmentRequest(BaseModel):
+    researchSessionId: str
+    selectedEvidenceIds: List[str] = Field(..., min_length=1)
 
 
 class CausalChainStep(BaseModel):

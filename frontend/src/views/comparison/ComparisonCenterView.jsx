@@ -14,22 +14,19 @@ import { KnowledgeGapPopover } from './KnowledgeGapPopover';
 import { ExportTicketModal } from './ExportTicketModal';
 import { CheckCircle2, AlertTriangle, X } from 'lucide-react';
 
-const CONCEPT_NAME_MAP = {
-  'concept-mrmuf': 'MR-MUF (매스 리플로우 몰디드 언더필)',
-  'concept-tcb': 'TCB (열압착 본딩)',
-  'concept-hybrid-bonding': '하이브리드 본딩 (Cu-Cu 다이렉트)',
-  'concept-cowos': 'CoWoS (Chip-on-Wafer-on-Substrate)'
-};
-
 export function ComparisonCenterView({
   activeStep = 'setup',
   trackMode = 'track1',
   query = '',
   isClarifying = false,
   clarifyResult = null,
-  targetA = 'concept-mrmuf',
-  targetB = 'concept-tcb',
-  domain = 'hbm3e_advanced',
+  targetA = '',
+  targetB = '',
+  domain = '',
+  concepts = [],
+  categories = [],
+  comparisonSummary = '',
+  comparisonEvidences = [],
   currentSession = null,
   matrixRows = [],
   selectedCategory = 'all',
@@ -61,8 +58,8 @@ export function ComparisonCenterView({
   closeExportModal,
   clearNotification
 }) {
-  const targetAName = CONCEPT_NAME_MAP[currentSession?.contextParams?.targetA || targetA] || targetA;
-  const targetBName = CONCEPT_NAME_MAP[currentSession?.contextParams?.targetB || targetB] || targetB;
+  const targetAName = currentSession?.contextParams?.targetAName || concepts.find((c) => c.id === targetA)?.title || targetA;
+  const targetBName = currentSession?.contextParams?.targetBName || concepts.find((c) => c.id === targetB)?.title || targetB;
 
   return (
     <div className="tab-pane active" style={{ padding: '24px 32px', maxWidth: '1440px', margin: '0 auto' }}>
@@ -120,14 +117,15 @@ export function ComparisonCenterView({
           targetA={targetA}
           targetB={targetB}
           domain={domain}
+          concepts={concepts}
           isStartingComparison={isMatrixLoading}
           onSelectTrackMode={setTrackMode}
-          onChangeQuery={setQuery}
+          onQueryChange={setQuery}
           onClarifyQuery={handleClarifyQuery}
           onSelectBranch={handleSelectBranch}
-          onChangeTargetA={setTargetA}
-          onChangeTargetB={setTargetB}
-          onChangeDomain={setDomain}
+          onTargetAChange={setTargetA}
+          onTargetBChange={setTargetB}
+          onDomainChange={setDomain}
           onStartDirectComparison={handleStartDirectComparison}
         />
       )}
@@ -140,12 +138,30 @@ export function ComparisonCenterView({
             currentSession={currentSession}
             targetAName={targetAName}
             targetBName={targetBName}
-            onResetConditions={handleResetToSetup}
+            onResetToSetup={handleResetToSetup}
           />
+
+          <section style={{ padding: '20px', background: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: '12px' }} aria-busy={isMatrixLoading}>
+            <h3>목적에 따른 비교 해설</h3>
+            <p style={{ whiteSpace: 'pre-wrap' }}>{comparisonSummary}</p>
+            <button type="button" disabled={isMatrixLoading || isAdvising} onClick={() => handleNavigateToResearch()}
+              style={{ padding: '8px 14px', border: '1px solid var(--accent-primary)', borderRadius: '6px', background: 'var(--accent-primary-light)', color: 'var(--accent-primary)', fontWeight: 600, cursor: 'pointer' }}>
+              필요한 문헌 조사하기
+            </button>
+            {comparisonEvidences.length > 0 && <details style={{ marginTop: '12px' }}>
+              <summary>비교에 사용한 자료 ({comparisonEvidences.length})</summary>
+              {comparisonEvidences.map((item, index) => <p key={`${item.id}-${index}`}>
+                [{item.id}] {item.sourceName} {item.retrievalStatus === 'metadata' ? '(서지정보만 확보)' : ''}<br />
+                {item.externalUrl && <a href={item.externalUrl} target="_blank" rel="noopener noreferrer">출처 확인</a>}
+                <span style={{ display: 'block', whiteSpace: 'pre-wrap' }}>{item.quote}</span>
+              </p>)}
+            </details>}
+          </section>
 
           {/* 4단계 다차원 심층 인과 비교 매트릭스 */}
           <ComparisonMatrixTable
             matrixRows={matrixRows}
+            categories={categories}
             selectedCategory={selectedCategory}
             targetAName={targetAName}
             targetBName={targetBName}

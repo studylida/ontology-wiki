@@ -31,6 +31,10 @@ export function ResearchCenterView({
   candidateToExport = null,
   notification = null,
   currentUser = null,
+  comparisonContext = null,
+  discoveryNotice = '',
+  usableSelectedIds = [],
+  handleReturnToComparison,
 
   setSearchTopic,
   setActiveStep,
@@ -103,6 +107,22 @@ export function ResearchCenterView({
 
       {/* ── 우측 메인 워크스페이스 ── */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {comparisonContext && <section style={{ padding: '16px', background: 'var(--bg-surface)', border: '1px solid var(--accent-primary)', borderRadius: '10px' }}>
+          <strong>비교를 보강하는 문헌 조사</strong>
+          <p>{comparisonContext.originalQuestion}</p>
+          <p>{comparisonContext.targetAName} / {comparisonContext.targetBName}{comparisonContext.gapAxis ? ` · 조사 항목: ${comparisonContext.gapAxis}` : ''}</p>
+          {comparisonContext.conditions?.length > 0 && <p>추가 조건·질문: {comparisonContext.conditions.join(' / ')}</p>}
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <button type="button" onClick={() => handleReturnToComparison(false)}
+              style={{ padding: '8px 14px', border: '1px solid var(--border-color)', borderRadius: '6px', background: 'var(--bg-surface-2)', color: 'var(--text-primary)', cursor: 'pointer' }}>원래 비교로 돌아가기</button>
+            <button type="button" disabled={isDiscovering || isSynthesizing || !usableSelectedIds.length} onClick={() => handleReturnToComparison(true)}
+              style={{ padding: '8px 14px', border: '1px solid var(--accent-primary)', borderRadius: '6px', background: 'var(--accent-primary-light)', color: 'var(--accent-primary)', fontWeight: 600, cursor: 'pointer' }}>
+              선택한 자료로 비교 보강 ({usableSelectedIds.length})
+            </button>
+          </div>
+        </section>}
+        {isDiscovering && <p role="status">관련 문헌을 조사하고 있습니다. 다른 탭으로 이동해도 이 화면의 요청은 계속됩니다.</p>}
+        {discoveryNotice && <p role="status">{discoveryNotice}</p>}
         {/* 1단계: 검색 주제 및 필터 영역 */}
         {activeStep === 'search' && (
           <ResearchSearchArea
@@ -125,13 +145,14 @@ export function ResearchCenterView({
             onToggleEvidence={toggleEvidenceSelection}
             onSelectAll={selectAllEvidences}
             onSynthesize={handleSynthesizeReport}
-            onBackToSearch={handleResetSearch}
+            onBackToSearch={() => setActiveStep('search')}
           />
         )}
 
         {/* 3단계: 종합 분석 리포트 & 온톨로지 지식 후보 */}
         {activeStep === 'report' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <button type="button" onClick={() => setActiveStep('feed')}>문헌 선택으로 돌아가기</button>
             <SynthesisReportCard synthesisReport={synthesisReport} />
             <KnowledgeCandidateList
               candidates={candidates}

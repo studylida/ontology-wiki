@@ -56,8 +56,8 @@ export function ResearchSearchArea({
           </h2>
         </div>
         <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.6 }}>
-          IEEE, SEMI 국제 표준 규격, 글로벌 팹/파운드리(Intel, TSMC, Samsung) 기술 백서 코퍼스로부터
-          온톨로지 미등록 실측 수치와 인과 메커니즘을 발굴하고 교차 분석합니다.
+          등록 원문과 Crossref의 논문 서지정보·초록을 검색합니다. 확보한 내용과 적용 조건을 확인해
+          비교에 필요한 근거를 보강하세요. 기관을 선택하지 않으면 전체를 조사합니다.
         </p>
       </div>
 

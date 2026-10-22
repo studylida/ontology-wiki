@@ -39,6 +39,11 @@ AI 에이전트가 흔히 범하는 '가짜 구조화(임의의 숫자 붙이기
 
 ## 2. Backend Architecture Conventions (백엔드 계층 규약)
 
+### 기술 비교와 문헌 조사 왕복의 책임
+- `comparison` Controller는 기존 API 계약을 유지하고 `comparison_service`가 목적·조건·대화·출처를 조율한다. `comparison_repo`와 기존 `concept_repo`가 저장과 조회를 맡는다. 비교는 공개 위키와 공개 출처만 사용하며 위키 원본을 변경하지 않는다.
+- `research_service`는 `research_repo`의 등록 원문·Crossref 검색 결과를 조율한다. 서지정보·초록·발췌를 구분하고 조회 실패나 빈 결과를 자료로 채우지 않는다. 비교 연결 맥락은 기존 조사 세션 `synthesis_report.comparisonContext`에 보관해 복원한다.
+- 프론트 `useComparisonController`와 `useResearchController`가 탭 이동 중 상태를 유지한다. `comparisonService`는 세션 표시와 조사 맥락 변환을, Repository는 HTTP를 맡는다. 새 비교를 만들지 않고 선택한 조사 자료를 원래 세션에 보강한다. 기존 계층 설계는 아래 문서를 따른다.
+
 백엔드는 `docs/layered_architecture_spec.md`를 헌법으로 삼으며, 아래 정통 5계층 분리 기준을 엄격히 준수한다.
 
 ```

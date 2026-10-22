@@ -67,6 +67,15 @@ export default function App() {
   // ── History API 동기화 (브라우저 앞으로가기/뒤로가기 완벽 지원) ──
   const navigateTab = (targetTab, params = null, push = true) => {
     topbar.setActiveTab(targetTab);
+    if (targetTab === 'comparison' && params?.comparisonSessionId) {
+      comparison.handleUseResearchEvidence(params);
+    } else if (targetTab === 'comparison' && params?.targetA && params?.targetB) {
+      comparison.handleDirectCompare(params.targetA, params.targetB);
+    } else if (targetTab === 'research' && params?.query) {
+      research.handleDiscover(params.query, params.comparisonContext || null);
+    } else if (targetTab === 'review' && params?.ticketId) {
+      review.selectTicket(params.ticketId);
+    }
     const hash = targetTab === 'wiki' && wiki.activeConceptId ? `#concept/${wiki.activeConceptId}` : `#${targetTab}`;
     if (push && window.location.hash !== hash) {
       window.history.pushState({ tab: targetTab, conceptId: wiki.activeConceptId, params }, '', hash);
@@ -127,25 +136,12 @@ export default function App() {
 
   const research = useResearchController({
     currentUser: auth.currentUser,
-    onNavigateToTab: (targetTab, params) => {
-      navigateTab(targetTab, params);
-      if (targetTab === 'review' && params?.ticketId) {
-        review.selectTicket(params.ticketId);
-      }
-    }
+    onNavigateToTab: navigateTab
   });
 
   const comparison = useComparisonController({
     currentUser: auth.currentUser,
-    onNavigateToTab: (targetTab, params) => {
-      navigateTab(targetTab, params);
-      if (targetTab === 'review' && params?.ticketId) {
-        review.selectTicket(params.ticketId);
-      } else if (targetTab === 'research' && params?.query) {
-        research.setSearchTopic(params.query);
-        research.handleDiscover(params.query);
-      }
-    }
+    onNavigateToTab: navigateTab
   });
 
   const admin = useAdminController({

@@ -54,6 +54,18 @@ class ResearchClarifyResponse(BaseModel):
     suggestedChips: List[str] = Field(..., alias="suggested_chips", serialization_alias="suggestedChips")
 
 
+class ComparisonResearchContext(BaseModel):
+    comparisonSessionId: str
+    originalQuestion: str = ""
+    targetA: str = ""
+    targetB: str = ""
+    targetAName: str = ""
+    targetBName: str = ""
+    gapAxis: str = ""
+    targetSide: str = ""
+    conditions: List[str] = Field(default_factory=list)
+
+
 class ResearchDiscoverRequest(BaseModel):
     """공인 문헌 발굴 요청 DTO."""
     model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
@@ -61,6 +73,7 @@ class ResearchDiscoverRequest(BaseModel):
     searchTopic: str = Field(..., min_length=2, alias="search_topic", serialization_alias="searchTopic")
     targetInstitutions: Optional[List[str]] = Field(default_factory=list, alias="target_institutions", serialization_alias="targetInstitutions")
     preferredTier: Optional[List[str]] = Field(default_factory=list, alias="preferred_tier", serialization_alias="preferredTier")
+    comparisonContext: Optional[ComparisonResearchContext] = None
 
 
 class ResearchEvidenceFeedItem(BaseModel):
@@ -78,6 +91,7 @@ class ResearchEvidenceFeedItem(BaseModel):
     externalUrl: str = Field(..., alias="external_url", serialization_alias="externalUrl")
     urlLabel: str = Field(..., alias="url_label", serialization_alias="urlLabel")
     credibilityTier: str = Field(..., alias="credibility_tier", serialization_alias="credibilityTier")
+    retrievalStatus: str = "legacy_unverified"
 
 
 class ResearchDiscoverResponse(BaseModel):
@@ -90,6 +104,8 @@ class ResearchDiscoverResponse(BaseModel):
     evidenceFeed: List[ResearchEvidenceFeedItem] = Field(..., alias="evidence_feed", serialization_alias="evidenceFeed")
     synthesisReady: bool = Field(True, alias="synthesis_ready", serialization_alias="synthesisReady")
     ctaButtonLabel: str = Field("📊 이 문헌들로 종합 분석 리포트 생성 (리포트 보기 ➔)", alias="cta_button_label", serialization_alias="ctaButtonLabel")
+    comparisonContext: Optional[Dict[str, Any]] = None
+    notice: str = ""
 
 
 class ResearchSynthesizeRequest(BaseModel):
@@ -107,6 +123,7 @@ class SynthesisReport(BaseModel):
     narrativeMarkdown: str = Field(..., alias="narrative_markdown", serialization_alias="narrativeMarkdown")
     consensusFacts: List[str] = Field(..., alias="consensus_facts", serialization_alias="consensusFacts")
     tensionGaps: List[str] = Field(..., alias="tension_gaps", serialization_alias="tensionGaps")
+    comparisonContext: Optional[Dict[str, Any]] = None
 
 
 class KnowledgeCandidate(BaseModel):
@@ -129,6 +146,22 @@ class ResearchSynthesizeResponse(BaseModel):
     searchTopic: str = Field(..., alias="search_topic", serialization_alias="searchTopic")
     synthesisReport: SynthesisReport = Field(..., alias="synthesis_report", serialization_alias="synthesisReport")
     candidates: List[KnowledgeCandidate]
+    comparisonContext: Optional[Dict[str, Any]] = None
+
+
+class ResearchSynthesisDraft(BaseModel):
+    report: SynthesisReport
+    candidates: List[KnowledgeCandidate] = Field(default_factory=list)
+
+
+class ResearchSessionDetail(BaseModel):
+    sessionId: str
+    searchTopic: str
+    evidenceFeed: List[ResearchEvidenceFeedItem] = Field(default_factory=list)
+    synthesisReport: Optional[SynthesisReport] = None
+    candidates: List[KnowledgeCandidate] = Field(default_factory=list)
+    comparisonContext: Optional[Dict[str, Any]] = None
+    notice: Optional[str] = None
 
 
 class ExportCandidateTicketRequest(BaseModel):

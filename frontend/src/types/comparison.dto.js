@@ -17,6 +17,8 @@
  * @property {string} description
  * @property {string} targetA
  * @property {string} targetB
+ * @property {string} [targetAName] - 표시명; targetA는 등록 ID
+ * @property {string} [targetBName] - 표시명; targetB는 등록 ID
  * @property {string} domain
  * @property {string} [rationale]
  */
@@ -56,6 +58,7 @@
  * @property {string|null} [evidenceA] - Target A 출처
  * @property {string|null} [evidenceB] - Target B 출처
  * @property {boolean} isGap - 온톨로지 공인 실측 미등록(Knowledge Gap) 여부
+ * @property {string} [basis] - 출처 또는 측정 조건 안내
  */
 
 /**

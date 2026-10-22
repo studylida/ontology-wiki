@@ -131,7 +131,7 @@ export function KnowledgeGapPopover({
           }}
         >
           💡 <strong>연계 안내:</strong> [외부 문헌 조사실] 버튼을 누르면 추천 검색어(<code>{searchKeyword}</code>)를 바탕으로
-          arXiv, IEEE, 산학 백서의 실측 인과 데이터를 즉시 교차 분석할 수 있습니다.
+          원래 질문·비교 대상·조건을 유지해 등록 원문과 외부 논문을 조사합니다. 확보한 초록·발췌를 선택해 같은 비교로 돌아올 수 있습니다.
         </div>
       </div>
 

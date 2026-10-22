@@ -12,9 +12,9 @@ export function ComparisonHeaderBar({
 }) {
   if (!currentSession) return null;
 
-  const targetA = currentSession.contextParams?.targetA || 'Target A';
-  const targetB = currentSession.contextParams?.targetB || 'Target B';
-  const domain = currentSession.contextParams?.domain || 'hbm3e_advanced';
+  const targetA = currentSession.contextParams?.targetAName || currentSession.contextParams?.targetA || 'Target A';
+  const targetB = currentSession.contextParams?.targetBName || currentSession.contextParams?.targetB || 'Target B';
+  const domain = currentSession.contextParams?.domain || '적용 맥락 미지정';
 
   return (
     <div
@@ -66,7 +66,7 @@ export function ComparisonHeaderBar({
             </span>
           </div>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
-            {currentSession.title}
+            {currentSession.query}
           </div>
         </div>
       </div>

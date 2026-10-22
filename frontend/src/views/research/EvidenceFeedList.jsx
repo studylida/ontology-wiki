@@ -48,7 +48,7 @@ export function EvidenceFeedList({
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Layers size={18} style={{ color: 'var(--accent-primary)' }} />
             <h3 style={{ fontSize: '1.125rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>
-              발굴된 공인 문헌 피드 (Evidence Feed)
+              문헌 검색 결과 (Evidence Feed)
             </h3>
             <span
               style={{
@@ -111,6 +111,7 @@ export function EvidenceFeedList({
 
       {/* 문헌 카드 목록 */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        {evidenceFeed.length === 0 && <p role="status">관련 문헌을 찾지 못했습니다. 검색어나 기관 필터를 바꿔 다시 조사해 주세요.</p>}
         {evidenceFeed.map((item) => {
           const isChecked = selectedEvidenceIds.includes(item.id);
           const tierMeta = researchFormatterService.getCredibilityMeta(item.credibilityTier);
@@ -136,6 +137,7 @@ export function EvidenceFeedList({
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <input
                     type="checkbox"
+                    aria-label={`${item.sourceName} 선택`}
                     checked={isChecked}
                     onChange={() => onToggleEvidence(item.id)}
                     style={{ width: '16px', height: '16px', cursor: 'pointer' }}
@@ -174,13 +176,13 @@ export function EvidenceFeedList({
 
                   {/* 출처 유형 라벨 */}
                   <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    {typeLabel}
+                    {typeLabel} · {item.retrievalStatus === 'metadata' ? '서지정보만 확보' : item.retrievalStatus === 'abstract' ? '초록 확보' : ['source_excerpt', 'registered_excerpt'].includes(item.retrievalStatus) ? '원문 발췌 확보' : '확보 상태 미확인'}
                   </span>
                 </div>
 
                 {/* 적합도 점수 */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>인과 적합도:</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>검색 일치도:</span>
                   <span style={{ fontSize: '0.8125rem', fontWeight: 800, color: relMeta.color }}>
                     {relMeta.percentText}
                   </span>
@@ -213,7 +215,7 @@ export function EvidenceFeedList({
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <Quote size={16} style={{ color: 'var(--accent-primary)', flexShrink: 0, marginTop: '2px' }} />
                   <div>
-                    <div style={{ fontStyle: 'italic' }}>"{item.quote}"</div>
+                    <div style={{ fontStyle: 'italic', whiteSpace: 'pre-wrap' }}>{item.quote ? `“${item.quote}”` : '내용을 아직 확보하지 못했습니다. 출판사 링크에서 확인해 주세요.'}</div>
                     {item.sectionContext && (
                       <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', marginTop: '6px' }}>
                         📍 {item.sectionContext}

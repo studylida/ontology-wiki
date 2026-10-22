@@ -6,8 +6,15 @@
 import { httpClient } from './httpClient';
 
 export const comparisonRepo = {
+  async listConcepts() {
+    return httpClient.get('/comparison/concepts');
+  },
+
+  async addResearchEvidence(sessionId, data) {
+    return httpClient.post(`/comparison-sessions/${sessionId}/research-evidence`, data);
+  },
   /**
-   * 자연어 질문 구체화 및 3대 공학 분기 카드 도출 (Track 1)
+   * 자연어 질문 구체화 및 등록 개념 비교 후보 도출 (Track 1)
    * @param {{ query: string, baseConceptId?: string, customAxes?: string[] }} data
    * @returns {Promise<import('../types/comparison.dto').ClarifyResponseDTO>}
    */

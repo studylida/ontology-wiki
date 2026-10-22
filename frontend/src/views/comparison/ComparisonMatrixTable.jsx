@@ -8,16 +8,9 @@ import React from 'react';
 import { Layers, AlertTriangle, BookCheck, Sparkles, Filter } from 'lucide-react';
 import { matrixHighlightService } from '../../services/matrixHighlightService';
 
-const CATEGORY_TABS = [
-  { id: 'all', label: '전체 축' },
-  { id: 'thermal', label: '열·물성' },
-  { id: 'defect', label: '결함 신뢰성' },
-  { id: 'fab', label: '팹 양산성' },
-  { id: 'electrical', label: '전기 특성' }
-];
-
 export function ComparisonMatrixTable({
   matrixRows = [],
+  categories = [{ id: 'all', label: '전체 축' }],
   selectedCategory,
   targetAName = 'Target A',
   targetBName = 'Target B',
@@ -50,7 +43,7 @@ export function ComparisonMatrixTable({
 
         {/* 축 필터 슬라이딩 탭 */}
         <div className="sliding-tabs-container" style={{ padding: '2px' }}>
-          {CATEGORY_TABS.map((tab) => (
+          {categories.map((tab) => (
             <button
               key={tab.id}
               type="button"
@@ -118,6 +111,7 @@ export function ComparisonMatrixTable({
                     {/* 축 명칭 */}
                     <td style={{ padding: '12px 14px', fontWeight: 600, color: 'var(--text-primary)' }}>
                       {row.axis}
+                      {row.basis && <small style={{ display: 'block', fontWeight: 400 }}>{row.basis}</small>}
                     </td>
 
                     {/* 카테고리 배지 */}
@@ -132,7 +126,7 @@ export function ComparisonMatrixTable({
                           color: catMeta.color
                         }}
                       >
-                        {catMeta.label}
+                        {row.categoryLabel || catMeta.label}
                       </span>
                     </td>
 
@@ -162,7 +156,7 @@ export function ComparisonMatrixTable({
                         </button>
                       ) : (
                         <div>
-                          <span style={{ fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
+                          <span style={{ fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', whiteSpace: 'pre-wrap' }}>
                             {row.valA}
                           </span>
                           {row.evidenceA && (
@@ -200,7 +194,7 @@ export function ComparisonMatrixTable({
                         </button>
                       ) : (
                         <div>
-                          <span style={{ fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
+                          <span style={{ fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', whiteSpace: 'pre-wrap' }}>
                             {row.valB}
                           </span>
                           {row.evidenceB && (

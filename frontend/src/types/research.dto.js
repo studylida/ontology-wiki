@@ -20,6 +20,19 @@
  */
 
 /**
+ * @typedef {Object} ComparisonResearchContextDTO
+ * @property {string} comparisonSessionId
+ * @property {string} originalQuestion
+ * @property {string} targetA - 등록 개념 ID
+ * @property {string} targetB - 등록 개념 ID
+ * @property {string} targetAName
+ * @property {string} targetBName
+ * @property {Array<string>} conditions
+ * @property {string} gapAxis
+ * @property {string} targetSide
+ */
+
+/**
  * @typedef {Object} ResearchEvidenceFeedItemDTO
  * @property {string} id - 공인 문헌 ID (예: 'E-21')
  * @property {string} sourceName - 문헌/논문/표준 명칭
@@ -32,6 +45,7 @@
  * @property {string} externalUrl - 원문 열람 URL
  * @property {string} urlLabel - 링크 라벨
  * @property {string} credibilityTier - 신뢰성 티어
+ * @property {'metadata'|'abstract'|'source_excerpt'|'registered_excerpt'} retrievalStatus - 확보한 내용의 범위
  */
 
 /**
@@ -68,6 +82,8 @@
  * @property {Array<ResearchEvidenceFeedItemDTO>} evidenceFeed
  * @property {boolean} synthesisReady
  * @property {string} ctaButtonLabel
+ * @property {ComparisonResearchContextDTO|null} comparisonContext
+ * @property {string} notice
  */
 
 /**

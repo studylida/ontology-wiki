@@ -1,11 +1,11 @@
 /**
  * [계층 1] SetupTrackSelector View (Pure Dumb UI Component)
  * - 화면 2-A (조건 설정 단계)
- * - Track 1: 자연어 탐색창 (회색 placeholder + 미니멀 단어 칩) & 3대 공학 분기 카드
+ * - Track 1: 자연어 탐색창과 등록 개념 기반 비교 후보
  * - Track 2: 대상 A/B 지능형 직접 지정
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Sparkles, Search, GitCompare, ArrowRight, Layers, Cpu, CheckCircle2 } from 'lucide-react';
 
 const SUGGESTED_CHIPS = [
@@ -22,6 +22,8 @@ export function SetupTrackSelector({
   targetA,
   targetB,
   domain,
+  concepts = [],
+  isStartingComparison = false,
   onSelectTrackMode,
   onQueryChange,
   onClarifyQuery,
@@ -31,7 +33,7 @@ export function SetupTrackSelector({
   onDomainChange,
   onStartDirectComparison
 }) {
-  const [localQuery, setLocalQuery] = useState(query);
+  const localQuery = query;
 
   const handleSubmitTrack1 = (e) => {
     e.preventDefault();
@@ -40,7 +42,7 @@ export function SetupTrackSelector({
   };
 
   const handleChipClick = (chipText) => {
-    setLocalQuery(chipText);
+    onQueryChange(chipText);
     onClarifyQuery(chipText);
   };
 
@@ -93,7 +95,6 @@ export function SetupTrackSelector({
                 type="text"
                 value={localQuery}
                 onChange={(e) => {
-                  setLocalQuery(e.target.value);
                   onQueryChange(e.target.value);
                 }}
                 placeholder="예: HBM3E 16단 적층에서 MR-MUF와 TC-NCF의 열저항 및 휨(Warpage) 특성 비교해줘"
@@ -159,17 +160,24 @@ export function SetupTrackSelector({
             </div>
           </form>
 
-          {/* 3대 공학 분기 카드 (Clarification Branch Cards) */}
+          {(clarifyResult?.clarificationQuestions || []).map((item) => (
+            <p key={item.questionId} role="status">{item.question}</p>
+          ))}
+          {/* 실제 등록 개념에 대응하는 비교 후보 */}
           {clarifyResult?.branches && clarifyResult.branches.length > 0 && (
             <div style={{ marginTop: '16px' }}>
               <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '10px' }}>
                 분석 의도에 적합한 공학 비교 분기를 선택하세요:
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
                 {clarifyResult.branches.map((b) => (
                   <div
                     key={b.branchId}
-                    onClick={() => onSelectBranch(b)}
+                    role="button"
+                    tabIndex={0}
+                    aria-disabled={isStartingComparison}
+                    onKeyDown={(e) => { if (!isStartingComparison && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onSelectBranch(b); } }}
+                    onClick={() => { if (!isStartingComparison) onSelectBranch(b); }}
                     style={{
                       background: 'var(--bg-surface-2)',
                       border: '1px solid var(--border-color)',
@@ -192,7 +200,7 @@ export function SetupTrackSelector({
                   >
                     <div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--accent-primary)', fontWeight: 700, marginBottom: '4px' }}>
-                        {b.targetA} vs {b.targetB}
+                        {b.targetAName || b.targetA} vs {b.targetBName || b.targetB}
                       </div>
                       <h4 style={{ fontSize: '0.875rem', fontWeight: 700, margin: '0 0 6px 0', color: 'var(--text-primary)' }}>
                         {b.title}
@@ -224,6 +232,7 @@ export function SetupTrackSelector({
                 비교 대상 A (Target A)
               </label>
               <select
+                aria-label="비교 대상 A"
                 value={targetA}
                 onChange={(e) => onTargetAChange(e.target.value)}
                 style={{
@@ -236,10 +245,8 @@ export function SetupTrackSelector({
                   color: 'var(--text-primary)'
                 }}
               >
-                <option value="concept-mrmuf">MR-MUF (매스리플로우 몰디드 언더필)</option>
-                <option value="concept-tcb">TC-NCF / TCB (열압착 비도전성 필름)</option>
-                <option value="concept-hybrid-bonding">하이브리드 다이렉트 Cu-Cu 본딩</option>
-                <option value="concept-cryo-etch">극저온 원자층 식각 (Cryo-ALE)</option>
+                <option value="">대상 A 선택</option>
+                {concepts.map((concept) => <option key={concept.id} value={concept.id}>{concept.title}</option>)}
               </select>
             </div>
 
@@ -269,6 +276,7 @@ export function SetupTrackSelector({
                 비교 대상 B (Target B)
               </label>
               <select
+                aria-label="비교 대상 B"
                 value={targetB}
                 onChange={(e) => onTargetBChange(e.target.value)}
                 style={{
@@ -281,10 +289,8 @@ export function SetupTrackSelector({
                   color: 'var(--text-primary)'
                 }}
               >
-                <option value="concept-tcb">TC-NCF / TCB (열압착 비도전성 필름)</option>
-                <option value="concept-mrmuf">MR-MUF (매스리플로우 몰디드 언더필)</option>
-                <option value="concept-hybrid-bonding">하이브리드 다이렉트 Cu-Cu 본딩</option>
-                <option value="concept-cryo-etch">극저온 원자층 식각 (Cryo-ALE)</option>
+                <option value="">대상 B 선택</option>
+                {concepts.map((concept) => <option key={concept.id} value={concept.id}>{concept.title}</option>)}
               </select>
             </div>
           </div>
@@ -294,29 +300,34 @@ export function SetupTrackSelector({
             <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, marginBottom: '6px' }}>
               적용 공정 도메인
             </label>
-            <select
+            <input
+              aria-label="적용 공정 도메인"
               value={domain}
               onChange={(e) => onDomainChange(e.target.value)}
+              placeholder="적용할 제품·공정 맥락을 입력하세요 (선택)"
               style={{
                 width: '100%',
                 padding: '9px 12px',
                 borderRadius: '6px',
                 border: '1px solid var(--border-color)',
                 background: 'var(--bg-surface-2)',
-                fontSize: '0.8125rem'
+                fontSize: '0.8125rem',
+                color: 'var(--text-primary)'
               }}
-            >
-              <option value="hbm3e_advanced">HBM3E 12단/16단 첨단 적층 패키징</option>
-              <option value="foundry_sub2nm">파운드리 Sub-2nm GAAFET</option>
-              <option value="dram_process">DRAM 초미세 커패시터 공정</option>
-              <option value="nand_high_stack">3D V-NAND 초고단 식각</option>
-            </select>
+            />
+          </div>
+          <div>
+            <label htmlFor="comparison-purpose">비교 목적과 우선 조건</label>
+            <input id="comparison-purpose" value={query} onChange={(e) => onQueryChange(e.target.value)}
+              placeholder="예: 미세 패턴에서 손상을 줄이는 기술을 고르고 싶어요"
+              style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: '6px', background: 'var(--bg-surface-2)', color: 'var(--text-primary)' }} />
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
             <button
               type="button"
               onClick={onStartDirectComparison}
+              disabled={isStartingComparison || !targetA || !targetB || targetA === targetB}
               style={{
                 padding: '10px 24px',
                 borderRadius: '8px',
@@ -332,7 +343,7 @@ export function SetupTrackSelector({
               }}
             >
               <GitCompare size={15} />
-              <span>다차원 인과 비교 분석 실행 ➔</span>
+              <span>{isStartingComparison ? '비교 중...' : '기술 비교 시작 ➔'}</span>
             </button>
           </div>
         </div>
