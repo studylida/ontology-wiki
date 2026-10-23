@@ -2,7 +2,7 @@
 
 Covers Context Detection, 3-Way Intent Routing (Factoid / Causal Clarifier / Action Trigger), and Reset.
 """
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Literal
 from pydantic import BaseModel, Field, ConfigDict
 
 
@@ -12,10 +12,10 @@ class ChatbotContextResponse(BaseModel):
 
     conceptId: Optional[str] = Field(None, alias="concept_id", serialization_alias="conceptId")
     conceptTitle: str = Field(..., alias="concept_title", serialization_alias="conceptTitle")
-    scaleLevel: int = Field(3, alias="scale_level", serialization_alias="scaleLevel")
-    scaleBadge: str = Field("Scale 3 단위 공정", alias="scale_badge", serialization_alias="scaleBadge")
-    engineMode: str = Field("live", alias="engine_mode", serialization_alias="engineMode")
-    engineModeLabel: str = Field("🟢 Live (온톨로지 인과 추론 엔진)", alias="engine_mode_label", serialization_alias="engineModeLabel")
+    scaleLevel: Optional[int] = Field(None, alias="scale_level", serialization_alias="scaleLevel")
+    scaleBadge: str = Field("전역 탐색 모드", alias="scale_badge", serialization_alias="scaleBadge")
+    engineMode: str = Field("wiki", alias="engine_mode", serialization_alias="engineMode")
+    engineModeLabel: str = Field("위키 등록 지식 기반", alias="engine_mode_label", serialization_alias="engineModeLabel")
     quickQuestionChips: List[str] = Field(..., alias="quick_question_chips", serialization_alias="quickQuestionChips")
 
 
@@ -24,6 +24,7 @@ class ChatbotMessageRequest(BaseModel):
     model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
 
     message: str = Field(..., min_length=1, description="엔지니어 자연어 질의")
+    knowledgeScope: Literal["local", "global"] = "local"
     conceptId: Optional[str] = Field(None, alias="concept_id", serialization_alias="conceptId")
     targetConceptId: Optional[str] = Field(None, alias="target_concept_id", serialization_alias="targetConceptId")
     perspective: Optional[str] = "process"
@@ -57,11 +58,17 @@ class ChatbotMessageResponse(BaseModel):
 
     pathType: Any = Field(..., alias="path_type", serialization_alias="pathType")
     answerMarkdown: str = Field(..., alias="answer_markdown", serialization_alias="answerMarkdown")
+    knowledgeScope: Literal["local", "global"] = "local"
     clarificationPrompt: Optional[str] = Field(None, alias="clarification_prompt", serialization_alias="clarificationPrompt")
     sourceEvidences: List[Dict[str, Any]] = Field(default_factory=list, alias="source_evidences", serialization_alias="sourceEvidences")
     suggestedNodes: List[ChatbotSuggestedNode] = Field(default_factory=list, alias="suggested_nodes", serialization_alias="suggestedNodes")
     suggestedChips: List[str] = Field(default_factory=list, alias="suggested_chips", serialization_alias="suggestedChips")
     actionCard: Optional[ChatbotActionCard] = Field(None, alias="action_card", serialization_alias="actionCard")
+
+
+class GlobalChatAnswer(BaseModel):
+    domain: Literal["semiconductor", "out_of_domain"]
+    answerMarkdown: str = Field(..., min_length=1)
 
 
 class ChatbotResetResponse(BaseModel):

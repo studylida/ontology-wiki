@@ -78,6 +78,12 @@ export function ChatMessageItem({
             color: 'var(--text-primary)'
           }}
         >
+          {message.knowledgeScope && (
+            <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', marginBottom: '6px' }}>
+              {message.knowledgeScope === 'global' ? 'Global · 모델 일반 지식' : 'Local · 위키 등록 지식'}
+            </div>
+          )}
+
           {/* 의도 라우터 배지 */}
           {pathMeta && (
             <div style={{ marginBottom: '6px' }}>
@@ -134,12 +140,12 @@ export function ChatMessageItem({
         </div>
 
         {/* 액션 카드 트리거 버튼 */}
-        {message.actionPayload && (
+        {(message.actionCard || message.actionPayload) && (
           <button
             type="button"
-            onClick={() => onActionClick(message.actionPayload)}
+            onClick={() => onActionClick && onActionClick(message.actionCard || message.actionPayload)}
             style={{
-              padding: '8px 12px',
+              padding: '8px 14px',
               borderRadius: '6px',
               border: '1px solid var(--accent-primary)',
               background: 'var(--accent-primary-light)',
@@ -150,11 +156,13 @@ export function ChatMessageItem({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              alignSelf: 'flex-start'
+              alignSelf: 'flex-start',
+              boxShadow: '0 2px 6px rgba(37, 99, 235, 0.15)',
+              marginTop: '4px'
             }}
           >
-            <span>{message.actionPayload.buttonLabel || '관련 화면으로 바로 이동하기'}</span>
-            <ArrowRight size={14} style={{ marginLeft: '6px' }} />
+            <span>{(message.actionCard || message.actionPayload).buttonLabel || '관련 화면으로 바로 이동하기'}</span>
+            <ArrowRight size={14} style={{ marginLeft: '8px' }} />
           </button>
         )}
 

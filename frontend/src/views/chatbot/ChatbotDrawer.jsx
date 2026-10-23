@@ -11,6 +11,8 @@ import { ChatMessageItem } from './ChatMessageItem';
 export function ChatbotDrawer({
   isOpen,
   contextData = {},
+  knowledgeScope = 'local',
+  onChangeKnowledgeScope,
   messages = [],
   inputText = '',
   isStreaming = false,
@@ -26,6 +28,29 @@ export function ChatbotDrawer({
   handleActionClick
 }) {
   const messagesEndRef = useRef(null);
+  const chipsBarRef = useRef(null);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollLeft = useRef(0);
+
+  const handleMouseDown = (e) => {
+    if (!chipsBarRef.current) return;
+    isDragging.current = true;
+    startX.current = e.pageX - chipsBarRef.current.offsetLeft;
+    scrollLeft.current = chipsBarRef.current.scrollLeft;
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging.current || !chipsBarRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - chipsBarRef.current.offsetLeft;
+    const walk = (x - startX.current) * 1.5;
+    chipsBarRef.current.scrollLeft = scrollLeft.current - walk;
+  };
+
+  const handleMouseUpOrLeave = () => {
+    isDragging.current = false;
+  };
 
   const changeTextHandler = onChangeInput || setInputText;
   const sendMessageHandler = onSendMessage || handleSendMessage;
@@ -112,12 +137,12 @@ export function ChatbotDrawer({
                 whiteSpace: 'nowrap'
               }}
             >
-              {contextData.conceptTitle || '반도체 인과 온톨로지 어시스턴트'}
+              {contextData.conceptTitle || '온톨로지 챗'}
             </div>
             <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', display: 'flex', gap: '6px' }}>
               <span>{contextData.scaleBadge || '전역 탐색'}</span>
               <span>•</span>
-              <span style={{ color: '#10b981', fontWeight: 600 }}>{contextData.engineModeLabel || '🟢 Live'}</span>
+              <span style={{ color: '#10b981', fontWeight: 600 }}>{contextData.engineModeLabel || '위키 등록 지식 기반'}</span>
             </div>
           </div>
         </div>
@@ -156,9 +181,31 @@ export function ChatbotDrawer({
         </div>
       </div>
 
-      {/* 퀵 질문 칩 바 */}
+      {/* 퀵 질문 칩 바 (유튜브 스타일 스무스 드래그-투-스크롤 & 스크롤바 숨김) */}
+      <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--border-color)' }}>
+        <div role="group" aria-label="답변 범위 선택" style={{ display: 'flex', gap: '6px' }}>
+          {['local', 'global'].map((scope) => (
+            <button key={scope} type="button" aria-pressed={knowledgeScope === scope} disabled={isStreaming}
+              onClick={() => onChangeKnowledgeScope?.(scope)}
+              style={{ padding: '5px 12px', borderRadius: '6px', border: '1px solid var(--border-color)',
+                background: knowledgeScope === scope ? 'var(--accent-primary)' : 'var(--bg-surface)',
+                color: knowledgeScope === scope ? '#fff' : 'var(--text-primary)', cursor: isStreaming ? 'wait' : 'pointer' }}>
+              {scope === 'local' ? 'Local' : 'Global'}
+            </button>
+          ))}
+        </div>
+        <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', marginTop: '6px' }}>
+          {knowledgeScope === 'local' ? '등록된 위키 지식으로 답변합니다.' : '위키 밖의 반도체 일반 지식도 답변합니다. 웹 검색 결과는 아닙니다.'}
+        </div>
+      </div>
+
       {contextData.quickQuestionChips && contextData.quickQuestionChips.length > 0 && (
         <div
+          ref={chipsBarRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUpOrLeave}
+          onMouseLeave={handleMouseUpOrLeave}
           style={{
             padding: '8px 12px',
             background: 'var(--bg-surface)',
@@ -166,32 +213,45 @@ export function ChatbotDrawer({
             display: 'flex',
             gap: '6px',
             overflowX: 'auto',
-            flexShrink: 0
+            flexShrink: 0,
+            cursor: 'grab',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            userSelect: 'none'
           }}
+          className="custom-scroll"
         >
           {contextData.quickQuestionChips.map((chip, idx) => (
             <button
               key={idx}
               type="button"
-              onClick={() => sendMessageHandler && sendMessageHandler(chip)}
+              onClick={() => {
+                if (!isDragging.current && sendMessageHandler) {
+                  sendMessageHandler(chip);
+                }
+              }}
               style={{
-                padding: '4px 10px',
-                borderRadius: '12px',
+                padding: '5px 12px',
+                borderRadius: '14px',
                 border: '1px solid var(--border-color)',
                 background: 'var(--bg-surface-2)',
                 color: 'var(--text-secondary)',
                 fontSize: '0.6875rem',
+                fontWeight: 600,
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
-                transition: 'all 0.15s ease'
+                transition: 'all 0.15s ease',
+                flexShrink: 0
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = 'var(--accent-primary)';
                 e.currentTarget.style.color = 'var(--accent-primary)';
+                e.currentTarget.style.background = 'var(--accent-primary-light)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.borderColor = 'var(--border-color)';
                 e.currentTarget.style.color = 'var(--text-secondary)';
+                e.currentTarget.style.background = 'var(--bg-surface-2)';
               }}
             >
               {chip}

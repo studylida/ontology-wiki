@@ -42,16 +42,26 @@ export const chatbotRepo = {
    * @returns {Promise<void>}
    */
   async streamMessage(data, { onRouting, onDelta, onDone, onError } = {}) {
-    const token = tokenService.getAccessToken();
-    const headers = {
-      'Content-Type': 'application/json',
-      Accept: 'text/event-stream'
-    };
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
-
     try {
+      const token = tokenService.getToken();
+      const headers = {
+        'Content-Type': 'application/json',
+        Accept: 'text/event-stream'
+      };
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      // 브라우저 로컬 저장소 API Key 헤더 주입
+      try {
+        const openAiKey = localStorage.getItem('semicon_wiki_openai_key');
+        if (openAiKey) headers['X-OpenAI-Key'] = openAiKey;
+        const geminiKey = localStorage.getItem('semicon_wiki_gemini_key');
+        if (geminiKey) headers['X-Gemini-Key'] = geminiKey;
+      } catch {
+        // 무시
+      }
+
       const response = await fetch(`${API_BASE_URL}/chatbot/messages/stream`, {
         method: 'POST',
         headers,

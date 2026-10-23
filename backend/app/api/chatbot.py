@@ -10,10 +10,8 @@ from typing import List, Optional, Dict, Any
 import logging
 from fastapi import APIRouter, Depends, HTTPException, Query, status, Header
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 
 from backend.app.core.database import get_db
-from backend.app.models.entities import ConceptModel
 from backend.app.schemas.chatbot import (
     ChatbotContextResponse,
     ChatbotMessageRequest,
@@ -21,6 +19,7 @@ from backend.app.schemas.chatbot import (
     ChatbotResetResponse
 )
 from backend.app.agents.clarifier_agent import clarifier_agent
+from backend.app.repositories.concept_repo import concept_repo
 
 logger = logging.getLogger("ontology_wiki.chatbot")
 
@@ -41,40 +40,34 @@ async def get_chatbot_context(
     db: AsyncSession = Depends(get_db)
 ):
     if conceptId:
-        concept = await db.get(ConceptModel, conceptId)
+        concept = await concept_repo.get_by_id(db, conceptId)
         if concept:
             title = concept.title
-            scale_level = concept.scale_level or 3
-            scale_name = concept.scale_name or f"Scale {scale_level} 단위 공정"
+            scale_level = concept.scale_level
+            scale_name = concept.scale_name
 
-            chips = [
-                f"💡 {title} 핵심 물리 임계치 및 트레이드오프는?",
-                f"💡 {title} 안전 마진 및 보상 파라미터 규격",
-                f"💡 {title} 관련 공인 백서 및 실측 출처 보기"
-            ]
+            chips = [f"{title}: {label} 설명해줘" for value, label in (
+                (concept.summary, "등록된 정의"), (concept.principles, "등록된 작동 원리"),
+                (concept.limitations, "등록된 한계"), (concept.relations, "등록된 관계")) if value]
 
             return ChatbotContextResponse(
                 concept_id=concept.id,
                 concept_title=f"{concept.title} ({concept.aliases[0] if concept.aliases else ''})".strip(),
                 scale_level=scale_level,
-                scale_badge=f"Scale {scale_level} · {scale_name}",
-                engine_mode="live",
-                engine_mode_label="🟢 Live (온톨로지 인과 추론 엔진)",
+                scale_badge=" · ".join(filter(None, [f"Scale {scale_level}" if scale_level else None, scale_name])) or "규모 미등록",
+                engine_mode="wiki",
+                engine_mode_label="위키 등록 지식 기반",
                 quick_question_chips=chips
             )
 
     return ChatbotContextResponse(
         concept_id=None,
-        concept_title="반도체 인과 온톨로지 전역 어시스턴트",
-        scale_level=3,
+        concept_title="온톨로지 챗",
+        scale_level=None,
         scale_badge="전역 탐색 모드",
-        engine_mode="live",
-        engine_mode_label="🟢 Live (온톨로지 인과 추론 엔진)",
-        quick_question_chips=[
-            "💡 HBM 방열 대안: MR-MUF vs TC-NCF 비교",
-            "💡 Cryo 극저온 식각 반응 메커니즘",
-            "💡 차세대 유리기판 TGV 공정 및 물성 표준"
-        ]
+        engine_mode="wiki",
+        engine_mode_label="위키 등록 지식 기반",
+        quick_question_chips=[]
     )
 
 
@@ -100,13 +93,16 @@ async def post_chatbot_message(
         )
 
     # 🌟 3.1절 ClarifierAgent로 100% 위임
-    return await clarifier_agent.route_chatbot_intent(
+    result = await clarifier_agent.route_chatbot_intent(
         utterance=msg,
         concept_id=body.conceptId,
         db=db,
         gemini_key=x_gemini_key,
-        openai_key=x_openai_key
+        openai_key=x_openai_key,
+        knowledge_scope=body.knowledgeScope
     )
+    result.knowledgeScope = body.knowledgeScope
+    return result
 
 
 @router.post("/messages/stream")
@@ -129,29 +125,38 @@ async def stream_chatbot_message(
         )
 
     async def token_generator():
-        res = await clarifier_agent.route_chatbot_intent(
-            utterance=msg,
-            concept_id=body.conceptId,
-            db=db,
-            gemini_key=x_gemini_key,
-            openai_key=x_openai_key
-        )
+        try:
+            res = await clarifier_agent.route_chatbot_intent(
+                utterance=msg,
+                concept_id=body.conceptId,
+                db=db,
+                gemini_key=x_gemini_key,
+                openai_key=x_openai_key,
+                knowledge_scope=body.knowledgeScope
+            )
+            res.knowledgeScope = body.knowledgeScope
 
-        # 1. 의도 라우팅 알림
-        path_type = res.pathType
-        yield f"event: routing\ndata: {json.dumps({'intent': path_type, 'pathType': path_type})}\n\n"
-        await asyncio.sleep(0.04)
+            # 1. 의도 라우팅 알림
+            path_type = res.pathType
+            yield f"event: routing\ndata: {json.dumps({'intent': path_type, 'pathType': path_type})}\n\n"
+            await asyncio.sleep(0.04)
 
-        # 2. 텍스트 토큰 스트리밍
-        text = res.answerMarkdown or ""
-        words = text.split(" ")
-        for i, word in enumerate(words):
-            chunk = word + (" " if i < len(words) - 1 else "")
-            yield f"event: delta\ndata: {json.dumps({'delta': chunk})}\n\n"
-            await asyncio.sleep(0.015)
+            # 2. 텍스트 토큰 스트리밍
+            text = res.answerMarkdown or ""
+            words = text.split(" ")
+            for i, word in enumerate(words):
+                chunk = word + (" " if i < len(words) - 1 else "")
+                yield f"event: delta\ndata: {json.dumps({'delta': chunk})}\n\n"
+                await asyncio.sleep(0.015)
 
-        # 3. 완료 및 액션 카드 이벤트
-        yield f"event: done\ndata: {json.dumps(res.model_dump(by_alias=True))}\n\n"
+            # 3. 완료 및 액션 카드 이벤트
+            yield f"event: done\ndata: {json.dumps(res.model_dump(by_alias=True))}\n\n"
+        except Exception as e:
+            logger.error(f"Chatbot SSE generation error: {e}", exc_info=True)
+            fallback_text = ("Global 답변을 생성하지 못했습니다. 잠시 후 다시 시도해주세요." if body.knowledgeScope == "global" else "답변을 생성하지 못했습니다. 잠시 후 다시 시도해주세요. 저장된 지식의 조회 성공 여부는 확인되지 않았습니다.")
+            yield f"event: routing\ndata: {json.dumps({'intent': 'error', 'pathType': 'error'})}\n\n"
+            yield f"event: delta\ndata: {json.dumps({'delta': fallback_text})}\n\n"
+            yield f"event: done\ndata: {json.dumps({'pathType': 'error', 'knowledgeScope': body.knowledgeScope, 'answerMarkdown': fallback_text, 'suggestedChips': []})}\n\n"
 
     return StreamingResponse(
         token_generator(),

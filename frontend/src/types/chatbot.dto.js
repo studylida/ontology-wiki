@@ -7,7 +7,7 @@
  * @typedef {Object} ChatbotContextDTO
  * @property {string|null} conceptId
  * @property {string} conceptTitle
- * @property {number} scaleLevel
+ * @property {number|null} scaleLevel
  * @property {string} scaleBadge
  * @property {string} engineMode
  * @property {string} engineModeLabel
@@ -16,6 +16,7 @@
 
 /**
  * @typedef {Object} ChatbotMessageRequestDTO
+ * @property {'local'|'global'} [knowledgeScope='local']
  * @property {string} message - 엔지니어 질문
  * @property {string|null} [conceptId] - 현재 열람 중인 개념 ID
  * @property {string} [scaleLevel='3'] - 공정 스케일
@@ -23,8 +24,11 @@
 
 /**
  * @typedef {Object} ChatbotMessageResponseDTO
- * @property {'factoid'|'causal_clarifier'|'action_trigger'} pathType
+ * @property {'local'|'global'} knowledgeScope
+ * @property {'factoid'|'causal_clarifier'|'action_trigger'|'error'} pathType
  * @property {string} answerMarkdown
+ * @property {Array<Object>} [sourceEvidences]
+ * @property {Array<string>} [suggestedChips]
  * @property {Array<string>} [citations]
  * @property {Array<string>} [followUpChips]
  * @property {Object} [actionPayload]
@@ -32,10 +36,11 @@
 
 /**
  * @typedef {Object} ChatbotMessageItem
+ * @property {'local'|'global'} [knowledgeScope]
  * @property {'user'|'assistant'} sender
  * @property {string} text
  * @property {string} timestamp
- * @property {'factoid'|'causal_clarifier'|'action_trigger'} [pathType]
+ * @property {'factoid'|'causal_clarifier'|'action_trigger'|'error'} [pathType]
  * @property {Array<string>} [citations]
  * @property {Array<string>} [followUpChips]
  * @property {Object} [actionPayload]

@@ -13,15 +13,12 @@ export function useChatbotController({
   onSelectConcept
 } = {}) {
   const [isOpen, setIsOpen] = useState(false);
+  const [knowledgeScope, setKnowledgeScope] = useState('local');
   const [contextData, setContextData] = useState({
-    conceptTitle: '반도체 인과 온톨로지 전역 어시스턴트',
+    conceptTitle: '온톨로지 챗',
     scaleBadge: '전역 탐색 모드',
-    engineModeLabel: '🟢 Live (온톨로지 인과 추론 엔진)',
-    quickQuestionChips: [
-      '💡 HBM 방열 대안: MR-MUF vs TC-NCF 비교',
-      '💡 Cryo 극저온 식각 반응 메커니즘',
-      '💡 차세대 유리기판 TGV 공정 및 물성 표준'
-    ]
+    engineModeLabel: '위키 등록 지식 기반',
+    quickQuestionChips: []
   });
 
   const [messages, setMessages] = useState([
@@ -42,9 +39,9 @@ export function useChatbotController({
     try {
       const res = await chatbotRepo.getContext({ conceptId: cid });
       setContextData({
-        conceptTitle: res.conceptTitle || '반도체 인과 온톨로지 어시스턴트',
+        conceptTitle: res.conceptTitle || '온톨로지 챗',
         scaleBadge: res.scaleBadge || '전역 탐색',
-        engineModeLabel: res.engineModeLabel || '🟢 Live',
+        engineModeLabel: res.engineModeLabel || '위키 등록 지식 기반',
         quickQuestionChips: res.quickQuestionChips || []
       });
     } catch (err) {
@@ -81,7 +78,8 @@ export function useChatbotController({
       isStreaming: true,
       pathType: null,
       citations: [],
-      followUpChips: []
+      followUpChips: [],
+      knowledgeScope
     };
 
     setMessages((prev) => [...prev, userMsg, assistantMsg]);
@@ -92,7 +90,8 @@ export function useChatbotController({
       await chatbotRepo.streamMessage(
         {
           message: text,
-          conceptId: currentConceptId
+          conceptId: knowledgeScope === 'local' ? currentConceptId : null,
+          knowledgeScope
         },
         {
           onRouting: (routingData) => {
@@ -124,11 +123,14 @@ export function useChatbotController({
               const next = [...prev];
               const last = next[next.length - 1];
               if (last && last.sender === 'assistant') {
+                const payload = doneData.actionCard || doneData.actionPayload || null;
                 last.text = doneData.answerMarkdown || last.text;
                 last.pathType = doneData.pathType || last.pathType;
-                last.citations = doneData.citations || [];
-                last.followUpChips = doneData.followUpChips || [];
-                last.actionPayload = doneData.actionPayload || null;
+                last.knowledgeScope = doneData.knowledgeScope || knowledgeScope;
+                last.citations = doneData.citations || (doneData.sourceEvidences || []).map((source) => source.id);
+                last.followUpChips = doneData.followUpChips || doneData.suggestedChips || [];
+                last.actionPayload = payload;
+                last.actionCard = payload;
                 last.isStreaming = false;
               }
               return next;
@@ -153,18 +155,18 @@ export function useChatbotController({
       setIsStreaming(false);
       setIsThinking(false);
     }
-  }, [inputText, isStreaming, currentConceptId]);
+  }, [inputText, isStreaming, currentConceptId, knowledgeScope]);
 
   /**
    * 대화 이력 초기화
    */
   const handleReset = useCallback(async () => {
     try {
-      const res = await chatbotRepo.resetMessages({ conceptId: currentConceptId });
+      const res = await chatbotRepo.resetMessages({ conceptId: knowledgeScope === 'local' ? currentConceptId : null });
       setMessages([
         {
           sender: 'assistant',
-          text: res.welcomeMessage || '대화가 초기화되었습니다. 질문해 주세요.',
+          text: knowledgeScope === 'global' ? '반도체 관련 일반 지식을 질문해주세요. 웹 검색 결과와는 구분해서 설명합니다.' : (res.welcomeMessage || '대화가 초기화되었습니다. 질문해 주세요.'),
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           pathType: 'factoid'
         }
@@ -172,16 +174,26 @@ export function useChatbotController({
     } catch (err) {
       console.warn('Failed to reset chatbot messages:', err);
     }
-  }, [currentConceptId]);
+  }, [currentConceptId, knowledgeScope]);
 
   /**
    * 액션 카드 클릭 ➔ 탭 이동 또는 개념 이동
    */
   const handleActionClick = useCallback((actionPayload) => {
     if (!actionPayload) return;
-    const { actionType, targetTab, conceptId, query } = actionPayload;
+    const { actionType, targetTab, conceptId, query, targetUrl } = actionPayload;
 
-    if (actionType === 'navigate_tab' && onNavigateToTab && targetTab) {
+    if (actionType === 'navigate_research' || (targetUrl && targetUrl.includes('research'))) {
+      const topicMatch = targetUrl ? targetUrl.match(/topic=([^&]+)/) : null;
+      const topic = topicMatch ? decodeURIComponent(topicMatch[1]) : query;
+      if (onNavigateToTab) onNavigateToTab('research', { query: topic });
+    } else if (actionType === 'navigate_comparison' || (targetUrl && targetUrl.includes('comparison'))) {
+      const tAMatch = targetUrl ? targetUrl.match(/targetA=([^&]+)/) : null;
+      const tBMatch = targetUrl ? targetUrl.match(/targetB=([^&]+)/) : null;
+      const targetA = tAMatch ? decodeURIComponent(tAMatch[1]) : null;
+      const targetB = tBMatch ? decodeURIComponent(tBMatch[1]) : null;
+      if (onNavigateToTab) onNavigateToTab('comparison', { targetA, targetB });
+    } else if (actionType === 'navigate_tab' && onNavigateToTab && targetTab) {
       onNavigateToTab(targetTab, { query });
     } else if (actionType === 'select_concept' && onSelectConcept && conceptId) {
       onSelectConcept(conceptId);
@@ -190,7 +202,19 @@ export function useChatbotController({
 
   return {
     isOpen,
-    contextData,
+    contextData: knowledgeScope === 'global' ? {
+      conceptTitle: '반도체 Global 챗', scaleBadge: '반도체 일반 지식',
+      engineModeLabel: '모델 지식 · 웹 검색 아님', quickQuestionChips: []
+    } : contextData,
+    knowledgeScope,
+    onChangeKnowledgeScope: (scope) => {
+      if (!isStreaming && ['local', 'global'].includes(scope)) {
+        setKnowledgeScope(scope);
+        setMessages((prev) => prev.length === 1 ? [{ ...prev[0], text: scope === 'global'
+          ? '반도체 관련 일반 지식을 질문해주세요. 웹 검색 결과와는 구분해서 설명합니다.'
+          : '등록된 위키 지식을 질문해주세요. 현재 문서를 가리킬 때는 이 공정 또는 이 문서라고 입력해주세요.' }] : prev);
+      }
+    },
     messages,
     inputText,
     isStreaming,
