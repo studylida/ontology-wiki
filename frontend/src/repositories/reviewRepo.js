@@ -54,7 +54,7 @@ export const reviewRepo = {
    * 전문가 직접 수정 본문 저장 (인용구 보존 및 버전 검증)
    * @param {string} ticketId
    * @param {import('../types/review.dto').HumanEditsRequestDTO} data
-   * @returns {Promise<import('../types/review.dto').ReviewTicketDTO>}
+   * @returns {Promise<import('../types/review.dto').HumanEditsResponseDTO>}
    */
   async saveHumanEdits(ticketId, data) {
     return httpClient.put(`/review-tickets/${ticketId}/human-edits`, data);
@@ -66,8 +66,8 @@ export const reviewRepo = {
    * @param {boolean} [highlight=true]
    * @returns {Promise<import('../types/review.dto').WikiPreviewResponseDTO>}
    */
-  async getWikiPreview(ticketId, highlight = true) {
-    return httpClient.get(`/review-tickets/${ticketId}/wiki-preview?highlight=${highlight}`);
+  async getWikiPreview(ticketId, request = {}) {
+    return httpClient.post(`/review-tickets/${ticketId}/wiki-preview`, request);
   },
 
   /**

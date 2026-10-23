@@ -4,7 +4,7 @@
  * - 비즈니스 로직 0줄: useReviewController에서 주입받은 상태와 핸들러만 바인딩
  */
 
-import React from 'react';
+import React, {useRef,useEffect} from 'react';
 import { TicketQueueSidebar } from './TicketQueueSidebar';
 import { PresenceBanner } from './PresenceBanner';
 import { TwoSegmentEditor } from './TwoSegmentEditor';
@@ -28,6 +28,10 @@ export function ReviewCenterView({
     ticketList,
     selectedTicketId,
     currentTicket,
+    reviewContent,
+    isContentLoading,
+    contentError,
+    refreshReviewContent,
     workingDraft,
     setWorkingDraft,
     auditLogs,
@@ -47,6 +51,7 @@ export function ReviewCenterView({
     selectTicket,
     takeoverLock,
     applyDirective,
+    undoDirective,
     saveHumanEdits,
     openWikiPreview,
     openApproveModal,
@@ -63,7 +68,7 @@ export function ReviewCenterView({
   } = review;
 
   return (
-    <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
+    <div className="review-center-layout" style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
       {/* ── 좌측 패널: 거버넌스 티켓 큐 사이드바 ── */}
       <TicketQueueSidebar
         ticketList={ticketList}
@@ -141,7 +146,15 @@ export function ReviewCenterView({
         {/* 2-Segment 편집기 */}
         <TwoSegmentEditor
           currentTicket={currentTicket}
+          reviewContent={reviewContent}
+          isContentLoading={isContentLoading}
+          contentError={contentError}
+          onRetryContent={refreshReviewContent}
+          currentUser={currentUser}
           workingDraft={workingDraft}
+          activeSection={review.activeSection}
+          onSectionChange={review.setActiveSection}
+          isDirty={review.isDirty}
           isEditorDisabled={isEditorDisabled}
           isActionLoading={isActionLoading}
           onDraftChange={setWorkingDraft}
@@ -155,19 +168,25 @@ export function ReviewCenterView({
         <DirectiveInputBar
           integrityReport={currentTicket?.integrityReport}
           directiveHistory={currentTicket?.directiveHistory}
+          canUndo={currentTicket?.canUndo}
           isActionLoading={isActionLoading}
           isEditorDisabled={isEditorDisabled}
           onApplyDirective={applyDirective}
+          onUndoDirective={undoDirective}
         />
       </div>
+
+      {review.pendingTicketId && <TicketSwitchPrompt review={review} busy={isActionLoading}/>}
 
       {/* ── 전역 모달 팝업들 ── */}
       <SemanticApprovalModal
         isOpen={isApproveModalOpen}
         currentVersion={currentTicket?.currentVersion || 'v1.2.0'}
         computedSemanticVersion={computedSemanticVersion}
+        researchPlacement={currentTicket?.originType === '문헌조사' ? currentTicket.structuredPatches?.find((patch) => patch.path === '/concept')?.value : null}
         onClose={closeApproveModal}
         onApprove={executeApprove}
+        isActionLoading={isActionLoading}
       />
 
       <RejectModal
@@ -180,6 +199,7 @@ export function ReviewCenterView({
       <WikiPreviewModal
         isOpen={isPreviewModalOpen}
         previewData={previewData}
+        currentUser={currentUser}
         onClose={closePreviewModal}
       />
 
@@ -208,4 +228,14 @@ export function ReviewCenterView({
       )}
     </div>
   );
+}
+
+function TicketSwitchPrompt({review,busy}) {
+  const ref=useRef(null);
+  useEffect(()=>{ref.current.showModal();},[]);
+  return <dialog ref={ref} className="native-modal-dialog" role="alertdialog" aria-label="미저장 작업본" onCancel={e=>{e.preventDefault();review.cancelTicketSwitch();}}>
+    <div style={{padding:24}}><h3>저장하지 않은 변경이 있습니다.</h3><p>모든 목차의 변경을 저장한 뒤 이동할 수 있습니다.</p>
+      <button type="button" disabled={busy} onClick={review.saveAndSwitch}>저장 후 이동</button><button type="button" disabled={busy} onClick={review.discardAndSwitch}>변경 버리고 이동</button><button type="button" disabled={busy} onClick={review.cancelTicketSwitch}>계속 편집</button>
+    </div>
+  </dialog>;
 }

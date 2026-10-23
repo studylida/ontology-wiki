@@ -16,12 +16,17 @@ import logging
 from datetime import datetime
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status, Header
+from fastapi import BackgroundTasks, APIRouter, Depends, HTTPException, Query, status, Header
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.core.config import settings
 from backend.app.core.database import get_db
+from backend.app.agents.directive_agent import directive_agent
+from backend.app.repositories.review_repo import review_repo
+from backend.app.services.review_service import review_service, _convert_ticket_to_dto, _convert_audit_to_dto
+from backend.app.schemas.review import ReviewPreviewRequest
+from backend.app.services.placement_service import recommend_placement, PlacementRecommendationUnavailable
 from backend.app.core.cache import cache_manager
 from backend.app.core.security import get_current_user_optional, require_min_level
 from backend.app.models.entities import ReviewTicketModel, AuditLogModel, ConceptModel, CausalEdgeModel, UserModel
@@ -50,52 +55,6 @@ router = APIRouter(
     prefix="/review-tickets",
     tags=["Review & Governance"]
 )
-
-
-def _convert_ticket_to_dto(ticket: ReviewTicketModel) -> ReviewTicketDTO:
-    """Helper to convert ReviewTicketModel to ReviewTicketDTO with proper ISO dates."""
-    return ReviewTicketDTO(
-        id=ticket.id,
-        concept_id=ticket.concept_id,
-        concept_title=ticket.concept_title,
-        title=ticket.title,
-        review_type=ticket.review_type,
-        author=ticket.author,
-        department=ticket.department,
-        submitted_at=ticket.submitted_at.isoformat() if ticket.submitted_at else None,
-        status=ticket.status,
-        source_session_id=ticket.source_session_id,
-        origin_type=ticket.origin_type,
-        current_version=ticket.current_version,
-        target_version=ticket.target_version,
-        current_content=ticket.current_content,
-        ai_merged_draft=ticket.ai_merged_draft,
-        human_edits=ticket.human_edits,
-        structured_patches=ticket.structured_patches or {},
-        integrity_report=ticket.integrity_report or {},
-        directive_history=ticket.directive_history or [],
-        override_reason=ticket.override_reason,
-        approved_at=ticket.approved_at.isoformat() if ticket.approved_at else None,
-        approved_by=ticket.approved_by,
-        applied_concept_version=ticket.applied_concept_version,
-        ticket_version=ticket.ticket_version
-    )
-
-
-def _convert_audit_to_dto(audit: AuditLogModel) -> AuditLogDTO:
-    """Helper to convert AuditLogModel to AuditLogDTO."""
-    return AuditLogDTO(
-        audit_id=audit.audit_id,
-        ticket_id=audit.ticket_id,
-        concept_id=audit.concept_id,
-        action_type=audit.action_type,
-        actor=audit.actor or {},
-        governance_snapshot=audit.governance_snapshot or {},
-        previous_log_hash=audit.previous_log_hash,
-        entry_hash=audit.entry_hash,
-        digital_signature=audit.digital_signature,
-        timestamp=audit.timestamp.isoformat() if audit.timestamp else None
-    )
 
 
 @router.get(
@@ -245,6 +204,7 @@ async def create_review_ticket(
 )
 async def get_review_ticket_detail(
     ticket_id: str,
+    current_user: Optional[UserModel] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db)
 ):
     ticket = await db.get(ReviewTicketModel, ticket_id)
@@ -256,7 +216,9 @@ async def get_review_ticket_detail(
 
     # Redis / In-Memory Presence Lock 점유자 확인
     current_editor = await cache_manager.get_presence_holder(ticket_id)
+    review_service.require_editor(current_user)
     base_dto = _convert_ticket_to_dto(ticket)
+    base_dto.workingDraft = await review_service.editable(ticket, db, current_user)
 
     return ReviewTicketDetailDTO(
         **base_dto.model_dump(by_alias=False),
@@ -380,229 +342,14 @@ async def manage_presence_lock(
 )
 async def approve_review_ticket(
     ticket_id: str,
+    background_tasks: BackgroundTasks,
     body: Optional[ReviewTicketApproveRequest] = None,
     current_user: Optional[UserModel] = Depends(get_current_user_optional),
     x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
     x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
     db: AsyncSession = Depends(get_db)
 ):
-    if body is None:
-        body = ReviewTicketApproveRequest()
-
-    # 🌟 수석검토관(Level 3) 이상 거버넌스 승인 인가 가드레일 (오직 인증된 수석검토관 토큰 필수)
-    if not current_user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"code": "MISSING_TOKEN", "message": "위키 버전 승인 및 거버넌스 집행을 위해 로그인이 필요합니다."}
-        )
-    if current_user.level < 3:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail={
-                "code": "INSUFFICIENT_LEVEL",
-                "message": "위키 버전 승인 및 거버넌스 집행 권한은 '수석검토관(Level 3)' 이상 전용입니다. 현장 엔지니어(Level 2)는 승인 권한이 없습니다."
-            }
-        )
-    approver_id = current_user.id
-    approver_name = current_user.name
-    approver_role = current_user.role
-    approver_dept = current_user.department
-
-    ticket = await db.get(ReviewTicketModel, ticket_id)
-    if not ticket:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"거버넌스 검토 티켓 '{ticket_id}'을(를) 찾을 수 없습니다."
-        )
-
-    now_utc = datetime.utcnow()
-    final_reason = body.overrideReason or ticket.override_reason or ""
-    guide_tip = None
-
-    # 1. 이전 최신 감사 로그 조회 (머클 해시 체인 연결)
-    latest_audit_stmt = select(AuditLogModel).order_by(AuditLogModel.id.desc()).limit(1)
-    latest_audit = (await db.execute(latest_audit_stmt)).scalars().first()
-    previous_log_hash = latest_audit.entry_hash if latest_audit else "0" * 64
-
-    # 2. WORM 감사 로그 데이터 조립
-    audit_id = f"aud-{now_utc.strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:6]}"
-    actor_info = {
-        "userId": approver_id,
-        "name": approver_name,
-        "role": approver_role,
-        "department": approver_dept,
-        "action": "approve"
-    }
-    # 1. 온톨로지 세맨틱 버전(vMAJOR.MINOR.PATCH) 자동 계산
-    concept = await db.get(ConceptModel, ticket.concept_id)
-    cur_ver = (concept.version if concept else ticket.current_version) or "v1.2.0"
-    
-    # 버전 승계 규칙:
-    # 1. 신규 개념 등록 (new_concept) 또는 공인 출처 공식 폐기(Breaking Change) -> minor (v1.2.x -> v1.3.0)
-    #    (명시적 플래그/목록 또는 Tier 1 AI 사유 문맥 의도 판별을 통해 Human-in-the-Loop 인가)
-    # 2. 일상적 파라미터/문맥 수정 -> patch (v1.2.0 -> v1.2.1)
-    from backend.app.core.citation_manager import EvidenceCitationManager
-    is_new = "신규" in (ticket.review_type or "") or ticket.review_type == "new_concept"
-    has_deprecation_flag = body.allowCitationDeletion or bool(body.deprecatedCitations)
-    has_deprecation_reason = await EvidenceCitationManager.is_deprecation_intended(
-        final_reason,
-        gemini_key=x_gemini_key,
-        openai_key=x_openai_key
-    )
-    has_deprecation = has_deprecation_flag or has_deprecation_reason
-    auto_bump_type = "minor" if (is_new or has_deprecation) else "patch"
-    
-    def _bump_version(v_str: str, b_type: str) -> str:
-        cleaned = (v_str or "").strip().lstrip("v")
-        parts = cleaned.split(".")
-        maj, min_v, pat = 1, 0, 0
-        try:
-            if len(parts) >= 1 and parts[0].isdigit(): maj = int(parts[0])
-            if len(parts) >= 2 and parts[1].isdigit(): min_v = int(parts[1])
-            if len(parts) >= 3 and parts[2].isdigit(): pat = int(parts[2])
-        except Exception:
-            pass
-        if b_type == "major": return f"v{maj + 1}.0.0"
-        elif b_type == "minor": return f"v{maj}.{min_v + 1}.0"
-        return f"v{maj}.{min_v}.{pat + 1}"
-
-    applied_ver = body.targetVersion or ticket.target_version or _bump_version(cur_ver, auto_bump_type)
-    gov_snapshot = {
-        "ticketId": ticket.id,
-        "conceptId": ticket.concept_id,
-        "conceptTitle": ticket.concept_title,
-        "appliedVersion": applied_ver,
-        "previousVersion": cur_ver,
-        "overrideReason": final_reason,
-        "integrityReport": ticket.integrity_report or {},
-        "humanEditsSummary": (body.humanEdits or ticket.human_edits or "")[:200]
-    }
-
-    # Merkle SHA-256 Entry Hash 계산
-    raw_hash_source = f"{previous_log_hash}|{audit_id}|{ticket.id}|approve|{json.dumps(actor_info, sort_keys=True)}|{json.dumps(gov_snapshot, sort_keys=True)}|{now_utc.isoformat()}"
-    entry_hash = hashlib.sha256(raw_hash_source.encode("utf-8")).hexdigest()
-
-    # HMAC 디지털 서명
-    digital_sig = hmac.new(
-        settings.SECRET_KEY.encode("utf-8"),
-        entry_hash.encode("utf-8"),
-        hashlib.sha256
-    ).hexdigest()
-
-    # 감사 로그 저장
-    audit_entry = AuditLogModel(
-        audit_id=audit_id,
-        ticket_id=ticket.id,
-        concept_id=ticket.concept_id,
-        action_type="approve",
-        actor=actor_info,
-        governance_snapshot=gov_snapshot,
-        previous_log_hash=previous_log_hash,
-        entry_hash=entry_hash,
-        digital_signature=digital_sig,
-        timestamp=now_utc
-    )
-    db.add(audit_entry)
-
-    # 3. 티켓 상태 갱신
-    ticket.status = "approved"
-    ticket.approved_at = now_utc
-    ticket.approved_by = approver_name
-    ticket.applied_concept_version = applied_ver
-    if body.humanEdits:
-        ticket.human_edits = body.humanEdits
-    if body.overrideReason:
-        ticket.override_reason = body.overrideReason
-    ticket.updated_at = now_utc
-
-    # 4. 온톨로지 개념(ConceptModel) 본문 및 버전 영구 승계
-    concept = await db.get(ConceptModel, ticket.concept_id)
-    concept_updated = False
-    if concept:
-        concept.version = applied_ver
-        if ticket.human_edits:
-            concept.summary = ticket.human_edits
-        elif ticket.ai_merged_draft:
-            concept.summary = ticket.ai_merged_draft
-        concept.updated_at = now_utc
-        concept_updated = True
-    else:
-        # 🌟 완전 신규 개념 승인 분기: ConceptModel 신규 생성 및 온톨로지 트리 영구 편입
-        placement = {}
-        if ticket.structured_patches and isinstance(ticket.structured_patches, list):
-            for patch in ticket.structured_patches:
-                if patch.get("path") == "/concept" and isinstance(patch.get("value"), dict):
-                    placement = patch.get("value")
-                    break
-
-        new_concept = ConceptModel(
-            id=ticket.concept_id,
-            title=ticket.concept_title or ticket.title,
-            eng_name=placement.get("eng_name", ticket.concept_title or ticket.title),
-            aliases=[],
-            domain_facet=placement.get("domain_facet", "unit_process"),
-            process_category=placement.get("process_category", "첨단 패키징"),
-            scale_level=placement.get("scale_level", 3),
-            scale_name=placement.get("scale_name", "Scale 3: 단위 공정"),
-            version=applied_ver or "v1.0.0",
-            status="adopted",
-            last_reviewed_at=now_utc,
-            last_reviewed_by=body.approvedBy,
-            summary=ticket.human_edits or ticket.ai_merged_draft or "### 1. 기술 정의\n(신규 온톨로지 개념)",
-            purpose=ticket.override_reason or "신규 공정 개념 편입",
-            principles=[],
-            limitations=[],
-            relations={"is_a": placement.get("parent_concept_id")} if placement.get("parent_concept_id") else {},
-            created_at=now_utc,
-            updated_at=now_utc
-        )
-        db.add(new_concept)
-        concept_updated = True
-
-        # 상위 개념과의 인과 에지(CausalEdgeModel) 자동 연결
-        parent_id = placement.get("parent_concept_id")
-        if parent_id:
-            parent_concept = await db.get(ConceptModel, parent_id)
-            if parent_concept:
-                new_edge = CausalEdgeModel(
-                    source_concept_id=new_concept.id,
-                    target_concept_id=parent_id,
-                    relation_type="is_a",
-                    polarity="+",
-                    weight=1.00,
-                    mechanism_label=f"{new_concept.title} is a subtype of {parent_concept.title}"
-                )
-                db.add(new_edge)
-
-    # 5. Presence Lock 자동 해제
-    await cache_manager.release_presence_lock(ticket.id, body.approvedBy)
-
-    await db.commit()
-    await db.refresh(ticket)
-    await db.refresh(audit_entry)
-
-    # 6. Stale Cache 방지를 위한 연관 캐시 즉시 무효화 (위키 상세 / 서브그래프 / 문맥해설 / 전역검색)
-    await cache_manager.delete(f"concept:detail:{ticket.concept_id}")
-    await cache_manager.delete_prefix(f"concept:subgraph:{ticket.concept_id}:")
-    await cache_manager.delete_prefix(f"concept:explainer:{ticket.concept_id}:")
-    await cache_manager.delete_prefix("spotlight:")
-
-    # 7. 3.6절 Contextual Explainer 0ms 사전 컴파일 (Pre-computed Edge Caching)
-    try:
-        from backend.app.agents.explainer_agent import explainer_agent
-        await explainer_agent.precompile_concept_explainers(ticket.concept_id, db)
-    except Exception as e:
-        logger.warning(f"Failed to precompile explainers on approval: {e}")
-
-
-    return ReviewTicketActionResponse(
-        ticket=_convert_ticket_to_dto(ticket),
-        audit_log=_convert_audit_to_dto(audit_entry),
-        concept_updated=concept_updated,
-        concept_version=applied_ver,
-        guide_tip=guide_tip,
-        message=f"거버넌스 티켓 [{ticket.id}]이(가) 공식 승인되었으며, 개념 '{ticket.concept_title}'이(가) {applied_ver} 버전으로 영구 승계되었습니다."
-    )
+    return await review_service.approve(ticket_id, background_tasks, body, current_user, x_gemini_key, x_openai_key, db)
 
 
 @router.post(
@@ -754,13 +501,15 @@ async def apply_directive(
     db: AsyncSession = Depends(get_db)
 ):
     # 🌟 Level 2 현장 엔지니어 이상 가드레일 (게스트 차단)
-    if current_user and current_user.level < 2:
+    if not current_user:
+        raise HTTPException(401, '로그인이 필요합니다.')
+    if current_user.level < 2:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail={"code": "INSUFFICIENT_LEVEL", "message": "전문가 보완 지시문 전달 권한은 '현장 엔지니어(Level 2)' 이상만 가능합니다."}
         )
 
-    ticket = await db.get(ReviewTicketModel, ticket_id)
+    ticket = await review_repo.get(db, ticket_id)
     if not ticket:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -775,17 +524,21 @@ async def apply_directive(
         )
 
     # 🌟 3.4절 Directive Engine 에이전트 호출
-    from backend.app.agents.directive_agent import directive_agent
-    await directive_agent.process_directive(
-        ticket=ticket,
-        directive_text=text_input,
-        override_reason=body.overrideReason,
-        db=db,
-        allow_citation_deletion=body.allowCitationDeletion,
-        deprecated_citations=body.deprecatedCitations,
-        gemini_key=x_gemini_key,
-        openai_key=x_openai_key
-    )
+    try:
+        await directive_agent.process_directive(
+            ticket=ticket,
+            directive_text=text_input,
+            override_reason=body.overrideReason,
+            db=db,
+            allow_citation_deletion=body.allowCitationDeletion,
+            deprecated_citations=body.deprecatedCitations,
+            gemini_key=x_gemini_key,
+            openai_key=x_openai_key,
+            edited_content=body.editedContent, ticket_version=body.ticketVersion, undo_last=body.undoLast, structured_draft=body.structuredDraft, target_sections=body.targetSections, current_user=current_user
+        )
+    except (ValueError, TypeError, KeyError, RuntimeError):
+        await db.rollback()
+        raise HTTPException(502, '자료 기반 변경안을 검증하지 못했습니다. 기존 초안은 유지했습니다.')
 
     await db.commit()
     await db.refresh(ticket)
@@ -805,60 +558,10 @@ async def update_human_edits(
     current_user: Optional[UserModel] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db)
 ):
-    # 🌟 Level 2 현장 엔지니어 이상 가드레일 (게스트 차단)
-    if current_user and current_user.level < 2:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail={"code": "INSUFFICIENT_LEVEL", "message": "전문가 직접 편집 저장 권한은 '현장 엔지니어(Level 2)' 이상만 가능합니다."}
-        )
-
-    ticket = await db.get(ReviewTicketModel, ticket_id)
-    if not ticket:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"거버넌스 검토 티켓 '{ticket_id}'을(를) 찾을 수 없습니다."
-        )
-
-    if not body.editedContent.strip():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="편집 내용이 비어있습니다."
-        )
-
-    # 낙관적 판본 충돌 검사
-    if body.ticketVersion is not None and body.ticketVersion != ticket.ticket_version:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=f"버전 충돌 감지: 현재 티켓 버전은 {ticket.ticket_version}입니다."
-        )
-
-    # 🌟 공인 출처 불변성 검증 및 자동 복원 / 공식 폐기 인가
-    from backend.app.core.citation_manager import EvidenceCitationManager
-    base_text = f"{ticket.current_content or ''}\n{ticket.ai_merged_draft or ''}".strip()
-    final_content, restored_tags, deprecated_tags = await EvidenceCitationManager.validate_and_restore(
-        original_text=base_text,
-        edited_text=body.editedContent,
-        allow_citation_deletion=body.allowCitationDeletion,
-        deprecated_citations=body.deprecatedCitations,
-        override_reason=body.overrideReason
-    )
-
-    ticket.human_edits = final_content
-    if body.overrideReason:
-        ticket.override_reason = body.overrideReason
-    ticket.ticket_version += 1
-    ticket.updated_at = datetime.utcnow()
-
-    await db.commit()
-    await db.refresh(ticket)
-
-    return HumanEditsResponse(
-        ticket_id=ticket.id,
-        ticket_version=ticket.ticket_version,
-        human_edits=ticket.human_edits,
-        integrity_report=ticket.integrity_report or {},
-        updated_at=ticket.updated_at.isoformat()
-    )
+    ticket = await review_repo.get(db, ticket_id)
+    review_service.require_editor(current_user)
+    if not ticket:raise HTTPException(404, '검토 티켓을 찾지 못했습니다.')
+    return await review_service.save(ticket, body, db, current_user)
 
 
 @router.get(
@@ -871,54 +574,26 @@ async def update_human_edits(
 async def get_wiki_preview(
     ticket_id: str,
     highlight_changes: bool = Query(default=True, alias="highlightChanges"),
+    current_user: Optional[UserModel] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db)
 ):
-    ticket = await db.get(ReviewTicketModel, ticket_id)
-    if not ticket:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"거버넌스 검토 티켓 '{ticket_id}'을(를) 찾을 수 없습니다."
-        )
+    return await _review_wiki_preview(ticket_id, None, current_user, db)
 
-    concept = await db.get(ConceptModel, ticket.concept_id)
-    applied_ver = ticket.applied_concept_version or ticket.target_version or "v1.3"
-    draft_content = ticket.human_edits or ticket.ai_merged_draft
 
-    preview_summary = (
-        f"<mark class=\"diff-added\">{draft_content}</mark>"
-        if highlight_changes else draft_content
-    )
+async def _review_wiki_preview(ticket_id, edited_content, current_user, db, request=None):
+    review_service.require_editor(current_user)
+    ticket = await review_repo.get(db, ticket_id)
+    if not ticket:raise HTTPException(404, '검토 티켓을 찾지 못했습니다.')
+    return await review_service.preview_response(ticket, db, current_user, request or ReviewPreviewRequest(editedContent=edited_content))
 
-    preview_concept = {
-        "id": concept.id if concept else ticket.concept_id,
-        "title": concept.title if concept else ticket.concept_title,
-        "engName": concept.eng_name if concept else "",
-        "aliases": concept.aliases if concept and isinstance(concept.aliases, list) else [],
-        "domainFacet": concept.domain_facet if concept else "unit_process",
-        "processCategory": concept.process_category if concept else "첨단 패키징",
-        "scaleLevel": concept.scale_level if concept else 3,
-        "scaleName": concept.scale_name if concept else "L3 단위 공정",
-        "version": applied_ver,
-        "status": "preview",
-        "lastReviewedBy": f"{ticket.author} (승인 대기 중)",
-        "lastReviewedAt": datetime.utcnow().strftime("%Y.%m.%d (미리보기)"),
-        "summary": preview_summary,
-        "purpose": concept.purpose if concept else "",
-        "principles": concept.principles if concept and isinstance(concept.principles, list) else [],
-        "limitations": concept.limitations if concept and isinstance(concept.limitations, list) else []
-    }
 
-    return WikiPreviewResponse(
-        ticket_id=ticket.id,
-        concept_id=ticket.concept_id,
-        target_version=applied_ver,
-        preview_concept=preview_concept,
-        diff_summary={
-            "addedCount": 1,
-            "modifiedCount": 1,
-            "status": "preview"
-        }
-    )
+@router.post('/{ticket_id}/wiki-preview', response_model=WikiPreviewResponse, response_model_by_alias=True)
+async def preview_working_copy(
+    ticket_id: str, body: ReviewPreviewRequest,
+    current_user: Optional[UserModel] = Depends(get_current_user_optional),
+    db: AsyncSession = Depends(get_db)
+):
+    return await _review_wiki_preview(ticket_id, body.editedContent, current_user, db, body)
 
 
 @router.post(
@@ -926,7 +601,7 @@ async def get_wiki_preview(
     response_model=ConceptPlacementRecommendResponse,
     response_model_by_alias=True,
     summary="신규 개념 온톨로지 편입 위치 AI 자동 추천 API",
-    description="엔지니어가 입력한 기술명과 개요를 바탕으로 4-Tier AI(OpenAI/Gemini) 및 온톨로지 지식 그래프를 스캔하여 최적의 패싯, 스케일 레벨, 공정군 및 상위 개념을 자동 추천합니다."
+    description="엔지니어가 입력한 기술명과 개요를 바탕으로 현재 위키 분류를 기준으로 소속 패싯, 물리적 규모, 세부 공정군을 추천합니다."
 )
 async def recommend_concept_placement(
     body: ConceptPlacementRecommendRequest,
@@ -934,130 +609,7 @@ async def recommend_concept_placement(
     x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
     db: AsyncSession = Depends(get_db)
 ):
-    # 🌟 Tier 1 AI 클라우드 추론 시도 (API 키 제공 시)
-    active_key = x_openai_key or x_gemini_key or settings.OPENAI_API_KEY or settings.GEMINI_API_KEY
-    if active_key:
-        try:
-            from backend.app.core.llm_gateway import LLMGateway
-            gateway = LLMGateway(default_timeout_sec=10.0)
-
-            # DB의 기존 개념 후보 목록 조회 (상위 개념 매칭용)
-            stmt = select(ConceptModel.id, ConceptModel.title, ConceptModel.scale_level, ConceptModel.domain_facet).limit(30)
-            res_c = await db.execute(stmt)
-            known_concepts = [{"id": r[0], "title": r[1], "scale": r[2], "facet": r[3]} for r in res_c.all()]
-
-            system_instruction = (
-                "당신은 첨단 반도체 공정 및 소자 인과 온톨로지(Semiconductor Causal Ontology) 수석 아키텍트입니다.\n"
-                "엔지니어가 제안한 신규 기술/문서의 제목과 개요를 분석하여 온톨로지 지식 체계에서 최적의 편입 위치를 정확히 판별하세요.\n\n"
-                "온톨로지 4대 패싯 (domainFacet):\n"
-                "- 'device': 트랜지스터, 메모리 셀 등 소자 물성 및 구조\n"
-                "- 'unit_process': 노광, 식각, 박막, 세정, 본딩 등 단위 공정 메커니즘\n"
-                "- 'fab': 팹 유틸리티, 챔버 설비, 진공, 배관, OES FDC 등 팹 단위 기술\n"
-                "- 'infra': 클린룸 환경, 케미컬 공급, 스크러버 등 인프라\n\n"
-                "온톨로지 5대 스케일 (scaleLevel / scaleName):\n"
-                "1: Scale 1: 원자·분자 물성 (ALD, 계면 화학, 격자 변형)\n"
-                "2: Scale 2: 나노 디바이스 (FinFET, GAA, CFET, 비트라인 에어갭)\n"
-                "3: Scale 3: 단위 공정 (TCB, Cryo 식각, High-NA 노광, CMP)\n"
-                "4: Scale 4: 팹 / 모듈 라인 (FDC 제어, 챔버 매칭, 수율 라인)\n"
-                "5: Scale 5: 첨단 패키징 / 서브시스템 (HBM, MR-MUF, 3D IC, TGV 유리기판, SiP)\n\n"
-                f"현재 등록된 주요 온톨로지 개념 후보:\n{json.dumps(known_concepts, ensure_ascii=False)}\n\n"
-                "반드시 아래 JSON 포맷으로만 응답하세요:\n"
-                "{\n"
-                '  "domainFacet": "unit_process",\n'
-                '  "scaleLevel": 5,\n'
-                '  "scaleName": "Scale 5: 첨단 패키징 / 서브시스템",\n'
-                '  "processCategory": "첨단 패키징",\n'
-                '  "parentConceptId": "가장 인접한 개념 ID 또는 null",\n'
-                '  "parentConceptTitle": "상위 개념명 또는 null",\n'
-                '  "reasoning": "도메인 물리 공학적 위치 추천 사유 (1~2문장)"\n'
-                "}"
-            )
-
-            user_prompt = f"신규 기술명: {body.title}\n핵심 기술 정의 및 개요: {body.summary or '상세 개요 미입력'}"
-
-            llm_res = await gateway.generate_text(
-                prompt=user_prompt,
-                system_instruction=system_instruction,
-                openai_key=x_openai_key,
-                gemini_key=x_gemini_key,
-                tier="tier1_fast",
-                timeout_sec=8.0
-            )
-
-            if llm_res:
-                clean_json = llm_res.strip()
-                if clean_json.startswith("```"):
-                    clean_json = clean_json.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
-                parsed = json.loads(clean_json)
-                return ConceptPlacementRecommendResponse(
-                    domain_facet=parsed.get("domainFacet", "unit_process"),
-                    scale_level=int(parsed.get("scaleLevel", 3)),
-                    scale_name=parsed.get("scaleName", f"Scale {parsed.get('scaleLevel', 3)}"),
-                    process_category=parsed.get("processCategory", "첨단 반도체 공정"),
-                    parent_concept_id=parsed.get("parentConceptId"),
-                    parent_concept_title=parsed.get("parentConceptTitle"),
-                    reasoning=f"[AI 지능형 온톨로지 분석] {parsed.get('reasoning', '')}"
-                )
-        except Exception as e:
-            logger.warning(f"Tier 1 AI placement recommendation failed, falling back to deterministic heuristic: {e}")
-
-    # 🌟 Tier 4: 결정론적 도메인 공학 규칙 기반 Fallback
-    query_text = f"{body.title} {body.summary or ''}".lower()
-
-    if any(k in query_text for k in ["패키징", "packaging", "본딩", "bonding", "muf", "ncf", "tgv", "인터포저", "기판", "substrate", "wlp", "2.5d", "3d"]):
-        facet = "unit_process"
-        scale = 5 if any(k in query_text for k in ["tgv", "기판", "모듈", "2.5d", "3d", "서브시스템"]) else 3
-        scale_name = "Scale 5: 첨단 패키징 / 서브시스템" if scale == 5 else "Scale 3: 단위 공정"
-        category = "첨단 패키징"
-        reasoning = f"'{body.title}'의 핵심 키워드에서 칩간 접합 및 패키징 기판 연계 특성이 분석되어 [{scale_name}]의 [{category}] 공정군으로 편입을 추천합니다."
-    elif any(k in query_text for k in ["식각", "etch", "rie", "플라즈마", "plasma", "cryo", "이온"]):
-        facet = "unit_process"
-        scale = 3
-        scale_name = "Scale 3: 단위 공정"
-        category = "식각 공정"
-        reasoning = f"'{body.title}'에서 미세 패턴 제거 및 플라즈마 반응 특성이 감지되어 [{scale_name}]의 [{category}] 공정군으로 편입을 추천합니다."
-    elif any(k in query_text for k in ["원자", "atomic", "ald", "박막", "증착", "cvd", "단분자"]):
-        facet = "unit_process"
-        scale = 1
-        scale_name = "Scale 1: 원자·분자 물성"
-        category = "박막 증착"
-        reasoning = f"'{body.title}'에서 원자 수준 표면 반응 메커니즘이 감지되어 [{scale_name}]으로 편입을 추천합니다."
-    elif any(k in query_text for k in ["팹", "fab", "클린룸", "배관", "용수", "공조", "스크러버", "환경"]):
-        facet = "fab"
-        scale = 4
-        scale_name = "Scale 4: 팹 / 모듈 라인"
-        category = "팹 인프라"
-        reasoning = f"'{body.title}'에서 팹 유틸리티 및 환경 제어 특성이 감지되어 [{scale_name}]의 [팹 인프라]로 편입을 추천합니다."
-    else:
-        facet = "unit_process"
-        scale = 3
-        scale_name = "Scale 3: 단위 공정"
-        category = "단위 공정 기술"
-        reasoning = f"'{body.title}'의 기술적 범위를 고려하여 표준 반도체 [{scale_name}]으로 기본 편입을 추천합니다."
-
-    # 가장 인접한 기존 상위 개념 탐색 (유사도 매칭)
-    parent_concept_id = None
-    parent_concept_title = None
-    stmt = select(ConceptModel).where(ConceptModel.scale_level <= scale).order_by(ConceptModel.scale_level.desc())
-    result = await db.execute(stmt)
-    candidate_concepts = result.scalars().all()
-    if candidate_concepts:
-        for c in candidate_concepts:
-            if c.domain_facet == facet and (c.process_category == category or c.scale_level == scale):
-                parent_concept_id = c.id
-                parent_concept_title = c.title
-                break
-        if not parent_concept_id:
-            parent_concept_id = candidate_concepts[0].id
-            parent_concept_title = candidate_concepts[0].title
-
-    return ConceptPlacementRecommendResponse(
-        domain_facet=facet,
-        scale_level=scale,
-        scale_name=scale_name,
-        process_category=category,
-        parent_concept_id=parent_concept_id,
-        parent_concept_title=parent_concept_title,
-        reasoning=reasoning
-    )
-
+    try:
+        return await recommend_placement(body, db, openai_key=x_openai_key, gemini_key=x_gemini_key)
+    except PlacementRecommendationUnavailable as error:
+        raise HTTPException(status_code=503, detail=str(error)) from error

@@ -5,18 +5,27 @@
  */
 
 import React, { useRef, useEffect, useState } from 'react';
+import { DOMAIN_FACET_LABELS } from '../../types/concept.dto';
+import { relationService } from '../../services/relationService';
 import { CheckCircle2, X, ArrowRight, ShieldCheck, Tag } from 'lucide-react';
 
 export function SemanticApprovalModal({
   isOpen,
   currentVersion = 'v1.2.0',
   computedSemanticVersion,
+  researchPlacement = null,
   onClose,
-  onApprove
+  onApprove,
+  isActionLoading = false
 }) {
   const dialogRef = useRef(null);
+  const openedRef = useRef(false);
   const [overrideReason, setOverrideReason] = useState('');
   const [customVersion, setCustomVersion] = useState('');
+  const [placement, setPlacement] = useState({ domainFacet: '', scaleLevel: '', processCategory: '' });
+  useEffect(() => {
+    if (isOpen) setPlacement({ domainFacet: researchPlacement?.domain_facet || '', scaleLevel: researchPlacement?.scale_level || '', processCategory: researchPlacement?.process_category || '' });
+  }, [isOpen, researchPlacement]);
 
   const targetVersion = customVersion || computedSemanticVersion?.targetVersion || 'v1.2.1';
 
@@ -26,9 +35,11 @@ export function SemanticApprovalModal({
 
     if (isOpen) {
       if (!dialog.open) dialog.showModal();
-      setCustomVersion(computedSemanticVersion?.targetVersion || '');
+      if(!openedRef.current) setCustomVersion(computedSemanticVersion?.targetVersion || '');
+      openedRef.current=true;
     } else {
       if (dialog.open) dialog.close();
+      openedRef.current=false;
       setOverrideReason('');
       setCustomVersion('');
     }
@@ -52,9 +63,11 @@ export function SemanticApprovalModal({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if(isActionLoading) return;
     onApprove({
       targetVersion,
-      overrideReason: overrideReason.trim()
+      overrideReason: overrideReason.trim(),
+      ...(researchPlacement && { conceptPlacement: { ...placement, scaleLevel: Number(placement.scaleLevel), processCategory: placement.processCategory.trim() } })
     });
   };
 
@@ -102,12 +115,23 @@ export function SemanticApprovalModal({
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {researchPlacement && <fieldset>
+            <legend>신규 문헌 개념의 분류 확정</legend>
+            <label>소속 분야<select required aria-label="신규 개념 분야" value={placement.domainFacet} onChange={(e) => setPlacement((prev) => ({ ...prev, domainFacet: e.target.value }))}>
+              <option value="">미확정</option>{Object.entries(DOMAIN_FACET_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+            </select></label>
+            <label>물리적 규모<select required aria-label="신규 개념 규모" value={placement.scaleLevel} onChange={(e) => setPlacement((prev) => ({ ...prev, scaleLevel: e.target.value }))}>
+              <option value="">미확정</option>{[1,2,3,4,5].map((level) => <option key={level} value={level}>{relationService.getScaleLabel(level)}</option>)}
+            </select></label>
+            <label>세부 분류<input required maxLength={64} aria-label="신규 개념 분류" value={placement.processCategory} onChange={(e) => setPlacement((prev) => ({ ...prev, processCategory: e.target.value }))} /></label>
+          </fieldset>}
           <div>
             <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, marginBottom: '6px' }}>
               최종 승계 버전 직접 지정 (선택)
             </label>
             <input
               type="text"
+              aria-label="최종 승계 판본"
               value={customVersion}
               onChange={(e) => setCustomVersion(e.target.value)}
               placeholder="예: v1.2.1"
@@ -129,6 +153,7 @@ export function SemanticApprovalModal({
             </label>
             <textarea
               rows={3}
+              aria-label="최종 승인 사유"
               value={overrideReason}
               onChange={(e) => setOverrideReason(e.target.value)}
               placeholder="예: 실무 엔지니어의 수식 보정 사항과 출처 무결성이 검증되어 정식 공인 온톨로지 문서로 승인합니다."
@@ -179,6 +204,7 @@ export function SemanticApprovalModal({
               취소
             </button>
             <button
+              disabled={isActionLoading}
               type="submit"
               style={{
                 padding: '8px 18px',

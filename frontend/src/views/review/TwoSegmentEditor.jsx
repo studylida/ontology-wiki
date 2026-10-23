@@ -1,227 +1,31 @@
-/**
- * [계층 1] TwoSegmentEditor View (Pure Dumb UI Component)
- * - 2-Segment 개정 초안 에디터 (좌: 기준 초안 / 우: 전문가 직접 편집기)
- * - 10분 잠금 시 Read-only 전환 및 툴바 액션
- */
+import React, { useState } from 'react';
+import { ReviewWikiSections } from './ReviewWikiSections';
+import { ReviewSectionEditor } from './ReviewSectionEditor';
+import { reviewSections } from '../../services/reviewDraftService';
+import './review.css';
 
-import React from 'react';
-import { Save, Eye, CheckCircle2, XCircle, Lock, Sparkles } from 'lucide-react';
-
-export function TwoSegmentEditor({
-  currentTicket,
-  workingDraft,
-  isEditorDisabled,
-  isActionLoading,
-  onDraftChange,
-  onSaveDraft,
-  onOpenWikiPreview,
-  onOpenApproveModal,
-  onOpenRejectModal
-}) {
-  if (!currentTicket) {
-    return (
-      <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-muted)' }}>
-        좌측 큐에서 검토할 티켓을 선택해 주세요.
+export function TwoSegmentEditor({currentTicket,reviewContent,isContentLoading,contentError,onRetryContent,currentUser,workingDraft,
+  activeSection,onSectionChange,isDirty,isEditorDisabled,isActionLoading,onDraftChange,onSaveDraft,onOpenWikiPreview,onOpenApproveModal,onOpenRejectModal}) {
+  const [showBaseline,setShowBaseline]=useState(true);
+  if(!currentTicket) return <div className="review-empty">{contentError || '왼쪽 검토 큐에서 티켓을 선택하세요.'}</div>;
+  const permissions=currentTicket.workingDraft?.permissions || {};
+  const disabled=isEditorDisabled||isActionLoading||!permissions.canEdit;
+  return <div className="review-workspace">
+    <header className="review-workspace-header"><div><p className="review-eyebrow">검토 작업본 · {currentTicket.conceptTitle || currentTicket.conceptId}</p><h2>{currentTicket.title}</h2><p className="review-hint">티켓 판본 {currentTicket.ticketVersion} · <span role="status">{isActionLoading?'처리 중…':isDirty?'저장하지 않은 변경':'저장된 작업본'}</span></p></div>
+      <div className="review-toolbar"><button type="button" disabled={disabled} onClick={onSaveDraft}>작업본 저장</button><button type="button" disabled={isActionLoading||!workingDraft} onClick={()=>onOpenWikiPreview(activeSection)}>위키 미리보기</button>
+        {currentTicket.status==='pending'&&<><button type="button" disabled={isActionLoading} onClick={onOpenRejectModal}>반려</button><button className="review-primary" type="button" disabled={isActionLoading||!workingDraft||currentUser?.level<3} onClick={onOpenApproveModal}>승인</button></>}
       </div>
-    );
-  }
-
-  const isPending = currentTicket.status === 'pending';
-  const baselineContent = currentTicket.currentContent || currentTicket.aiMergedDraft || '등록된 이전 판본이 없습니다.';
-
-  return (
-    <div
-      style={{
-        background: 'var(--bg-surface)',
-        border: '1px solid var(--border-color)',
-        borderRadius: '12px',
-        padding: '20px',
-        marginBottom: '16px',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)'
-      }}
-    >
-      {/* ── 에디터 상단 티켓 타이틀 & 의결 버튼 바 ── */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span
-              style={{
-                fontSize: '0.6875rem',
-                fontWeight: 700,
-                padding: '2px 6px',
-                borderRadius: '4px',
-                background: 'var(--bg-surface-2)',
-                color: 'var(--accent-primary)',
-                border: '1px solid var(--border-color)'
-              }}
-            >
-              {currentTicket.reviewType}
-            </span>
-            <h2 style={{ fontSize: '1.125rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>
-              {currentTicket.title}
-            </h2>
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-            대상 개념: <strong>{currentTicket.conceptTitle || currentTicket.conceptId}</strong> | 판본: {currentTicket.currentVersion} ➔ {currentTicket.targetVersion}
-          </div>
-        </div>
-
-        {/* 심사 의결 액션 버튼 그룹 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <button
-            type="button"
-            onClick={onOpenWikiPreview}
-            disabled={isActionLoading}
-            style={{
-              padding: '7px 12px',
-              borderRadius: '6px',
-              border: '1px solid var(--border-color)',
-              background: 'var(--bg-surface-2)',
-              fontSize: '0.8125rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-          >
-            <Eye size={14} style={{ color: 'var(--accent-primary)' }} />
-            <span>위키 미리보기</span>
-          </button>
-
-          {isPending && (
-            <>
-              <button
-                type="button"
-                onClick={onSaveDraft}
-                disabled={isEditorDisabled || isActionLoading}
-                style={{
-                  padding: '7px 14px',
-                  borderRadius: '6px',
-                  border: '1px solid var(--accent-primary)',
-                  background: 'var(--accent-primary-light)',
-                  color: 'var(--accent-primary)',
-                  fontSize: '0.8125rem',
-                  fontWeight: 600,
-                  cursor: isEditorDisabled ? 'not-allowed' : 'pointer',
-                  opacity: isEditorDisabled ? 0.6 : 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}
-              >
-                <Save size={14} />
-                <span>초안 저장</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={onOpenRejectModal}
-                disabled={isActionLoading}
-                style={{
-                  padding: '7px 14px',
-                  borderRadius: '6px',
-                  border: '1px solid var(--accent-danger)',
-                  background: 'var(--accent-danger-light)',
-                  color: 'var(--accent-danger)',
-                  fontSize: '0.8125rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}
-              >
-                <XCircle size={14} />
-                <span>반려</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={onOpenApproveModal}
-                disabled={isActionLoading}
-                style={{
-                  padding: '7px 16px',
-                  borderRadius: '6px',
-                  border: 'none',
-                  background: 'var(--accent-success)',
-                  color: '#ffffff',
-                  fontSize: '0.8125rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  boxShadow: '0 2px 6px rgba(16, 185, 129, 0.3)'
-                }}
-              >
-                <CheckCircle2 size={14} />
-                <span>최종 승인 의결 ➔</span>
-              </button>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* ── 2-Segment 스플릿 편집기 ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-        {/* 좌측 Segment: 기준 초안 (읽기 전용 베이스라인) */}
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span>기준 본문 (이전 판본 / AI 합성 초안)</span>
-          </div>
-          <div
-            style={{
-              flex: 1,
-              height: '380px',
-              padding: '14px',
-              borderRadius: '8px',
-              border: '1px solid var(--border-color)',
-              background: 'var(--bg-surface-2)',
-              fontSize: '0.8125rem',
-              color: 'var(--text-secondary)',
-              lineHeight: 1.6,
-              overflowY: 'auto',
-              whiteSpace: 'pre-wrap',
-              fontFamily: 'inherit'
-            }}
-          >
-            {baselineContent}
-          </div>
-        </div>
-
-        {/* 우측 Segment: 전문가 직접 편집기 */}
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span>전문가 직접 수정본 (Working Draft)</span>
-            {isEditorDisabled && (
-              <span style={{ color: 'var(--accent-danger)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                <Lock size={11} /> 읽기 전용 (락 만료 또는 비인가)
-              </span>
-            )}
-          </div>
-          <textarea
-            value={workingDraft}
-            onChange={(e) => onDraftChange(e.target.value)}
-            disabled={isEditorDisabled}
-            placeholder="전문가 직접 수정 내용을 입력하세요..."
-            style={{
-              width: '100%',
-              height: '380px',
-              padding: '14px',
-              borderRadius: '8px',
-              border: `1px solid ${isEditorDisabled ? 'var(--border-color)' : 'var(--accent-primary)'}`,
-              background: isEditorDisabled ? 'var(--bg-surface-2)' : 'var(--bg-surface)',
-              color: 'var(--text-primary)',
-              fontSize: '0.8125rem',
-              lineHeight: 1.6,
-              resize: 'none',
-              fontFamily: 'inherit',
-              outline: 'none'
-            }}
-          />
-        </div>
-      </div>
+    </header>
+    <p className="review-hint">모든 목차를 직접 편집할 수 있습니다. 저장과 지시문 실행은 작업본만 바꾸며, 승인할 때 위키에 반영됩니다.</p>
+    <nav className="review-section-nav" aria-label="편집 목차">{reviewSections.map(([key,label])=><button type="button" key={key} aria-current={activeSection===key?'page':undefined} onClick={()=>onSectionChange(key)}>{label}</button>)}</nav>
+    {contentError&&<div role="alert" className="review-content-error">{contentError}<button type="button" disabled={isActionLoading} onClick={onRetryContent}>다시 불러오기</button></div>}
+    {isContentLoading&&<p role="status">현재 위키를 불러오는 중입니다…</p>}
+    <button className="review-baseline-toggle" type="button" aria-expanded={showBaseline} onClick={()=>setShowBaseline(v=>!v)}>{showBaseline?'현재 위키 접기':'현재 위키 보기'}</button>
+    <div className={`review-editor-panes ${showBaseline?'':'review-baseline-hidden'}`}>
+      {showBaseline&&<section aria-label="현재 공용 위키" className="review-baseline"><header><h3>현재 위키</h3><span>읽기 전용</span></header><ReviewWikiSections section={activeSection} concept={reviewContent?.baselineConcept?.isRegistered===false?null:reviewContent?.baselineConcept} currentUser={currentUser} emptyMessage="현재 위키에 등록된 내용이 없습니다."/></section>}
+      <section aria-label="승인할 작업본" className="review-authoring"><header><h3>{reviewSections.find(([key])=>key===activeSection)?.[1]} 편집</h3><span>{disabled?'읽기 전용':'직접 편집'}</span></header>
+        {workingDraft&&<fieldset disabled={disabled}><ReviewSectionEditor section={activeSection} draft={workingDraft} onChange={onDraftChange} permissions={permissions}/></fieldset>}
+      </section>
     </div>
-  );
+  </div>;
 }
