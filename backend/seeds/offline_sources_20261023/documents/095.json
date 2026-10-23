@@ -1,0 +1,362 @@
+{
+  "index": 95,
+  "filePath": "samsung/samsung_fab_03_ic.md",
+  "sourceHash": "a2f74b1ea2b2e873de78bd0760524feb8e87de66ccbcdf04242d94e0f4c98d50",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 3234,
+    "method": "codex-offline-source-review",
+    "notes": "전체 원문을 끝까지 대조했다. 제목·홍보형 파서 후보를 실제 집적회로와 구성 소자 개념으로 정정했다. IC와 트랜지스터를 단위 공정으로 분류하지 않았다. BJT와 MOSFET 대안 및 원문의 역사 사례를 분리하며, 다이오드 역할은 원문의 제한적인 표현만 사용했다. 별도 성능 수치나 구조를 보충하지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "integrated-circuit",
+      "title": "집적회로",
+      "engName": "IC, Integrated Circuit",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "집적회로·시스템 칩",
+      "scaleLevel": 4,
+      "classificationNote": "집적회로의 소자 또는 회로 구조를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "트랜지스터·저항·다이오드·캐패시터 등 여러 전자부품을 작은 반도체 칩 안에 집적하고 연결하여 전기 신호를 연산하고 저장하는 회로이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "반도체 집적회로(IC)를 가득 채우고 있는 트랜지스터, 저항, 다이오드, 캐패시터 등의 부품들은 서로 연결돼 전기 신호를 연산하고 저장합니다.",
+      "evidenceQuote": "반도체 집적회로(IC)를 가득 채우고 있는 트랜지스터, 저항, 다이오드, 캐패시터 등의 부품들은 서로 연결돼 전기 신호를 연산하고 저장합니다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "다층 미세 패턴",
+          "content": "회로 소자들을 미세하고 복잡한 패턴으로 만들어 여러 층 재료 속에 형성한다.",
+          "formula": null,
+          "evidenceQuote": "반도체 집적회로의 제조 방법은 회로 소자들을 모두 미세하고 복잡한 패턴(Pattern)으로 만들어 여러 층의 재료 속에 그려 넣는 방식입니다."
+        },
+        {
+          "step": 2,
+          "title": "집적의 효과",
+          "content": "개별 부품을 직접 연결하던 방식에서 집적회로로 전환하여 소형화·저전력·빠른 처리와 대량생산 및 신뢰도 향상이 가능해졌다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "각 전자 부품들을 직접 연결하는 방식에서 집적회로로 변화됨으로써 제품의 크기가 작아져 적은 소비전력으로 빠른 정보 처리가 가능하게 되었습니다. 또한 사진을 찍는 방식으로 제작되기에 대량 생산이 가능하고 신뢰도도 높아졌습니다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "1958년 TI 잭 킬비의 집적회로 개발",
+          "perspectiveBadge": "텍사스 인스트루먼트(TI)",
+          "narrative": "원문은 증가한 부품 연결점이 고장의 원인이 되던 문제를 해결한 방법이 1958년 TI 잭 킬비에 의해 개발되었다고 설명한다.",
+          "caution": "",
+          "evidenceQuote": "1958년 美 텍사스 인스트루먼트(TI)의 기술자 잭 킬비(Jack Kilby)에 의해 문제를 해결해주는 방법이 개발됐습니다.",
+          "specifications": [
+            {
+              "parameter": "개발 연도",
+              "value": "1958",
+              "unit": "년",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "1958년"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "부품 사이 연결점이 늘면서 생긴 문제를 작은 영역 안에 부품을 모으는 방식으로 해결했다는 역사 설명이다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "집적회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "transistor",
+      "title": "트랜지스터",
+      "engName": "Transistor",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "트랜지스터·게이트 구조",
+      "scaleLevel": 2,
+      "classificationNote": "트랜지스터의 소자 또는 회로 구조를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "집적회로에서 전원을 켜고 끄는 스위치 역할을 하는 소자이며, 원문은 초기 발견의 전기 신호 증폭 기능도 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "트랜지스터는 전원을 켜고 끄는 스위치 역할을",
+      "evidenceQuote": "트랜지스터는 전원을 켜고 끄는 스위치 역할을",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "1947년 벨 연구소의 신호 증폭 발견",
+          "perspectiveBadge": "AT&T 벨 연구소",
+          "narrative": "벨 연구소 연구원들이 반도체 격자 조각에 도체선을 접촉했을 때 전기 신호가 증폭하는 현상을 발견했으며 처음에는 증폭기로 불렸다고 서술한다.",
+          "caution": "",
+          "evidenceQuote": "1947년, 미국 최대 전화 통신 회사 AT&T(American Telephone & Telegraph)의 중앙연구소인 벨 연구소 연구원들은 반도체 격자구조의 조각에 도체선(전기가 흐르는데 사용되는 선)을 접촉시키면 전기 신호가 증폭한다는 사실을 발견합니다.",
+          "specifications": [
+            {
+              "parameter": "발견 연도",
+              "value": "1947",
+              "unit": "년",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "1947년"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "원문이 소개하는 초기 트랜지스터의 발견 맥락이며 현대 트랜지스터의 제조 조건을 뜻하지 않는다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "integrated-circuit",
+          "name": "집적회로",
+          "reason": "이 문헌은 트랜지스터를 집적회로를 구성하는 소자로 설명한다.",
+          "evidenceQuote": "반도체 집적회로(IC)를 가득 채우고 있는 트랜지스터, 저항, 다이오드, 캐패시터 등의 부품들은 서로 연결돼 전기 신호를 연산하고 저장합니다."
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "능동 소자",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "capacitor",
+      "title": "커패시터",
+      "engName": "캐패시터",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "소자·회로 구조",
+      "scaleLevel": 2,
+      "classificationNote": "커패시터의 소자 또는 회로 구조를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전하를 충전하여 보관하는 집적회로 구성 소자이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "캐패시터는 전하를 충전해 보관하는 창고 역할을",
+      "evidenceQuote": "캐패시터는 전하를 충전해 보관하는 창고 역할을",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "integrated-circuit",
+          "name": "집적회로",
+          "reason": "원문이 명시한 집적회로 구성 소자이다.",
+          "evidenceQuote": "반도체 집적회로(IC)를 가득 채우고 있는 트랜지스터, 저항, 다이오드, 캐패시터 등의 부품들은 서로 연결돼 전기 신호를 연산하고 저장합니다."
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "회로 소자",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "resistor",
+      "title": "저항기",
+      "engName": "Resistor",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "회로 소자",
+      "scaleLevel": 2,
+      "classificationNote": "저항의 소자 또는 회로 구조를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전류의 흐름을 조절하는 집적회로 구성 소자이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "저항은 전류의 흐름을 조절하며",
+      "evidenceQuote": "저항은 전류의 흐름을 조절하며",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "integrated-circuit",
+          "name": "집적회로",
+          "reason": "원문이 명시한 집적회로 구성 소자이다.",
+          "evidenceQuote": "반도체 집적회로(IC)를 가득 채우고 있는 트랜지스터, 저항, 다이오드, 캐패시터 등의 부품들은 서로 연결돼 전기 신호를 연산하고 저장합니다."
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "회로 소자",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "diode",
+      "title": "다이오드",
+      "engName": "다이오드",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "회로 소자",
+      "scaleLevel": 2,
+      "classificationNote": "다이오드의 소자 또는 회로 구조를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "원문에서 전기 신호를 고르게 전하는 역할로 소개하는 집적회로 구성 소자이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "다이오드는 신호를 고르게 전하는 역할을 합니다.",
+      "evidenceQuote": "다이오드는 신호를 고르게 전하는 역할을 합니다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "integrated-circuit",
+          "name": "집적회로",
+          "reason": "원문이 명시한 집적회로 구성 소자이다.",
+          "evidenceQuote": "반도체 집적회로(IC)를 가득 채우고 있는 트랜지스터, 저항, 다이오드, 캐패시터 등의 부품들은 서로 연결돼 전기 신호를 연산하고 저장합니다."
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "회로 소자",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "bjt",
+      "title": "양방향 접합형 트랜지스터",
+      "engName": "Bipolar Junction Transistor",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "트랜지스터·게이트 구조",
+      "scaleLevel": 2,
+      "classificationNote": "양방향 접합형 트랜지스터의 소자 또는 회로 구조를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "원문에서 제조가 까다롭고 전력 소모가 컸던 트랜지스터 방식으로 소개한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "제조가 까다롭고 전력 소모가 컸던 양방향 접합형 트랜지스터 (Bipolar Junction Transistor)의 문제점을 MOS-FET 개발을 통해 해결할 수 있게 된 것입니다.",
+      "evidenceQuote": "제조가 까다롭고 전력 소모가 컸던 양방향 접합형 트랜지스터 (Bipolar Junction Transistor)의 문제점을 MOS-FET 개발을 통해 해결할 수 있게 된 것입니다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "mosfet",
+          "name": "금속 산화막 반도체 전계효과 트랜지스터",
+          "reason": "원문은 MOSFET 개발을 BJT 문제의 해결 맥락으로 설명한다.",
+          "evidenceQuote": "제조가 까다롭고 전력 소모가 컸던 양방향 접합형 트랜지스터 (Bipolar Junction Transistor)의 문제점을 MOS-FET 개발을 통해 해결할 수 있게 된 것입니다."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "transistor",
+          "name": "트랜지스터",
+          "reason": "원문에서 접합형 트랜지스터로 명명한다.",
+          "evidenceQuote": "양방향 접합형 트랜지스터 (Bipolar Junction Transistor)"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "트랜지스터",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "mosfet",
+      "title": "금속 산화막 반도체 전계효과 트랜지스터",
+      "engName": "MOS-FET, Metal Oxide Semiconductor Field Effect Transistor",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "트랜지스터",
+      "scaleLevel": 2,
+      "classificationNote": "금속 산화막 반도체 전계효과 트랜지스터의 소자 또는 회로 구조를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "원문에서 양방향 접합형 트랜지스터의 까다로운 제조와 큰 전력 소모 문제를 해결한 트랜지스터 방식으로 소개한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "제조가 까다롭고 전력 소모가 컸던 양방향 접합형 트랜지스터 (Bipolar Junction Transistor)의 문제점을 MOS-FET 개발을 통해 해결할 수 있게 된 것입니다.",
+      "evidenceQuote": "제조가 까다롭고 전력 소모가 컸던 양방향 접합형 트랜지스터 (Bipolar Junction Transistor)의 문제점을 MOS-FET 개발을 통해 해결할 수 있게 된 것입니다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "1960년 벨 연구소 강대원·마틴 아탈라의 개발",
+          "perspectiveBadge": "벨 연구소",
+          "narrative": "원문은 1960년 벨 연구소의 강대원 박사와 마틴 아탈라가 MOS-FET를 개발했다고 설명한다.",
+          "caution": "",
+          "evidenceQuote": "특히 1960년에는 벨 연구소의 연구원이었던 한국인 공학자 고 강대원 박사와 마틴 아탈라가 ‘금속 산화막 반도체 전계효과 트랜지스터(MOS-FET, Metal Oxide Semiconductor Field Effect Transistor)’를 개발하면서 집적회로가 빛을 발하게 됩니다.",
+          "specifications": [
+            {
+              "parameter": "개발 연도",
+              "value": "1960",
+              "unit": "년",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "1960년"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "집적회로 발전에 관련된 역사 사례이며 구조 치수나 성능값은 제공하지 않는다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "bjt",
+          "name": "양방향 접합형 트랜지스터",
+          "reason": "원문이 MOSFET 개발 전의 문제를 가진 방식으로 대비한다.",
+          "evidenceQuote": "제조가 까다롭고 전력 소모가 컸던 양방향 접합형 트랜지스터 (Bipolar Junction Transistor)의 문제점을 MOS-FET 개발을 통해 해결할 수 있게 된 것입니다."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "transistor",
+          "name": "트랜지스터",
+          "reason": "명칭에 명시된 트랜지스터의 한 방식이다.",
+          "evidenceQuote": "금속 산화막 반도체 전계효과 트랜지스터(MOS-FET, Metal Oxide Semiconductor Field Effect Transistor)"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "트랜지스터",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

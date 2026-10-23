@@ -1,0 +1,426 @@
+{
+  "index": 100,
+  "filePath": "samsung/samsung_fab_08_eds.md",
+  "sourceHash": "2453aa4615421ae769f60bf7dcf96f735f53a76f0425f9f6d22581537f412d95",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 3807,
+    "method": "codex-offline-source-review",
+    "notes": "전체 원문을 끝까지 대조했다. 제목과 단계 수만 있던 후보를 EDS·수율·프로브 카드와 실제 검사/수선/불량 식별 단계로 분리했다. ET→WBI→Hot/Cold→수선→EDS Final Test→Inking 및 패키징 전후 맥락을 원문 수준으로 보존했다. EDS 수선 후 Final Test와 패키지 Final Test는 서로 다른 개념으로 분리했다. 현재라는 표현은 2018년 기사 시점이며 실제 잉크 대신 데이터 식별이라는 변화도 보존했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "eds",
+      "title": "EDS",
+      "engName": "Electrical Die Sorting",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "검사·계측",
+      "scaleLevel": 3,
+      "classificationNote": "EDS의 단위 공정·장비 또는 품질 지표를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "FAB 공정과 패키지 공정 사이에서 웨이퍼 상태의 개별 칩에 전기적 특성검사를 하여 품질 수준과 양품·불량을 판단하는 공정이다.",
+      "purpose": "양품/불량 선별, 수선 가능한 칩의 양품화, FAB·설계 문제 수정과 후속 패키징·검사 효율 향상.",
+      "summaryEvidenceQuote": "EDS공정(Electrical Die Sorting)은 웨이퍼 위에 전자회로를 그리는 FAB 공정과 최종적인 제품의 형태를 갖추는 패키지 공정 사이에 진행됩니다. 즉 전기적 특성검사를 통해 개별 칩들이 원하는 품질 수준에 도달했는지를 확인하는 공정으로써",
+      "evidenceQuote": "EDS공정(Electrical Die Sorting)은 웨이퍼 위에 전자회로를 그리는 FAB 공정과 최종적인 제품의 형태를 갖추는 패키지 공정 사이에 진행됩니다. 즉 전기적 특성검사를 통해 개별 칩들이 원하는 품질 수준에 도달했는지를 확인하는 공정으로써",
+      "principles": [
+        {
+          "step": 1,
+          "title": "검사 후 수선과 선별",
+          "content": "전기적 검사 후 수선 가능한 칩은 수선하고 불가능한 칩은 불량으로 식별하여 후속 공정에서 제외한다.",
+          "formula": null,
+          "evidenceQuote": "그 후 양품 가능 여부를 판단해 수선(Repair) 가능한 칩은 다시 양품으로 만들고, 불가능한 칩은 특정 표시(Inking)를 통해 불량으로 판정합니다. 불량으로 판정된 칩은 이후 공정에서 제외되어 효율을 높일 수 있습니다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [
+        {
+          "id": "front-end",
+          "name": "웨이퍼 회로 제조(FAB)",
+          "reason": "회로를 형성하는 FAB 공정 이후에 시행한다.",
+          "evidenceQuote": "EDS공정(Electrical Die Sorting)은 웨이퍼 위에 전자회로를 그리는 FAB 공정과 최종적인 제품의 형태를 갖추는 패키지 공정 사이에 진행됩니다."
+        }
+      ],
+      "nextSteps": [
+        {
+          "id": "packaging",
+          "name": "패키징",
+          "reason": "EDS는 최종 제품 형태를 만드는 패키지 공정 전에 시행한다.",
+          "evidenceQuote": "EDS공정(Electrical Die Sorting)은 웨이퍼 위에 전자회로를 그리는 FAB 공정과 최종적인 제품의 형태를 갖추는 패키지 공정 사이에 진행됩니다."
+        }
+      ],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "purposeEvidenceQuote": "불량 칩을 미리 선별해 이후 진행되는 패키징공정 및 테스트 작업의 효율 향상",
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "웨이퍼 전기 검사",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "yield",
+      "title": "수율",
+      "engName": "Yield",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "제조 운영·품질",
+      "scaleLevel": 5,
+      "classificationNote": "웨이퍼 생산 양품 비율로 생산성을 평가하는 운영 지표이다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "웨이퍼 한 장에 설계된 최대 칩 개수에 대한 생산된 양품 칩 개수를 백분율로 나타내는 생산성 지표이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "수율은 웨이퍼 한 장에 설계된 최대 칩(Chip) 개수 대비 생산된 양품(Prime Good) 칩의 개수를 백분율로 계산한 것으로, 반도체의 생산성과 직결됩니다.",
+      "evidenceQuote": "수율은 웨이퍼 한 장에 설계된 최대 칩(Chip) 개수 대비 생산된 양품(Prime Good) 칩의 개수를 백분율로 계산한 것으로, 반도체의 생산성과 직결됩니다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "백분율 계산",
+          "content": "설계된 최대 칩 수 대비 양품 수를 백분율로 계산한다.",
+          "formula": null,
+          "evidenceQuote": "수율은 웨이퍼 한 장에 설계된 최대 칩(Chip) 개수 대비 생산된 양품(Prime Good) 칩의 개수를 백분율로 계산한 것으로, 반도체의 생산성과 직결됩니다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "생산 품질 지표",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "probe-card",
+      "title": "프로브 카드",
+      "engName": "Probe Card",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "전기 검사 장비",
+      "scaleLevel": 3,
+      "classificationNote": "프로브 카드의 단위 공정·장비 또는 품질 지표를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "미세한 핀으로 웨이퍼와 접촉해 전기를 보내고 전기 신호로 불량 칩을 선별하는 EDS 검사 부품이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "프로브 카드에 있는 수많은 미세한 핀(Pin)이 웨이퍼와 접촉해 전기를 보내고 그 신호를 통해 불량 칩을 선별하게 됩니다.",
+      "evidenceQuote": "프로브 카드에 있는 수많은 미세한 핀(Pin)이 웨이퍼와 접촉해 전기를 보내고 그 신호를 통해 불량 칩을 선별하게 됩니다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전기 검사 장비",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "electrical-test",
+      "title": "ET 검사",
+      "engName": "ET Test, Electrical Test",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "웨이퍼 전기 검사",
+      "scaleLevel": 3,
+      "classificationNote": "ET 검사의 단위 공정·장비 또는 품질 지표를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "집적회로 동작에 필요한 트랜지스터·저항·커패시터·다이오드 등 개별 소자의 직류전압·전류 특성 파라미터를 검사해 동작 여부를 판별하는 과정이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "ET Test(Electrical Test)는 반도체 집적회로(IC) 동작에 필요한 개별소자들(트랜지스터, 저항, 캐패시터, 다이오드)에 대해 전기적 직류전압, 전류특성의 파라미터를 테스트하여 동작 여부를 판별하는 과정입니다.",
+      "evidenceQuote": "ET Test(Electrical Test)는 반도체 집적회로(IC) 동작에 필요한 개별소자들(트랜지스터, 저항, 캐패시터, 다이오드)에 대해 전기적 직류전압, 전류특성의 파라미터를 테스트하여 동작 여부를 판별하는 과정입니다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [
+        {
+          "id": "wafer-burn-in",
+          "name": "웨이퍼 번인",
+          "reason": "ET 검사 다음 WBI가 이어진다.",
+          "evidenceQuote": "이어지는 WBI공정(Wafer Burn In)은"
+        }
+      ],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "eds",
+          "name": "EDS",
+          "reason": "원문이 EDS의 첫 단계로 설명한다.",
+          "evidenceQuote": "1단계 – ET Test & WBI(Electrical Test & Wafer Burn In)"
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "웨이퍼 전기 검사",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "wafer-burn-in",
+      "title": "웨이퍼 번인",
+      "engName": "WBI, Wafer Burn In",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "웨이퍼 신뢰성 검사",
+      "scaleLevel": 3,
+      "classificationNote": "웨이퍼 번인의 단위 공정·장비 또는 품질 지표를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "웨이퍼에 일정 온도의 열을 가한 뒤 교류·직류 전압을 가해 약한 부분과 잠재적 불량 요인을 찾는 공정이다.",
+      "purpose": "잠재 불량을 찾아 제품 신뢰성을 높인다.",
+      "summaryEvidenceQuote": "이어지는 WBI공정(Wafer Burn In)은 웨이퍼에 일정 온도의 열을 가한 다음 AC(교류)/DC(직류) 전압을 가해 제품의 결합, 약한 부분 등 잠재적인 불량 요인을 찾아냅니다.",
+      "evidenceQuote": "이어지는 WBI공정(Wafer Burn In)은 웨이퍼에 일정 온도의 열을 가한 다음 AC(교류)/DC(직류) 전압을 가해 제품의 결합, 약한 부분 등 잠재적인 불량 요인을 찾아냅니다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [
+        {
+          "id": "hot-cold-test",
+          "name": "고온·저온 검사",
+          "reason": "원문이 EDS 첫 단계 다음 두 번째 단계로 설명한다.",
+          "evidenceQuote": "2단계 – Hot/Cold Test"
+        }
+      ],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "eds",
+          "name": "EDS",
+          "reason": "EDS의 첫 단계에 포함된 공정이다.",
+          "evidenceQuote": "1단계 – ET Test & WBI(Electrical Test & Wafer Burn In)"
+        }
+      ],
+      "isA": [],
+      "purposeEvidenceQuote": "제품의 신뢰성을 효과적으로 향상시키는 공정입니다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "웨이퍼 신뢰성 검사",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "hot-cold-test",
+      "title": "고온·저온 검사",
+      "engName": "Hot/Cold Test",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "웨이퍼 전기 검사",
+      "scaleLevel": 3,
+      "classificationNote": "고온·저온 검사의 단위 공정·장비 또는 품질 지표를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전기 신호로 웨이퍼의 칩 불량을 판정하고 상온보다 높고 낮은 온도에서 정상 동작 여부를 검사하는 단계이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "Hot/Cold 공정에서는 전기적 신호를 통해 웨이퍼 상의 각각의 칩 중 불량품이 있는지 판정합니다.",
+      "evidenceQuote": "Hot/Cold 공정에서는 전기적 신호를 통해 웨이퍼 상의 각각의 칩 중 불량품이 있는지 판정합니다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "온도별 동작과 수선 정보",
+          "content": "수선 가능한 칩 정보를 저장하며 특정 온도에서의 정상 동작 여부를 위해 상온보다 높은 온도와 낮은 온도 검사를 병행한다.",
+          "formula": null,
+          "evidenceQuote": "수선 가능한 칩은 수선 공정에서 처리하도록 정보를 저장하는데요. 이때, 특정 온도에서 정상적으로 동작하는지 판별하기 위해 상온보다 높고 낮은 온도의 테스트가 병행됩니다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [
+        {
+          "id": "die-repair",
+          "name": "칩 수선",
+          "reason": "수선 가능으로 판정된 칩을 후속 수선한다.",
+          "evidenceQuote": "Repair공정에서는 Hot/Cold 공정에서 수선 가능으로 판정된 칩들을 수선하고"
+        }
+      ],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "eds",
+          "name": "EDS",
+          "reason": "EDS의 두 번째 단계이다.",
+          "evidenceQuote": "2단계 – Hot/Cold Test"
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "웨이퍼 전기 검사",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "die-repair",
+      "title": "칩 수선",
+      "engName": "Repair",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "웨이퍼 수선",
+      "scaleLevel": 3,
+      "classificationNote": "칩 수선의 단위 공정·장비 또는 품질 지표를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "EDS의 Hot/Cold 검사에서 수선 가능한 것으로 판정한 칩을 수선하는 과정이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "Repair공정에서는 Hot/Cold 공정에서 수선 가능으로 판정된 칩들을 수선하고",
+      "evidenceQuote": "Repair공정에서는 Hot/Cold 공정에서 수선 가능으로 판정된 칩들을 수선하고",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [
+        {
+          "id": "eds-final-test",
+          "name": "EDS 최종 검사",
+          "reason": "수선 후 재검증한다.",
+          "evidenceQuote": "수선이 끝나면 Final Test 공정을 통해 수선이 제대로 이루어졌는지 재차 검증하여 양/불량을 최종 판단합니다"
+        }
+      ],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "eds",
+          "name": "EDS",
+          "reason": "EDS 세 번째 단계에 포함된다.",
+          "evidenceQuote": "3단계 – Repair / Final Test"
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "웨이퍼 수선",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "eds-final-test",
+      "title": "EDS 최종 검사",
+      "engName": "Final Test",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "웨이퍼 전기 검사",
+      "scaleLevel": 3,
+      "classificationNote": "EDS 최종 검사의 단위 공정·장비 또는 품질 지표를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "수선 후 제대로 수선되었는지를 재검증하여 칩의 양품·불량을 최종 판단하는 EDS 검사이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "수선이 끝나면 Final Test 공정을 통해 수선이 제대로 이루어졌는지 재차 검증하여 양/불량을 최종 판단합니다",
+      "evidenceQuote": "수선이 끝나면 Final Test 공정을 통해 수선이 제대로 이루어졌는지 재차 검증하여 양/불량을 최종 판단합니다",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [
+        {
+          "id": "inking",
+          "name": "불량 칩 식별",
+          "reason": "최종 검사에서 불량인 칩은 다음 식별 단계에서 구별한다.",
+          "evidenceQuote": "Final Test공정에서 재검증 결과 불량으로 처리된 칩"
+        }
+      ],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "eds",
+          "name": "EDS",
+          "reason": "수선과 함께 EDS 세 번째 단계이다.",
+          "evidenceQuote": "3단계 – Repair / Final Test"
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "웨이퍼 전기 검사",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "inking",
+      "title": "불량 칩 식별",
+      "engName": "Inking",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "웨이퍼 불량 선별",
+      "scaleLevel": 3,
+      "classificationNote": "불량 칩 식별의 단위 공정·장비 또는 품질 지표를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "EDS에서 불량 판정 칩과 미완성 더미 다이를 식별하여 후속 조립에서 제외하는 단계이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "Inking 공정은 불량 칩에 특수 잉크를 찍어 육안으로도 불량을 식별할 수 있도록 만드는 공정을 의미합니다.",
+      "evidenceQuote": "Inking 공정은 불량 칩에 특수 잉크를 찍어 육안으로도 불량을 식별할 수 있도록 만드는 공정을 의미합니다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "데이터 기반 식별",
+          "content": "과거에는 불량 칩에 잉크를 찍었으나 기사 작성 시점에는 데이터만으로 양품·불량을 판별하도록 처리한다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "과거의 Inking 공정은 불량 칩에 직접 잉크를 찍었으나 현재는 Data만으로 양/불량을 판별할 수 있도록 처리하고 있습니다."
+        },
+        {
+          "step": 2,
+          "title": "제외 대상",
+          "content": "Hot/Cold 검사 불량, EDS 최종 검사 불량, 웨이퍼에서 완성되지 않은 더미 다이를 구별한다.",
+          "formula": null,
+          "evidenceQuote": "Hot/Cold Test공정에서 불량으로 판정된 칩, Final Test공정에서 재검증 결과 불량으로 처리된 칩, 그리고 웨이퍼에서 완성되지 않은 반도체 칩(Dummy Die) 등을 구별하는데요."
+        },
+        {
+          "step": 3,
+          "title": "조립 전 처리",
+          "content": "식별 후 웨이퍼를 건조하고 QC 검사를 거쳐 조립공정으로 보낸다.",
+          "formula": null,
+          "evidenceQuote": "Inking공정을 마친 웨이퍼는 건조(Bake)된 후, QC(Quality Control) 검사를 거쳐 조립공정으로 옮겨지게 됩니다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "데이터로 불량을 식별하고 조립 제외",
+          "perspectiveBadge": "2018년 교육 기사",
+          "narrative": "기사에서 불량 칩을 데이터로 식별하여 조립하지 않음으로써 조립·검사에 쓰이는 원부자재·설비·시간·인원 손실을 줄이는 상황을 설명한다.",
+          "caution": "현재라는 표현은 원문 게시 시점의 설명이다.",
+          "evidenceQuote": "이렇게 처리된 불량 칩은 조립 작업을 진행하지 않기 때문에 조립 및 검사 공정에서 사용되는 원부자재, 설비, 시간, 인원 등의 손실 절감 효과가 있습니다.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "이미 불량으로 판정한 칩의 조립을 생략하여 후속 자원 낭비를 줄이는 적용이다. 절감량은 제시되지 않았다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "eds",
+          "name": "EDS",
+          "reason": "EDS의 네 번째 단계이다.",
+          "evidenceQuote": "4단계 – Inking"
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "웨이퍼 불량 선별",
+          "scaleLevel": 3
+        }
+      ]
+    }
+  ]
+}

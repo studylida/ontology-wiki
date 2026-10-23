@@ -1,0 +1,86 @@
+{
+  "index": 36,
+  "filePath": "samsung/glossary/반도체-용어-사전-s램.md",
+  "sourceHash": "192dd9ff89f6b785771d3bd45104d84864f780a00cd9061132bce7c45f09c4d3",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1584,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. 원문 설명을 넘어 트랜지스터 개수나 회로 종류를 만들지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "sram",
+      "title": "S램",
+      "engName": "Static Random Access Memory",
+      "aliases": [
+        "SRAM",
+        "정적 메모리"
+      ],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전원이 공급되는 동안 데이터를 유지하여 리프레시가 필요 없는 휘발성 램이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "S램은 전원이 차단될 경우 저장된 데이터가 소멸되는 휘발성 기억소자이나, 전원이 공급되는 한 데이터가 보존되기 때문에 D램과 달리 리프레시가 필요없다.",
+      "evidenceQuote": "S램은 전원이 차단될 경우 저장된 데이터가 소멸되는 휘발성 기억소자이나, 전원이 공급되는 한 데이터가 보존되기 때문에 D램과 달리 리프레시가 필요없다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "여러 트랜지스터로 구성한 셀",
+          "content": "셀 하나를 여러 트랜지스터로 구성하며 원문은 데이터 이동 통로가 많아 D램보다 처리가 빠르다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "S램은 여러 개의 트랜지스터가 하나의 셀을 구성하기 때문에 데이터를 이동시키는 통로가 많아 D램보다 데이터 처리속도가 빠르다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "면적·집적도·복잡도",
+          "description": "셀 크기가 크고 회로구조가 복잡해 같은 면적의 집적도가 낮으며 대용량화가 어렵다. 전원이 꺼지면 데이터도 소멸한다.",
+          "evidenceQuote": "하지만, 데이터를 저장하는 셀의 크기가 커 동일 면적에 대한 집적도가 낮고 회로구조가 복잡하여 대용량으로 만들기 어렵다."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "그래픽카드 등의 소용량 메모리",
+          "perspectiveBadge": "그래픽카드",
+          "narrative": "빠르지만 집적도가 낮고 대용량화가 어려운 특징 때문에 주로 소용량 메모리로 사용된다고 설명한다.",
+          "caution": "",
+          "evidenceQuote": "이러한 특징들로 인해 그래픽카드 등 주로 소용량의 메모리로 사용된다.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "처리속도와 셀 면적 사이의 특성이 원문에 제시된 사용 용도와 연결된다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "dram",
+          "name": "D램",
+          "reason": "같은 램에서 리프레시·속도·집적도를 대비한다.",
+          "evidenceQuote": "S램은 전원이 차단될 경우 저장된 데이터가 소멸되는 휘발성 기억소자이나, 전원이 공급되는 한 데이터가 보존되기 때문에 D램과 달리 리프레시가 필요없다."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "ram",
+          "name": "램",
+          "reason": "원문이 전원 공급 동안 데이터를 보존하는 램으로 정의한다.",
+          "evidenceQuote": "전원을 공급하는 한 저장된 데이터가 보존되는 램."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "index": 92,
+  "filePath": "samsung/samsung_fab_00_overview.md",
+  "sourceHash": "67bde740f9f5b4f3d4b0486fc7ac17c78a324b509ea7ab93fc2c95e56e0f6b62",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1615,
+    "method": "codex-offline-source-review",
+    "notes": "전체 원문을 끝까지 대조했다. 본문은 8대 공정 콘텐츠의 소개와 링크 안내뿐이며 공정 도식의 기술 설명은 텍스트에 없다. 관련글 제목과 검색·태그를 정의로 쓰지 않고 개념 추출을 보류했다. 파서 후보도 없었다."
+  },
+  "concepts": []
+}

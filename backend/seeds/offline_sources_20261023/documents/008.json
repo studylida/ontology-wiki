@@ -1,0 +1,437 @@
+{
+  "index": 8,
+  "filePath": "research_institutes/imec_nist_ieee_landmarks.md",
+  "sourceHash": "3f50aac12e88bc2f94c7dd98591356bdbd040c0e3aacad9d429840784d60807c",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 2595,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체를 끝까지 읽고 빈 파서 후보를 정정·보완했다. 원리·관계의 의미 및 사례·조건별 수치 귀속을 검토했다. 등록된 로컬 아카이브 요약만 검토했으며 인용된 원 논문의 전문·DOI 실재·최신 표준 판본은 외부 확인하지 않았다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "finfet",
+      "title": "핀펫",
+      "engName": "FinFET",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "트랜지스터·게이트 구조",
+      "scaleLevel": 2,
+      "classificationNote": "핀펫의 기술적 대상을 트랜지스터 구조에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "핀 형상 채널을 게이트가 감싸 전기적으로 제어하는 입체 트랜지스터 구조이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 게이트가 채널의 3면만 감싸므로, 채널 폭이 5nm 이하로 줄어들면 단채널 효과(Short-Channel Effect)와 누설 전류 통제 불가.",
+      "evidenceQuote": "- 게이트가 채널의 3면만 감싸므로, 채널 폭이 5nm 이하로 줄어들면 단채널 효과(Short-Channel Effect)와 누설 전류 통제 불가.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "로드맵이 제시한 미세화 한계",
+          "description": "이 로드맵 요약은 채널 폭 5nm 이하에서 단채널 효과와 누설 전류 제어가 어려워진다고 설명한다.",
+          "evidenceQuote": "- 게이트가 채널의 3면만 감싸므로, 채널 폭이 5nm 이하로 줄어들면 단채널 효과(Short-Channel Effect)와 누설 전류 통제 불가."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "트랜지스터 구조",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "gaa",
+      "title": "게이트 올 어라운드 나노시트",
+      "engName": "Gate-All-Around Nanosheet",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "트랜지스터·게이트 구조",
+      "scaleLevel": 2,
+      "classificationNote": "게이트 올 어라운드 나노시트의 기술적 대상을 트랜지스터 구조에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "나노시트 채널의 네 면을 게이트로 감싸 누설 전류를 제어하는 트랜지스터 구조이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 나노시트 형태의 채널 4면 전체를 게이트가 감싸 누설 전류 차단 및 드라이브 전류 극대화.",
+      "evidenceQuote": "- 나노시트 형태의 채널 4면 전체를 게이트가 감싸 누설 전류 차단 및 드라이브 전류 극대화.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "imec 로드맵의 GAA 나노시트 노드",
+          "perspectiveBadge": "imec 로드맵 요약",
+          "narrative": "제공 로드맵은 GAA 나노시트를 A14/A10과 2nm~1.4nm 노드 맥락에서 설명한다.",
+          "caution": "제공된 로드맵 요약이며 현재 양산 실적을 별도로 확인하지 않았다.",
+          "evidenceQuote": "2. **GAA (Gate-All-Around) Nanosheet (A14/A10 노드, 2nm~1.4nm)**:",
+          "specifications": [
+            {
+              "parameter": "로드맵 노드",
+              "value": "2~1.4",
+              "unit": "nm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "2. **GAA (Gate-All-Around) Nanosheet (A14/A10 노드, 2nm~1.4nm)**:"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "이 수치는 로드맵이 GAA를 어떤 기술 세대에 대응시켰는지 보여줍니다. 실제 채널의 모든 치수가 그 숫자라는 뜻이나 현재 모든 회사가 같은 공정을 양산한다는 뜻으로 확대하지 않습니다. 핵심은 게이트가 채널을 둘러싸 전류를 더 잘 제어한다는 구조 변화입니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "트랜지스터 구조",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "forksheet",
+      "title": "포크시트",
+      "engName": "Forksheet",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "트랜지스터 구조",
+      "scaleLevel": 2,
+      "classificationNote": "포크시트의 기술적 대상을 트랜지스터 구조에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "nMOS와 pMOS 사이에 유전체 벽을 세워 두 소자 간격과 표준 셀 면적을 줄이는 구조이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- nMOS와 pMOS 사이에 유전체 절연 벽(Dielectric Wall)을 세워 n-p 간격을 좁히고 표준 셀 면적 축소.",
+      "evidenceQuote": "- nMOS와 pMOS 사이에 유전체 절연 벽(Dielectric Wall)을 세워 n-p 간격을 좁히고 표준 셀 면적 축소.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "transistor",
+          "name": "트랜지스터",
+          "reason": "트랜지스터 구조 진화 절에서 nMOS와 pMOS 사이 유전체 벽을 가진 구조를 Forksheet로 제시해 트랜지스터 구조의 하위 종류임을 지지한다.",
+          "evidenceQuote": "### 1.1 트랜지스터 구조 진화: FinFET → GAA Nanosheet → Forksheet → CFET"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "트랜지스터 구조",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "cfet",
+      "title": "상보형 전계효과 트랜지스터",
+      "engName": "Complementary FET",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "트랜지스터·게이트 구조",
+      "scaleLevel": 2,
+      "classificationNote": "상보형 전계효과 트랜지스터의 기술적 대상을 트랜지스터 구조에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "nMOS와 pMOS를 위아래로 적층해 수평 배치 공간을 줄이는 트랜지스터 구조이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- **수직 적층(Vertical Stacking)**: nMOS와 pMOS를 수평 배치가 아닌 상하 수직으로 직접 적층.",
+      "evidenceQuote": "- **수직 적층(Vertical Stacking)**: nMOS와 pMOS를 수평 배치가 아닌 상하 수직으로 직접 적층.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "imec 로드맵의 CFET 셀 면적 축소",
+          "perspectiveBadge": "imec 로드맵 요약",
+          "narrative": "A7 이하 Sub-1nm 맥락에서 수직 적층에 따른 셀 면적 50% 절감과 4T 트랙 높이를 제시한다.",
+          "caution": "로드맵의 구조 비교 수치로 한정한다.",
+          "evidenceQuote": "- 표준 셀 면적을 50% 절감(4T 트랙 높이 달성)하며, 기생 정전용량(Parasitic Capacitance) 감소.",
+          "specifications": [
+            {
+              "parameter": "로드맵 셀 면적 절감",
+              "value": "50",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 표준 셀 면적을 50% 절감(4T 트랙 높이 달성)하며, 기생 정전용량(Parasitic Capacitance) 감소."
+            },
+            {
+              "parameter": "표준 셀 트랙 높이",
+              "value": "4",
+              "unit": "T",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 표준 셀 면적을 50% 절감(4T 트랙 높이 달성)하며, 기생 정전용량(Parasitic Capacitance) 감소."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "트랜지스터 두 종류를 옆으로 놓는 대신 위아래로 쌓으면 바닥에서 차지하는 공간을 줄일 수 있습니다. 50%는 이 로드맵 요약의 셀 면적 비교값입니다. 칩 전체가 언제나 절반 크기가 된다는 뜻과는 구분해야 합니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "트랜지스터 구조",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "bspdn",
+      "title": "후면 전력 공급망",
+      "engName": "Backside Power Delivery Network",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "전력 배선 통합",
+      "scaleLevel": 4,
+      "classificationNote": "후면 전력 공급망의 기술적 대상을 전력 배선 통합에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "신호와 전력이 경쟁하던 전면 배선에서 전원선을 웨이퍼 후면으로 분리하는 전력 공급 구조이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 전력 공급망을 웨이퍼 **후면(Backside)**으로 완전히 분리 이전.",
+      "evidenceQuote": "- 전력 공급망을 웨이퍼 **후면(Backside)**으로 완전히 분리 이전.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "nTSV·매몰 전력 레일",
+          "content": "후면에서 nTSV와 BPR을 거쳐 트랜지스터 소스·드레인에 전력을 공급한다.",
+          "formula": null,
+          "evidenceQuote": "- **nTSV (nano-TSV)**와 **BPR (Buried Power Rail)**을 통해 후면에서 트랜지스터 소스/드레인으로 직접 전력 공급."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "imec 로드맵의 BSPDN 배선·전압 강하 개선",
+          "perspectiveBadge": "imec 로드맵 요약",
+          "narrative": "전면 전력선을 후면으로 이전해 신호 라우팅 공간을 확보하고 IR Drop을 줄이는 로드맵이다.",
+          "caution": "등록 로드맵의 비교 조건이며 개별 팹 성능을 보증하지 않는다.",
+          "evidenceQuote": "- 신호선 라우팅 면적 20% 이상 확보 및 IR Drop 30% 이상 개선.",
+          "specifications": [
+            {
+              "parameter": "신호 라우팅 면적 확보",
+              "value": "20 이상",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 신호선 라우팅 면적 20% 이상 확보 및 IR Drop 30% 이상 개선."
+            },
+            {
+              "parameter": "IR Drop 개선",
+              "value": "30 이상",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 신호선 라우팅 면적 20% 이상 확보 및 IR Drop 30% 이상 개선."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "신호가 다니는 길과 전기를 공급하는 길이 같은 면에 몰리면 배선 공간이 부족하고 전압도 떨어질 수 있습니다. 이 사례는 전원 길을 뒷면으로 나눠 그런 문제를 줄이는 방식입니다. 두 퍼센트는 각각 공간과 전압 강하에 대한 비교이므로 서로 더하는 값이 아닙니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전력 배선 통합",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "semiconductor-metrology",
+      "title": "반도체 메트롤로지",
+      "engName": "Semiconductor Metrology",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "검사·계측",
+      "scaleLevel": 3,
+      "classificationNote": "반도체 메트롤로지의 기술적 대상을 검사·계측에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "회로 치수·화학 조성·결함을 일관되게 측정하기 위한 측정 기술과 표준 체계이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- **CHIPS Metrology Program**: 옹스트롬 단위 미세 회로의 물리적 치수(CD), 화학 조성, 결함 검출의 표준 측정 프로토콜 수립.",
+      "evidenceQuote": "- **CHIPS Metrology Program**: 옹스트롬 단위 미세 회로의 물리적 치수(CD), 화학 조성, 결함 검출의 표준 측정 프로토콜 수립.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "CHIPS 측정 프로토콜",
+          "content": "제공 요약은 NIST가 옹스트롬 단위 회로의 치수·조성·결함 검출 프로토콜을 수립하는 활동을 설명한다.",
+          "formula": null,
+          "evidenceQuote": "- **CHIPS Metrology Program**: 옹스트롬 단위 미세 회로의 물리적 치수(CD), 화학 조성, 결함 검출의 표준 측정 프로토콜 수립."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "검사·계측",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "cte-mismatch",
+      "title": "열팽창 불일치",
+      "engName": "Thermal Expansion Mismatch",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "열기계 물성",
+      "scaleLevel": 1,
+      "classificationNote": "열팽창 불일치의 기술적 대상을 열기계 물성에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "이종 재료의 열팽창 차이로 적층 구조의 휨과 미세 크랙이 발생하는 열기계적 문제이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 3D 이종집적(Heterogeneous Integration) 시 실리콘 다이, 유기 인터포저, 솔더 범프 간의 열팽창 불일치로 인한 휨(Warpage) 및 마이크로 크랙 발생을 예측하는 열기계적 측정 표준 가이드라인 제공.",
+      "evidenceQuote": "- 3D 이종집적(Heterogeneous Integration) 시 실리콘 다이, 유기 인터포저, 솔더 범프 간의 열팽창 불일치로 인한 휨(Warpage) 및 마이크로 크랙 발생을 예측하는 열기계적 측정 표준 가이드라인 제공.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "열기계 물성",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "hybrid-bonding",
+      "title": "하이브리드 본딩",
+      "engName": "Hybrid Bonding",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "접합·패키징",
+      "scaleLevel": 3,
+      "classificationNote": "하이브리드 본딩의 기술적 대상을 접합·패키징에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "평탄화된 절연체와 구리 계면을 직접 결합하는 접합 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- **Cu-Cu 하이브리드 본딩 계면 확산 (Direct Bonding Interface)**:",
+      "evidenceQuote": "- **Cu-Cu 하이브리드 본딩 계면 확산 (Direct Bonding Interface)**:",
+      "principles": [
+        {
+          "step": 1,
+          "title": "구리 계면 확산",
+          "content": "등록 IEEE 연구 요약은 상온 접합 후 200~300°C 열처리에서 구리 결정립계 확산을 설명하며 산화물·보이드가 접촉 저항과 EM 수명에 영향을 준다고 기록한다.",
+          "formula": null,
+          "evidenceQuote": "- CMP 연마 후 상온 접합된 구리 계면에서 $200\\sim 300^\\circ\\text{C}$ 열처리 시 구리 원자의 결정립계 확산(Grain Boundary Diffusion) 메커니즘 규명."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "접합·패키징",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "har-etch-charging",
+      "title": "고종횡비 식각 대전 결함",
+      "engName": "High Aspect Ratio Etch Charging",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각 결함",
+      "scaleLevel": 1,
+      "classificationNote": "고종횡비 식각 대전 결함의 기술적 대상을 식각 결함에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "깊은 홀의 대전으로 이온 궤적이 휘어 보잉·틸팅을 일으키는 식각 결함 메커니즘이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 깊은 홀 내부로 이온이 진입할 때 정전기적 대전(Charge-up) 효과로 인해 이온 궤적이 휘어져 발생하는 보잉(Bowing) 및 틸팅(Tilting) 현상의 가스 압력별 수치 모델링.",
+      "evidenceQuote": "- 깊은 홀 내부로 이온이 진입할 때 정전기적 대전(Charge-up) 효과로 인해 이온 궤적이 휘어져 발생하는 보잉(Bowing) 및 틸팅(Tilting) 현상의 가스 압력별 수치 모델링.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각 결함",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "preston-equation",
+      "title": "프레스턴 연마 방정식",
+      "engName": "Preston Equation",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "평탄화 물리",
+      "scaleLevel": 1,
+      "classificationNote": "프레스턴 연마 방정식의 기술적 대상을 평탄화 물리에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "연마 압력과 상대 속도 등을 사용해 재료 제거율을 설명하는 CMP 모델이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- **CMP 슬러리 유체역학 및 프레스톤 방정식(Preston's Equation) 확장**:",
+      "evidenceQuote": "- **CMP 슬러리 유체역학 및 프레스톤 방정식(Preston's Equation) 확장**:",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "평탄화 물리",
+          "scaleLevel": 1
+        }
+      ]
+    }
+  ]
+}

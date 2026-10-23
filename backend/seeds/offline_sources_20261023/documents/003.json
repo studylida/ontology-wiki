@@ -1,0 +1,507 @@
+{
+  "index": 3,
+  "filePath": "lam_research/lam_solution_deposition_en.md",
+  "sourceHash": "e72b422acb15623a58afe8010948fbdf2a54bd536a8e4febf9bfaf582419f551",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 7021,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체를 읽고 공정 정의·작동 방식과 실제 제품군 사례를 분리했다. 제품 응용 목록을 isA나 partOf로 바꾸지 않았다. Kallisto 및 Phoenix의 한국어 페이지와 다른 기판 크기는 이 영문 문헌 값을 유지했다. 관련 블로그는 제공된 발췌만 검토했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "deposition",
+      "title": "증착",
+      "engName": "Deposition",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "증착",
+      "scaleLevel": 3,
+      "classificationNote": "재료층을 형성하거나 처리하는 단위 공정이며 장비 제품은 실제 제품 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "반도체 소자를 구성하는 유전체 절연층과 금속 전도층을 형성하는 공정이다. 재료의 종류와 목표 구조에 따라 서로 다른 기법을 사용한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "Deposition processes create layers of dielectric (insulating) and metal (conducting) materials used to build a semiconductor device. Depending on the type of material and structure being made, different techniques are employed. Electrochemical deposition (ECD) creates the copper “wiring” (interconnect) that links devices in an integrated circuit. Metal plating of copper and other metals is also used for through-silicon vias and wafer-level packaging applications. Tiny tungsten connectors and thin barriers are made with the precision of chemical vapor deposition (CVD) and atomic layer deposition (ALD), which adds only a few layers of atoms at a time. Plasma-enhanced CVD (PECVD), high-density plasma CVD (HDP-CVD), and ALD are used to form the critical insulating layers that isolate and protect all of these electrical structures. Pulsed laser deposition (PLD) is used to enable high performance piezoelectric layers. PLD is a physical vapor deposition method that uses high pulsed energy laser light to energize material, creating a deposition vapor that can be condensed on different substrates.",
+      "evidenceQuote": "Deposition processes create layers of dielectric (insulating) and metal (conducting) materials used to build a semiconductor device. Depending on the type of material and structure being made, different techniques are employed. Electrochemical deposition (ECD) creates the copper “wiring” (interconnect) that links devices in an integrated circuit. Metal plating of copper and other metals is also used for through-silicon vias and wafer-level packaging applications. Tiny tungsten connectors and thin barriers are made with the precision of chemical vapor deposition (CVD) and atomic layer deposition (ALD), which adds only a few layers of atoms at a time. Plasma-enhanced CVD (PECVD), high-density plasma CVD (HDP-CVD), and ALD are used to form the critical insulating layers that isolate and protect all of these electrical structures. Pulsed laser deposition (PLD) is used to enable high performance piezoelectric layers. PLD is a physical vapor deposition method that uses high pulsed energy laser light to energize material, creating a deposition vapor that can be condensed on different substrates.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "Reliant 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "CVD·HDP-CVD·PECVD·PLD를 포함하는 증착 제품군으로 특수 기술 로드맵과 팹 생산 수명 연장을 지원한다고 설명한다.",
+          "caution": "",
+          "evidenceQuote": "Reliant Deposition Products\n\nChemical Vapor Deposition (CVD) High-Density Plasma Chemical Vapor Deposition (HDP-CVD) Plasma-Enhanced Chemical Vapor Deposition (PECVD) Pulsed Laser Deposition (PLD) Reliant Systems\n\nOur Reliant deposition products enable roadmaps for Specialty Technologies and extend the productive life of fabs.\n\nAdvanced Memory, Advanced Packaging, Analog & Mixed Signal, Discrete & Power Devices, Interconnect, Optoelectronics & Photonics, Patterning, RF MEMS, Sensors & Transducers, Transistor",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "특수 소자 제조에 사용하는 여러 증착 방식의 제품군을 묶어 소개한 사례이다.",
+            "background": null
+          }
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "증착",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "ecd",
+      "title": "전기화학 증착",
+      "engName": "Electrochemical Deposition (ECD)",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "증착",
+      "scaleLevel": 3,
+      "classificationNote": "재료층을 형성하거나 처리하는 단위 공정이며 장비 제품은 실제 제품 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "집적회로의 소자를 연결하는 구리 배선을 형성하는 도금 기반 증착 방식이다. 구리와 기타 금속 도금은 TSV와 웨이퍼 레벨 패키징에도 사용된다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "Deposition processes create layers of dielectric (insulating) and metal (conducting) materials used to build a semiconductor device. Depending on the type of material and structure being made, different techniques are employed. Electrochemical deposition (ECD) creates the copper “wiring” (interconnect) that links devices in an integrated circuit. Metal plating of copper and other metals is also used for through-silicon vias and wafer-level packaging applications. Tiny tungsten connectors and thin barriers are made with the precision of chemical vapor deposition (CVD) and atomic layer deposition (ALD), which adds only a few layers of atoms at a time. Plasma-enhanced CVD (PECVD), high-density plasma CVD (HDP-CVD), and ALD are used to form the critical insulating layers that isolate and protect all of these electrical structures. Pulsed laser deposition (PLD) is used to enable high performance piezoelectric layers. PLD is a physical vapor deposition method that uses high pulsed energy laser light to energize material, creating a deposition vapor that can be condensed on different substrates.",
+      "evidenceQuote": "Deposition processes create layers of dielectric (insulating) and metal (conducting) materials used to build a semiconductor device. Depending on the type of material and structure being made, different techniques are employed. Electrochemical deposition (ECD) creates the copper “wiring” (interconnect) that links devices in an integrated circuit. Metal plating of copper and other metals is also used for through-silicon vias and wafer-level packaging applications. Tiny tungsten connectors and thin barriers are made with the precision of chemical vapor deposition (CVD) and atomic layer deposition (ALD), which adds only a few layers of atoms at a time. Plasma-enhanced CVD (PECVD), high-density plasma CVD (HDP-CVD), and ALD are used to form the critical insulating layers that isolate and protect all of these electrical structures. Pulsed laser deposition (PLD) is used to enable high performance piezoelectric layers. PLD is a physical vapor deposition method that uses high pulsed energy laser light to energize material, creating a deposition vapor that can be condensed on different substrates.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "Kallisto 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "수직 공정 플랫폼으로 기판을 습식 화학 처리한다.",
+          "caution": "한영 페이지의 최대 기판 크기 표기가 서로 다르다. 이 문헌의 값을 보존했으며 동일 사양으로 확정하지 않았다.",
+          "evidenceQuote": "Kallisto Product Family\n\nElectrochemical Deposition (ECD)\n\nAn advanced vertical processing platform for wet chemical treatment of substrates from 300x300mm up to Gen 5.1 (1100 x 1300mm) tailored to the needs of semi industry.\n\nAdvanced Memory, Advanced Packaging, Advanced Substrates, Analog & Mixed Signal, Automotive, Discrete & Power Devices, Mini/Micro LED, Optoelectronics & Photonics, Panel Level Fanout",
+          "specifications": [
+            {
+              "parameter": "습식 처리 기판 크기 범위",
+              "value": "300x300mm up to Gen 5.1 (1100 x 1300mm)",
+              "unit": "mm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "Kallisto Product Family\n\nElectrochemical Deposition (ECD)\n\nAn advanced vertical processing platform for wet chemical treatment of substrates from 300x300mm up to Gen 5.1 (1100 x 1300mm) tailored to the needs of semi industry.\n\nAdvanced Memory, Advanced Packaging, Advanced Substrates, Analog & Mixed Signal, Automotive, Discrete & Power Devices, Mini/Micro LED, Optoelectronics & Photonics, Panel Level Fanout"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "기판을 세운 상태에서 액체 약품으로 처리하는 플랫폼이다. 제시된 크기 범위는 처리 대상 기판의 크기를 뜻한다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "Phoenix 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "기판의 완전 자동화 대량 패널 처리를 제공하며 ECD·포토레지스트 현상·스트립·습식 세정 기능으로 소개된다.",
+          "caution": "한영 페이지의 기판 크기가 다르다. 이 문헌의 표기를 보존했으며 동일 사양으로 확정하지 않았다.",
+          "evidenceQuote": "Phoenix Product Family\n\nElectrochemical Deposition (ECD) PR-Development PR-Strip Wet Clean/Strip\n\nPhoenix offers a fully-automated high volume panel processing for 510x515mm substrates.\n\nAdvanced Memory, Advanced Packaging, Advanced Substrates, Analog & Mixed Signal, Automotive, Discrete & Power Devices, Mini/Micro LED, Optoelectronics & Photonics, Panel Level Fanout",
+          "specifications": [
+            {
+              "parameter": "패널 기판 크기",
+              "value": "510x515",
+              "unit": "mm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "Phoenix Product Family\n\nElectrochemical Deposition (ECD) PR-Development PR-Strip Wet Clean/Strip\n\nPhoenix offers a fully-automated high volume panel processing for 510x515mm substrates.\n\nAdvanced Memory, Advanced Packaging, Advanced Substrates, Analog & Mixed Signal, Automotive, Discrete & Power Devices, Mini/Micro LED, Optoelectronics & Photonics, Panel Level Fanout"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "큰 패널 기판을 자동으로 처리하는 장비이다. 기판 크기 수치는 이 페이지가 소개한 처리 대상을 나타낸다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "SABRE 3D 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "Electrofill 기술로 첨단 패키징에 필요한 금속막을 형성한다.",
+          "caution": "",
+          "evidenceQuote": "SABRE 3D Product Family\n\nElectrochemical Deposition (ECD)\n\nUsing our proven Electrofill technology, these high-productivity systems deliver quality metal films for advanced packaging applications.\n\nAdvanced Packaging",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "첨단 패키징에 필요한 금속막을 도금으로 만드는 장비 사례이다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "SABRE 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "구리 다마신 제조를 위한 정밀 금속 도금을 제공한다.",
+          "caution": "",
+          "evidenceQuote": "SABRE Product Family\n\nElectrochemical Deposition (ECD)\n\nThis product family offers precision metal plating for copper damascene manufacturing on the industry’s productivity-leading ECD platform.\n\nAdvanced Memory, High Bandwidth Memory, Interconnect",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "절연층에 파인 배선 자리를 구리로 채워 연결선을 만드는 데 쓰는 정밀 도금 장비이다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "Triton 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "단일 웨이퍼 도금과 습식 처리를 위한 모듈형 플랫폼이다.",
+          "caution": "",
+          "evidenceQuote": "Triton Product Family\n\nElectrochemical Deposition (ECD) Wet Clean/Strip\n\nThe Triton platform is a versatile and modular solution for single wafer plating and wet processing.\n\nAdvanced Memory, Advanced Packaging, Analog & Mixed Signal, Automotive, Discrete & Power Devices, Mini/Micro LED, Optoelectronics & Photonics",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "웨이퍼를 한 장씩 도금하거나 액체 약품으로 처리하도록 구성한 장비이다.",
+            "background": null
+          }
+        }
+      ],
+      "isA": [
+        {
+          "id": "deposition",
+          "name": "증착",
+          "reason": "원문이 소자 재료층 형성에 사용하는 증착 기법으로 제시한다.",
+          "evidenceQuote": "Deposition processes create layers of dielectric (insulating) and metal (conducting) materials used to build a semiconductor device. Depending on the type of material and structure being made, different techniques are employed. Electrochemical deposition (ECD) creates the copper “wiring” (interconnect) that links devices in an integrated circuit. Metal plating of copper and other metals is also used for through-silicon vias and wafer-level packaging applications. Tiny tungsten connectors and thin barriers are made with the precision of chemical vapor deposition (CVD) and atomic layer deposition (ALD), which adds only a few layers of atoms at a time. Plasma-enhanced CVD (PECVD), high-density plasma CVD (HDP-CVD), and ALD are used to form the critical insulating layers that isolate and protect all of these electrical structures. Pulsed laser deposition (PLD) is used to enable high performance piezoelectric layers. PLD is a physical vapor deposition method that uses high pulsed energy laser light to energize material, creating a deposition vapor that can be condensed on different substrates."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "증착",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "cvd",
+      "title": "화학 기상 증착",
+      "engName": "Chemical Vapor Deposition (CVD)",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "증착",
+      "scaleLevel": 3,
+      "classificationNote": "재료층을 형성하거나 처리하는 단위 공정이며 장비 제품은 실제 제품 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "작은 텅스텐 연결부와 얇은 배리어막의 정밀 형성에 사용하는 증착 기법이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "Deposition processes create layers of dielectric (insulating) and metal (conducting) materials used to build a semiconductor device. Depending on the type of material and structure being made, different techniques are employed. Electrochemical deposition (ECD) creates the copper “wiring” (interconnect) that links devices in an integrated circuit. Metal plating of copper and other metals is also used for through-silicon vias and wafer-level packaging applications. Tiny tungsten connectors and thin barriers are made with the precision of chemical vapor deposition (CVD) and atomic layer deposition (ALD), which adds only a few layers of atoms at a time. Plasma-enhanced CVD (PECVD), high-density plasma CVD (HDP-CVD), and ALD are used to form the critical insulating layers that isolate and protect all of these electrical structures. Pulsed laser deposition (PLD) is used to enable high performance piezoelectric layers. PLD is a physical vapor deposition method that uses high pulsed energy laser light to energize material, creating a deposition vapor that can be condensed on different substrates.",
+      "evidenceQuote": "Deposition processes create layers of dielectric (insulating) and metal (conducting) materials used to build a semiconductor device. Depending on the type of material and structure being made, different techniques are employed. Electrochemical deposition (ECD) creates the copper “wiring” (interconnect) that links devices in an integrated circuit. Metal plating of copper and other metals is also used for through-silicon vias and wafer-level packaging applications. Tiny tungsten connectors and thin barriers are made with the precision of chemical vapor deposition (CVD) and atomic layer deposition (ALD), which adds only a few layers of atoms at a time. Plasma-enhanced CVD (PECVD), high-density plasma CVD (HDP-CVD), and ALD are used to form the critical insulating layers that isolate and protect all of these electrical structures. Pulsed laser deposition (PLD) is used to enable high performance piezoelectric layers. PLD is a physical vapor deposition method that uses high pulsed energy laser light to energize material, creating a deposition vapor that can be condensed on different substrates.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "isA": [
+        {
+          "id": "deposition",
+          "name": "증착",
+          "reason": "원문이 소자 재료층 형성에 사용하는 증착 기법으로 제시한다.",
+          "evidenceQuote": "Deposition processes create layers of dielectric (insulating) and metal (conducting) materials used to build a semiconductor device. Depending on the type of material and structure being made, different techniques are employed. Electrochemical deposition (ECD) creates the copper “wiring” (interconnect) that links devices in an integrated circuit. Metal plating of copper and other metals is also used for through-silicon vias and wafer-level packaging applications. Tiny tungsten connectors and thin barriers are made with the precision of chemical vapor deposition (CVD) and atomic layer deposition (ALD), which adds only a few layers of atoms at a time. Plasma-enhanced CVD (PECVD), high-density plasma CVD (HDP-CVD), and ALD are used to form the critical insulating layers that isolate and protect all of these electrical structures. Pulsed laser deposition (PLD) is used to enable high performance piezoelectric layers. PLD is a physical vapor deposition method that uses high pulsed energy laser light to energize material, creating a deposition vapor that can be condensed on different substrates."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "증착",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "ald",
+      "title": "원자층 증착",
+      "engName": "Atomic Layer Deposition (ALD)",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "증착",
+      "scaleLevel": 3,
+      "classificationNote": "재료층을 형성하거나 처리하는 단위 공정이며 장비 제품은 실제 제품 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "한 번에 몇 개의 원자층을 추가하여 텅스텐 연결부, 얇은 배리어와 절연층을 형성하는 정밀 증착 기법이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "Deposition processes create layers of dielectric (insulating) and metal (conducting) materials used to build a semiconductor device. Depending on the type of material and structure being made, different techniques are employed. Electrochemical deposition (ECD) creates the copper “wiring” (interconnect) that links devices in an integrated circuit. Metal plating of copper and other metals is also used for through-silicon vias and wafer-level packaging applications. Tiny tungsten connectors and thin barriers are made with the precision of chemical vapor deposition (CVD) and atomic layer deposition (ALD), which adds only a few layers of atoms at a time. Plasma-enhanced CVD (PECVD), high-density plasma CVD (HDP-CVD), and ALD are used to form the critical insulating layers that isolate and protect all of these electrical structures. Pulsed laser deposition (PLD) is used to enable high performance piezoelectric layers. PLD is a physical vapor deposition method that uses high pulsed energy laser light to energize material, creating a deposition vapor that can be condensed on different substrates.",
+      "evidenceQuote": "Deposition processes create layers of dielectric (insulating) and metal (conducting) materials used to build a semiconductor device. Depending on the type of material and structure being made, different techniques are employed. Electrochemical deposition (ECD) creates the copper “wiring” (interconnect) that links devices in an integrated circuit. Metal plating of copper and other metals is also used for through-silicon vias and wafer-level packaging applications. Tiny tungsten connectors and thin barriers are made with the precision of chemical vapor deposition (CVD) and atomic layer deposition (ALD), which adds only a few layers of atoms at a time. Plasma-enhanced CVD (PECVD), high-density plasma CVD (HDP-CVD), and ALD are used to form the critical insulating layers that isolate and protect all of these electrical structures. Pulsed laser deposition (PLD) is used to enable high performance piezoelectric layers. PLD is a physical vapor deposition method that uses high pulsed energy laser light to energize material, creating a deposition vapor that can be condensed on different substrates.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "몇 개 원자층씩 형성",
+          "content": "한 번에 몇 개의 원자층을 추가하여 작은 연결부와 얇은 막의 정밀도를 확보한다.",
+          "formula": null,
+          "evidenceQuote": "Deposition processes create layers of dielectric (insulating) and metal (conducting) materials used to build a semiconductor device. Depending on the type of material and structure being made, different techniques are employed. Electrochemical deposition (ECD) creates the copper “wiring” (interconnect) that links devices in an integrated circuit. Metal plating of copper and other metals is also used for through-silicon vias and wafer-level packaging applications. Tiny tungsten connectors and thin barriers are made with the precision of chemical vapor deposition (CVD) and atomic layer deposition (ALD), which adds only a few layers of atoms at a time. Plasma-enhanced CVD (PECVD), high-density plasma CVD (HDP-CVD), and ALD are used to form the critical insulating layers that isolate and protect all of these electrical structures. Pulsed laser deposition (PLD) is used to enable high performance piezoelectric layers. PLD is a physical vapor deposition method that uses high pulsed energy laser light to energize material, creating a deposition vapor that can be condensed on different substrates."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "ALTUS 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "CVD와 ALD를 결합하여 첨단 텅스텐 금속화에 필요한 등각 금속 박막을 증착한다.",
+          "caution": "",
+          "evidenceQuote": "ALTUS Product Family\n\nAtomic Layer Deposition (ALD) Chemical Vapor Deposition (CVD)\n\nCombining CVD and ALD technologies, these market-leading systems deposit highly conformal metal films for advanced tungsten metallization applications.\n\nAdvanced Memory, Advanced Packaging, Interconnect, NAND, Transistor",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "굴곡진 표면에도 텅스텐 금속막이 고르게 덮이도록 CVD와 ALD를 함께 쓰는 장비 사례이다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "Striker 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "ALD를 사용하여 나노 피처를 가진 첨단 소자의 중요 공정에 유전체막을 형성한다.",
+          "caution": "",
+          "evidenceQuote": "Striker Product Family\n\nAtomic Layer Deposition (ALD)\n\nUsing advanced ALD technology, these products deliver dielectric films with exceptional control for critical processes in advanced devices with nanoscale features.\n\nAdvanced Memory, Advanced Packaging, High Bandwidth Memory, Logic, Patterning, Transistor",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "나노 크기 구조의 소자에 절연막을 정밀하게 쌓기 위해 ALD를 사용하는 제품이다.",
+            "background": null
+          }
+        }
+      ],
+      "isA": [
+        {
+          "id": "deposition",
+          "name": "증착",
+          "reason": "원문이 소자 재료층 형성에 사용하는 증착 기법으로 제시한다.",
+          "evidenceQuote": "Deposition processes create layers of dielectric (insulating) and metal (conducting) materials used to build a semiconductor device. Depending on the type of material and structure being made, different techniques are employed. Electrochemical deposition (ECD) creates the copper “wiring” (interconnect) that links devices in an integrated circuit. Metal plating of copper and other metals is also used for through-silicon vias and wafer-level packaging applications. Tiny tungsten connectors and thin barriers are made with the precision of chemical vapor deposition (CVD) and atomic layer deposition (ALD), which adds only a few layers of atoms at a time. Plasma-enhanced CVD (PECVD), high-density plasma CVD (HDP-CVD), and ALD are used to form the critical insulating layers that isolate and protect all of these electrical structures. Pulsed laser deposition (PLD) is used to enable high performance piezoelectric layers. PLD is a physical vapor deposition method that uses high pulsed energy laser light to energize material, creating a deposition vapor that can be condensed on different substrates."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "증착",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "pecvd",
+      "title": "플라스마 강화 CVD",
+      "engName": "Plasma-Enhanced Chemical Vapor Deposition (PECVD)",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "증착",
+      "scaleLevel": 3,
+      "classificationNote": "재료층을 형성하거나 처리하는 단위 공정이며 장비 제품은 실제 제품 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전기 구조물을 분리하고 보호하는 중요한 절연층을 형성하는 증착 기법이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "Deposition processes create layers of dielectric (insulating) and metal (conducting) materials used to build a semiconductor device. Depending on the type of material and structure being made, different techniques are employed. Electrochemical deposition (ECD) creates the copper “wiring” (interconnect) that links devices in an integrated circuit. Metal plating of copper and other metals is also used for through-silicon vias and wafer-level packaging applications. Tiny tungsten connectors and thin barriers are made with the precision of chemical vapor deposition (CVD) and atomic layer deposition (ALD), which adds only a few layers of atoms at a time. Plasma-enhanced CVD (PECVD), high-density plasma CVD (HDP-CVD), and ALD are used to form the critical insulating layers that isolate and protect all of these electrical structures. Pulsed laser deposition (PLD) is used to enable high performance piezoelectric layers. PLD is a physical vapor deposition method that uses high pulsed energy laser light to energize material, creating a deposition vapor that can be condensed on different substrates.",
+      "evidenceQuote": "Deposition processes create layers of dielectric (insulating) and metal (conducting) materials used to build a semiconductor device. Depending on the type of material and structure being made, different techniques are employed. Electrochemical deposition (ECD) creates the copper “wiring” (interconnect) that links devices in an integrated circuit. Metal plating of copper and other metals is also used for through-silicon vias and wafer-level packaging applications. Tiny tungsten connectors and thin barriers are made with the precision of chemical vapor deposition (CVD) and atomic layer deposition (ALD), which adds only a few layers of atoms at a time. Plasma-enhanced CVD (PECVD), high-density plasma CVD (HDP-CVD), and ALD are used to form the critical insulating layers that isolate and protect all of these electrical structures. Pulsed laser deposition (PLD) is used to enable high performance piezoelectric layers. PLD is a physical vapor deposition method that uses high pulsed energy laser light to energize material, creating a deposition vapor that can be condensed on different substrates.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "VECTOR 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "여러 소자 응용을 위해 유전체막을 정밀하게 증착하는 PECVD 제품군이다.",
+          "caution": "",
+          "evidenceQuote": "VECTOR Product Family\n\nPlasma-Enhanced Chemical Vapor Deposition (PECVD)\n\nOur PECVD product family provides precise dielectric film deposition at high productivity for a wide range of device applications.\n\nAdvanced Memory, Advanced Packaging, Analog & Mixed Signal, Discrete & Power Devices, High Bandwidth Memory, Interconnect, Optoelectronics & Photonics, Patterning, Sensors & Transducers, Transistor",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "여러 소자에서 전기를 차단하는 유전체막을 만드는 PECVD 장비 사례이다.",
+            "background": null
+          }
+        }
+      ],
+      "isA": [
+        {
+          "id": "deposition",
+          "name": "증착",
+          "reason": "원문이 소자 재료층 형성에 사용하는 증착 기법으로 제시한다.",
+          "evidenceQuote": "Deposition processes create layers of dielectric (insulating) and metal (conducting) materials used to build a semiconductor device. Depending on the type of material and structure being made, different techniques are employed. Electrochemical deposition (ECD) creates the copper “wiring” (interconnect) that links devices in an integrated circuit. Metal plating of copper and other metals is also used for through-silicon vias and wafer-level packaging applications. Tiny tungsten connectors and thin barriers are made with the precision of chemical vapor deposition (CVD) and atomic layer deposition (ALD), which adds only a few layers of atoms at a time. Plasma-enhanced CVD (PECVD), high-density plasma CVD (HDP-CVD), and ALD are used to form the critical insulating layers that isolate and protect all of these electrical structures. Pulsed laser deposition (PLD) is used to enable high performance piezoelectric layers. PLD is a physical vapor deposition method that uses high pulsed energy laser light to energize material, creating a deposition vapor that can be condensed on different substrates."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "증착",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "hdp-cvd",
+      "title": "고밀도 플라스마 CVD",
+      "engName": "High-Density Plasma Chemical Vapor Deposition (HDP-CVD)",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "증착",
+      "scaleLevel": 3,
+      "classificationNote": "재료층을 형성하거나 처리하는 단위 공정이며 장비 제품은 실제 제품 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전기 구조물을 분리하고 보호하는 절연층을 형성하는 증착 기법이며 제품 설명은 고종횡비 공간의 갭필을 제시한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "Deposition processes create layers of dielectric (insulating) and metal (conducting) materials used to build a semiconductor device. Depending on the type of material and structure being made, different techniques are employed. Electrochemical deposition (ECD) creates the copper “wiring” (interconnect) that links devices in an integrated circuit. Metal plating of copper and other metals is also used for through-silicon vias and wafer-level packaging applications. Tiny tungsten connectors and thin barriers are made with the precision of chemical vapor deposition (CVD) and atomic layer deposition (ALD), which adds only a few layers of atoms at a time. Plasma-enhanced CVD (PECVD), high-density plasma CVD (HDP-CVD), and ALD are used to form the critical insulating layers that isolate and protect all of these electrical structures. Pulsed laser deposition (PLD) is used to enable high performance piezoelectric layers. PLD is a physical vapor deposition method that uses high pulsed energy laser light to energize material, creating a deposition vapor that can be condensed on different substrates.",
+      "evidenceQuote": "Deposition processes create layers of dielectric (insulating) and metal (conducting) materials used to build a semiconductor device. Depending on the type of material and structure being made, different techniques are employed. Electrochemical deposition (ECD) creates the copper “wiring” (interconnect) that links devices in an integrated circuit. Metal plating of copper and other metals is also used for through-silicon vias and wafer-level packaging applications. Tiny tungsten connectors and thin barriers are made with the precision of chemical vapor deposition (CVD) and atomic layer deposition (ALD), which adds only a few layers of atoms at a time. Plasma-enhanced CVD (PECVD), high-density plasma CVD (HDP-CVD), and ALD are used to form the critical insulating layers that isolate and protect all of these electrical structures. Pulsed laser deposition (PLD) is used to enable high performance piezoelectric layers. PLD is a physical vapor deposition method that uses high pulsed energy laser light to energize material, creating a deposition vapor that can be condensed on different substrates.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "SPEED 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "고종횡비 공간을 채우는 유전체 갭필 증착을 제공한다.",
+          "caution": "",
+          "evidenceQuote": "SPEED Product Family\n\nHigh-Density Plasma Chemical Vapor Deposition (HDP-CVD)\n\nThese dielectric deposition products provide complete gapfill of high aspect ratio spaces with industry-leading throughput and reliability.\n\nAdvanced Memory, Discrete & Power Devices, Interconnect, Optoelectronics & Photonics, Sensors & Transducers, Transistor",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "높고 좁은 빈 공간을 절연 재료로 채워 주는 증착 장비 사례이다.",
+            "background": null
+          }
+        }
+      ],
+      "isA": [
+        {
+          "id": "deposition",
+          "name": "증착",
+          "reason": "원문이 소자 재료층 형성에 사용하는 증착 기법으로 제시한다.",
+          "evidenceQuote": "Deposition processes create layers of dielectric (insulating) and metal (conducting) materials used to build a semiconductor device. Depending on the type of material and structure being made, different techniques are employed. Electrochemical deposition (ECD) creates the copper “wiring” (interconnect) that links devices in an integrated circuit. Metal plating of copper and other metals is also used for through-silicon vias and wafer-level packaging applications. Tiny tungsten connectors and thin barriers are made with the precision of chemical vapor deposition (CVD) and atomic layer deposition (ALD), which adds only a few layers of atoms at a time. Plasma-enhanced CVD (PECVD), high-density plasma CVD (HDP-CVD), and ALD are used to form the critical insulating layers that isolate and protect all of these electrical structures. Pulsed laser deposition (PLD) is used to enable high performance piezoelectric layers. PLD is a physical vapor deposition method that uses high pulsed energy laser light to energize material, creating a deposition vapor that can be condensed on different substrates."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "증착",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "pulsed-laser-deposition",
+      "title": "펄스 레이저 증착",
+      "engName": "Pulsed Laser Deposition (PLD)",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "증착",
+      "scaleLevel": 3,
+      "classificationNote": "재료층을 형성하거나 처리하는 단위 공정이며 장비 제품은 실제 제품 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "고에너지 펄스 레이저로 재료를 여기하여 증착 증기를 만들고 이를 기판에 응축시켜 막을 형성하는 물리적 증착 기법이다. 고성능 압전층 형성에 사용한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "Deposition processes create layers of dielectric (insulating) and metal (conducting) materials used to build a semiconductor device. Depending on the type of material and structure being made, different techniques are employed. Electrochemical deposition (ECD) creates the copper “wiring” (interconnect) that links devices in an integrated circuit. Metal plating of copper and other metals is also used for through-silicon vias and wafer-level packaging applications. Tiny tungsten connectors and thin barriers are made with the precision of chemical vapor deposition (CVD) and atomic layer deposition (ALD), which adds only a few layers of atoms at a time. Plasma-enhanced CVD (PECVD), high-density plasma CVD (HDP-CVD), and ALD are used to form the critical insulating layers that isolate and protect all of these electrical structures. Pulsed laser deposition (PLD) is used to enable high performance piezoelectric layers. PLD is a physical vapor deposition method that uses high pulsed energy laser light to energize material, creating a deposition vapor that can be condensed on different substrates.",
+      "evidenceQuote": "Deposition processes create layers of dielectric (insulating) and metal (conducting) materials used to build a semiconductor device. Depending on the type of material and structure being made, different techniques are employed. Electrochemical deposition (ECD) creates the copper “wiring” (interconnect) that links devices in an integrated circuit. Metal plating of copper and other metals is also used for through-silicon vias and wafer-level packaging applications. Tiny tungsten connectors and thin barriers are made with the precision of chemical vapor deposition (CVD) and atomic layer deposition (ALD), which adds only a few layers of atoms at a time. Plasma-enhanced CVD (PECVD), high-density plasma CVD (HDP-CVD), and ALD are used to form the critical insulating layers that isolate and protect all of these electrical structures. Pulsed laser deposition (PLD) is used to enable high performance piezoelectric layers. PLD is a physical vapor deposition method that uses high pulsed energy laser light to energize material, creating a deposition vapor that can be condensed on different substrates.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "레이저 여기와 증기 응축",
+          "content": "고에너지 펄스 레이저가 재료에 에너지를 공급해 증착 증기를 만들고 다양한 기판에 막을 형성한다.",
+          "formula": null,
+          "evidenceQuote": "Deposition processes create layers of dielectric (insulating) and metal (conducting) materials used to build a semiconductor device. Depending on the type of material and structure being made, different techniques are employed. Electrochemical deposition (ECD) creates the copper “wiring” (interconnect) that links devices in an integrated circuit. Metal plating of copper and other metals is also used for through-silicon vias and wafer-level packaging applications. Tiny tungsten connectors and thin barriers are made with the precision of chemical vapor deposition (CVD) and atomic layer deposition (ALD), which adds only a few layers of atoms at a time. Plasma-enhanced CVD (PECVD), high-density plasma CVD (HDP-CVD), and ALD are used to form the critical insulating layers that isolate and protect all of these electrical structures. Pulsed laser deposition (PLD) is used to enable high performance piezoelectric layers. PLD is a physical vapor deposition method that uses high pulsed energy laser light to energize material, creating a deposition vapor that can be condensed on different substrates."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "Prestis 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "Prestis는 특수 기술 응용의 복합 다원소 재료를 위한 박막 증착 솔루션이다.",
+          "caution": "",
+          "evidenceQuote": "Prestis™\n\nPulsed Laser Deposition (PLD)\n\nOur Prestis™ product provides thin film deposition solutions for a wide range of complex multi-element materials for Specialty Technologies applications.\n\nRF MEMS, Sensors & Transducers",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "여러 원소가 섞인 재료를 얇은 막으로 만드는 데 사용하는 레이저 증착 제품이다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "Prestis의 웨이퍼 수준 PLD 양산 도입 소개",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "2024년 3월 26일 관련 블로그 발췌는 Prestis를 통해 PLD를 웨이퍼 수준 양산으로 가져온다고 소개한다. 5G·Wi-Fi 6 RF 필터와 고급 MEMS 마이크에서 중요한 역할을 할 것으로 기대한다.",
+          "caution": "관련 게시물 발췌만 읽었으며 RF 필터와 MEMS 마이크의 활용은 기대 표현이다.",
+          "evidenceQuote": "Lam Research hopes to revolutionize microchip manufacturing with the launch of a new system: Prestis™.     Why it matters: For the first time in semiconductor production, Lam is using lasers to deposit thin films and bringing pulsed laser deposition (PLD) to wafer-level mass production. Prestis is expected to be key in developing cutting-edge specialty technologies devices, such as RF (radio frequency) filters for 5G and Wi-Fi 6 and high-end MEMS (micro-electromechanical systems) microphones.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "레이저로 재료를 얇게 쌓는 기술을 웨이퍼 단위로 많이 생산하는 데 적용하려는 소개이다. 필터와 마이크에 대한 설명은 발췌에서 제시한 향후 활용 기대이다.",
+            "background": null
+          }
+        }
+      ],
+      "isA": [
+        {
+          "id": "deposition",
+          "name": "증착",
+          "reason": "원문이 소자 재료층 형성에 사용하는 증착 기법으로 제시한다.",
+          "evidenceQuote": "Deposition processes create layers of dielectric (insulating) and metal (conducting) materials used to build a semiconductor device. Depending on the type of material and structure being made, different techniques are employed. Electrochemical deposition (ECD) creates the copper “wiring” (interconnect) that links devices in an integrated circuit. Metal plating of copper and other metals is also used for through-silicon vias and wafer-level packaging applications. Tiny tungsten connectors and thin barriers are made with the precision of chemical vapor deposition (CVD) and atomic layer deposition (ALD), which adds only a few layers of atoms at a time. Plasma-enhanced CVD (PECVD), high-density plasma CVD (HDP-CVD), and ALD are used to form the critical insulating layers that isolate and protect all of these electrical structures. Pulsed laser deposition (PLD) is used to enable high performance piezoelectric layers. PLD is a physical vapor deposition method that uses high pulsed energy laser light to energize material, creating a deposition vapor that can be condensed on different substrates."
+        },
+        {
+          "id": "pvd",
+          "name": "물리 기상 증착",
+          "reason": "원문이 PLD를 물리적 증착 방법으로 명시한다.",
+          "evidenceQuote": "Deposition processes create layers of dielectric (insulating) and metal (conducting) materials used to build a semiconductor device. Depending on the type of material and structure being made, different techniques are employed. Electrochemical deposition (ECD) creates the copper “wiring” (interconnect) that links devices in an integrated circuit. Metal plating of copper and other metals is also used for through-silicon vias and wafer-level packaging applications. Tiny tungsten connectors and thin barriers are made with the precision of chemical vapor deposition (CVD) and atomic layer deposition (ALD), which adds only a few layers of atoms at a time. Plasma-enhanced CVD (PECVD), high-density plasma CVD (HDP-CVD), and ALD are used to form the critical insulating layers that isolate and protect all of these electrical structures. Pulsed laser deposition (PLD) is used to enable high performance piezoelectric layers. PLD is a physical vapor deposition method that uses high pulsed energy laser light to energize material, creating a deposition vapor that can be condensed on different substrates."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "증착",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "uvtp",
+      "title": "자외선 열처리",
+      "engName": "Ultraviolet Thermal Processing (UVTP)",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "증착 후처리",
+      "scaleLevel": 3,
+      "classificationNote": "재료층을 형성하거나 처리하는 단위 공정이며 장비 제품은 실제 제품 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "증착 이후 막의 물리적 특성을 개선하기 위해 사용하는 특수 막 처리 기법이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "SOLA Product Family\n\nUltraviolet Thermal Processing (UVTP)\n\nThis product family offers specialized post-deposition film treatments to improve physical characteristics for advanced film applications.\n\nInterconnect, Transistor",
+      "evidenceQuote": "SOLA Product Family\n\nUltraviolet Thermal Processing (UVTP)\n\nThis product family offers specialized post-deposition film treatments to improve physical characteristics for advanced film applications.\n\nInterconnect, Transistor",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "SOLA 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "증착 이후의 특수 막 처리로 첨단 막의 물리적 특성을 개선한다.",
+          "caution": "",
+          "evidenceQuote": "SOLA Product Family\n\nUltraviolet Thermal Processing (UVTP)\n\nThis product family offers specialized post-deposition film treatments to improve physical characteristics for advanced film applications.\n\nInterconnect, Transistor",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "막을 먼저 만든 뒤 추가 처리를 하여 그 막의 물리적 성질을 개선하는 장비이다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [
+        {
+          "id": "deposition",
+          "name": "증착",
+          "reason": "SOLA 설명이 증착 후 막 처리라고 명시한다.",
+          "evidenceQuote": "SOLA Product Family\n\nUltraviolet Thermal Processing (UVTP)\n\nThis product family offers specialized post-deposition film treatments to improve physical characteristics for advanced film applications.\n\nInterconnect, Transistor"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "증착 후처리",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "bevel-deposition",
+      "title": "베벨 증착",
+      "engName": "Bevel Deposition",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "증착",
+      "scaleLevel": 3,
+      "classificationNote": "재료층을 형성하거나 처리하는 단위 공정이며 장비 제품은 실제 제품 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "웨이퍼 베벨 영역에 적용하는 증착 기술이다. 제공된 관련 블로그 발췌는 차세대 로직·3D NAND·첨단 패키징의 제조 과제를 대상으로 한 솔루션을 소개한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "For more than 15 years, Lam’s Coronus® product family has been the leader in wafer bevel technology. Today we introduced the newest member of the family, Coronus DX. It’s the industry’s first bevel deposition solution optimized to tackle key manufacturing challenges in next-gen logic, 3D NAND and advanced packaging applications.",
+      "evidenceQuote": "For more than 15 years, Lam’s Coronus® product family has been the leader in wafer bevel technology. Today we introduced the newest member of the family, Coronus DX. It’s the industry’s first bevel deposition solution optimized to tackle key manufacturing challenges in next-gen logic, 3D NAND and advanced packaging applications.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "Coronus DX 베벨 증착 솔루션",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "2023년 6월 20일 관련 게시물 발췌는 Coronus DX를 차세대 로직, 3D NAND와 첨단 패키징에 최적화한 베벨 증착 솔루션으로 소개한다.",
+          "caution": "관련 블로그 소개 발췌만 제공되며 구체적 공정 조건과 보호막 성능 수치는 없다.",
+          "evidenceQuote": "For more than 15 years, Lam’s Coronus® product family has been the leader in wafer bevel technology. Today we introduced the newest member of the family, Coronus DX. It’s the industry’s first bevel deposition solution optimized to tackle key manufacturing challenges in next-gen logic, 3D NAND and advanced packaging applications.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "웨이퍼의 가장자리 영역에 막을 만드는 증착 솔루션을 소개한다. 제공된 발췌에는 자세한 공정 조건이 없다.",
+            "background": null
+          }
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "증착",
+          "scaleLevel": 3
+        }
+      ]
+    }
+  ]
+}

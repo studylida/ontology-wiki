@@ -1,0 +1,144 @@
+{
+  "index": 56,
+  "filePath": "samsung/glossary/반도체-용어-사전-식각.md",
+  "sourceHash": "33fdf395c53d14b690010a293de713ff7dedf1258f7df46882f5490ece89be50",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1614,
+    "method": "codex-offline-source-review",
+    "notes": "텍스트 원문 전체와 초안을 대조했다. 빈 파서 후보를 실제 개념명과 정의로 보완했으며 웹 메뉴·관련기사·발행사를 사례로 만들지 않았다. 원문에 없는 조리법·안전마진은 추가하지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "etching",
+      "title": "식각",
+      "engName": "Etching",
+      "aliases": [
+        "에칭"
+      ],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "식각의 원문 정의에 따라 식각에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "액체 또는 기체의 식각 물질을 이용해 웨이퍼의 불필요한 부분을 제거하고 필요한 반도체 회로 패턴을 남기는 공정이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "웨이퍼에서 필요한 회로 패턴을 제외한 나머지 부분을 제거하는 공정.",
+      "evidenceQuote": "웨이퍼에서 필요한 회로 패턴을 제외한 나머지 부분을 제거하는 공정.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "불필요한 부분 제거",
+          "content": "액체 또는 기체의 부식액을 이용하여 필요한 회로 패턴 외의 부분을 제거한다.",
+          "formula": null,
+          "evidenceQuote": "반도체 식각 공정은 판화 기법의 한 종류인 동판화 에칭 기법과 비슷한 원리를 가지고 있다. 화학약품의 부식작용을 이용해 이미지를 만드는 에칭 기법처럼, 반도체 식각 공정도 액체 또는 기체의 부식액(etchant)을 이용해 불필요한 부분을 제거한 후 반도체 회로 패턴을 만드는 것이다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "wet-etching",
+      "title": "습식 식각",
+      "engName": "Wet etching",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "습식 식각의 원문 정의에 따라 식각에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "용해성 화학물질을 사용하는 식각 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "식각 공정은 식각 반응을 일으키는 물질의 상태에 따라 나뉘는데, 용해성 화학물질을 사용하는 습식 식각(Wet etching)과 이온화된 가스 등을 사용하는 건식 식각(Dry etching)이 있다.",
+      "evidenceQuote": "식각 공정은 식각 반응을 일으키는 물질의 상태에 따라 나뉘는데, 용해성 화학물질을 사용하는 습식 식각(Wet etching)과 이온화된 가스 등을 사용하는 건식 식각(Dry etching)이 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "dry-etching",
+          "name": "건식 식각",
+          "reason": "원문이 물질 상태에 따른 두 방식을 비교한다.",
+          "evidenceQuote": "식각 공정은 식각 반응을 일으키는 물질의 상태에 따라 나뉘는데, 용해성 화학물질을 사용하는 습식 식각(Wet etching)과 이온화된 가스 등을 사용하는 건식 식각(Dry etching)이 있다."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "etching",
+          "name": "식각",
+          "reason": "반응 물질의 상태에 따른 식각의 종류이다.",
+          "evidenceQuote": "식각 공정은 식각 반응을 일으키는 물질의 상태에 따라 나뉘는데, 용해성 화학물질을 사용하는 습식 식각(Wet etching)과 이온화된 가스 등을 사용하는 건식 식각(Dry etching)이 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "dry-etching",
+      "title": "건식 식각",
+      "engName": "Dry etching",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "건식 식각의 원문 정의에 따라 식각에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "이온화된 가스 등을 사용하는 식각 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "식각 공정은 식각 반응을 일으키는 물질의 상태에 따라 나뉘는데, 용해성 화학물질을 사용하는 습식 식각(Wet etching)과 이온화된 가스 등을 사용하는 건식 식각(Dry etching)이 있다.",
+      "evidenceQuote": "식각 공정은 식각 반응을 일으키는 물질의 상태에 따라 나뉘는데, 용해성 화학물질을 사용하는 습식 식각(Wet etching)과 이온화된 가스 등을 사용하는 건식 식각(Dry etching)이 있다.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "비용과 공정 난도",
+          "description": "습식 식각보다 비용이 비싸고 까다롭지만 미세 선폭과 수율 요구에 따라 확대되는 추세라고 설명한다.",
+          "evidenceQuote": "건식 식각은 습식 식각에 비해 비용이 비싸고 까다로운 단점이 있으나. 최근 반도체 회로 선폭이 미세해지고 이에 따른 수율을 높이기 위해 건식 식각이 점차 확대되고 있는 추세다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "wet-etching",
+          "name": "습식 식각",
+          "reason": "원문이 물질 상태에 따른 두 방식을 비교한다.",
+          "evidenceQuote": "식각 공정은 식각 반응을 일으키는 물질의 상태에 따라 나뉘는데, 용해성 화학물질을 사용하는 습식 식각(Wet etching)과 이온화된 가스 등을 사용하는 건식 식각(Dry etching)이 있다."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "etching",
+          "name": "식각",
+          "reason": "반응 물질의 상태에 따른 식각의 종류이다.",
+          "evidenceQuote": "식각 공정은 식각 반응을 일으키는 물질의 상태에 따라 나뉘는데, 용해성 화학물질을 사용하는 습식 식각(Wet etching)과 이온화된 가스 등을 사용하는 건식 식각(Dry etching)이 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각",
+          "scaleLevel": 3
+        }
+      ]
+    }
+  ]
+}

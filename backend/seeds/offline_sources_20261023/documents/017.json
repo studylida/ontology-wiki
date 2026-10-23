@@ -1,0 +1,144 @@
+{
+  "index": 17,
+  "filePath": "samsung/glossary/반도체-용어-사전-cmos-이미지센서cis.md",
+  "sourceHash": "7fff0b3c8962da1afd4277f7c276a1a05774cd42c3653734f6b9279fa64c860e",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1679,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. CCD의 별도 작동 원리는 원문에 없어 생성하지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "cmos-image-sensor",
+      "title": "CMOS 이미지센서",
+      "engName": "CMOS Image Sensor, CIS",
+      "aliases": [
+        "CIS"
+      ],
+      "domainFacet": "device",
+      "category": "광반도체 소자",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "CMOS 구조를 가진 저전력 촬상 소자로, 피사체의 빛 정보를 전기적 영상신호로 변환한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "상보형 금속산화 반도체(CMOS, Complementary Metal Oxide Semiconductor) 구조를 가진 저전력 촬상 소자.",
+      "evidenceQuote": "상보형 금속산화 반도체(CMOS, Complementary Metal Oxide Semiconductor) 구조를 가진 저전력 촬상 소자.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "전압 신호 전송과 회로 통합",
+          "content": "신호를 전압 형태로 변환해 전송하고 일반 CMOS 공정을 사용한다. 이미지센서와 주변 회로를 한 칩에 통합할 수 있어 소형화와 관리에 유리하다.",
+          "formula": null,
+          "evidenceQuote": "CMOS 이미지센서는 신호를 전압 형태로 변환해 전송하는 방식으로, 일반 반도체 공정인 CMOS 공정을 사용하기 때문에 가격 경쟁력이 있다. 또한 이미지센서와 주변 회로를 원칩화할 수 있어 소형화 및 관리가 용이하다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "배터리 수명이 중요한 스마트기기",
+          "perspectiveBadge": "스마트기기 적용",
+          "narrative": "높은 집적도와 적은 전력 소비량 때문에 스마트기기 시장에서 선호된다고 설명한다.",
+          "caution": "",
+          "evidenceQuote": "CMOS 이미지센서는 집적도가 높고 전력 소비량이 적어 배터리 수명이 중요한 스마트기기 시장에서 선호되고 있다.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "배터리로 작동하는 기기는 소비 전력이 적은 센서를 사용하면 전력 부담을 줄일 수 있다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "ccd-image-sensor",
+          "name": "CCD 이미지센서",
+          "reason": "이미지센서의 두 방식으로 대비된다.",
+          "evidenceQuote": "이미지센서는 응용방식과 제조공정에 따라 CCD 이미지센서와 CMOS 이미지센서로 나눌 수 있다."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "image-sensor",
+          "name": "이미지센서",
+          "reason": "원문이 응용·제조공정에 따른 이미지센서 종류로 구분한다.",
+          "evidenceQuote": "이미지센서는 응용방식과 제조공정에 따라 CCD 이미지센서와 CMOS 이미지센서로 나눌 수 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "image-sensor",
+      "title": "이미지센서",
+      "engName": "Image Sensor",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "피사체 정보를 읽어 빛 에너지를 전기적 에너지와 영상신호로 변환하는 장치이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "이미지센서는 피사체 정보를 읽어 전기적인 영상신호로 변환해주는 장치이다.",
+      "evidenceQuote": "이미지센서는 피사체 정보를 읽어 전기적인 영상신호로 변환해주는 장치이다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "ccd-image-sensor",
+      "title": "CCD 이미지센서",
+      "engName": "CCD",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "응용방식과 제조공정에 따라 CMOS 이미지센서와 구별되는 이미지센서의 한 종류이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "이미지센서는 응용방식과 제조공정에 따라 CCD 이미지센서와 CMOS 이미지센서로 나눌 수 있다.",
+      "evidenceQuote": "이미지센서는 응용방식과 제조공정에 따라 CCD 이미지센서와 CMOS 이미지센서로 나눌 수 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "image-sensor",
+          "name": "이미지센서",
+          "reason": "원문의 종류 구분이다.",
+          "evidenceQuote": "이미지센서는 응용방식과 제조공정에 따라 CCD 이미지센서와 CMOS 이미지센서로 나눌 수 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

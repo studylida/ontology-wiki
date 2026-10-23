@@ -1,0 +1,644 @@
+{
+  "index": 120,
+  "filePath": "skhynix/skhynix_frontend_06_metal.md",
+  "sourceHash": "ef4a193b65f178da4ca2d3b78fa5a5dac5e95edfb8bea3695758a5db7bb10a18",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 8004,
+    "method": "codex-offline-source-review",
+    "notes": "raw 120.txt 전체와 빈 파서 후보를 독립 대조했다. 접점-W의 갭 필/저항 절충, 실리사이드화와 확산 차단 역할, Al/Cu의 반대 공정 순서, 씨드 레이어·전기도금, 상부 배선 공정 재사용을 보존했다. 인텔 7나노 코발트 시도와 2022년 개발 중인4나노 Enhanced Cu를 별도 역사적 사례로 한정해 현재 사실이나 성공으로 바꾸지 않았다. TSMC·인텔 FinFET 맥락은 실제 회사 사례로 보존했다. 메모리에 동작 속도 문제가 없다는 포괄적 비교는 보편 물성으로 확정하지 않았다. 외부 전문가 칼럼이며 그림 원화 없이 본문·캡션만 검토했다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "metal-interconnect",
+      "title": "금속 배선",
+      "engName": "Metal Interconnect",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "금속 배선",
+      "scaleLevel": 3,
+      "classificationNote": "금속 배선의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "소자와 소자, 소자와 전원을 전기적으로 연결해 회로 기능을 만드는 배선 형성 작업 범주이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "소자와 전원, 소자와 소자를 연결해 주는 공정이 필요하다.",
+      "evidenceQuote": "소자와 전원, 소자와 소자를 연결해 주는 공정이 필요하다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "여러 단위 공정의 조합",
+          "content": "금속 배선은 단일 장비 공정이 아니라 포토·식각·증착 등의 조합이다. 공간 제거에는 식각을, 채움에는 주로 증착을 사용하며 사이마다 포토를 수행한다.",
+          "formula": null,
+          "evidenceQuote": "금속배선 공정은 앞에서 살펴본 포토, 식각, 증착 등과 같은 단일 공정이 아니다."
+        },
+        {
+          "step": 2,
+          "title": "층별 배선 굵기와 공정 재사용",
+          "content": "자주 많은 데이터를 교환하는 소자는 가깝게 배치하고 덜 빈번한 연결은 더 두꺼운 상부 배선을 이용한다. 상부에는 기존에 익숙한 공정을 재사용해 투자비와 학습 시간을 줄일 수도 있다.",
+          "formula": null,
+          "evidenceQuote": "금속배선은 위쪽으로 갈수록 두꺼워진다."
+        },
+        {
+          "step": 3,
+          "title": "후속 공정과의 상호작용",
+          "content": "증착 물질은 후속 열·식각 공정에 영향을 준다. 넉넉한 식각 뒤에는 갭 필이 나쁜 증착이 전체 제품 문제를 만들 수 있으며 멀티패터닝은 하드 마스크 추가 증착·식각을 필요로 한다.",
+          "formula": null,
+          "evidenceQuote": "식각을 넉넉하게 진행할 경우, 후속하는 증착 공정의 갭 필 특성이 좋지 않으면 전체 제품에 문제가 생길 수 있다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "금속 배선",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "contact",
+      "title": "컨택",
+      "engName": "Contact",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "소자·회로 구조",
+      "scaleLevel": 2,
+      "classificationNote": "컨택의 원문 역할에 따라 device, 규모 2로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "하부 소자층과 그 위 금속 배선을 연결하는 접점이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "그 위에 컨택이라고 부르는 소자와 금속배선의 연결부를 만들고 그 위에 금속배선을 연결한다.",
+      "evidenceQuote": "그 위에 컨택이라고 부르는 소자와 금속배선의 연결부를 만들고 그 위에 금속배선을 연결한다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "소자층·접점·배선 순서",
+          "content": "소자층을 먼저 형성한 뒤 접점을 만들고 그 위에 금속 배선을 연결한다.",
+          "formula": null,
+          "evidenceQuote": "하부의 소자층을 형성한 다음, 그 위에 컨택이라고 부르는 소자와 금속배선의 연결부를 만들고 그 위에 금속배선을 연결한다."
+        },
+        {
+          "step": 2,
+          "title": "텅스텐 충전의 목적",
+          "content": "소자와 금속층의 거리가 멀면 알루미늄 등은 갭 필이 나빠 중간이 비는 도선이 생길 수 있어 텅스텐으로 먼저 채운다. 접점 후 고열 처리가 필요하고 Al 등 재료가 열에 약한 상황에서도 W접점 위에 Al도선을 배치한다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "텅스텐(W)과 같이 갭 필 특성이 좋은 다른 금속을 증착해 미리 채워 넣어야 한다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "텅스텐의 전력 부담",
+          "description": "W는 구리·알루미늄보다 배선 저항이 커 과다 사용하면 전체 전력 소모가 증가한다.",
+          "evidenceQuote": "배선 저항이 크기 때문에 텅스텐을 남용할 경우 반도체 전체 전력 소모가 증가하기 때문이다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "배선 접점",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "barrier-metal",
+      "title": "배리어 메탈",
+      "engName": "Barrier Metal",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "반도체 공정 재료",
+      "scaleLevel": 1,
+      "classificationNote": "배리어 메탈의 원문 역할에 따라 materials_infra, 규모 1로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "접합 경계 저항을 줄이거나 배선 금속과 주변 재료 사이의 원치 않는 반응·확산을 막기 위해 사용하는 금속 또는 금속 화합물이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "소자와 접점 사이에는 배리어 메탈(Barrier metal)이라는 금속(혹은 금속 화합물)이 필요하다.",
+      "evidenceQuote": "소자와 접점 사이에는 배리어 메탈(Barrier metal)이라는 금속(혹은 금속 화합물)이 필요하다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "계면 저항 완화",
+          "content": "서로 다른 비금속과 금속을 바로 접합하면 전도대 차이에 따른 큰 경계 저항이 발생한다고 설명한다. Si에 Ti·Co 등을 반응시키는 실리사이드화로 계면을 형성한다.",
+          "formula": null,
+          "evidenceQuote": "특성이 다른 두 물질이 바로 접합되면 그 경계에서 큰 저항이 발생"
+        },
+        {
+          "step": 2,
+          "title": "알루미늄과 실리콘 반응 차단",
+          "content": "알루미늄 배선이 실리콘 소자층 가까이 지날 때 티타늄 화합물 등을 사이에 넣어 원치 않는 반응과 소자 손상을 막는다.",
+          "formula": null,
+          "evidenceQuote": "둘 사이를 티타늄 화합물 등으로 차단해 줄 필요가 있다."
+        },
+        {
+          "step": 3,
+          "title": "구리 확산과 절연성 보호",
+          "content": "구리는 SiO₂에도 확산해 절연막 누설전류를 일으킬 수 있어 탄탈륨으로 경계를 만든다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "이것을 막기 위해 탄탈륨(Ta)이라는 금속을 이용해 구리와 소자층의 경계를 지어줘야 한다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "배선 계면 재료",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "silicidation",
+      "title": "실리사이드화",
+      "engName": "Silicidation",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "접점 형성",
+      "scaleLevel": 3,
+      "classificationNote": "실리사이드화의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "소자의 실리콘 위에 도포한 Ti·Co 등의 금속을 실리콘과 반응시켜 접점용 실리사이드를 형성하는 과정이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "이런 과정을 Silicidation이라 부르며, 해당 부위를 Contact Silicide라 부른다.",
+      "evidenceQuote": "이런 과정을 Silicidation이라 부르며, 해당 부위를 Contact Silicide라 부른다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "실리콘과 금속의 반응",
+          "content": "소자 규소층 위에 티타늄 또는 코발트 등을 칠하고 규소와 반응시켜 비금속에서 금속으로 연결되는 접합 계면을 형성한다.",
+          "formula": null,
+          "evidenceQuote": "규소층 위에 티타늄(Ti)이나 코발트(Co)와 같은 물질을 칠해준 뒤, 이 금속들이 규소 원자와 반응시키면 된다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "접점 형성",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "contact-silicide",
+      "title": "접점 실리사이드",
+      "engName": "Contact Silicide",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "접점 계면 구조",
+      "scaleLevel": 2,
+      "classificationNote": "접점 실리사이드의 원문 역할에 따라 device, 규모 2로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "실리콘 소자층과 금속 접점 사이에서 실리사이드화로 만들어지는 계면 부위이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "이런 과정을 Silicidation이라 부르며, 해당 부위를 Contact Silicide라 부른다.",
+      "evidenceQuote": "이런 과정을 Silicidation이라 부르며, 해당 부위를 Contact Silicide라 부른다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "contact",
+          "name": "콘택트",
+          "reason": "소자와 접점 사이 경계의 실리콘-금속 반응 부위를 Contact Silicide로 부른다. 전체 연결부인 contact의 계면에 형성되는 실제 하부 구조라는 의미로 연결한다.",
+          "evidenceQuote": "한편, 소자와 접점 사이에는 배리어 메탈(Barrier metal)이라는 금속(혹은 금속 화합물)이 필요하다. 반도체 공정에서 금속이 아닌 물질과 금속인 물질을 정확하게 접합하기는 매우 어려운 일이다. 특성이 다른 두 물질이 바로 접합되면 그 경계에서 큰 저항이 발생*하게 되는데, 이는 반도체의 전력 소모를 증가시킨다. 이를 막기 위해서 경계면이 ‘자연스럽게’ 비금속에서 금속으로 변하는 것처럼 만들어야 하는데, 여기에 배리어 메탈이 사용된다. 배리어 메탈을 만들기 위해선 반도체 소자의 규소층 위에 티타늄(Ti)이나 코발트(Co)와 같은 물질을 칠해준 뒤, 이 금속들이 규소 원자와 반응시키면 된다. 이런 과정을 Silicidation이라 부르며, 해당 부위를 Contact Silicide라 부른다."
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "접점 계면 구조",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "aluminum-interconnect-patterning",
+      "title": "알루미늄 배선 패터닝",
+      "engName": "Aluminum Interconnect Patterning",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "금속 배선",
+      "scaleLevel": 3,
+      "classificationNote": "알루미늄 배선 패터닝의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "금속막을 먼저 형성하고 포토·식각으로 불필요한 알루미늄을 제거한 뒤 주변을 유전체로 채우는 배선 형성 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "필요 없는 알루미늄을 깎아낸 뒤, 알루미늄 주변에 각종 유전체(절연 물질)를 채워 넣게 된다.",
+      "evidenceQuote": "필요 없는 알루미늄을 깎아낸 뒤, 알루미늄 주변에 각종 유전체(절연 물질)를 채워 넣게 된다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "금속 우선 형성",
+          "content": "웨이퍼 전면 금속막 → 레지스트 도포·노광 → 불필요 Al 식각 → 주변 유전체 채움 순서로 진행한다.",
+          "formula": null,
+          "evidenceQuote": "일단 웨이퍼 표면 전체에 금속 막을 바른 뒤, 위에 포토레지스트를 도포하고 노광을 하는 것이다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "damascene",
+          "name": "다마신 공정",
+          "reason": "Al은 금속 우선, 구리는 유전체 우선으로 공정 순서가 다르다.",
+          "evidenceQuote": "구리의 경우는 금속과 유전체 증착 순서가 반대다."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "metal-interconnect",
+          "name": "금속 배선",
+          "reason": "금속 종류에 따른 배선 형성 방식이다.",
+          "evidenceQuote": "이 과정은 만들고자 하는 금속의 종류에 따라 매우 다르게 전개된다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "금속 배선",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "damascene",
+      "title": "다마신 공정",
+      "engName": "Damascene",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "금속 배선",
+      "scaleLevel": 3,
+      "classificationNote": "다마신 공정의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "유전체에 배선 공간을 먼저 형성하고 씨드 레이어와 구리를 채운 뒤 남는 구리를 연마 제거하는 배선 형성 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "구리는 배선을 만들 때 유전체를 먼저 증착한 뒤, 포토 공정을 이용해 유전체를 식각한다.",
+      "evidenceQuote": "구리는 배선을 만들 때 유전체를 먼저 증착한 뒤, 포토 공정을 이용해 유전체를 식각한다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "유전체 우선 형성",
+          "content": "유전체 증착 → 포토를 이용한 유전체 식각 → Cu씨드 레이어 형성 → Cu 채움 → 여분 구리 연마 순서로 진행한다.",
+          "formula": null,
+          "evidenceQuote": "이후 구리 씨드 레이어를 만든 뒤, 구리를 유전체 사이에 채워 넣고 남는 구리를 갈아서 없애는 과정을 거친다."
+        },
+        {
+          "step": 2,
+          "title": "새로운 공정의 동반 도입",
+          "content": "Cu 사용을 위해 씨드 레이어용 증착 공정과 알루미늄에서 사용하지 않던 전기도금 기법을 도입해야 했다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "알루미늄에서는 사용하지 않던 전기도금(Electroplating) 기법도 도입해야 했다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "aluminum-interconnect-patterning",
+          "name": "알루미늄 배선 패터닝",
+          "reason": "금속 우선 방식과 유전체 우선 방식이 직접 비교된다.",
+          "evidenceQuote": "구리의 경우는 금속과 유전체 증착 순서가 반대다."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "metal-interconnect",
+          "name": "금속 배선",
+          "reason": "구리 배선 형성의 한 방식이다.",
+          "evidenceQuote": "구리의 경우는 금속과 유전체 증착 순서가 반대다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "금속 배선",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "ecd",
+      "title": "전기도금",
+      "engName": "Electroplating",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "증착",
+      "scaleLevel": 3,
+      "classificationNote": "전기도금의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "이 문헌에서는 구리 배선 충전을 위해 새롭게 도입해야 했던 금속 형성 기법이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "알루미늄에서는 사용하지 않던 전기도금(Electroplating) 기법도 도입해야 했다.",
+      "evidenceQuote": "알루미늄에서는 사용하지 않던 전기도금(Electroplating) 기법도 도입해야 했다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "금속 형성",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "electromigration",
+      "title": "일렉트로마이그레이션",
+      "engName": "Electromigration",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "배선 신뢰성",
+      "scaleLevel": 1,
+      "classificationNote": "일렉트로마이그레이션의 원문 역할에 따라 materials_infra, 규모 1로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "배선에 전류가 흐를 때 전자가 금속 원자의 위치를 바꾸는 현상이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "움직이던 전자들이 금속배선 원자를 때려 금속 원자의 위치를 바꿔버리는 현상",
+      "evidenceQuote": "움직이던 전자들이 금속배선 원자를 때려 금속 원자의 위치를 바꿔버리는 현상",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "구리 EM에 대응한 코발트 기반 배선 시도",
+          "perspectiveBadge": "인텔",
+          "narrative": "기사의 역사적 맥락에서 인텔은 7나노 공정의 구리 EM 문제로 코발트 기반 배선층을 시도했으나 수년간 어려움을 겪었다고 설명한다.",
+          "caution": "기사의 과거 기술 설명이며 현재 공정 상태나 실패 원인 전체를 검증한 것은 아니다.",
+          "evidenceQuote": "인텔은 7나노 공정에서 구리의 일렉트로마이그레이션* 문제로 인해 구리 대신 코발트 기반의 금속배선층을 시도했다가 수년간 큰 어려움을 겪은 바 있다.",
+          "specifications": [
+            {
+              "parameter": "기사에서 언급한 공정 노드",
+              "value": "7",
+              "unit": "나노",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "인텔은 7나노 공정에서 구리의 일렉트로마이그레이션* 문제로 인해"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "더 빠르게 동작하는 회로에서 구리 배선의 원자 이동 문제가 커져 다른 금속을 시도한 사례다. 재료를 바꾸는 것만으로 제조 문제가 모두 해결되지는 않았다는 점을 보여준다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "배선 신뢰성",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "enhanced-cu-interconnect",
+      "title": "개선된 구리 배선",
+      "engName": "Enhanced Cu",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "배선 구조",
+      "scaleLevel": 2,
+      "classificationNote": "개선된 구리 배선의 원문 역할에 따라 device, 규모 2로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "이 기사에서 인텔이 구리 배선을 탄탈륨과 코발트로 감싸 EM 문제에 대응하려 한 배선 방식을 부르는 이름이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "인텔에선 이를 개선된 구리 배선(Enhanced Cu)라고 부르고 있다.",
+      "evidenceQuote": "인텔에선 이를 개선된 구리 배선(Enhanced Cu)라고 부르고 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "개발 중인 4나노 공정의 구리 재도입 시도",
+          "perspectiveBadge": "인텔",
+          "narrative": "기사 서술 시점인 2022년 기준 개발 중인 4나노 공정에서 구리를 다시 도입하고 탄탈륨·코발트로 감싸 문제를 해결하려 했다고 설명한다.",
+          "caution": "2022년 기사 서술상의 개발·시도이며 양산 성공 또는 현재 상태로 바꾸지 않았다.",
+          "evidenceQuote": "인텔은 2022년 현재 개발 중인 4나노 공정에서 구리 배선을 다시 도입하되, 구리 배선을 탄탈륨(Ta)과 코발트로 감싸서 문제를 해결하려 시도하고 있다.",
+          "specifications": [
+            {
+              "parameter": "기사 서술 기준 시점",
+              "value": "2022",
+              "unit": "년",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "인텔은 2022년 현재 개발 중인 4나노 공정에서"
+            },
+            {
+              "parameter": "개발 중인 공정 노드",
+              "value": "4",
+              "unit": "나노",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "인텔은 2022년 현재 개발 중인 4나노 공정에서"
+            },
+            {
+              "parameter": "구리를 감싸는 재료",
+              "value": "탄탈륨(Ta)과 코발트",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "구리 배선을 탄탈륨(Ta)과 코발트로 감싸서"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "이 사례에서는 구리를 다른 금속으로 완전히 바꾸는 대신 구리 주변에 두 금속을 함께 배치하는 구조를 시도했다. 기사에서 말한 개발 시점과 시도라는 상태를 유지해야 한다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "copper-interconnect",
+          "name": "구리 배선",
+          "reason": "구리 배선을 다시 도입하면서 Ta와 Co로 감싼 특정 구리 배선 구조를 Enhanced Cu라고 명명한다. 일반 구리 배선의 개선형에 해당한다.",
+          "evidenceQuote": "도선의 배리어 메탈도 마찬가지다. 인텔은 7나노 공정에서 구리의 일렉트로마이그레이션* 문제로 인해 구리 대신 코발트 기반의 금속배선층을 시도했다가 수년간 큰 어려움을 겪은 바 있다. 이로 인해 인텔은 2022년 현재 개발 중인 4나노 공정에서 구리 배선을 다시 도입하되, 구리 배선을 탄탈륨(Ta)과 코발트로 감싸서 문제를 해결하려 시도하고 있다. 인텔에선 이를 개선된 구리 배선(Enhanced Cu)라고 부르고 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "배선 구조",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "finfet",
+      "title": "핀펫",
+      "engName": "FinFET",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "트랜지스터·게이트 구조",
+      "scaleLevel": 2,
+      "classificationNote": "핀펫의 원문 역할에 따라 device, 규모 2로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전류가 흐르는 채널이 물고기 지느러미 같은 3차원 모양인 MOSFET 구조이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "3차원 MOSFET의 일종으로, 전류의 통로가 물고기 지느러미 모양과 비슷하게 생겼다.",
+      "evidenceQuote": "3차원 MOSFET의 일종으로, 전류의 통로가 물고기 지느러미 모양과 비슷하게 생겼다.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "입체 채널과 접점 형성",
+          "description": "채널을 3차원으로 만들어 전류 제어 면적을 높이는 구조는 DRAM 평면 트랜지스터보다 채널에 밀착되는 컨택을 만들기 어렵다고 설명한다.",
+          "evidenceQuote": "로직 반도체의 FinFET은 DRAM의 평면 트랜지스터보다 접점 형성이 어렵다."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "로직 반도체에서의 입체 채널 도입",
+          "perspectiveBadge": "TSMC·인텔 등 로직 회사",
+          "narrative": "원문은 TSMC·인텔 같은 로직 회사가 높은 전류 제어 능력을 위해 FinFET 등 입체 채널 구조를 도입한다고 설명한다.",
+          "caution": "특정 제품이나 노드별 구조 치수·정량 전류 성능은 없다.",
+          "evidenceQuote": "TSMC, 인텔과 같이 로직 반도체*를 제조하는 회사들은 트랜지스터의 전류 제어 능력이 매우 높아야 한다.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "채널 모양을 입체로 바꾸면 게이트가 전류를 제어하는 면적을 넓힐 수 있다. 그 대신 복잡한 모양의 채널에 접점을 밀착시키는 일이 어려워진다는 사례다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "트랜지스터 구조",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "multiple-patterning",
+      "title": "멀티 패터닝",
+      "engName": "Multi Patterning",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "패터닝",
+      "scaleLevel": 3,
+      "classificationNote": "멀티 패터닝의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "노광기를 여러 번 사용해 더 미세한 패턴을 웨이퍼에 그리는 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "멀티패터닝 : 노광기를 여러 번 사용해 더욱 미세한 패턴을 웨이퍼 위에 그리는 기법",
+      "evidenceQuote": "멀티패터닝 : 노광기를 여러 번 사용해 더욱 미세한 패턴을 웨이퍼 위에 그리는 기법",
+      "principles": [
+        {
+          "step": 1,
+          "title": "추가 막과 식각의 필요",
+          "content": "미세 패턴을 그릴 노광기가 부족할 때 멀티패터닝을 사용하며 하드 마스크 추가 증착과 식각이 필요해진다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "이 과정에서 하드 마스크 추가 증착, 식각이 필요해지게 된다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "패터닝",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "capacitor",
+      "title": "커패시터",
+      "engName": "Capacitor",
+      "aliases": [
+        "캐패시터",
+        "축전기"
+      ],
+      "domainFacet": "device",
+      "category": "소자·회로 구조",
+      "scaleLevel": 2,
+      "classificationNote": "전하를 저장하는 메모리 소자이므로 device, 규모2로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전기를 저장하는 소자이며, 이 문헌의 메모리 반도체 문맥에서는 데이터를 저장하는 장치를 가리킨다.",
+      "purpose": "전하를 저장해 메모리 데이터를 유지한다.",
+      "summaryEvidenceQuote": "캐패시터(Capacitor) : 축전지, 전기를 저장할 수 있는 장치로 다수의 전자제품에 적용되지만 본 칼럼에서는 메모리 반도체에서 데이터가 저장되는 장치를 지칭한다.",
+      "purposeEvidenceQuote": "캐패시터(Capacitor) : 축전지, 전기를 저장할 수 있는 장치로 다수의 전자제품에 적용되지만 본 칼럼에서는 메모리 반도체에서 데이터가 저장되는 장치를 지칭한다.",
+      "evidenceQuote": "캐패시터(Capacitor) : 축전지, 전기를 저장할 수 있는 장치로 다수의 전자제품에 적용되지만 본 칼럼에서는 메모리 반도체에서 데이터가 저장되는 장치를 지칭한다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "높은 커패시터로 전하 용량 유지",
+          "perspectiveBadge": "SK하이닉스 등 메모리 회사",
+          "narrative": "원문은 로직 회사의 배선 EM 문제와 비교해 SK하이닉스 같은 메모리 회사는 커패시터를 높게 쌓아 전하 용량을 유지하는 데 어려움이 있다고 설명한다.",
+          "caution": "기사의 사업·제품별 비교 맥락이며 모든 메모리에 속도 문제가 없다는 일반 법칙으로 확정하지 않았다. 높이·용량의 정량값은 없다.",
+          "evidenceQuote": "SK하이닉스와 같은 메모리 회사의 경우 회로 동작 속도에 의한 문제는 없지만, 대신 캐패시터를 높이 쌓아 전하 용량을 유지하는 것에 어려움을 겪고 있다.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "작아지는 메모리에서도 저장할 전하량을 유지해야 한다. 이 기사에서는 저장 구조를 높게 만드는 방법이 필요하고, 그 구조를 제조하는 일이 어려워진다고 설명한다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "메모리 저장 소자",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

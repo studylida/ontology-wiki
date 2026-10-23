@@ -1,0 +1,99 @@
+{
+  "index": 32,
+  "filePath": "samsung/glossary/반도체-용어-사전-sata.md",
+  "sourceHash": "e7633b370ba1ffc70a16bac1bad20a1d79eb92cc43ff0ce5bfd3f1ba583df7ae",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1542,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. PATA의 병렬 방식, SATA의 이론값 600MB/s, PCIe의 3GB/s를 보존했다. 현재 최대 사양으로 일반화하지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "sata",
+      "title": "SATA",
+      "engName": "Serial ATA",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "통신·인터페이스",
+      "scaleLevel": 4,
+      "classificationNote": "여러 기능을 통합한 시스템 또는 패키지를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "하드디스크나 광학 디스크 드라이브와 데이터를 전송하기 위한 컴퓨터 연결 인터페이스로, 병렬 방식 PATA를 대체하도록 만들어졌다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "SATA 인터페이스는 하드디스크(HDD)나 광학 디스크 드라이브(ODD)와의 데이터 전송을 위해 만든 컴퓨터 데이터 연결 방식의 한 종류로, PC 개발 초기부터 사용된 병렬 전송 방식의 인터페이스(PATA)를 대체하기 위해 만들어졌다.",
+      "evidenceQuote": "SATA 인터페이스는 하드디스크(HDD)나 광학 디스크 드라이브(ODD)와의 데이터 전송을 위해 만든 컴퓨터 데이터 연결 방식의 한 종류로, PC 개발 초기부터 사용된 병렬 전송 방식의 인터페이스(PATA)를 대체하기 위해 만들어졌다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "PATA 대비 특성",
+          "content": "PATA보다 안정성과 소형화, 데이터 전송속도 측면의 이점을 가진다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "SATA 인터페이스는 PATA 인터페이스에 비해 안정성, 소형화 등 많은 장점을 가지고 있으며, 특히 데이터 전송속도 또한 향상되어 현재까지 이론적 데이터 전송 속도 한계는 600MB/s이다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "2013년 사전의 전송속도 비교",
+          "perspectiveBadge": "2013.12.18 사전",
+          "narrative": "당시 SATA의 이론적 전송속도 한계를 600MB/s로, PCIe의 전송속도를 3GB/s로 설명한다.",
+          "caution": "2013년 문서의 시점과 이론값 한정을 유지한다.",
+          "evidenceQuote": "SATA 인터페이스는 PATA 인터페이스에 비해 안정성, 소형화 등 많은 장점을 가지고 있으며, 특히 데이터 전송속도 또한 향상되어 현재까지 이론적 데이터 전송 속도 한계는 600MB/s이다.",
+          "specifications": [
+            {
+              "parameter": "SATA 이론적 전송속도 한계",
+              "value": "600",
+              "unit": "MB/s",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "SATA 인터페이스는 PATA 인터페이스에 비해 안정성, 소형화 등 많은 장점을 가지고 있으며, 특히 데이터 전송속도 또한 향상되어 현재까지 이론적 데이터 전송 속도 한계는 600MB/s이다."
+            },
+            {
+              "parameter": "PCIe 전송속도",
+              "value": "3",
+              "unit": "GB/s",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "PCIe 인터페이스는 현재까지 초당 3GB/s의 데이터 전송이 가능하다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "당시 글의 SATA와 PCIe 비교이다. 이후 세대나 특정 장치 실측 결과를 뜻하지 않는다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "pata",
+          "name": "PATA",
+          "reason": "SATA가 대체하기 위해 만들어진 연결 방식이다.",
+          "evidenceQuote": "SATA 인터페이스는 하드디스크(HDD)나 광학 디스크 드라이브(ODD)와의 데이터 전송을 위해 만든 컴퓨터 데이터 연결 방식의 한 종류로, PC 개발 초기부터 사용된 병렬 전송 방식의 인터페이스(PATA)를 대체하기 위해 만들어졌다."
+        },
+        {
+          "id": "pcie",
+          "name": "PCI Express",
+          "reason": "SATA의 전송속도 한계를 넘는 비교 인터페이스로 제시한다.",
+          "evidenceQuote": "하지만 최근 SATA 인터페이스의 초당 데이터 전송 속도의 성능 한계를 극복한 PCIe 인터페이스 규격이 등장하면서 시장의 트렌드가 옮겨가고 있다."
+        }
+      ],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "통신·인터페이스",
+          "scaleLevel": 4
+        }
+      ]
+    }
+  ]
+}

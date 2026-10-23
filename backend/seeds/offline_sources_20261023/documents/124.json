@@ -1,0 +1,666 @@
+{
+  "index": 124,
+  "filePath": "skhynix/skhynix_pkg_01_chiplet.md",
+  "sourceHash": "f2f4e24313147b0df350e4e7bd70a986a81f7c75501758107bf5c9aad946afb1",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 8546,
+    "method": "codex-offline-source-review",
+    "notes": "제공 원문 전체와 비어 있는 파서 후보를 대조했다. 외부 전문가 칼럼이며 SK하이닉스 공식 입장과 다를 수 있다는 고지를 보존한다. 칩렛 공정 노드와 MCM 다이 수는 설계 예시로, UCIe 속도는 규격으로 분리했다. CoWoS/SoIC는 TSMC 기술이며 AMD·엔비디아 연산 제품과 SK하이닉스 HBM 제공 역할을 구별했다. 일반 CXL 확장 설명에 구체적 시스템 조건이 없음을 명시했다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "chiplet",
+      "title": "칩렛",
+      "engName": "Chiplet",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "패키징 연결·집적 구조",
+      "scaleLevel": 4,
+      "classificationNote": "시스템 집적 구조 분야이며, 여러 칩·기능·회로를 묶는 패키지 또는 시스템 구조이므로 규모 4로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "큰 반도체 칩의 기능을 연산·저장·입출력 등 작은 기능 단위 칩으로 나누고 이들을 패키지 안에서 통합하여 하나의 시스템처럼 동작시키는 설계 방식이다.",
+      "purpose": "작은 다이의 수율 이점, 기능별 적합 공정 적용, 설계 자산 재사용으로 생산·개발 비용을 줄인다.",
+      "summaryEvidenceQuote": "이러한 환경에서 제안된 방식이 칩렛 디자인(이하 칩렛)이다. 사전적 정의로 칩렛은 큰 반도체 칩을 기능별로 여러 개의 작은 조각(소형 칩)으로 나눈 것이다. 각각의 칩렛이 연산, 저장, 입출력(I/O)* 등 특정 기능을 전담하고, 이러한 조각을 한데 모아 패키징(조립)해 하나의 완성된 시스템 칩처럼 동작하게 하는 것이다.",
+      "evidenceQuote": "이러한 환경에서 제안된 방식이 칩렛 디자인(이하 칩렛)이다. 사전적 정의로 칩렛은 큰 반도체 칩을 기능별로 여러 개의 작은 조각(소형 칩)으로 나눈 것이다. 각각의 칩렛이 연산, 저장, 입출력(I/O)* 등 특정 기능을 전담하고, 이러한 조각을 한데 모아 패키징(조립)해 하나의 완성된 시스템 칩처럼 동작하게 하는 것이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "기능 분리와 통합",
+          "content": "연산과 입출력 등을 담당하는 기능 칩을 물리적으로 분리하고 함께 통합해 완전한 프로세서를 구성한다.",
+          "formula": null,
+          "evidenceQuote": "예를 들어, MCM 방식의 CPU는 4개의 다이가 각각 연산 코어와 I/O 등을 포함해 독립적으로 기능할 수 있지만, 칩렛 방식에서는 연산을 담당하는 CPU 다이와 외부 입출력을 담당하는 I/O 다이가 물리적으로 분리되어 반드시 함께 통합되어야 하나의 완전한 프로세서로서 동작한다."
+        },
+        {
+          "step": 2,
+          "title": "기능별 공정 선택",
+          "content": "성능이 필요한 기능에는 첨단 공정을, 덜 민감한 기능에는 기존 공정을 선택할 수 있다.",
+          "formula": null,
+          "evidenceQuote": "이론상 칩렛으로 제조했을 경우, 작은 칩렛들은 작은 다이로 만들기에 수율에서 이점을 갖는다. 또한, 칩 내 각각의 기능을 3nm*(나노미터), 7nm, 14nm, 32nm 등 다른 기술 노드에서 만들 수 있다. 하나의 다이에 넣어 만들 때처럼 최첨단 공정을 사용해 비싼 비용을 지불해야 하는 문제를 피할 수 있다. 예를 들어, 고성능이 요구되는 CPU 연산 코어(로직회로)는 최신 3nm 공정을 적용하고, 상대적으로 공정 노드에 덜 민감한 S램*이나 아날로그 회로는 기존 7nm 공정을 적용해 전체 칩의 생산 원가를 크게 낮출 수 있다."
+        },
+        {
+          "step": 3,
+          "title": "설계 자산 재사용",
+          "content": "개별 IP를 독립적으로 설계·검증하며 특정 기능 변경 시 해당 칩렛을 교체한다.",
+          "formula": null,
+          "evidenceQuote": "칩렛 설계의 경우 반도체 설계자들이 ‘레고 블록’처럼 다양한 IP* 블록을 조립하고 통합할 수 있게 해, 각 IP 블록을 독립적으로 설계하고 검증할 수 있도록 한다. 이는 전체 칩을 재설계하는 데 드는 시간과 비용을 획기적으로 줄여준다. 특정 기능의 업그레이드나 변경이 필요할 때는 해당 칩렛만 교체하면 되므로, 개발 효율성도 크게 향상된다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "연결과 호환성",
+          "description": "물리적 연결뿐 아니라 프로토콜 스택과 소프트웨어 모델까지 통합해야 하며 표준이 없으면 다중 공급업체 활용성이 낮아진다.",
+          "evidenceQuote": "이는 단순한 물리적 연결을 넘어, 프로토콜 스택*과 소프트웨어 모델에 이르는 전반적인 통합을 요구한다. 만약 표준화된 인터페이스*가 없거나, 각 칩렛 공급업체가 독자적인 방식을 고수한다면, 칩렛의 핵심 이점인 다중 공급업체 활용 및 설계 유연성이 크게 떨어질 수 있다. 이를 위해 업계 전반의 지속적인 협력 및 표준을 준수하려는 노력이 필수적이다."
+        },
+        {
+          "title": "접합 수율과 비용",
+          "description": "높은 I/O 밀도를 위한 접합 공정은 단계와 비용이 늘고 생산 난도·수율 문제가 생길 수 있다.",
+          "evidenceQuote": "모바일과 AI 시장이 커지며 급격히 주목받고 있는 어드밴스드 패키지기술은 바로 이러한 I/O 밀도를 높이며, 여러 종류의 칩을 결합하는 데 초점을 맞추고 있다[관련기사]. 특히 하이브리드 본딩 등 다양한 어드밴스드 패키징 기술은 제조 공정 단계가 늘고 비용이 증가할 수 있지만, 그만큼 고도화된 경쟁력을 제공한다. 이 가운데, 생산 난도 향상 및 수율 감소 문제를 극복할 수 있는 새로운 칩렛 접합 소재 및 공법 개발도 요구되고 있다. 결과적으로, 초기의 높은 비용을 얼마나 빠르게 최적화하느냐가 향후 경쟁력의 핵심이 될 것이다."
+        },
+        {
+          "title": "다이 간 통신 부담",
+          "description": "D2D 통신은 같은 다이 내부보다 지연과 전력 부담이 크고 I/O 면적·전력·비용이 추가되므로 지나친 소형화가 효율을 낮출 수 있다.",
+          "evidenceQuote": "또, 칩렛 간 데이터 이동은 같은 다이 내부의 연결만큼 빠르고 효율적이지 못하다. D2D 통신은 아무리 가까워도 단일 칩 내부의 트랜지스터 연결보다 지연(Latency)이 크고 전력 소모가 높다. 특히 실시간 반응이 중요한 작업에서는 칩렛 사이 연결 최적화가 매우 중요하다. 뿐만 아니라, 칩렛 간 통신을 위해 I/O에 추가적인 면적과 전력, 비용 등을 소모할 수밖에 없다. 따라서 칩렛을 지나치게 작게 만들면 오히려 효율성이 떨어진다. 그러므로 칩렛의 적정 크기와 개수를 결정하는 설계 방법론도 숙제로 남아 있다. 그래서 이러한 전체적 최적화를 도와줄 EDA(전자설계자동화) 툴의 발전과 새로운 설계 기법이 요구된다."
+        },
+        {
+          "title": "시스템 검증",
+          "description": "양품 칩렛 선별 테스트, 열 방출, 전력 분배를 함께 고려해야 한다.",
+          "evidenceQuote": "이 밖에도 양품 칩렛 선별을 위한 테스트의 복잡성, 열 방출 관리, 전력 분배 등 칩렛의 공정과 설계를 위한 다양한 기술적 해결책이 필요하다. 이처럼 칩렛의 전면적인 구현을 위해서는 설계와 제조 공정 양쪽에서의 긴밀한 협업이 중요하다."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "기능별 기술 노드 선택 예시",
+          "perspectiveBadge": "설계 예시",
+          "narrative": "본문은 CPU 코어에 최신 3nm, 공정 민감도가 낮은 SRAM·아날로그 회로에는 기존 7nm를 적용하는 비용 절감 예시를 든다. 가능한 노드 예시에는 14nm와 32nm도 포함된다.",
+          "caution": "원문의 이론적 설계 예시이며 특정 양산 제품의 공정 조합이 아니다.",
+          "evidenceQuote": "이론상 칩렛으로 제조했을 경우, 작은 칩렛들은 작은 다이로 만들기에 수율에서 이점을 갖는다. 또한, 칩 내 각각의 기능을 3nm*(나노미터), 7nm, 14nm, 32nm 등 다른 기술 노드에서 만들 수 있다. 하나의 다이에 넣어 만들 때처럼 최첨단 공정을 사용해 비싼 비용을 지불해야 하는 문제를 피할 수 있다. 예를 들어, 고성능이 요구되는 CPU 연산 코어(로직회로)는 최신 3nm 공정을 적용하고, 상대적으로 공정 노드에 덜 민감한 S램*이나 아날로그 회로는 기존 7nm 공정을 적용해 전체 칩의 생산 원가를 크게 낮출 수 있다.",
+          "specifications": [
+            {
+              "parameter": "CPU 연산 코어 공정 예시",
+              "value": "최신 3",
+              "unit": "nm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "이론상 칩렛으로 제조했을 경우, 작은 칩렛들은 작은 다이로 만들기에 수율에서 이점을 갖는다. 또한, 칩 내 각각의 기능을 3nm*(나노미터), 7nm, 14nm, 32nm 등 다른 기술 노드에서 만들 수 있다. 하나의 다이에 넣어 만들 때처럼 최첨단 공정을 사용해 비싼 비용을 지불해야 하는 문제를 피할 수 있다. 예를 들어, 고성능이 요구되는 CPU 연산 코어(로직회로)는 최신 3nm 공정을 적용하고, 상대적으로 공정 노드에 덜 민감한 S램*이나 아날로그 회로는 기존 7nm 공정을 적용해 전체 칩의 생산 원가를 크게 낮출 수 있다."
+            },
+            {
+              "parameter": "SRAM·아날로그 공정 예시",
+              "value": "기존 7",
+              "unit": "nm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "이론상 칩렛으로 제조했을 경우, 작은 칩렛들은 작은 다이로 만들기에 수율에서 이점을 갖는다. 또한, 칩 내 각각의 기능을 3nm*(나노미터), 7nm, 14nm, 32nm 등 다른 기술 노드에서 만들 수 있다. 하나의 다이에 넣어 만들 때처럼 최첨단 공정을 사용해 비싼 비용을 지불해야 하는 문제를 피할 수 있다. 예를 들어, 고성능이 요구되는 CPU 연산 코어(로직회로)는 최신 3nm 공정을 적용하고, 상대적으로 공정 노드에 덜 민감한 S램*이나 아날로그 회로는 기존 7nm 공정을 적용해 전체 칩의 생산 원가를 크게 낮출 수 있다."
+            },
+            {
+              "parameter": "기능별 적용 가능 기술 노드 예시",
+              "value": "3, 7, 14, 32",
+              "unit": "nm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "이론상 칩렛으로 제조했을 경우, 작은 칩렛들은 작은 다이로 만들기에 수율에서 이점을 갖는다. 또한, 칩 내 각각의 기능을 3nm*(나노미터), 7nm, 14nm, 32nm 등 다른 기술 노드에서 만들 수 있다. 하나의 다이에 넣어 만들 때처럼 최첨단 공정을 사용해 비싼 비용을 지불해야 하는 문제를 피할 수 있다. 예를 들어, 고성능이 요구되는 CPU 연산 코어(로직회로)는 최신 3nm 공정을 적용하고, 상대적으로 공정 노드에 덜 민감한 S램*이나 아날로그 회로는 기존 7nm 공정을 적용해 전체 칩의 생산 원가를 크게 낮출 수 있다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "각 기능을 꼭 같은 공정으로 만들 필요가 없다는 예시다. 빠른 연산 부분과 나머지를 알맞은 공정으로 나눠 만들 수 있지만 특정 회사의 실제 제품 사양은 아니다.",
+            "background": null
+          }
+        }
+      ],
+      "alternatives": [
+        {
+          "id": "multi-chip-module",
+          "name": "멀티 칩 모듈",
+          "reason": "원문은 독립 동작 여부를 기준으로 MCM과 칩렛 구성을 비교한다.",
+          "evidenceQuote": "이는 기존 멀티 칩 모듈(Multi-Chip Module, MCM)과 유사한 측면이 있지만, MCM은 여러 개의 독립적인 단위 칩들이 각자 모든 기능을 포함해 개별적으로 동작하도록 구성된 반면, 칩렛은 각 구성 요소가 독립적으로 동작할 수 없다는 핵심적인 차이가 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "시스템 집적 구조",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "multi-chip-module",
+      "title": "멀티 칩 모듈",
+      "engName": "Multi-Chip Module",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "시스템 집적 구조",
+      "scaleLevel": 4,
+      "classificationNote": "시스템 집적 구조 분야이며, 여러 칩·기능·회로를 묶는 패키지 또는 시스템 구조이므로 규모 4로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "여러 독립적인 단위 칩을 모아 구성하는 모듈이다. 본문은 각 칩이 독립 동작하는 점을 기능을 나눠 통합하는 칩렛과 구별한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "이는 기존 멀티 칩 모듈(Multi-Chip Module, MCM)과 유사한 측면이 있지만, MCM은 여러 개의 독립적인 단위 칩들이 각자 모든 기능을 포함해 개별적으로 동작하도록 구성된 반면, 칩렛은 각 구성 요소가 독립적으로 동작할 수 없다는 핵심적인 차이가 있다.",
+      "evidenceQuote": "이는 기존 멀티 칩 모듈(Multi-Chip Module, MCM)과 유사한 측면이 있지만, MCM은 여러 개의 독립적인 단위 칩들이 각자 모든 기능을 포함해 개별적으로 동작하도록 구성된 반면, 칩렛은 각 구성 요소가 독립적으로 동작할 수 없다는 핵심적인 차이가 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "MCM CPU와 칩렛 CPU의 차이 예시",
+          "perspectiveBadge": "설계 예시",
+          "narrative": "MCM CPU의 예시에서는 4개의 다이가 각각 연산 코어와 I/O를 포함해 독립적으로 기능한다. 칩렛 예시에서는 CPU 다이와 I/O 다이가 물리적으로 분리되어 함께 통합해야 동작한다.",
+          "caution": "특정 CPU 제품명 없이 제시한 비교 예시다.",
+          "evidenceQuote": "예를 들어, MCM 방식의 CPU는 4개의 다이가 각각 연산 코어와 I/O 등을 포함해 독립적으로 기능할 수 있지만, 칩렛 방식에서는 연산을 담당하는 CPU 다이와 외부 입출력을 담당하는 I/O 다이가 물리적으로 분리되어 반드시 함께 통합되어야 하나의 완전한 프로세서로서 동작한다.",
+          "specifications": [
+            {
+              "parameter": "MCM CPU 예시 다이 수",
+              "value": "4",
+              "unit": "개",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "예를 들어, MCM 방식의 CPU는 4개의 다이가 각각 연산 코어와 I/O 등을 포함해 독립적으로 기능할 수 있지만, 칩렛 방식에서는 연산을 담당하는 CPU 다이와 외부 입출력을 담당하는 I/O 다이가 물리적으로 분리되어 반드시 함께 통합되어야 하나의 완전한 프로세서로서 동작한다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "다이마다 필요한 기능을 모두 넣는 경우와, 다이별로 일을 나눠 함께 써야 하는 경우를 비교한 설명이다.",
+            "background": null
+          }
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "시스템 집적 구조",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "ucie",
+      "title": "범용 칩렛 상호 연결",
+      "engName": "Universal Chiplet Interconnect Express",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "칩렛 인터페이스 표준",
+      "scaleLevel": 5,
+      "classificationNote": "칩렛 인터페이스 표준 분야이며, 단일 소자·공정이 아니라 생산 운영·평가 체계·설계 자산·표준 또는 생태계를 다루므로 규모 5로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "서로 다른 공급업체의 칩렛이 공통 규격으로 통신하도록 다이 간 연결을 표준화하는 인터페이스 규격이다.",
+      "purpose": "개방형 칩렛 생태계에서 다중 공급업체 구성 요소의 통신과 호환성을 보장한다.",
+      "summaryEvidenceQuote": "UCIe 1.0 규격은 물리적 계층, 프로토콜 스택(기존 PCIe* 및 CXL* 활용), 소프트웨어 모델 및 규정 준수 테스트를 포함해 완전히 표준화된 D2D 상호 연결을 제공한다. 이를 통해 서로 다른 회사에서 만든 칩렛도 공통 규격만 맞으면 하나의 시스템처럼 통신할 수 있게 된다. 이러한 표준화의 목적은 우리가 다양한 칩을 PCB에 꽂아 시스템을 만드는 것처럼, 칩 제작도 궁극적으로는 ‘플러그 앤 플래이(Plug & Play)’ 방식의 조립형으로 바꾸는 데 있다.",
+      "evidenceQuote": "UCIe 1.0 규격은 물리적 계층, 프로토콜 스택(기존 PCIe* 및 CXL* 활용), 소프트웨어 모델 및 규정 준수 테스트를 포함해 완전히 표준화된 D2D 상호 연결을 제공한다. 이를 통해 서로 다른 회사에서 만든 칩렛도 공통 규격만 맞으면 하나의 시스템처럼 통신할 수 있게 된다. 이러한 표준화의 목적은 우리가 다양한 칩을 PCB에 꽂아 시스템을 만드는 것처럼, 칩 제작도 궁극적으로는 ‘플러그 앤 플래이(Plug & Play)’ 방식의 조립형으로 바꾸는 데 있다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "표준화 범위",
+          "content": "UCIe 1.0은 물리 계층, 기존 PCIe·CXL을 활용한 프로토콜 스택, 소프트웨어 모델, 규정 준수 테스트를 포함한다.",
+          "formula": null,
+          "evidenceQuote": "UCIe 1.0 규격은 물리적 계층, 프로토콜 스택(기존 PCIe* 및 CXL* 활용), 소프트웨어 모델 및 규정 준수 테스트를 포함해 완전히 표준화된 D2D 상호 연결을 제공한다. 이를 통해 서로 다른 회사에서 만든 칩렛도 공통 규격만 맞으면 하나의 시스템처럼 통신할 수 있게 된다. 이러한 표준화의 목적은 우리가 다양한 칩을 PCB에 꽂아 시스템을 만드는 것처럼, 칩 제작도 궁극적으로는 ‘플러그 앤 플래이(Plug & Play)’ 방식의 조립형으로 바꾸는 데 있다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "컨소시엄 출범과 규격 세대",
+          "perspectiveBadge": "UCIe",
+          "narrative": "본문은 2022년 SK하이닉스·AMD·Arm·ASE·TSMC·구글 클라우드·메타·마이크로소프트·삼성전자·인텔·퀄컴 등이 컨소시엄을 발족했다고 서술한다. 이어 2023년 1.1, 2024년 3D 적층을 고려한 2.0, 2025년 8월 3.0 공개를 설명한다.",
+          "caution": "규격의 수치이며 특정 공급업체 칩렛의 실측 성능으로 해석하지 않는다.",
+          "evidenceQuote": "2022년 SK하이닉스를 비롯해 AMD, Arm, ASE, TSMC, 구글 클라우드, 메타, 마이크로소프트, 삼성전자, 인텔, 퀄컴 등 반도체 산업의 주요 기업들은 ‘범용 칩렛 인터커넥트 익스프레스 컨소시엄(Universal Chiplet Interconnect Express Consortium, UCIe)’을 발족했다. 이 컨소시엄의 핵심 목표는 다이 투 다이(Die-To-Die, D2D) 상호 연결을 표준화하고 개방형 칩렛 생태계를 조성하는 것이다.",
+          "specifications": [
+            {
+              "parameter": "UCIe 3.0 공개 시점",
+              "value": "2025년 8월",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "UCIe 1.0 발표 후에도 표준은 진화하고 있다. 2023년에는 1.1 버전, 2024년에는 3D 적층까지 고려한 2.0 버전에 이어, 2025년 8월에는 초당 64기가트랜스퍼(GT/s)에 달하는 데이터 전송 속도를 비약적으로 향상시킨 UCIe 3.0 표준을 공개했다."
+            },
+            {
+              "parameter": "UCIe 3.0 데이터 전송 속도",
+              "value": "64",
+              "unit": "GT/s",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "UCIe 1.0 발표 후에도 표준은 진화하고 있다. 2023년에는 1.1 버전, 2024년에는 3D 적층까지 고려한 2.0 버전에 이어, 2025년 8월에는 초당 64기가트랜스퍼(GT/s)에 달하는 데이터 전송 속도를 비약적으로 향상시킨 UCIe 3.0 표준을 공개했다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "서로 다른 회사의 칩 조각을 함께 쓰려면 연결 규칙이 맞아야 한다. 이 사례는 그 규칙의 발전을 설명하며 특정 제품에서 측정한 데이터 속도는 아니다.",
+            "background": null
+          }
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "칩렛 인터페이스 표준",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "cowos",
+      "title": "CoWoS 패키징",
+      "engName": "Chip on Wafer on Substrate",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "패키징 통합",
+      "scaleLevel": 4,
+      "classificationNote": "첨단 패키징 플랫폼 분야이며, 여러 칩·기능·회로를 묶는 패키지 또는 시스템 구조이므로 규모 4로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "여러 칩을 실리콘 기반 인터포저 위에 올려 한꺼번에 패키징하는 TSMC의 기술이다. 칩 간 거리를 줄이고 배선을 늘려 신호 전달을 돕는다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* CoWoS(Chip on Wafer on Substrate): 기존 패키징 방식은 메모리와 비메모리 등 서로 다른 칩들을 각각 패키징한 다음 기판 위에서 연결하는 방식이라면, CoWoS는 칩들을 실리콘 기반의 인터포저 위에 올려 한꺼번에 패키징하는 방식. 칩간 거리가 가까워져 제품 면적이 줄고, 배선을 더 늘릴 수 있어 신호 전달 속도가 빨라진다는 특징이 있음. TSMC 고유의 패키징 기술이며, HBM과 GPU를 결합하는 방식 중 하나임",
+      "evidenceQuote": "* CoWoS(Chip on Wafer on Substrate): 기존 패키징 방식은 메모리와 비메모리 등 서로 다른 칩들을 각각 패키징한 다음 기판 위에서 연결하는 방식이라면, CoWoS는 칩들을 실리콘 기반의 인터포저 위에 올려 한꺼번에 패키징하는 방식. 칩간 거리가 가까워져 제품 면적이 줄고, 배선을 더 늘릴 수 있어 신호 전달 속도가 빨라진다는 특징이 있음. TSMC 고유의 패키징 기술이며, HBM과 GPU를 결합하는 방식 중 하나임",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "AI·HPC 칩과 HBM의 CoWoS 통합",
+          "perspectiveBadge": "TSMC·AMD·엔비디아·SK하이닉스",
+          "narrative": "본문은 AMD와 엔비디아의 AI·HPC 제품이 TSMC CoWoS 플랫폼으로 구현되며, SK하이닉스가 HBM을 제공하고 TSMC와 CoWoS 공정을 고도화한다고 설명한다.",
+          "caution": "",
+          "evidenceQuote": "최근 TSMC의 CoWoS*, SoIC*는 새로운 칩렛 설계를 가능케 했다. AMD와 엔비디아의 AI 및 HPC 제품은 실리콘 인터포저* 위에 여러 칩을 놓고 하나의 패키지로 만드는 방식인 TSMC CoWoS 플랫폼 위에서 구현됐다. 이때, SK하이닉스는 대역폭이 극대화된 메모리(HBM)를 제공하여 이 제품을 완성시키고 있다. 또한 HBM 성능 극대화를 목표로 CoWoS 공정 기술을 TSMC와 함께 고도화하고 있기도 하다[관련기사]. 칩렛은 이러한 기술적 노력들을 바탕으로 한걸음씩 진화를 거듭하는 중이다.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "TSMC의 연결 플랫폼 위에 연산 칩과 SK하이닉스의 메모리를 함께 구성한다는 설명이다. 플랫폼 제공사와 메모리 제공사를 구분해야 한다.",
+            "background": null
+          }
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "첨단 패키징 플랫폼",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "soic",
+      "title": "SoIC 3D 적층",
+      "engName": "System on Integrated Chips",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "첨단 패키징 플랫폼",
+      "scaleLevel": 4,
+      "classificationNote": "첨단 패키징 플랫폼 분야이며, 여러 칩·기능·회로를 묶는 패키지 또는 시스템 구조이므로 규모 4로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "칩을 위로 쌓아 직접 연결하는 TSMC의 3D 적층 패키징 기술이다. 하이브리드 본딩 등을 활용해 전력 소모와 지연을 줄이고 연결 밀도를 높인다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* SoIC(System on Integrated Chips)는 TSMC의 3D 적층 패키징 기술로, 칩을 위로 쌓아 직접 연결하는 방식. 하이브리드 본딩 등을 활용해 전력 소모와 지연을 줄이고, 칩 간 연결 밀도를 극대화하는 것이 특징",
+      "evidenceQuote": "* SoIC(System on Integrated Chips)는 TSMC의 3D 적층 패키징 기술로, 칩을 위로 쌓아 직접 연결하는 방식. 하이브리드 본딩 등을 활용해 전력 소모와 지연을 줄이고, 칩 간 연결 밀도를 극대화하는 것이 특징",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "첨단 패키징 플랫폼",
+          "scaleLevel": 4
+        }
+      ],
+      "isA": [
+        {
+          "id": "advanced-packaging",
+          "name": "첨단 패키징",
+          "reason": "SoIC는 칩을 수직으로 직접 연결하는 TSMC의 3D 적층 패키징 기술이다. 본문이 설명하는 첨단 패키징 기술군의 한 구체적 플랫폼으로 대응한다.",
+          "evidenceQuote": "* SoIC(System on Integrated Chips)는 TSMC의 3D 적층 패키징 기술로, 칩을 위로 쌓아 직접 연결하는 방식. 하이브리드 본딩 등을 활용해 전력 소모와 지연을 줄이고, 칩 간 연결 밀도를 극대화하는 것이 특징"
+        }
+      ]
+    },
+    {
+      "conceptId": "silicon-interposer",
+      "title": "실리콘 인터포저",
+      "engName": "Silicon Interposer",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "패키징 연결 구조",
+      "scaleLevel": 4,
+      "classificationNote": "패키징 연결 구조 분야이며, 여러 칩·기능·회로를 묶는 패키지 또는 시스템 구조이므로 규모 4로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "얇은 실리콘 기판 위의 미세 배선으로 여러 칩을 빠르고 촘촘하게 연결하는 중간판이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* 실리콘 인터포저(Silicon Interposer): 얇은 실리콘 기판 위에 미세한 배선을 만들어 여러 칩을 서로 빠르고 촘촘하게 연결해주는 중간판",
+      "evidenceQuote": "* 실리콘 인터포저(Silicon Interposer): 얇은 실리콘 기판 위에 미세한 배선을 만들어 여러 칩을 서로 빠르고 촘촘하게 연결해주는 중간판",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "패키징 연결 구조",
+          "scaleLevel": 4
+        }
+      ],
+      "isA": [
+        {
+          "id": "interposer",
+          "name": "인터포저",
+          "reason": "얇은 실리콘 중간 기판으로 여러 칩을 연결한다는 정의는 등록 interposer의 재료별 구체적 종류에 해당한다.",
+          "evidenceQuote": "* 실리콘 인터포저(Silicon Interposer): 얇은 실리콘 기판 위에 미세한 배선을 만들어 여러 칩을 서로 빠르고 촘촘하게 연결해주는 중간판"
+        }
+      ],
+      "partOf": [
+        {
+          "id": "cowos",
+          "name": "CoWoS 2.5D 패키징",
+          "reason": "CoWoS는 여러 칩을 실리콘 기반 인터포저 위에 올려 함께 패키징하는 구조다. 이 구조에서 중간 연결판은 실제 구성요소다.",
+          "evidenceQuote": "* CoWoS(Chip on Wafer on Substrate): 기존 패키징 방식은 메모리와 비메모리 등 서로 다른 칩들을 각각 패키징한 다음 기판 위에서 연결하는 방식이라면, CoWoS는 칩들을 실리콘 기반의 인터포저 위에 올려 한꺼번에 패키징하는 방식. 칩간 거리가 가까워져 제품 면적이 줄고, 배선을 더 늘릴 수 있어 신호 전달 속도가 빨라진다는 특징이 있음. TSMC 고유의 패키징 기술이며, HBM과 GPU를 결합하는 방식 중 하나임"
+        }
+      ]
+    },
+    {
+      "conceptId": "info",
+      "title": "InFO 팬아웃 패키징",
+      "engName": "Integrated Fan-Out",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "첨단 패키징 플랫폼",
+      "scaleLevel": 4,
+      "classificationNote": "첨단 패키징 플랫폼 분야이며, 여러 칩·기능·회로를 묶는 패키지 또는 시스템 구조이므로 규모 4로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "칩 바깥으로 배선을 넓혀 더 많은 입출력을 연결하는 팬아웃 방식의 패키징 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* InFO(Integrated Fan-Out): 칩 바깥으로 배선을 넓혀 더 많은 I/O를 연결하는 팬아웃(Fan-Out) 방식의 패키징 기술",
+      "evidenceQuote": "* InFO(Integrated Fan-Out): 칩 바깥으로 배선을 넓혀 더 많은 I/O를 연결하는 팬아웃(Fan-Out) 방식의 패키징 기술",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "첨단 패키징 플랫폼",
+          "scaleLevel": 4
+        }
+      ],
+      "isA": [
+        {
+          "id": "fan-out",
+          "name": "팬아웃 패키징",
+          "reason": "정의에서 InFO를 칩 바깥으로 배선을 넓히는 팬아웃 방식의 패키징 기술이라고 직접 분류한다.",
+          "evidenceQuote": "* InFO(Integrated Fan-Out): 칩 바깥으로 배선을 넓혀 더 많은 I/O를 연결하는 팬아웃(Fan-Out) 방식의 패키징 기술"
+        }
+      ]
+    },
+    {
+      "conceptId": "cpu",
+      "title": "중앙처리장치",
+      "engName": "Central Processing Unit",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "집적회로·시스템 칩",
+      "scaleLevel": 4,
+      "classificationNote": "연산 반도체 분야이며, 개별 소자·기억 셀·배선 구조 또는 그 동작을 다루므로 규모 2로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "프로그램 전반의 작업을 관리하고 복잡한 계산을 처리하는 연산 장치다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* CPU: 연산 장치로, 프로그램의 전반적인 작업을 관리하고 복잡한 계산을 처리함",
+      "evidenceQuote": "* CPU: 연산 장치로, 프로그램의 전반적인 작업을 관리하고 복잡한 계산을 처리함",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "연산 반도체",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "gpu",
+      "title": "그래픽 처리장치",
+      "engName": "Graphics Processing Unit",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "집적회로·시스템 칩",
+      "scaleLevel": 4,
+      "classificationNote": "연산 반도체 분야이며, 개별 소자·기억 셀·배선 구조 또는 그 동작을 다루므로 규모 2로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "많은 데이터를 병렬로 계산해 그래픽이나 대규모 연산을 처리하는 장치다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* GPU: 연산 장치로, 많은 데이터를 한꺼번에 계산해(병렬 연산) 그래픽이나 대규모 연산을 빠르게 처리함",
+      "evidenceQuote": "* GPU: 연산 장치로, 많은 데이터를 한꺼번에 계산해(병렬 연산) 그래픽이나 대규모 연산을 빠르게 처리함",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "연산 반도체",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "dram",
+      "title": "D램",
+      "engName": "DRAM",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "메모리 반도체 분야이며, 개별 소자·기억 셀·배선 구조 또는 그 동작을 다루므로 규모 2로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "연산 장치의 작업에 필요한 데이터를 임시로 저장하며 빠르게 읽고 쓸 수 있는 주기억장치다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* D램(DRAM): 연산 장치가 작업할 때 필요한 데이터를 임시로 보관하고 빠르게 읽고 쓸 수 있게 하는 주기억장치",
+      "evidenceQuote": "* D램(DRAM): 연산 장치가 작업할 때 필요한 데이터를 임시로 보관하고 빠르게 읽고 쓸 수 있게 하는 주기억장치",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "메모리 반도체",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "sram",
+      "title": "S램",
+      "engName": "SRAM",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "메모리 반도체 분야이며, 개별 소자·기억 셀·배선 구조 또는 그 동작을 다루므로 규모 2로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "연산 중 데이터를 잠시 저장하는 빠른 메모리로, 본문은 용량이 작고 가격이 높은 특성을 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* S램(SRAM): 빠르지만 용량이 작고 가격이 비싼 메모리. 컴퓨터가 계산할 때 데이터를 잠시 저장하는 데 쓰이는 보조기억장치",
+      "evidenceQuote": "* S램(SRAM): 빠르지만 용량이 작고 가격이 비싼 메모리. 컴퓨터가 계산할 때 데이터를 잠시 저장하는 데 쓰이는 보조기억장치",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "메모리 반도체",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "mobile-ap",
+      "title": "모바일 애플리케이션 프로세서",
+      "engName": "Application Processor",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "집적회로·시스템 칩",
+      "scaleLevel": 4,
+      "classificationNote": "시스템 반도체 분야이며, 여러 칩·기능·회로를 묶는 패키지 또는 시스템 구조이므로 규모 4로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "모바일 등에서 운영체제와 앱 실행을 비롯한 연산을 담당하는 핵심 칩이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* AP(Application Processor): 모바일 등에서 운영체제와 앱 실행 등 모든 연산을 담당하는 핵심 칩",
+      "evidenceQuote": "* AP(Application Processor): 모바일 등에서 운영체제와 앱 실행 등 모든 연산을 담당하는 핵심 칩",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "시스템 반도체",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "die",
+      "title": "반도체 다이",
+      "engName": "Die",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "반도체 칩",
+      "scaleLevel": 2,
+      "classificationNote": "집적회로 단위 분야이며, 개별 소자·기억 셀·배선 구조 또는 그 동작을 다루므로 규모 2로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "패키지 작업 전에 웨이퍼 상태에서 개별 패턴이 구현된 집적회로다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* 다이(Die): 패키지 작업을 하기 전, 웨이퍼 상태에서 개별적인 패턴이 구현된 집적회로다. 이후 패키징 작업을 진행하거나, 성능·기능을 설명하는 경우에는 칩(Chip)으로 표현된다.",
+      "evidenceQuote": "* 다이(Die): 패키지 작업을 하기 전, 웨이퍼 상태에서 개별적인 패턴이 구현된 집적회로다. 이후 패키징 작업을 진행하거나, 성능·기능을 설명하는 경우에는 칩(Chip)으로 표현된다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "집적회로 단위",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "cxl",
+      "title": "컴퓨트 익스프레스 링크",
+      "engName": "Compute Express Link",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "컴퓨팅 인터페이스",
+      "scaleLevel": 4,
+      "classificationNote": "컴퓨팅 인터페이스 분야이며, 여러 칩·기능·회로를 묶는 패키지 또는 시스템 구조이므로 규모 4로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "고성능 컴퓨팅 시스템에서 CPU·GPU와 메모리 등을 효율적으로 연결하는 인터페이스다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* CXL(Compute Express Link): 고성능 컴퓨팅 시스템에서 CPU/GPU, 메모리 등을 효율적으로 연결해 대용량, 초고속 연산을 지원하는 차세대 인터페이스. 기존 메모리 모듈에 CXL을 적용하면 용량을 10배 이상 확장할 수 있음",
+      "evidenceQuote": "* CXL(Compute Express Link): 고성능 컴퓨팅 시스템에서 CPU/GPU, 메모리 등을 효율적으로 연결해 대용량, 초고속 연산을 지원하는 차세대 인터페이스. 기존 메모리 모듈에 CXL을 적용하면 용량을 10배 이상 확장할 수 있음",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "CXL 메모리 용량 확장 설명",
+          "perspectiveBadge": "일반 CXL 적용 설명",
+          "narrative": "원문은 기존 메모리 모듈에 CXL을 적용하면 용량을 10배 이상 확장할 수 있다고 설명한다.",
+          "caution": "원문에 구체적인 시스템·메모리 구성 조건이 없다.",
+          "evidenceQuote": "* CXL(Compute Express Link): 고성능 컴퓨팅 시스템에서 CPU/GPU, 메모리 등을 효율적으로 연결해 대용량, 초고속 연산을 지원하는 차세대 인터페이스. 기존 메모리 모듈에 CXL을 적용하면 용량을 10배 이상 확장할 수 있음",
+          "specifications": [
+            {
+              "parameter": "기존 메모리 모듈 대비 확장 가능 용량",
+              "value": "10배 이상",
+              "unit": "배",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "* CXL(Compute Express Link): 고성능 컴퓨팅 시스템에서 CPU/GPU, 메모리 등을 효율적으로 연결해 대용량, 초고속 연산을 지원하는 차세대 인터페이스. 기존 메모리 모듈에 CXL을 적용하면 용량을 10배 이상 확장할 수 있음"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "메모리를 연결하는 방법을 바꿔 더 큰 용량을 쓸 수 있다는 설명이다. 비교한 모듈 종류나 시스템 조건이 없어 모든 CXL 제품의 보장 배율로 해석할 수 없다.",
+            "background": null
+          }
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "컴퓨팅 인터페이스",
+          "scaleLevel": 4
+        }
+      ],
+      "partOf": [
+        {
+          "id": "ucie",
+          "name": "범용 칩렛 상호 연결",
+          "reason": "124는 UCIe 1.0 규격이 물리 계층·PCIe/CXL을 활용하는 프로토콜 스택·소프트웨어 모델·준수 테스트를 포함한다고 명시한다. CXL이 UCIe 1.0의 프로토콜 구성에 활용된다는 한정된 소속 관계이며 모든 CXL 기기가 UCIe 칩렛이라는 뜻은 아니다.",
+          "evidenceQuote": "UCIe 1.0 규격은 물리적 계층, 프로토콜 스택(기존 PCIe* 및 CXL* 활용), 소프트웨어 모델 및 규정 준수 테스트를 포함해 완전히 표준화된 D2D 상호 연결을 제공한다."
+        }
+      ]
+    },
+    {
+      "conceptId": "pcie",
+      "title": "PCI 익스프레스",
+      "engName": "Peripheral Component Interconnect express",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "컴퓨팅 인터페이스",
+      "scaleLevel": 4,
+      "classificationNote": "컴퓨팅 인터페이스 분야이며, 여러 칩·기능·회로를 묶는 패키지 또는 시스템 구조이므로 규모 4로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "디지털 기기 메인보드에서 사용하는 직렬 구조의 고속 입출력 인터페이스다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* PCIe(Peripheral Component Interconnect express): 디지털 기기의 메인보드에서 사용하는 직렬 구조의 고속 입출력 인터페이스",
+      "evidenceQuote": "* PCIe(Peripheral Component Interconnect express): 디지털 기기의 메인보드에서 사용하는 직렬 구조의 고속 입출력 인터페이스",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "컴퓨팅 인터페이스",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "metal-interconnect",
+      "title": "금속 배선",
+      "engName": "BEOL Interconnect",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "금속 배선",
+      "scaleLevel": 3,
+      "classificationNote": "후공정 배선 분야이며, 특정 연결·접합·전사·제어·냉각 공정이나 장비 기술이므로 규모 3으로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "소자 제작 뒤 트랜지스터 같은 개별 소자를 금속 배선으로 연결하는 작업이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* BEOL(Back-End Of Line) 인터커넥트: 반도체 소자 제작 후, 트랜지스터 같은 개별 소자를 연결하는 금속 배선 작업",
+      "evidenceQuote": "* BEOL(Back-End Of Line) 인터커넥트: 반도체 소자 제작 후, 트랜지스터 같은 개별 소자를 연결하는 금속 배선 작업",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "후공정 배선",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "semiconductor-ip",
+      "title": "반도체 설계 IP",
+      "engName": "Intellectual Property",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "반도체 설계 자산",
+      "scaleLevel": 5,
+      "classificationNote": "반도체 설계 자산 분야이며, 단일 소자·공정이 아니라 생산 운영·평가 체계·설계 자산·표준 또는 생태계를 다루므로 규모 5로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "반도체 설계에 재사용할 수 있는 지적 재산인 설계 모듈이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* IP(Intellectual Property): 반도체 설계에 재사용 가능한 지적 재산(설계 모듈)",
+      "evidenceQuote": "* IP(Intellectual Property): 반도체 설계에 재사용 가능한 지적 재산(설계 모듈)",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "반도체 설계 자산",
+          "scaleLevel": 5
+        }
+      ]
+    }
+  ]
+}

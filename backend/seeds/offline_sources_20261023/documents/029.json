@@ -1,0 +1,124 @@
+{
+  "index": 29,
+  "filePath": "samsung/glossary/반도체-용어-사전-n형-반도체.md",
+  "sourceHash": "0987fd8c065e01ea9bf253dfdc05529e75a647df6d6812a21f5da2cbaccfb9b7",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1674,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. 원문의 진성 반도체가 전류를 전혀 흘리지 않는다는 절대 표현은 일반 정의에 채택하지 않았다. n형 도핑의 4족·5족·최외각 전자 5개와 P·As 조건을 보존했다. 자유전가 오기는 해설에서 자유전자 의미로 정리했다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "n-type-semiconductor",
+      "title": "n형 반도체",
+      "engName": "n-type Semiconductor",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "반도체 기초 재료",
+      "scaleLevel": 1,
+      "classificationNote": "재료의 성질 또는 기초 물리량을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "순수 반도체에 5족 불순물을 첨가하여 전자 수를 늘린 불순물 반도체이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "순수한 반도체에 특정 불순물(5족 원소)을 첨가하여 전자(electron)의 수를 증가시킨 반도체.",
+      "evidenceQuote": "순수한 반도체에 특정 불순물(5족 원소)을 첨가하여 전자(electron)의 수를 증가시킨 반도체.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "5족 도핑과 잉여전자",
+          "content": "4족 실리콘에 최외각 전자가 5개인 인(P)·비소(As) 등을 넣으면 공유결합 뒤 잉여전자가 남는다. 전압을 가하면 이 전자가 이동하여 전류가 흐른다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "4족 원소인 실리콘 단결정(순수 반도체)에 최외각 전자가 5개인 인(P), 비소(As) 등 5족 원소를 불순물로 첨가하면 실리콘 원자와 공유결합 후, 전자가 남는 상태, 즉 잉여전자가 생긴다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "extrinsic-semiconductor",
+          "name": "불순물 반도체",
+          "reason": "불순물을 첨가해 전자 수를 증가시키는 원문의 구체적 유형이다.",
+          "evidenceQuote": "진성 반도체에 특정 불순물을 첨가하여 전자(electron)나 정공(Hole)의 수를 증가시켜 전기전도도를 조절할 수 있는데, 이러한 반도체를 외인성 반도체(Extrinsic) 혹은 불순물 반도체라고 한다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "재료·물성·인프라",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "extrinsic-semiconductor",
+      "title": "불순물 반도체",
+      "engName": "Extrinsic Semiconductor",
+      "aliases": [
+        "외인성 반도체"
+      ],
+      "domainFacet": "materials_infra",
+      "category": "재료·물성·인프라",
+      "scaleLevel": 1,
+      "classificationNote": "재료의 성질 또는 기초 물리량을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "진성 반도체에 특정 불순물을 넣어 전자나 정공 수와 전기전도도를 조절한 반도체이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "진성 반도체에 특정 불순물을 첨가하여 전자(electron)나 정공(Hole)의 수를 증가시켜 전기전도도를 조절할 수 있는데, 이러한 반도체를 외인성 반도체(Extrinsic) 혹은 불순물 반도체라고 한다.",
+      "evidenceQuote": "진성 반도체에 특정 불순물을 첨가하여 전자(electron)나 정공(Hole)의 수를 증가시켜 전기전도도를 조절할 수 있는데, 이러한 반도체를 외인성 반도체(Extrinsic) 혹은 불순물 반도체라고 한다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "재료·물성·인프라",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "intrinsic-semiconductor",
+      "title": "진성 반도체",
+      "engName": "intrinsic semiconductor",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "재료·물성·인프라",
+      "scaleLevel": 1,
+      "classificationNote": "재료의 성질 또는 기초 물리량을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "불순물을 첨가하기 전의 순수한 반도체를 뜻한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "순수 반도체인 진성 반도체(intrinsic semiconductor)",
+      "evidenceQuote": "순수 반도체인 진성 반도체(intrinsic semiconductor)",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "semiconductor",
+          "name": "반도체",
+          "reason": "진성 반도체를 순수한 반도체라고 직접 부르며 그에 불순물을 더해 외인성 반도체를 만든다고 구별한다.",
+          "evidenceQuote": "순수 반도체인 진성 반도체(intrinsic semiconductor)는 원자핵에 결합되어 있는 전자가 움직일 수 없기 때문에 전류가 흐르지 않는다. 진성 반도체에 특정 불순물을 첨가하여 전자(electron)나 정공(Hole)의 수를 증가시켜 전기전도도를 조절할 수 있는데, 이러한 반도체를 외인성 반도체(Extrinsic) 혹은 불순물 반도체라고 한다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "재료·물성·인프라",
+          "scaleLevel": 1
+        }
+      ]
+    }
+  ]
+}

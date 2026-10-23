@@ -1,0 +1,64 @@
+{
+  "index": 69,
+  "filePath": "samsung/glossary/반도체-용어-사전-트렌치trench-공법.md",
+  "sourceHash": "976ee3b4c4051f65deec35ee65982d16d6aa982427d0abf40148b832405bcafe",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1604,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 빈 파서 후보를 대조하여 실제 개념명·정의·명시된 종류·선후 관계를 보완했다. 발행사나 관련기사를 도입 사례로 추정하지 않았다. "
+  },
+  "concepts": [
+    {
+      "conceptId": "trench-method",
+      "title": "트렌치 공법",
+      "engName": "Trench method",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "셀 집적 공법",
+      "scaleLevel": 3,
+      "classificationNote": "트렌치 공법의 원문 정의에 따라 셀 집적 공법에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "웨이퍼 표면 아래로 공간을 파내어 그 공간에 셀을 배치하고 반도체 칩의 집적도를 높이는 기술이다.",
+      "purpose": "평면 셀 집적의 물리적 한계를 넘어 집적도를 높이고 칩을 작게 만든다.",
+      "summaryEvidenceQuote": "반도체 칩 평면을 아래로 파내서 만든 공간에 셀을 배치해 집적도를 높이는 기술.",
+      "evidenceQuote": "반도체 칩 평면을 아래로 파내서 만든 공간에 셀을 배치해 집적도를 높이는 기술.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "하부 공간에 셀 배치",
+          "content": "웨이퍼 표면 아래를 파내어 셀을 더 많이 집적한다. 원문은 다소 안전하고 칩을 작게 만들 수 있다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "웨이퍼 표면을 아래로 파내서 지하층을 만들어 셀을 더 많이 집적시키는 트렌치 공법은 다소 안전하고 칩을 작게 만들 수 있다. 하지만 스택 공법에 비해 공정이 까다롭고 경제성이 떨어지며, 제품 불량이 발생했을 때 내부 회로를 확인하기 어려워 문제 해결이 어렵다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "공정 난도·경제성·불량 분석",
+          "description": "스택 공법보다 공정이 까다롭고 경제성이 떨어지며 불량 시 내부 회로 확인과 문제 해결이 어렵다.",
+          "evidenceQuote": "웨이퍼 표면을 아래로 파내서 지하층을 만들어 셀을 더 많이 집적시키는 트렌치 공법은 다소 안전하고 칩을 작게 만들 수 있다. 하지만 스택 공법에 비해 공정이 까다롭고 경제성이 떨어지며, 제품 불량이 발생했을 때 내부 회로를 확인하기 어려워 문제 해결이 어렵다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "stack-method",
+          "name": "스택 공법",
+          "reason": "원문이 위로 쌓는 방식과 아래로 파는 방식을 비교한다.",
+          "evidenceQuote": "반도체의 용량이 커지면서 반도체 칩 평면에만 셀을 집적시키는 방식이 물리적 한계에 부딪히며 나온 방식이다. 셀을 위로 쌓아 올려 집적도를 높이는 ‘스택(stack) 공법‘과 셀을 아래로 파고 내려가면서 집적도를 높이는 ‘트렌치(trench) 공법’이 있다."
+        }
+      ],
+      "partOf": [],
+      "isA": [],
+      "purposeEvidenceQuote": "웨이퍼 표면을 아래로 파내서 지하층을 만들어 셀을 더 많이 집적시키는 트렌치 공법은 다소 안전하고 칩을 작게 만들 수 있다. 하지만 스택 공법에 비해 공정이 까다롭고 경제성이 떨어지며, 제품 불량이 발생했을 때 내부 회로를 확인하기 어려워 문제 해결이 어렵다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "셀 집적 공법",
+          "scaleLevel": 3
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "index": 79,
+  "filePath": "samsung/glossary/반도체-용어-사전led편-빛의-단위.md",
+  "sourceHash": "69c0ced5c89b4a35fa7aa716a11ea524c1240eca1b31dcb04f366046a8d4a81f",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1423,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체를 대조해 실제 개념명과 정의를 보존했다. 일반 적용 상황과 설명용 수치를 실제 제품 실측으로 바꾸지 않았다. 제목 대신 각각 정의된 다섯 광학 물리량을 별도 개념으로 분리했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "luminous-intensity",
+      "title": "광도",
+      "engName": "광도",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "광학 물리량",
+      "scaleLevel": 1,
+      "classificationNote": "광도의 원문 정의에 따라 광학 물리량에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "광원에서 특정 방향으로 나오는 가시광의 강도이며 단위는 cd(칸델라)이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "광도(cd, 칸델라): 광원에서 특정 방향으로 나오는 가시광의 강도\n광속(lm, 루멘): 광원으로부터 나오는 가시광의 총량\n조도(lux, 룩스): 물체의 단위 면적에 들어오는 빛의 양\n휘도(nit, 니트): 광원으로부터 복사되는 빛의 밝기\n광효율(lm/W: 루멘퍼 와트): 단위전력 당 방출되는 광량",
+      "evidenceQuote": "광도(cd, 칸델라): 광원에서 특정 방향으로 나오는 가시광의 강도\n광속(lm, 루멘): 광원으로부터 나오는 가시광의 총량\n조도(lux, 룩스): 물체의 단위 면적에 들어오는 빛의 양\n휘도(nit, 니트): 광원으로부터 복사되는 빛의 밝기\n광효율(lm/W: 루멘퍼 와트): 단위전력 당 방출되는 광량",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "광학 물리량",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "luminous-flux",
+      "title": "광속",
+      "engName": "광속",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "광학 물리량",
+      "scaleLevel": 1,
+      "classificationNote": "광속의 원문 정의에 따라 광학 물리량에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "광원으로부터 나오는 가시광의 총량이며 단위는 lm(루멘)이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "광도(cd, 칸델라): 광원에서 특정 방향으로 나오는 가시광의 강도\n광속(lm, 루멘): 광원으로부터 나오는 가시광의 총량\n조도(lux, 룩스): 물체의 단위 면적에 들어오는 빛의 양\n휘도(nit, 니트): 광원으로부터 복사되는 빛의 밝기\n광효율(lm/W: 루멘퍼 와트): 단위전력 당 방출되는 광량",
+      "evidenceQuote": "광도(cd, 칸델라): 광원에서 특정 방향으로 나오는 가시광의 강도\n광속(lm, 루멘): 광원으로부터 나오는 가시광의 총량\n조도(lux, 룩스): 물체의 단위 면적에 들어오는 빛의 양\n휘도(nit, 니트): 광원으로부터 복사되는 빛의 밝기\n광효율(lm/W: 루멘퍼 와트): 단위전력 당 방출되는 광량",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "광학 물리량",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "illuminance",
+      "title": "조도",
+      "engName": "조도",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "광학 물리량",
+      "scaleLevel": 1,
+      "classificationNote": "조도의 원문 정의에 따라 광학 물리량에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "물체의 단위 면적에 들어오는 빛의 양이며 단위는 lux(룩스)이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "광도(cd, 칸델라): 광원에서 특정 방향으로 나오는 가시광의 강도\n광속(lm, 루멘): 광원으로부터 나오는 가시광의 총량\n조도(lux, 룩스): 물체의 단위 면적에 들어오는 빛의 양\n휘도(nit, 니트): 광원으로부터 복사되는 빛의 밝기\n광효율(lm/W: 루멘퍼 와트): 단위전력 당 방출되는 광량",
+      "evidenceQuote": "광도(cd, 칸델라): 광원에서 특정 방향으로 나오는 가시광의 강도\n광속(lm, 루멘): 광원으로부터 나오는 가시광의 총량\n조도(lux, 룩스): 물체의 단위 면적에 들어오는 빛의 양\n휘도(nit, 니트): 광원으로부터 복사되는 빛의 밝기\n광효율(lm/W: 루멘퍼 와트): 단위전력 당 방출되는 광량",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "광학 물리량",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "luminance",
+      "title": "휘도",
+      "engName": "휘도",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "광학 물리량",
+      "scaleLevel": 1,
+      "classificationNote": "휘도의 원문 정의에 따라 광학 물리량에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "광원으로부터 복사되는 빛의 밝기이며 단위는 nit(니트)이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "광도(cd, 칸델라): 광원에서 특정 방향으로 나오는 가시광의 강도\n광속(lm, 루멘): 광원으로부터 나오는 가시광의 총량\n조도(lux, 룩스): 물체의 단위 면적에 들어오는 빛의 양\n휘도(nit, 니트): 광원으로부터 복사되는 빛의 밝기\n광효율(lm/W: 루멘퍼 와트): 단위전력 당 방출되는 광량",
+      "evidenceQuote": "광도(cd, 칸델라): 광원에서 특정 방향으로 나오는 가시광의 강도\n광속(lm, 루멘): 광원으로부터 나오는 가시광의 총량\n조도(lux, 룩스): 물체의 단위 면적에 들어오는 빛의 양\n휘도(nit, 니트): 광원으로부터 복사되는 빛의 밝기\n광효율(lm/W: 루멘퍼 와트): 단위전력 당 방출되는 광량",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "광학 물리량",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "luminous-efficacy",
+      "title": "광효율",
+      "engName": "광효율",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "광학 물리량",
+      "scaleLevel": 1,
+      "classificationNote": "광효율의 원문 정의에 따라 광학 물리량에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "단위전력당 방출되는 광량이며 단위는 lm/W(루멘퍼 와트)이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "광도(cd, 칸델라): 광원에서 특정 방향으로 나오는 가시광의 강도\n광속(lm, 루멘): 광원으로부터 나오는 가시광의 총량\n조도(lux, 룩스): 물체의 단위 면적에 들어오는 빛의 양\n휘도(nit, 니트): 광원으로부터 복사되는 빛의 밝기\n광효율(lm/W: 루멘퍼 와트): 단위전력 당 방출되는 광량",
+      "evidenceQuote": "광도(cd, 칸델라): 광원에서 특정 방향으로 나오는 가시광의 강도\n광속(lm, 루멘): 광원으로부터 나오는 가시광의 총량\n조도(lux, 룩스): 물체의 단위 면적에 들어오는 빛의 양\n휘도(nit, 니트): 광원으로부터 복사되는 빛의 밝기\n광효율(lm/W: 루멘퍼 와트): 단위전력 당 방출되는 광량",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "광학 물리량",
+          "scaleLevel": 1
+        }
+      ]
+    }
+  ]
+}

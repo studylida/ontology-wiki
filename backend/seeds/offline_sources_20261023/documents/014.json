@@ -1,0 +1,393 @@
+{
+  "index": 14,
+  "filePath": "samsung/glossary/mwc-2014-돋보기-4-cmos-이미지센서cis-아이소셀isocell.md",
+  "sourceHash": "659cfa59355edf6994c693ce37c5671bf07fe30f9cde6bb999b80a58ca8d6925",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 3759,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. 2014.03.19 기사다. FWC의 수광면적 해석, 웨이퍼 직경 5~10㎝, 다이오드의 수동소자 분류는 원문상 단순화/주의 대상이다. FWC와 직경은 역사적 설명으로 한정하고 다이오드의 수동 분류는 일반 정의에 채택하지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "cmos-image-sensor",
+      "title": "CMOS 이미지센서",
+      "engName": "CMOS Image Sensor (CIS)",
+      "aliases": [
+        "CIS"
+      ],
+      "domainFacet": "device",
+      "category": "광반도체 소자",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "CMOS 기술로 만든 이미지센서로, 감광 픽셀을 배열한 집적회로가 빛을 전기 신호로 바꾼다.",
+      "purpose": "디지털 카메라·스마트폰·태블릿·통신 장치에서 영상 정보를 얻는다.",
+      "summaryEvidenceQuote": "CIS란 CMOS 기술로 생산된 이미지 센서를 말합니다.",
+      "evidenceQuote": "CIS란 CMOS 기술로 생산된 이미지 센서를 말합니다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "픽셀의 검출과 증폭",
+          "content": "각 픽셀은 빛을 감지하는 광검출기와 신호를 증폭하는 능동증폭기로 구성된다.",
+          "formula": null,
+          "evidenceQuote": "각각의 픽셀은 빛을 감지하는 광검출기(photodetector)와 신호를 증폭하는 능동증폭기(active amplifier)로 구성되는데요."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "integrated-circuit",
+          "name": "집적회로",
+          "reason": "원문이 감광 픽셀을 배열한 집적회로로 정의한다.",
+          "evidenceQuote": "수많은 감광 픽셀 센서들이 배열된 집적 회로로서"
+        }
+      ],
+      "purposeEvidenceQuote": "디지털 영상 기기에 많이 활용되어 디지털 카메라, 스마트폰, 태블릿, 통신 장치 등이 대표적으로 사용됩니다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "integrated-circuit",
+      "title": "집적회로",
+      "engName": "Integrated Circuit",
+      "aliases": [
+        "IC",
+        "I.C."
+      ],
+      "domainFacet": "device",
+      "category": "집적회로·시스템 칩",
+      "scaleLevel": 4,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "하나의 반도체 기판에 다수의 소자를 초소형으로 집적하여 분리할 수 없는 구조로 만들고 완전한 회로 기능을 갖게 한 기능소자이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "하나의 반도체 기판에 다수의 능동소자(예: 트랜지스터)와 수동소자(예: 다이오드, 콘덴서, 저항기 등)를 초소형으로 집적해 서로 분리될 수 없는 구조로 만든, 완전한 회로 기능을 갖춘 기능소자",
+      "evidenceQuote": "하나의 반도체 기판에 다수의 능동소자(예: 트랜지스터)와 수동소자(예: 다이오드, 콘덴서, 저항기 등)를 초소형으로 집적해 서로 분리될 수 없는 구조로 만든, 완전한 회로 기능을 갖춘 기능소자",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "cmos",
+      "title": "CMOS",
+      "engName": "Complementary Metal-Oxide Semiconductor",
+      "aliases": [
+        "상보형 금속산화반도체"
+      ],
+      "domainFacet": "device",
+      "category": "트랜지스터·게이트 구조",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "소비 전력이 적은 상보형 금속산화반도체로, 휴대용 계산기·전자시계·소형 컴퓨터에 활용된다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "상보형금속산화반도체. 소비 전력이 매우 적은 게 특징이며 휴대용 계산기, 전자시계, 소형 컴퓨터 등에 널리 활용",
+      "evidenceQuote": "상보형금속산화반도체. 소비 전력이 매우 적은 게 특징이며 휴대용 계산기, 전자시계, 소형 컴퓨터 등에 널리 활용",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "isocell",
+      "title": "아이소셀",
+      "engName": "ISOCELL",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "광반도체 소자",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "CIS 화소 테두리에 물리적인 벽을 형성하여 이웃 픽셀 간 간섭과 색상 혼합을 줄이는 이미지센서 픽셀 기술이다.",
+      "purpose": "어두운 환경의 영상 선명도와 색상 재현성을 높인다.",
+      "summaryEvidenceQuote": "픽셀(pixel)의 각 테두리에 물리적인 벽을 형성해 픽셀 간 간섭 현상을 줄였는데요.",
+      "evidenceQuote": "픽셀(pixel)의 각 테두리에 물리적인 벽을 형성해 픽셀 간 간섭 현상을 줄였는데요.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "픽셀 격리",
+          "content": "픽셀 사이 장벽으로 후면조사형에서 생길 수 있는 색상 혼합을 줄인다.",
+          "formula": null,
+          "evidenceQuote": "픽셀 간 장벽을 만들어 색상 혼합 문제를 해결했기 때문입니다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "MWC 2014 모바일 CIS 발표",
+          "perspectiveBadge": "삼성전자",
+          "narrative": "삼성전자가 MWC 2014에서 아이소셀을 적용한 1300만 및 1600만 화소 모바일 CIS를 발표했다.",
+          "caution": "",
+          "evidenceQuote": "삼성전자는 지난달 스페인 바르셀로나에서 열린 MWC(Mobile World Congress) 2014에서 차세대 기술인 ‘아이소셀(ISOCELL)’을 적용한 1300만, 1600만 화소 모바일 CMOS 이미지센서(CIS)를 발표했습니다.",
+          "specifications": [
+            {
+              "parameter": "발표 센서 화소 수",
+              "value": "1300만, 1600만",
+              "unit": "화소",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "1300만, 1600만 화소 모바일 CMOS 이미지센서(CIS)"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "화소 사이에 벽을 두는 기술을 적용한 모바일 카메라 센서의 2014년 발표 사례다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "아이소셀 적용 모듈 예시",
+          "perspectiveBadge": "삼성전자",
+          "narrative": "본문 사진은 800만화소(1/4인치) 아이소셀 적용 모듈을 제시한다.",
+          "caution": "",
+          "evidenceQuote": "차세대 CMOS 이미지센서 신기술 ‘아이소셀(ISOCELL)’을 적용한 800만화소(1/4인치) 모듈",
+          "specifications": [
+            {
+              "parameter": "모듈 화소 수",
+              "value": "800만",
+              "unit": "화소",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "800만화소(1/4인치) 모듈"
+            },
+            {
+              "parameter": "원문 모듈 크기 표기",
+              "value": "1/4",
+              "unit": "인치",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "800만화소(1/4인치) 모듈"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "사진에 제시된 모듈 사양이며 앞의 MWC 발표 센서 사양과 구별한다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "후면조사형 대비 아이소셀 개선 설명",
+          "perspectiveBadge": "삼성전자",
+          "narrative": "2014년 문서는 후면조사형 대비 픽셀 간 간섭이 30% 이상 줄고 원문 표현상 수광면적이 30% 증가했다고 설명한다.",
+          "caution": "원문이 FWC(Full Well Capacity)를 수광면적으로 풀이한다. 이를 일반 물리 정의나 면적 측정 결과로 확대하지 않는다.",
+          "evidenceQuote": "그 결과, 픽셀 간 간섭 현상이 후면조사형보다 30% 이상 줄어 이미지의 색상 재현성을 높였습니다. 또한 수광면적이 30% 증가하여 어두운 환경에서도 보다 선명하고 깨끗한 이미지를 얻을 수 있습니다.",
+          "specifications": [
+            {
+              "parameter": "후면조사형 대비 픽셀 간 간섭 감소",
+              "value": "30% 이상",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "픽셀 간 간섭 현상이 후면조사형보다 30% 이상 줄어"
+            },
+            {
+              "parameter": "원문 수광면적 증가",
+              "value": "30",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "수광면적이 30% 증가하여"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "인접 화소의 신호가 섞이는 정도가 감소했다는 비교 설명이다. 증가 항목은 원문 명칭 그대로 보존한다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "purposeEvidenceQuote": "어두운 환경에서도 보다 선명한 이미지를 구현하고 깨끗한 사진을 얻을 수 있습니다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "back-side-illumination",
+      "title": "후면조사형",
+      "engName": "BSI, Back Side Illumination",
+      "aliases": [
+        "BSI"
+      ],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "웨이퍼를 뒤집어 얇게 가공하고 후면에서 빛을 받아들이는 CIS 픽셀 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "후면조사형은 웨이퍼를 뒤집어 얇게 가공, 후면에서 빛을 받아들이도록 한 방식인데요.",
+      "evidenceQuote": "후면조사형은 웨이퍼를 뒤집어 얇게 가공, 후면에서 빛을 받아들이도록 한 방식인데요.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "후면 수광 경로",
+          "content": "빛의 경로를 짧게 하여 더 많은 빛을 받는다. 원문은 전면조사형보다 감도를 40% 이상 높일 수 있다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "빛이 들어오는 경로가 짧고 많은 양의 빛을 받아들일 수 있어 전면조사형 방식보다 40% 이상 감도를 높여 영상의 품질을 개선할 수 있는 장점이 있습니다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "픽셀 간 색상 혼합",
+          "description": "많은 빛과 색상을 흡수하며 이웃 픽셀 사이 색상이 혼합될 수 있다.",
+          "evidenceQuote": "하지만 후면조사형은 많은 빛과 색상을 흡수해 이웃한 픽셀 사이에서 색상이 혼합될 수 있다는 단점도 가지고 있는데요."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "front-side-illumination",
+          "name": "전면조사형",
+          "reason": "CIS의 픽셀 방식으로 대비된다.",
+          "evidenceQuote": "CIS에 적용되는 픽셀 기술은 전면조사형(FSI, Front Side Illumination)에서 후면조사형(BSI, Back Side Illumination)으로 나뉘어집니다."
+        }
+      ],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "front-side-illumination",
+      "title": "전면조사형",
+      "engName": "FSI, Front Side Illumination",
+      "aliases": [
+        "FSI"
+      ],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "CIS에 적용되는 픽셀 기술로, 원문은 후면조사형과 대비하여 소개한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "CIS에 적용되는 픽셀 기술은 전면조사형(FSI, Front Side Illumination)에서 후면조사형(BSI, Back Side Illumination)으로 나뉘어집니다.",
+      "evidenceQuote": "CIS에 적용되는 픽셀 기술은 전면조사형(FSI, Front Side Illumination)에서 후면조사형(BSI, Back Side Illumination)으로 나뉘어집니다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "wafer",
+      "title": "웨이퍼",
+      "engName": "wafer",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "반도체 기초 재료",
+      "scaleLevel": 1,
+      "classificationNote": "재료의 성질 또는 기초 물리량을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "집적회로 제조에 사용하는 얇은 실리콘 결정판이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "집적 회로 제조에 사용되는 얇은 판. 직경 5~10㎝의 실리콘 결정으로 구성",
+      "evidenceQuote": "집적 회로 제조에 사용되는 얇은 판. 직경 5~10㎝의 실리콘 결정으로 구성",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "2014년 기사 내 웨이퍼 정의",
+          "perspectiveBadge": "2014년 삼성전자 설명",
+          "narrative": "기사의 보충 정의는 실리콘 결정판 직경을 5~10㎝로 제시한다.",
+          "caution": "해당 수치를 현재 웨이퍼 크기의 일반적 한계로 적용하지 않는다.",
+          "evidenceQuote": "집적 회로 제조에 사용되는 얇은 판. 직경 5~10㎝의 실리콘 결정으로 구성",
+          "specifications": [
+            {
+              "parameter": "원문 정의의 직경",
+              "value": "5~10",
+              "unit": "㎝",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "직경 5~10㎝"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "이 크기는 해당 기사의 예전 정의에 적힌 값이며 모든 웨이퍼의 규격을 뜻하지 않는다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "재료·물성·인프라",
+          "scaleLevel": 1
+        }
+      ]
+    }
+  ]
+}

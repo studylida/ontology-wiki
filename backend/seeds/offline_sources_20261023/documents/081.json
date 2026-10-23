@@ -1,0 +1,50 @@
+{
+  "index": 81,
+  "filePath": "samsung/glossary/반도체-용어-사전led편-색재현율.md",
+  "sourceHash": "1e3781b218dcc258168d0529bbc0f46987f52ab3ac9b90e43b5ef226fee252e2",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1432,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체를 대조해 실제 개념명과 정의를 보존했다. 일반 적용 상황과 설명용 수치를 실제 제품 실측으로 바꾸지 않았다. "
+  },
+  "concepts": [
+    {
+      "conceptId": "color-gamut",
+      "title": "색재현율",
+      "engName": "Color Gamut",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "디스플레이 광학 지표",
+      "scaleLevel": 1,
+      "classificationNote": "색재현율의 원문 정의에 따라 디스플레이 광학 지표에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "디스플레이가 표현할 수 있는 색의 영역을 기준 색영역과 비교해 수치화한 값이다. 원문은 NTSC 표준 색영역 대비 디스플레이 색영역의 면적비를 백분율로 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "디스플레이에서 색을 표현할 수 있는 능력을 수치로 표현한 것.\n색재현율(Color Gamut)은 미국의 NTSC(TV방송규격심의회: National Television System Committee)가 1953년에 Color TV 표준으로 만든 색좌표를 기준으로 한다. NTSC의 표준 색표현 영역 대비 디스플레이 제품이 표현하는 색영역을 면적비로 비교하여 백분율(%)로 표기한다.",
+      "evidenceQuote": "디스플레이에서 색을 표현할 수 있는 능력을 수치로 표현한 것.\n색재현율(Color Gamut)은 미국의 NTSC(TV방송규격심의회: National Television System Committee)가 1953년에 Color TV 표준으로 만든 색좌표를 기준으로 한다. NTSC의 표준 색표현 영역 대비 디스플레이 제품이 표현하는 색영역을 면적비로 비교하여 백분율(%)로 표기한다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "NTSC 표준 영역과 면적비 비교",
+          "content": "원문에서는 미국 NTSC가 1953년에 Color TV 표준으로 만든 색좌표를 기준으로 표준 영역 대비 디스플레이가 표현하는 영역의 면적비를 %로 표시한다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "디스플레이에서 색을 표현할 수 있는 능력을 수치로 표현한 것.\n색재현율(Color Gamut)은 미국의 NTSC(TV방송규격심의회: National Television System Committee)가 1953년에 Color TV 표준으로 만든 색좌표를 기준으로 한다. NTSC의 표준 색표현 영역 대비 디스플레이 제품이 표현하는 색영역을 면적비로 비교하여 백분율(%)로 표기한다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "디스플레이 광학 지표",
+          "scaleLevel": 1
+        }
+      ]
+    }
+  ]
+}

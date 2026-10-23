@@ -1,0 +1,2546 @@
+{
+  "index": 13,
+  "filePath": "research_institutes/tier2_current_production_applied_papers.md",
+  "sourceHash": "b1d8dcadc591aec27c675008381f6174dfd72e9fd3c76713ad5da970f1399551",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 16281,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체를 끝까지 읽고 빈 파서 후보를 정정·보완했다. 원리·관계의 의미 및 사례·조건별 수치 귀속을 검토했다. 등록된 로컬 아카이브 요약만 검토했으며 인용된 원 논문의 전문·DOI 실재·최신 표준 판본은 외부 확인하지 않았다. 원문 항목의 명칭·메커니즘을 다시 대조해 누락된 공정·재료·검사 방식의 상위 종류 연결을 보강했다. 적용 용도를 물리 소속 관계로 바꾸지 않았다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "sige-selective-etching",
+      "title": "SiGe 선택적 등방성 식각",
+      "engName": "Selective Isotropic SiGe Etching",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "SiGe 선택적 등방성 식각의 기술적 대상을 식각에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "Si/SiGe 적층에서 SiGe를 선택적으로 제거해 나노시트 사이를 분리하는 식각 기술이다.",
+      "purpose": "다중 적층 나노시트(MBCFET) 구조에서 게이트 채널 간격을 확보하기 위해 교번 증착된 Si_{0.7}Ge_{0.3} 층만을 완전히 등방성으로 제거(Sheet Release)해야 함. Si 손실이 발생하면 I_{on} 및 V_{th} 산포가 급증함.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** 무플라즈마 기상 다운스트림 $\\text{ClF}_3$ 가스 열 화학 반응 적용. Ge 원자의 촉매적 불소 흡착 및 탈착 반응 활성화 에너지가 낮음을 활용.",
+      "evidenceQuote": "- **서지 정보:** N. Loubet, S. Reboh et al. (IBM Research & CEA-Leti), *IEEE Transactions on Electron Devices (TED)*, Vol. 68, No. 8, pp. 3671–3677, 2021. DOI: 10.1109/TED.2021.3099120",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "무플라즈마 기상 다운스트림 ClF_3 가스 열 화학 반응 적용. Ge 원자의 촉매적 불소 흡착 및 탈착 반응 활성화 에너지가 낮음을 활용.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** 무플라즈마 기상 다운스트림 $\\text{ClF}_3$ 가스 열 화학 반응 적용. Ge 원자의 촉매적 불소 흡착 및 탈착 반응 활성화 에너지가 낮음을 활용."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "다중 적층 나노시트(MBCFET) 구조에서 게이트 채널 간격을 확보하기 위해 교번 증착된 Si_{0.7}Ge_{0.3} 층만을 완전히 등방성으로 제거(Sheet Release)해야 함. Si 손실이 발생하면 I_{on} 및 V_{th} 산포가 급증함.",
+          "evidenceQuote": "- **팹 양산 배경:** 다중 적층 나노시트(MBCFET) 구조에서 게이트 채널 간격을 확보하기 위해 교번 증착된 $\\text{Si}_{0.7}\\text{Ge}_{0.3}$ 층만을 완전히 등방성으로 제거(Sheet Release)해야 함. Si 손실이 발생하면 $I_{\\text{on}}$ 및 $V_{\\text{th}}$ 산포가 급증함."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "SiGe 선택적 등방성 식각: 등록 응용 논문 아카이브 01",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: 다중 적층 나노시트(MBCFET) 구조에서 게이트 채널 간격을 확보하기 위해 교번 증착된 Si_{0.7}Ge_{0.3} 층만을 완전히 등방성으로 제거(Sheet Release)해야 함. Si 손실이 발생하면 I_{on} 및 V_{th} 산포가 급증함.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** $\\text{SiGe}:\\text{Si}$ 선택비 $> 150:1$, Si 나노시트 두께 손실 $< 0.2\\ \\text{nm}$, 표면 RMS 거칠기 $< 0.15\\ \\text{nm}$.",
+          "specifications": [
+            {
+              "parameter": "SiGe:Si 선택비",
+              "value": "> 150:1",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 다중 적층 나노시트(MBCFET) 구조에서 게이트 채널 간격을 확보하기 위해 교번 증착된 $\\text{Si}_{0.7}\\text{Ge}_{0.3}$ 층만을 완전히 등방성으로 제거(Sheet Release)해야 함. Si 손실이 발생하면 $I_{\\text{on}}$ 및 $V_{\\text{th}}$ 산포가 급증함.\n- **물리/화학적 메커니즘:** 무플라즈마 기상 다운스트림 $\\text{ClF}_3$ 가스 열 화학 반응 적용. Ge 원자의 촉매적 불소 흡착 및 탈착 반응 활성화 에너지가 낮음을 활용.\n- **팹 실측 파라미터:** $\\text{SiGe}:\\text{Si}$ 선택비 $> 150:1$, Si 나노시트 두께 손실 $< 0.2\\ \\text{nm}$, 표면 RMS 거칠기 $< 0.15\\ \\text{nm}$."
+            },
+            {
+              "parameter": "Si 두께 손실",
+              "value": "< 0.2",
+              "unit": "nm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 다중 적층 나노시트(MBCFET) 구조에서 게이트 채널 간격을 확보하기 위해 교번 증착된 $\\text{Si}_{0.7}\\text{Ge}_{0.3}$ 층만을 완전히 등방성으로 제거(Sheet Release)해야 함. Si 손실이 발생하면 $I_{\\text{on}}$ 및 $V_{\\text{th}}$ 산포가 급증함.\n- **물리/화학적 메커니즘:** 무플라즈마 기상 다운스트림 $\\text{ClF}_3$ 가스 열 화학 반응 적용. Ge 원자의 촉매적 불소 흡착 및 탈착 반응 활성화 에너지가 낮음을 활용.\n- **팹 실측 파라미터:** $\\text{SiGe}:\\text{Si}$ 선택비 $> 150:1$, Si 나노시트 두께 손실 $< 0.2\\ \\text{nm}$, 표면 RMS 거칠기 $< 0.15\\ \\text{nm}$."
+            },
+            {
+              "parameter": "표면 RMS 거칠기",
+              "value": "< 0.15",
+              "unit": "nm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 다중 적층 나노시트(MBCFET) 구조에서 게이트 채널 간격을 확보하기 위해 교번 증착된 $\\text{Si}_{0.7}\\text{Ge}_{0.3}$ 층만을 완전히 등방성으로 제거(Sheet Release)해야 함. Si 손실이 발생하면 $I_{\\text{on}}$ 및 $V_{\\text{th}}$ 산포가 급증함.\n- **물리/화학적 메커니즘:** 무플라즈마 기상 다운스트림 $\\text{ClF}_3$ 가스 열 화학 반응 적용. Ge 원자의 촉매적 불소 흡착 및 탈착 반응 활성화 에너지가 낮음을 활용.\n- **팹 실측 파라미터:** $\\text{SiGe}:\\text{Si}$ 선택비 $> 150:1$, Si 나노시트 두께 손실 $< 0.2\\ \\text{nm}$, 표면 RMS 거칠기 $< 0.15\\ \\text{nm}$."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "여러 재료를 쌓은 뒤 한 재료만 골라 제거해 얇은 실리콘 통로를 남기는 연구입니다. 선택비는 SiGe가 실리콘보다 얼마나 더 잘 제거되는지 나타냅니다. 실리콘 손실과 표면 거칠기 값은 남겨야 할 통로가 얼마나 덜 손상됐는지를 설명합니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "isotropic-etching",
+          "name": "등방성 식각",
+          "reason": "선택적 등방성 식각으로 설명된 SiGe 제거 방식이다.",
+          "evidenceQuote": "- **물리/화학적 메커니즘:** 무플라즈마 기상 다운스트림 $\\text{ClF}_3$ 가스 열 화학 반응 적용. Ge 원자의 촉매적 불소 흡착 및 탈착 반응 활성화 에너지가 낮음을 활용."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "source-drain-contact-engineering",
+      "title": "소스·드레인 접촉 저항 공학",
+      "engName": "Source Drain Contact Engineering",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "접촉·배선",
+      "scaleLevel": 3,
+      "classificationNote": "소스·드레인 접촉 저항 공학의 기술적 대상을 접촉·배선에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "고농도 도핑 에피택시와 실리사이드 계면으로 소스·드레인 접촉 저항을 낮추는 기술이다.",
+      "purpose": "트랜지스터 피치가 40\\ nm 이하로 축소되면서 소스/드레인 콘택 홀 면적이 나노스케일로 축소, 접촉 저항(R_c)이 전체 트랜지스터 저항의 50%를 초과하여 구동 전류가 포화되는 양산 병목 발생.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** pFET에는 초고농도 붕소 도핑 $\\text{Si}_{0.5}\\text{Ge}_{0.5}:\\text{B}$ ($> 1\\times 10^{21}\\ \\text{cm}^{-3}$) 에피택시, nFET에는 인 초도핑 $\\text{Si}:\\text{P}$ 성장. 계면에 극박 Ti 원자층 증착 후 저온 레이저 어닐링으로 준안정상(Meta-stable) $\\text{TiSi}_x$ 형성.",
+      "evidenceQuote": "- **서지 정보:** C. H. Diaz, J. H. Park et al. (TSMC & Intel Collaboration), *IEEE International Electron Devices Meeting (IEDM)*, pp. 452–455, 2022. DOI: 10.1109/IEDM83202.2022.10019283",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "pFET에는 초고농도 붕소 도핑 Si_{0.5}Ge_{0.5}:B (> 1× 10^{21}\\ cm^{-3}) 에피택시, nFET에는 인 초도핑 Si:P 성장. 계면에 극박 Ti 원자층 증착 후 저온 레이저 어닐링으로 준안정상(Meta-stable) TiSi_x 형성.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** pFET에는 초고농도 붕소 도핑 $\\text{Si}_{0.5}\\text{Ge}_{0.5}:\\text{B}$ ($> 1\\times 10^{21}\\ \\text{cm}^{-3}$) 에피택시, nFET에는 인 초도핑 $\\text{Si}:\\text{P}$ 성장. 계면에 극박 Ti 원자층 증착 후 저온 레이저 어닐링으로 준안정상(Meta-stable) $\\text{TiSi}_x$ 형성."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "트랜지스터 피치가 40\\ nm 이하로 축소되면서 소스/드레인 콘택 홀 면적이 나노스케일로 축소, 접촉 저항(R_c)이 전체 트랜지스터 저항의 50%를 초과하여 구동 전류가 포화되는 양산 병목 발생.",
+          "evidenceQuote": "- **팹 양산 배경:** 트랜지스터 피치가 $40\\ \\text{nm}$ 이하로 축소되면서 소스/드레인 콘택 홀 면적이 나노스케일로 축소, 접촉 저항($R_c$)이 전체 트랜지스터 저항의 $50\\%$를 초과하여 구동 전류가 포화되는 양산 병목 발생."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "소스·드레인 접촉 저항 공학: 등록 응용 논문 아카이브 02",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: 트랜지스터 피치가 40\\ nm 이하로 축소되면서 소스/드레인 콘택 홀 면적이 나노스케일로 축소, 접촉 저항(R_c)이 전체 트랜지스터 저항의 50%를 초과하여 구동 전류가 포화되는 양산 병목 발생.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** 쇼트키 장벽 높이 $\\Phi_{bn} < 0.1\\ \\text{eV}$, 접촉 비저항 $\\rho_c \\le 1.2\\times 10^{-9}\\ \\Omega\\cdot\\text{cm}^2$ 달성.",
+          "specifications": [
+            {
+              "parameter": "쇼트키 장벽 높이",
+              "value": "< 0.1",
+              "unit": "eV",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 트랜지스터 피치가 $40\\ \\text{nm}$ 이하로 축소되면서 소스/드레인 콘택 홀 면적이 나노스케일로 축소, 접촉 저항($R_c$)이 전체 트랜지스터 저항의 $50\\%$를 초과하여 구동 전류가 포화되는 양산 병목 발생.\n- **물리/화학적 메커니즘:** pFET에는 초고농도 붕소 도핑 $\\text{Si}_{0.5}\\text{Ge}_{0.5}:\\text{B}$ ($> 1\\times 10^{21}\\ \\text{cm}^{-3}$) 에피택시, nFET에는 인 초도핑 $\\text{Si}:\\text{P}$ 성장. 계면에 극박 Ti 원자층 증착 후 저온 레이저 어닐링으로 준안정상(Meta-stable) $\\text{TiSi}_x$ 형성.\n- **팹 실측 파라미터:** 쇼트키 장벽 높이 $\\Phi_{bn} < 0.1\\ \\text{eV}$, 접촉 비저항 $\\rho_c \\le 1.2\\times 10^{-9}\\ \\Omega\\cdot\\text{cm}^2$ 달성."
+            },
+            {
+              "parameter": "접촉 비저항",
+              "value": "≤ 1.2×10^-9",
+              "unit": "Ω·cm²",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 트랜지스터 피치가 $40\\ \\text{nm}$ 이하로 축소되면서 소스/드레인 콘택 홀 면적이 나노스케일로 축소, 접촉 저항($R_c$)이 전체 트랜지스터 저항의 $50\\%$를 초과하여 구동 전류가 포화되는 양산 병목 발생.\n- **물리/화학적 메커니즘:** pFET에는 초고농도 붕소 도핑 $\\text{Si}_{0.5}\\text{Ge}_{0.5}:\\text{B}$ ($> 1\\times 10^{21}\\ \\text{cm}^{-3}$) 에피택시, nFET에는 인 초도핑 $\\text{Si}:\\text{P}$ 성장. 계면에 극박 Ti 원자층 증착 후 저온 레이저 어닐링으로 준안정상(Meta-stable) $\\text{TiSi}_x$ 형성.\n- **팹 실측 파라미터:** 쇼트키 장벽 높이 $\\Phi_{bn} < 0.1\\ \\text{eV}$, 접촉 비저항 $\\rho_c \\le 1.2\\times 10^{-9}\\ \\Omega\\cdot\\text{cm}^2$ 달성."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "트랜지스터에 전류를 드나들게 하는 접촉부가 좁아지면 접촉 저항의 영향이 커집니다. 이 연구 요약은 도핑된 결정 성장과 계면 처리를 함께 다룹니다. 접촉 비저항은 접촉부의 특성을 비교하는 값이며 배선 전체 저항과는 다릅니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "접촉·배선",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "inner-spacer",
+      "title": "저유전율 내부 스페이서",
+      "engName": "Low-k Inner Spacer",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "소자 절연 구조",
+      "scaleLevel": 2,
+      "classificationNote": "저유전율 내부 스페이서의 기술적 대상을 소자 절연 구조에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "GAA의 게이트와 소스·드레인 사이에 저유전율 절연체를 남겨 기생 용량을 줄이는 구조·공정이다.",
+      "purpose": "나노시트 사이 게이트 금속과 소스/드레인 에피택시 간의 간격이 수 나노미터에 불과하여 발생하는 기생 커패시턴스(C_{gs}, C_{gd})가 RC 지연을 유발함.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** SiGe 리세스 캐비티 내부에 ALD로 SiBCN/SiOCN 박막을 컨포멀 증착 후, 방향성 없이 공동(Cavity) 내부에만 보호막을 남기는 저손상 원자층 식각(ALE) 수행.",
+      "evidenceQuote": "- **서지 정보:** H. Bae, K. H. Yeo et al. (Samsung Electronics & IBM), *IEEE Transactions on Electron Devices (TED)*, Vol. 68, No. 11, pp. 5892–5898, 2021. DOI: 10.1109/TED.2021.3114950",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "SiGe 리세스 캐비티 내부에 ALD로 SiBCN/SiOCN 박막을 컨포멀 증착 후, 방향성 없이 공동(Cavity) 내부에만 보호막을 남기는 저손상 원자층 식각(ALE) 수행.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** SiGe 리세스 캐비티 내부에 ALD로 SiBCN/SiOCN 박막을 컨포멀 증착 후, 방향성 없이 공동(Cavity) 내부에만 보호막을 남기는 저손상 원자층 식각(ALE) 수행."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "나노시트 사이 게이트 금속과 소스/드레인 에피택시 간의 간격이 수 나노미터에 불과하여 발생하는 기생 커패시턴스(C_{gs}, C_{gd})가 RC 지연을 유발함.",
+          "evidenceQuote": "- **팹 양산 배경:** 나노시트 사이 게이트 금속과 소스/드레인 에피택시 간의 간격이 수 나노미터에 불과하여 발생하는 기생 커패시턴스($C_{gs}, C_{gd}$)가 RC 지연을 유발함."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "저유전율 내부 스페이서: 등록 응용 논문 아카이브 03",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: 나노시트 사이 게이트 금속과 소스/드레인 에피택시 간의 간격이 수 나노미터에 불과하여 발생하는 기생 커패시턴스(C_{gs}, C_{gd})가 RC 지연을 유발함.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** 스페이서 유전율 $k \\approx 4.2$ (기존 $\\text{Si}_3\\text{N}_4$의 $k=7.5$ 대비 44% 감쇄), 유효 스위칭 속도 12% 향상, 누설전류 억제.",
+          "specifications": [
+            {
+              "parameter": "스페이서 유전율",
+              "value": "약 4.2",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 나노시트 사이 게이트 금속과 소스/드레인 에피택시 간의 간격이 수 나노미터에 불과하여 발생하는 기생 커패시턴스($C_{gs}, C_{gd}$)가 RC 지연을 유발함.\n- **물리/화학적 메커니즘:** SiGe 리세스 캐비티 내부에 ALD로 SiBCN/SiOCN 박막을 컨포멀 증착 후, 방향성 없이 공동(Cavity) 내부에만 보호막을 남기는 저손상 원자층 식각(ALE) 수행.\n- **팹 실측 파라미터:** 스페이서 유전율 $k \\approx 4.2$ (기존 $\\text{Si}_3\\text{N}_4$의 $k=7.5$ 대비 44% 감쇄), 유효 스위칭 속도 12% 향상, 누설전류 억제."
+            },
+            {
+              "parameter": "비교 Si3N4 유전율",
+              "value": "7.5",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 나노시트 사이 게이트 금속과 소스/드레인 에피택시 간의 간격이 수 나노미터에 불과하여 발생하는 기생 커패시턴스($C_{gs}, C_{gd}$)가 RC 지연을 유발함.\n- **물리/화학적 메커니즘:** SiGe 리세스 캐비티 내부에 ALD로 SiBCN/SiOCN 박막을 컨포멀 증착 후, 방향성 없이 공동(Cavity) 내부에만 보호막을 남기는 저손상 원자층 식각(ALE) 수행.\n- **팹 실측 파라미터:** 스페이서 유전율 $k \\approx 4.2$ (기존 $\\text{Si}_3\\text{N}_4$의 $k=7.5$ 대비 44% 감쇄), 유효 스위칭 속도 12% 향상, 누설전류 억제."
+            },
+            {
+              "parameter": "원문 제시 용량 관련 감쇄",
+              "value": "44",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 나노시트 사이 게이트 금속과 소스/드레인 에피택시 간의 간격이 수 나노미터에 불과하여 발생하는 기생 커패시턴스($C_{gs}, C_{gd}$)가 RC 지연을 유발함.\n- **물리/화학적 메커니즘:** SiGe 리세스 캐비티 내부에 ALD로 SiBCN/SiOCN 박막을 컨포멀 증착 후, 방향성 없이 공동(Cavity) 내부에만 보호막을 남기는 저손상 원자층 식각(ALE) 수행.\n- **팹 실측 파라미터:** 스페이서 유전율 $k \\approx 4.2$ (기존 $\\text{Si}_3\\text{N}_4$의 $k=7.5$ 대비 44% 감쇄), 유효 스위칭 속도 12% 향상, 누설전류 억제."
+            },
+            {
+              "parameter": "유효 스위칭 속도 향상",
+              "value": "12",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 나노시트 사이 게이트 금속과 소스/드레인 에피택시 간의 간격이 수 나노미터에 불과하여 발생하는 기생 커패시턴스($C_{gs}, C_{gd}$)가 RC 지연을 유발함.\n- **물리/화학적 메커니즘:** SiGe 리세스 캐비티 내부에 ALD로 SiBCN/SiOCN 박막을 컨포멀 증착 후, 방향성 없이 공동(Cavity) 내부에만 보호막을 남기는 저손상 원자층 식각(ALE) 수행.\n- **팹 실측 파라미터:** 스페이서 유전율 $k \\approx 4.2$ (기존 $\\text{Si}_3\\text{N}_4$의 $k=7.5$ 대비 44% 감쇄), 유효 스위칭 속도 12% 향상, 누설전류 억제."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "게이트와 소스·드레인이 가까워지면 원하지 않는 전기적 결합이 커집니다. 사이에 전기를 덜 저장하는 절연체를 두어 그 부담을 줄이려는 방식입니다. 표의 비교 대상과 개선율은 이 연구 요약의 조건으로 한정합니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "gaa",
+          "name": "게이트 올 어라운드 FET",
+          "reason": "GAA의 게이트 금속과 소스·드레인 사이에 있는 공동 안에 절연막을 남기는 실제 소자 내부 구성 구조이다.",
+          "evidenceQuote": "나노시트 사이 게이트 금속과 소스/드레인 에피택시 간의 간격이 수 나노미터에 불과하여 발생하는 기생 커패시턴스"
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "소자 절연 구조",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "bspdn",
+      "title": "후면 전력 공급망",
+      "engName": "Backside Power Delivery Network",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "전력 배선 통합",
+      "scaleLevel": 4,
+      "classificationNote": "후면 전력 공급망의 기술적 대상을 전력 배선 통합에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전원 배선을 웨이퍼 뒷면에 형성하고 나노 TSV로 소자에 연결하는 전력 공급 구조이다.",
+      "purpose": "웨이퍼 전면의 배선 혼잡(Routing Congestion)과 심각한 전압 강하(IR Drop)를 해결하기 위해 전원선을 웨이퍼 뒷면으로 이전. 잔류 실리콘 두께를 1\\ \\mum 이하로 연마할 때 웨이퍼 휨과 크랙 방지 필요.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** 캐리어 웨이퍼 융합 본딩 후 후면 초정밀 CMP로 실리콘을 $500\\ \\text{nm}$까지 박막화. 지름 $100\\ \\text{nm}$ 이하의 초미세 Nano-TSV를 식각하고 Ru/W 무배리어 메탈 충진.",
+      "evidenceQuote": "- **서지 정보:** G. Sisto, A. Veloso et al. (imec), *IEEE Symposium on VLSI Technology*, pp. 118–119, 2022. DOI: 10.1109/VLSITechnology46708.2022.9830325",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "캐리어 웨이퍼 융합 본딩 후 후면 초정밀 CMP로 실리콘을 500\\ nm까지 박막화. 지름 100\\ nm 이하의 초미세 Nano-TSV를 식각하고 Ru/W 무배리어 메탈 충진.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** 캐리어 웨이퍼 융합 본딩 후 후면 초정밀 CMP로 실리콘을 $500\\ \\text{nm}$까지 박막화. 지름 $100\\ \\text{nm}$ 이하의 초미세 Nano-TSV를 식각하고 Ru/W 무배리어 메탈 충진."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "웨이퍼 전면의 배선 혼잡(Routing Congestion)과 심각한 전압 강하(IR Drop)를 해결하기 위해 전원선을 웨이퍼 뒷면으로 이전. 잔류 실리콘 두께를 1\\ \\mum 이하로 연마할 때 웨이퍼 휨과 크랙 방지 필요.",
+          "evidenceQuote": "- **팹 양산 배경:** 웨이퍼 전면의 배선 혼잡(Routing Congestion)과 심각한 전압 강하(IR Drop)를 해결하기 위해 전원선을 웨이퍼 뒷면으로 이전. 잔류 실리콘 두께를 $1\\ \\mu\\text{m}$ 이하로 연마할 때 웨이퍼 휨과 크랙 방지 필요."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "후면 전력 공급망: 등록 응용 논문 아카이브 04",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: 웨이퍼 전면의 배선 혼잡(Routing Congestion)과 심각한 전압 강하(IR Drop)를 해결하기 위해 전원선을 웨이퍼 뒷면으로 이전. 잔류 실리콘 두께를 1\\ \\mum 이하로 연마할 때 웨이퍼 휨과 크랙 방지 필요.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** IR Drop $35\\%$ 감소, 전력 소모 $15\\%$ 절감, 표준 셀 면적 $20\\sim 30\\%$ 추가 축소 실현.",
+          "specifications": [
+            {
+              "parameter": "후면 실리콘 두께",
+              "value": "500",
+              "unit": "nm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 웨이퍼 전면의 배선 혼잡(Routing Congestion)과 심각한 전압 강하(IR Drop)를 해결하기 위해 전원선을 웨이퍼 뒷면으로 이전. 잔류 실리콘 두께를 $1\\ \\mu\\text{m}$ 이하로 연마할 때 웨이퍼 휨과 크랙 방지 필요.\n- **물리/화학적 메커니즘:** 캐리어 웨이퍼 융합 본딩 후 후면 초정밀 CMP로 실리콘을 $500\\ \\text{nm}$까지 박막화. 지름 $100\\ \\text{nm}$ 이하의 초미세 Nano-TSV를 식각하고 Ru/W 무배리어 메탈 충진.\n- **팹 실측 파라미터:** IR Drop $35\\%$ 감소, 전력 소모 $15\\%$ 절감, 표준 셀 면적 $20\\sim 30\\%$ 추가 축소 실현."
+            },
+            {
+              "parameter": "나노 TSV 지름",
+              "value": "100 이하",
+              "unit": "nm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 웨이퍼 전면의 배선 혼잡(Routing Congestion)과 심각한 전압 강하(IR Drop)를 해결하기 위해 전원선을 웨이퍼 뒷면으로 이전. 잔류 실리콘 두께를 $1\\ \\mu\\text{m}$ 이하로 연마할 때 웨이퍼 휨과 크랙 방지 필요.\n- **물리/화학적 메커니즘:** 캐리어 웨이퍼 융합 본딩 후 후면 초정밀 CMP로 실리콘을 $500\\ \\text{nm}$까지 박막화. 지름 $100\\ \\text{nm}$ 이하의 초미세 Nano-TSV를 식각하고 Ru/W 무배리어 메탈 충진.\n- **팹 실측 파라미터:** IR Drop $35\\%$ 감소, 전력 소모 $15\\%$ 절감, 표준 셀 면적 $20\\sim 30\\%$ 추가 축소 실현."
+            },
+            {
+              "parameter": "IR Drop 감소",
+              "value": "35",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 웨이퍼 전면의 배선 혼잡(Routing Congestion)과 심각한 전압 강하(IR Drop)를 해결하기 위해 전원선을 웨이퍼 뒷면으로 이전. 잔류 실리콘 두께를 $1\\ \\mu\\text{m}$ 이하로 연마할 때 웨이퍼 휨과 크랙 방지 필요.\n- **물리/화학적 메커니즘:** 캐리어 웨이퍼 융합 본딩 후 후면 초정밀 CMP로 실리콘을 $500\\ \\text{nm}$까지 박막화. 지름 $100\\ \\text{nm}$ 이하의 초미세 Nano-TSV를 식각하고 Ru/W 무배리어 메탈 충진.\n- **팹 실측 파라미터:** IR Drop $35\\%$ 감소, 전력 소모 $15\\%$ 절감, 표준 셀 면적 $20\\sim 30\\%$ 추가 축소 실현."
+            },
+            {
+              "parameter": "전력 소모 절감",
+              "value": "15",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 웨이퍼 전면의 배선 혼잡(Routing Congestion)과 심각한 전압 강하(IR Drop)를 해결하기 위해 전원선을 웨이퍼 뒷면으로 이전. 잔류 실리콘 두께를 $1\\ \\mu\\text{m}$ 이하로 연마할 때 웨이퍼 휨과 크랙 방지 필요.\n- **물리/화학적 메커니즘:** 캐리어 웨이퍼 융합 본딩 후 후면 초정밀 CMP로 실리콘을 $500\\ \\text{nm}$까지 박막화. 지름 $100\\ \\text{nm}$ 이하의 초미세 Nano-TSV를 식각하고 Ru/W 무배리어 메탈 충진.\n- **팹 실측 파라미터:** IR Drop $35\\%$ 감소, 전력 소모 $15\\%$ 절감, 표준 셀 면적 $20\\sim 30\\%$ 추가 축소 실현."
+            },
+            {
+              "parameter": "셀 면적 추가 축소",
+              "value": "20~30",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 웨이퍼 전면의 배선 혼잡(Routing Congestion)과 심각한 전압 강하(IR Drop)를 해결하기 위해 전원선을 웨이퍼 뒷면으로 이전. 잔류 실리콘 두께를 $1\\ \\mu\\text{m}$ 이하로 연마할 때 웨이퍼 휨과 크랙 방지 필요.\n- **물리/화학적 메커니즘:** 캐리어 웨이퍼 융합 본딩 후 후면 초정밀 CMP로 실리콘을 $500\\ \\text{nm}$까지 박막화. 지름 $100\\ \\text{nm}$ 이하의 초미세 Nano-TSV를 식각하고 Ru/W 무배리어 메탈 충진.\n- **팹 실측 파라미터:** IR Drop $35\\%$ 감소, 전력 소모 $15\\%$ 절감, 표준 셀 면적 $20\\sim 30\\%$ 추가 축소 실현."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "신호선과 전원선이 앞면에서 경쟁하던 구조를 바꾸어 전원을 뒷면에서 공급하는 연구입니다. 실리콘을 얇게 만든 뒤 작은 수직 연결을 형성하므로 휨과 균열도 함께 관리해야 합니다. 면적·전력·전압 강하의 개선율은 각각 다른 비교 결과입니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전력 배선 통합",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "zaz-dram-capacitor",
+      "title": "ZAZ DRAM 커패시터",
+      "engName": "ZAZ DRAM Capacitor",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 셀 구조",
+      "scaleLevel": 2,
+      "classificationNote": "ZAZ DRAM 커패시터의 기술적 대상을 메모리 셀 구조에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "ZrO2 고유전체 사이에 얇은 Al2O3 장벽층을 삽입해 용량과 누설을 조절하는 DRAM 커패시터이다.",
+      "purpose": "셀 면적 축소 속에서 커패시턴스 \\ge 25\\ fF/cell을 확보하기 위해 물리적 두께를 줄이면서도 양자역학적 터널링 누설전류로 인한 데이터 리프레시(tREF) 열화를 방지해야 함.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** 하부 전극 TiN 표면에서 ALD $\\text{ZrO}_2$의 정방정계(Tetragonal) 고유전 상($k \\approx 40$) 결정화 유도. 중간에 밴드갭이 큰($E_g \\approx 8.8\\ \\text{eV}$) $Al_2O_3$ 3개 원자층($0.3\\ \\text{nm}$)을 정밀 삽입하여 전자 터널링 전위 장벽 형성.",
+      "evidenceQuote": "- **서지 정보:** C. S. Hwang, S. W. Lee et al. (Seoul National Univ & Samsung Electronics), *IEEE Transactions on Electron Devices (TED)*, Vol. 69, No. 6, pp. 3168–3175, 2022. DOI: 10.1109/TED.2022.3168892",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "하부 전극 TiN 표면에서 ALD ZrO_2의 정방정계(Tetragonal) 고유전 상(k \\approx 40) 결정화 유도. 중간에 밴드갭이 큰(E_g \\approx 8.8\\ eV) Al_2O_3 3개 원자층(0.3\\ nm)을 정밀 삽입하여 전자 터널링 전위 장벽 형성.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** 하부 전극 TiN 표면에서 ALD $\\text{ZrO}_2$의 정방정계(Tetragonal) 고유전 상($k \\approx 40$) 결정화 유도. 중간에 밴드갭이 큰($E_g \\approx 8.8\\ \\text{eV}$) $Al_2O_3$ 3개 원자층($0.3\\ \\text{nm}$)을 정밀 삽입하여 전자 터널링 전위 장벽 형성."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "셀 면적 축소 속에서 커패시턴스 \\ge 25\\ fF/cell을 확보하기 위해 물리적 두께를 줄이면서도 양자역학적 터널링 누설전류로 인한 데이터 리프레시(tREF) 열화를 방지해야 함.",
+          "evidenceQuote": "- **팹 양산 배경:** 셀 면적 축소 속에서 커패시턴스 $\\ge 25\\ \\text{fF/cell}$을 확보하기 위해 물리적 두께를 줄이면서도 양자역학적 터널링 누설전류로 인한 데이터 리프레시(tREF) 열화를 방지해야 함."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "ZAZ DRAM 커패시터: 등록 응용 논문 아카이브 05",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: 셀 면적 축소 속에서 커패시턴스 \\ge 25\\ fF/cell을 확보하기 위해 물리적 두께를 줄이면서도 양자역학적 터널링 누설전류로 인한 데이터 리프레시(tREF) 열화를 방지해야 함.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** $\\text{EOT} = 0.42\\ \\text{nm}$, $1.0\\ \\text{V}$에서 누설전류 밀도 $J_g < 10^{-7}\\ \\text{A/cm}^2$.",
+          "specifications": [
+            {
+              "parameter": "등가 산화막 두께",
+              "value": "0.42",
+              "unit": "nm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 셀 면적 축소 속에서 커패시턴스 $\\ge 25\\ \\text{fF/cell}$을 확보하기 위해 물리적 두께를 줄이면서도 양자역학적 터널링 누설전류로 인한 데이터 리프레시(tREF) 열화를 방지해야 함.\n- **물리/화학적 메커니즘:** 하부 전극 TiN 표면에서 ALD $\\text{ZrO}_2$의 정방정계(Tetragonal) 고유전 상($k \\approx 40$) 결정화 유도. 중간에 밴드갭이 큰($E_g \\approx 8.8\\ \\text{eV}$) $Al_2O_3$ 3개 원자층($0.3\\ \\text{nm}$)을 정밀 삽입하여 전자 터널링 전위 장벽 형성.\n- **팹 실측 파라미터:** $\\text{EOT} = 0.42\\ \\text{nm}$, $1.0\\ \\text{V}$에서 누설전류 밀도 $J_g < 10^{-7}\\ \\text{A/cm}^2$."
+            },
+            {
+              "parameter": "누설 측정 전압",
+              "value": "1.0",
+              "unit": "V",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 셀 면적 축소 속에서 커패시턴스 $\\ge 25\\ \\text{fF/cell}$을 확보하기 위해 물리적 두께를 줄이면서도 양자역학적 터널링 누설전류로 인한 데이터 리프레시(tREF) 열화를 방지해야 함.\n- **물리/화학적 메커니즘:** 하부 전극 TiN 표면에서 ALD $\\text{ZrO}_2$의 정방정계(Tetragonal) 고유전 상($k \\approx 40$) 결정화 유도. 중간에 밴드갭이 큰($E_g \\approx 8.8\\ \\text{eV}$) $Al_2O_3$ 3개 원자층($0.3\\ \\text{nm}$)을 정밀 삽입하여 전자 터널링 전위 장벽 형성.\n- **팹 실측 파라미터:** $\\text{EOT} = 0.42\\ \\text{nm}$, $1.0\\ \\text{V}$에서 누설전류 밀도 $J_g < 10^{-7}\\ \\text{A/cm}^2$."
+            },
+            {
+              "parameter": "누설 전류 밀도",
+              "value": "< 10^-7",
+              "unit": "A/cm²",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 셀 면적 축소 속에서 커패시턴스 $\\ge 25\\ \\text{fF/cell}$을 확보하기 위해 물리적 두께를 줄이면서도 양자역학적 터널링 누설전류로 인한 데이터 리프레시(tREF) 열화를 방지해야 함.\n- **물리/화학적 메커니즘:** 하부 전극 TiN 표면에서 ALD $\\text{ZrO}_2$의 정방정계(Tetragonal) 고유전 상($k \\approx 40$) 결정화 유도. 중간에 밴드갭이 큰($E_g \\approx 8.8\\ \\text{eV}$) $Al_2O_3$ 3개 원자층($0.3\\ \\text{nm}$)을 정밀 삽입하여 전자 터널링 전위 장벽 형성.\n- **팹 실측 파라미터:** $\\text{EOT} = 0.42\\ \\text{nm}$, $1.0\\ \\text{V}$에서 누설전류 밀도 $J_g < 10^{-7}\\ \\text{A/cm}^2$."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "DRAM은 작은 저장소에 전하를 담아 데이터를 유지합니다. 저장소의 크기를 줄이면서 용량을 지키려면 유전율을 높이는 동시에 전하가 새는 것을 줄여야 합니다. EOT는 전기적 두께 지표이고 누설 값은 표에 적힌 측정 전압과 함께 읽어야 합니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "dram",
+          "name": "DRAM",
+          "reason": "DRAM 셀의 저장 용량과 리프레시 열화를 다루는 셀 커패시터 구조이므로 DRAM의 실제 구성 소자이다.",
+          "evidenceQuote": "셀 면적 축소 속에서 커패시턴스"
+        }
+      ],
+      "isA": [
+        {
+          "id": "capacitor",
+          "name": "커패시터",
+          "reason": "ZrO2와 Al2O3의 ZAZ 고유전체를 갖는 DRAM 커패시터를 설명하므로 커패시터의 구체적인 종류이다.",
+          "evidenceQuote": "## 5. 1a/1b nm DRAM 정방정계 ZAZ 고유전체 커패시터 EOT 스케일링 (2022)"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "메모리 셀 구조",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "dram-bitline-airgap",
+      "title": "DRAM 비트라인 에어갭",
+      "engName": "DRAM Bitline Air Gap",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 셀 구조",
+      "scaleLevel": 2,
+      "classificationNote": "DRAM 비트라인 에어갭의 기술적 대상을 메모리 셀 구조에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "비트라인 사이에 공기층을 밀봉해 기생 정전용량을 줄이는 절연 구조이다.",
+      "purpose": "비트라인(Bitline) 간 피치가 30\\ nm 이하로 좁아짐에 따라 비트라인 간 기생 커패시턴스(C_b)가 급증하여 센스 앰프의 신호 감지 마진(\\Delta V \\propto C_s / (C_s + C_b))이 붕괴됨.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** 비트라인 측벽에 희생 절연막을 증착/식각한 후 상부 절연막 플라즈마 CVD 증착 시 불량한 스텝 커버리지(Pinch-off) 특성을 의도적으로 제어하여 비트라인 사이에 진공/공기층($k=1.0$)을 영구 밀봉.",
+      "evidenceQuote": "- **서지 정보:** H. S. Song, Y. N. Heo et al. (SK hynix Memory Division), *IEEE International Electron Devices Meeting (IEDM)*, pp. 312–315, 2023. DOI: 10.1109/IEDM83203.2023.10413812",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "비트라인 측벽에 희생 절연막을 증착/식각한 후 상부 절연막 플라즈마 CVD 증착 시 불량한 스텝 커버리지(Pinch-off) 특성을 의도적으로 제어하여 비트라인 사이에 진공/공기층(k=1.0)을 영구 밀봉.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** 비트라인 측벽에 희생 절연막을 증착/식각한 후 상부 절연막 플라즈마 CVD 증착 시 불량한 스텝 커버리지(Pinch-off) 특성을 의도적으로 제어하여 비트라인 사이에 진공/공기층($k=1.0$)을 영구 밀봉."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "비트라인(Bitline) 간 피치가 30\\ nm 이하로 좁아짐에 따라 비트라인 간 기생 커패시턴스(C_b)가 급증하여 센스 앰프의 신호 감지 마진(\\Delta V \\propto C_s / (C_s + C_b))이 붕괴됨.",
+          "evidenceQuote": "- **팹 양산 배경:** 비트라인(Bitline) 간 피치가 $30\\ \\text{nm}$ 이하로 좁아짐에 따라 비트라인 간 기생 커패시턴스($C_b$)가 급증하여 센스 앰프의 신호 감지 마진($\\Delta V \\propto C_s / (C_s + C_b)$)이 붕괴됨."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "DRAM 비트라인 에어갭: 등록 응용 논문 아카이브 06",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: 비트라인(Bitline) 간 피치가 30\\ nm 이하로 좁아짐에 따라 비트라인 간 기생 커패시턴스(C_b)가 급증하여 센스 앰프의 신호 감지 마진(\\Delta V \\propto C_s / (C_s + C_b))이 붕괴됨.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** $C_b$ 기생 용량 $28\\%$ 감쇄, DRAM 센싱 마진 $35\\ \\text{mV}$ 추가 확보, 고속 동작 tRCD 15% 개선.",
+          "specifications": [
+            {
+              "parameter": "기생 비트라인 용량 감소",
+              "value": "28",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 비트라인(Bitline) 간 피치가 $30\\ \\text{nm}$ 이하로 좁아짐에 따라 비트라인 간 기생 커패시턴스($C_b$)가 급증하여 센스 앰프의 신호 감지 마진($\\Delta V \\propto C_s / (C_s + C_b)$)이 붕괴됨.\n- **물리/화학적 메커니즘:** 비트라인 측벽에 희생 절연막을 증착/식각한 후 상부 절연막 플라즈마 CVD 증착 시 불량한 스텝 커버리지(Pinch-off) 특성을 의도적으로 제어하여 비트라인 사이에 진공/공기층($k=1.0$)을 영구 밀봉.\n- **팹 실측 파라미터:** $C_b$ 기생 용량 $28\\%$ 감쇄, DRAM 센싱 마진 $35\\ \\text{mV}$ 추가 확보, 고속 동작 tRCD 15% 개선."
+            },
+            {
+              "parameter": "추가 센싱 마진",
+              "value": "35",
+              "unit": "mV",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 비트라인(Bitline) 간 피치가 $30\\ \\text{nm}$ 이하로 좁아짐에 따라 비트라인 간 기생 커패시턴스($C_b$)가 급증하여 센스 앰프의 신호 감지 마진($\\Delta V \\propto C_s / (C_s + C_b)$)이 붕괴됨.\n- **물리/화학적 메커니즘:** 비트라인 측벽에 희생 절연막을 증착/식각한 후 상부 절연막 플라즈마 CVD 증착 시 불량한 스텝 커버리지(Pinch-off) 특성을 의도적으로 제어하여 비트라인 사이에 진공/공기층($k=1.0$)을 영구 밀봉.\n- **팹 실측 파라미터:** $C_b$ 기생 용량 $28\\%$ 감쇄, DRAM 센싱 마진 $35\\ \\text{mV}$ 추가 확보, 고속 동작 tRCD 15% 개선."
+            },
+            {
+              "parameter": "tRCD 개선",
+              "value": "15",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 비트라인(Bitline) 간 피치가 $30\\ \\text{nm}$ 이하로 좁아짐에 따라 비트라인 간 기생 커패시턴스($C_b$)가 급증하여 센스 앰프의 신호 감지 마진($\\Delta V \\propto C_s / (C_s + C_b)$)이 붕괴됨.\n- **물리/화학적 메커니즘:** 비트라인 측벽에 희생 절연막을 증착/식각한 후 상부 절연막 플라즈마 CVD 증착 시 불량한 스텝 커버리지(Pinch-off) 특성을 의도적으로 제어하여 비트라인 사이에 진공/공기층($k=1.0$)을 영구 밀봉.\n- **팹 실측 파라미터:** $C_b$ 기생 용량 $28\\%$ 감쇄, DRAM 센싱 마진 $35\\ \\text{mV}$ 추가 확보, 고속 동작 tRCD 15% 개선."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "메모리에서 작은 전하 차이를 읽을 때 주변 배선의 불필요한 전기 용량이 방해가 될 수 있습니다. 배선 사이 공기층으로 그 용량을 줄이는 방식입니다. 추가 센싱 마진은 읽기 신호를 구별할 여유에 관한 연구 결과이며 일반적인 안전 공차가 아닙니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "dram",
+          "name": "DRAM",
+          "reason": "DRAM 비트라인 사이에 진공·공기층을 영구 밀봉하는 절연 구조이므로 DRAM의 실제 내부 구성 부분이다.",
+          "evidenceQuote": "비트라인 사이에 진공/공기층($k=1.0$)을 영구 밀봉."
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "메모리 셀 구조",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "pulsed-cryogenic-har-etching",
+      "title": "펄스 극저온 고종횡비 식각",
+      "engName": "Pulsed Cryogenic HAR Etching",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "펄스 극저온 고종횡비 식각의 기술적 대상을 식각에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "RF 펄스와 저온 표면 반응을 조합해 깊은 NAND 홀의 대전·틀어짐을 제어하는 식각 기술이다.",
+      "purpose": "300단 이상 적층 시 홀 깊이가 10\\ \\mum를 초과(종횡비 > 80:1). 깊은 홀 바닥에 축적된 양전하가 후속 이온을 밀어내어 홀이 휘어지는 틸팅(Tilting)과 뒤틀림(Twisting)으로 하부 배선 단락 유발.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** 10~50kHz 주파수의 소스/바이어스 동기화 펄스 RF 적용. Bias-Off 구간 동안 열전자가 홀 바닥으로 확산하여 양전하를 중화. $-60^\\circ\\text{C}$ 극저온에서 불화탄소 라디칼 표면 흡착층 안정화.",
+      "evidenceQuote": "- **서지 정보:** M. Shen, R. Gottscho et al. (Lam Research Corp), *Journal of Vacuum Science & Technology B*, Vol. 41, No. 3, 032201, 2023. DOI: 10.1116/6.0002481",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "10~50kHz 주파수의 소스/바이어스 동기화 펄스 RF 적용. Bias-Off 구간 동안 열전자가 홀 바닥으로 확산하여 양전하를 중화. -60^\\circC 극저온에서 불화탄소 라디칼 표면 흡착층 안정화.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** 10~50kHz 주파수의 소스/바이어스 동기화 펄스 RF 적용. Bias-Off 구간 동안 열전자가 홀 바닥으로 확산하여 양전하를 중화. $-60^\\circ\\text{C}$ 극저온에서 불화탄소 라디칼 표면 흡착층 안정화."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "300단 이상 적층 시 홀 깊이가 10\\ \\mum를 초과(종횡비 > 80:1). 깊은 홀 바닥에 축적된 양전하가 후속 이온을 밀어내어 홀이 휘어지는 틸팅(Tilting)과 뒤틀림(Twisting)으로 하부 배선 단락 유발.",
+          "evidenceQuote": "- **팹 양산 배경:** 300단 이상 적층 시 홀 깊이가 $10\\ \\mu\\text{m}$를 초과(종횡비 $> 80:1$). 깊은 홀 바닥에 축적된 양전하가 후속 이온을 밀어내어 홀이 휘어지는 틸팅(Tilting)과 뒤틀림(Twisting)으로 하부 배선 단락 유발."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "펄스 극저온 고종횡비 식각: 등록 응용 논문 아카이브 07",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: 300단 이상 적층 시 홀 깊이가 10\\ \\mum를 초과(종횡비 > 80:1). 깊은 홀 바닥에 축적된 양전하가 후속 이온을 밀어내어 홀이 휘어지는 틸팅(Tilting)과 뒤틀림(Twisting)으로 하부 배선 단락 유발.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** $10\\ \\mu\\text{m}$ 깊이에서 홀 중심 편차 $< 3\\ \\text{nm}$, 바닥면 오프닝 성공률 $100\\%$, 식각 마스크 소모 30% 감축.",
+          "specifications": [
+            {
+              "parameter": "RF 펄스 주파수",
+              "value": "10~50",
+              "unit": "kHz",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 300단 이상 적층 시 홀 깊이가 $10\\ \\mu\\text{m}$를 초과(종횡비 $> 80:1$). 깊은 홀 바닥에 축적된 양전하가 후속 이온을 밀어내어 홀이 휘어지는 틸팅(Tilting)과 뒤틀림(Twisting)으로 하부 배선 단락 유발.\n- **물리/화학적 메커니즘:** 10~50kHz 주파수의 소스/바이어스 동기화 펄스 RF 적용. Bias-Off 구간 동안 열전자가 홀 바닥으로 확산하여 양전하를 중화. $-60^\\circ\\text{C}$ 극저온에서 불화탄소 라디칼 표면 흡착층 안정화.\n- **팹 실측 파라미터:** $10\\ \\mu\\text{m}$ 깊이에서 홀 중심 편차 $< 3\\ \\text{nm}$, 바닥면 오프닝 성공률 $100\\%$, 식각 마스크 소모 30% 감축."
+            },
+            {
+              "parameter": "기판 온도",
+              "value": "-60",
+              "unit": "°C",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 300단 이상 적층 시 홀 깊이가 $10\\ \\mu\\text{m}$를 초과(종횡비 $> 80:1$). 깊은 홀 바닥에 축적된 양전하가 후속 이온을 밀어내어 홀이 휘어지는 틸팅(Tilting)과 뒤틀림(Twisting)으로 하부 배선 단락 유발.\n- **물리/화학적 메커니즘:** 10~50kHz 주파수의 소스/바이어스 동기화 펄스 RF 적용. Bias-Off 구간 동안 열전자가 홀 바닥으로 확산하여 양전하를 중화. $-60^\\circ\\text{C}$ 극저온에서 불화탄소 라디칼 표면 흡착층 안정화.\n- **팹 실측 파라미터:** $10\\ \\mu\\text{m}$ 깊이에서 홀 중심 편차 $< 3\\ \\text{nm}$, 바닥면 오프닝 성공률 $100\\%$, 식각 마스크 소모 30% 감축."
+            },
+            {
+              "parameter": "평가 홀 깊이",
+              "value": "10",
+              "unit": "㎛",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 300단 이상 적층 시 홀 깊이가 $10\\ \\mu\\text{m}$를 초과(종횡비 $> 80:1$). 깊은 홀 바닥에 축적된 양전하가 후속 이온을 밀어내어 홀이 휘어지는 틸팅(Tilting)과 뒤틀림(Twisting)으로 하부 배선 단락 유발.\n- **물리/화학적 메커니즘:** 10~50kHz 주파수의 소스/바이어스 동기화 펄스 RF 적용. Bias-Off 구간 동안 열전자가 홀 바닥으로 확산하여 양전하를 중화. $-60^\\circ\\text{C}$ 극저온에서 불화탄소 라디칼 표면 흡착층 안정화.\n- **팹 실측 파라미터:** $10\\ \\mu\\text{m}$ 깊이에서 홀 중심 편차 $< 3\\ \\text{nm}$, 바닥면 오프닝 성공률 $100\\%$, 식각 마스크 소모 30% 감축."
+            },
+            {
+              "parameter": "홀 중심 편차",
+              "value": "< 3",
+              "unit": "nm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 300단 이상 적층 시 홀 깊이가 $10\\ \\mu\\text{m}$를 초과(종횡비 $> 80:1$). 깊은 홀 바닥에 축적된 양전하가 후속 이온을 밀어내어 홀이 휘어지는 틸팅(Tilting)과 뒤틀림(Twisting)으로 하부 배선 단락 유발.\n- **물리/화학적 메커니즘:** 10~50kHz 주파수의 소스/바이어스 동기화 펄스 RF 적용. Bias-Off 구간 동안 열전자가 홀 바닥으로 확산하여 양전하를 중화. $-60^\\circ\\text{C}$ 극저온에서 불화탄소 라디칼 표면 흡착층 안정화.\n- **팹 실측 파라미터:** $10\\ \\mu\\text{m}$ 깊이에서 홀 중심 편차 $< 3\\ \\text{nm}$, 바닥면 오프닝 성공률 $100\\%$, 식각 마스크 소모 30% 감축."
+            },
+            {
+              "parameter": "바닥 오프닝 성공률",
+              "value": "100",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 300단 이상 적층 시 홀 깊이가 $10\\ \\mu\\text{m}$를 초과(종횡비 $> 80:1$). 깊은 홀 바닥에 축적된 양전하가 후속 이온을 밀어내어 홀이 휘어지는 틸팅(Tilting)과 뒤틀림(Twisting)으로 하부 배선 단락 유발.\n- **물리/화학적 메커니즘:** 10~50kHz 주파수의 소스/바이어스 동기화 펄스 RF 적용. Bias-Off 구간 동안 열전자가 홀 바닥으로 확산하여 양전하를 중화. $-60^\\circ\\text{C}$ 극저온에서 불화탄소 라디칼 표면 흡착층 안정화.\n- **팹 실측 파라미터:** $10\\ \\mu\\text{m}$ 깊이에서 홀 중심 편차 $< 3\\ \\text{nm}$, 바닥면 오프닝 성공률 $100\\%$, 식각 마스크 소모 30% 감축."
+            },
+            {
+              "parameter": "마스크 소모 감소",
+              "value": "30",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 300단 이상 적층 시 홀 깊이가 $10\\ \\mu\\text{m}$를 초과(종횡비 $> 80:1$). 깊은 홀 바닥에 축적된 양전하가 후속 이온을 밀어내어 홀이 휘어지는 틸팅(Tilting)과 뒤틀림(Twisting)으로 하부 배선 단락 유발.\n- **물리/화학적 메커니즘:** 10~50kHz 주파수의 소스/바이어스 동기화 펄스 RF 적용. Bias-Off 구간 동안 열전자가 홀 바닥으로 확산하여 양전하를 중화. $-60^\\circ\\text{C}$ 극저온에서 불화탄소 라디칼 표면 흡착층 안정화.\n- **팹 실측 파라미터:** $10\\ \\mu\\text{m}$ 깊이에서 홀 중심 편차 $< 3\\ \\text{nm}$, 바닥면 오프닝 성공률 $100\\%$, 식각 마스크 소모 30% 감축."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "아주 깊은 구멍에서는 바닥에 쌓인 전하가 뒤따라오는 이온을 밀어 경로가 휘어질 수 있습니다. 전압을 쉬는 구간을 둬 전하를 중화하고 낮은 온도로 표면 반응을 조절하는 연구입니다. 깊이·편차·성공률은 이 구조의 평가 결과이며 다른 식각 재료의 보증값이 아닙니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "cryogenic-etching",
+          "name": "극저온 식각",
+          "reason": "극저온 조건에 펄스 RF를 결합한 식각 방식이다.",
+          "evidenceQuote": "- **물리/화학적 메커니즘:** 10~50kHz 주파수의 소스/바이어스 동기화 펄스 RF 적용. Bias-Off 구간 동안 열전자가 홀 바닥으로 확산하여 양전하를 중화. $-60^\\circ\\text{C}$ 극저온에서 불화탄소 라디칼 표면 흡착층 안정화."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "molybdenum-wordline-ald",
+      "title": "몰리브덴 워드라인 원자층 증착",
+      "engName": "Molybdenum Wordline ALD",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "증착",
+      "scaleLevel": 3,
+      "classificationNote": "몰리브덴 워드라인 원자층 증착의 기술적 대상을 증착에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "무불소 몰리브덴 전구체로 NAND 워드라인을 증착해 불소·저항·응력 문제를 줄이는 공정이다.",
+      "purpose": "기존 텅스텐(W) 전극은 WF_6 프리커서 사용으로 인해 잔류 불소(F)가 게이트 산화막을 침투해 전하 보존 특성을 파괴하고, 높은 비저항과 인장 응력으로 웨이퍼가 휘어짐.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** 무불소 유기금속 몰리브덴 전구체($\\text{Mo}(\\text{CO})_6$ 또는 $\\text{MoCl}_5$)를 사용한 저온($350^\\circ\\text{C}$) ALD. 박막 내부 응력을 압축 응력으로 상쇄.",
+      "evidenceQuote": "- **서지 정보:** J. K. Choi, S. S. Kim et al. (Applied Materials & Memory Consortia), *IEEE Transactions on Electron Devices (TED)*, Vol. 70, No. 5, pp. 2415–2421, 2023. DOI: 10.1109/TED.2023.3259811",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "무불소 유기금속 몰리브덴 전구체(Mo(CO)_6 또는 MoCl_5)를 사용한 저온(350^\\circC) ALD. 박막 내부 응력을 압축 응력으로 상쇄.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** 무불소 유기금속 몰리브덴 전구체($\\text{Mo}(\\text{CO})_6$ 또는 $\\text{MoCl}_5$)를 사용한 저온($350^\\circ\\text{C}$) ALD. 박막 내부 응력을 압축 응력으로 상쇄."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "기존 텅스텐(W) 전극은 WF_6 프리커서 사용으로 인해 잔류 불소(F)가 게이트 산화막을 침투해 전하 보존 특성을 파괴하고, 높은 비저항과 인장 응력으로 웨이퍼가 휘어짐.",
+          "evidenceQuote": "- **팹 양산 배경:** 기존 텅스텐(W) 전극은 $\\text{WF}_6$ 프리커서 사용으로 인해 잔류 불소($F$)가 게이트 산화막을 침투해 전하 보존 특성을 파괴하고, 높은 비저항과 인장 응력으로 웨이퍼가 휘어짐."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "몰리브덴 워드라인 원자층 증착: 등록 응용 논문 아카이브 08",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: 기존 텅스텐(W) 전극은 WF_6 프리커서 사용으로 인해 잔류 불소(F)가 게이트 산화막을 침투해 전하 보존 특성을 파괴하고, 높은 비저항과 인장 응력으로 웨이퍼가 휘어짐.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** W 대비 워드라인 배선 저항 $35\\%$ 감소, 웨이퍼 잔류 휨(Bow) $40\\%$ 개선, 게이트 유전체 계면 결함 무발생.",
+          "specifications": [
+            {
+              "parameter": "ALD 온도",
+              "value": "350",
+              "unit": "°C",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 기존 텅스텐(W) 전극은 $\\text{WF}_6$ 프리커서 사용으로 인해 잔류 불소($F$)가 게이트 산화막을 침투해 전하 보존 특성을 파괴하고, 높은 비저항과 인장 응력으로 웨이퍼가 휘어짐.\n- **물리/화학적 메커니즘:** 무불소 유기금속 몰리브덴 전구체($\\text{Mo}(\\text{CO})_6$ 또는 $\\text{MoCl}_5$)를 사용한 저온($350^\\circ\\text{C}$) ALD. 박막 내부 응력을 압축 응력으로 상쇄.\n- **팹 실측 파라미터:** W 대비 워드라인 배선 저항 $35\\%$ 감소, 웨이퍼 잔류 휨(Bow) $40\\%$ 개선, 게이트 유전체 계면 결함 무발생."
+            },
+            {
+              "parameter": "텅스텐 대비 배선 저항 감소",
+              "value": "35",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 기존 텅스텐(W) 전극은 $\\text{WF}_6$ 프리커서 사용으로 인해 잔류 불소($F$)가 게이트 산화막을 침투해 전하 보존 특성을 파괴하고, 높은 비저항과 인장 응력으로 웨이퍼가 휘어짐.\n- **물리/화학적 메커니즘:** 무불소 유기금속 몰리브덴 전구체($\\text{Mo}(\\text{CO})_6$ 또는 $\\text{MoCl}_5$)를 사용한 저온($350^\\circ\\text{C}$) ALD. 박막 내부 응력을 압축 응력으로 상쇄.\n- **팹 실측 파라미터:** W 대비 워드라인 배선 저항 $35\\%$ 감소, 웨이퍼 잔류 휨(Bow) $40\\%$ 개선, 게이트 유전체 계면 결함 무발생."
+            },
+            {
+              "parameter": "잔류 웨이퍼 휨 개선",
+              "value": "40",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 기존 텅스텐(W) 전극은 $\\text{WF}_6$ 프리커서 사용으로 인해 잔류 불소($F$)가 게이트 산화막을 침투해 전하 보존 특성을 파괴하고, 높은 비저항과 인장 응력으로 웨이퍼가 휘어짐.\n- **물리/화학적 메커니즘:** 무불소 유기금속 몰리브덴 전구체($\\text{Mo}(\\text{CO})_6$ 또는 $\\text{MoCl}_5$)를 사용한 저온($350^\\circ\\text{C}$) ALD. 박막 내부 응력을 압축 응력으로 상쇄.\n- **팹 실측 파라미터:** W 대비 워드라인 배선 저항 $35\\%$ 감소, 웨이퍼 잔류 휨(Bow) $40\\%$ 개선, 게이트 유전체 계면 결함 무발생."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "NAND 안의 가느다란 전극을 채우는 재료와 증착 화학을 바꾸려는 연구입니다. 원문은 기존 텅스텐 공정의 불소 잔류와 휨 문제를 배경으로 설명합니다. 개선율의 비교 대상은 기존 텅스텐 조건으로 한정합니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "ald",
+          "name": "원자층 증착",
+          "reason": "몰리브덴 전구체를 사용하는 원자층 증착 방식이다.",
+          "evidenceQuote": "- **물리/화학적 메커니즘:** 무불소 유기금속 몰리브덴 전구체($\\text{Mo}(\\text{CO})_6$ 또는 $\\text{MoCl}_5$)를 사용한 저온($350^\\circ\\text{C}$) ALD. 박막 내부 응력을 압축 응력으로 상쇄."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "증착",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "sic-interface-poa",
+      "title": "SiC 계면 포스트 산화 어닐링",
+      "engName": "SiC Post Oxidation Annealing",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "계면 처리",
+      "scaleLevel": 3,
+      "classificationNote": "SiC 계면 포스트 산화 어닐링의 기술적 대상을 계면 처리에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "산화 후 질소계 열처리로 SiO2/SiC 계면 결함을 줄이는 공정이다.",
+      "purpose": "전기차 및 AI 데이터센터 고전압(800V~1200V) 인버터용 SiC MOSFET은 SiO_2/SiC 계면에 존재하는 과잉 탄소 클러스터와 댕글링 본드로 인해 채널 이동도가 극도로 낮고 문턱전압(V_{th})이 표류함.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** 게이트 산화막 형성 후 $1200^\\circ\\text{C}$ 고온 $\\text{NO}$ 또는 $\\text{N}_2\\text{O}$ 가스 포스트 산화 어닐링(POA). 질소 원자가 계면 탄소를 $\\text{CN}$ 가스로 휘발시키고 Si/C 댕글링 본드를 Si-N 결합으로 패시베이션.",
+      "evidenceQuote": "- **서지 정보:** H. Yano, T. Hatayama et al. (Rohm Semiconductor & Toyota), *IEEE Electron Device Letters (EDL)*, Vol. 42, No. 9, pp. 1354–1357, 2021. DOI: 10.1109/LED.2021.3098741",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "게이트 산화막 형성 후 1200^\\circC 고온 NO 또는 N_2O 가스 포스트 산화 어닐링(POA). 질소 원자가 계면 탄소를 CN 가스로 휘발시키고 Si/C 댕글링 본드를 Si-N 결합으로 패시베이션.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** 게이트 산화막 형성 후 $1200^\\circ\\text{C}$ 고온 $\\text{NO}$ 또는 $\\text{N}_2\\text{O}$ 가스 포스트 산화 어닐링(POA). 질소 원자가 계면 탄소를 $\\text{CN}$ 가스로 휘발시키고 Si/C 댕글링 본드를 Si-N 결합으로 패시베이션."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "전기차 및 AI 데이터센터 고전압(800V~1200V) 인버터용 SiC MOSFET은 SiO_2/SiC 계면에 존재하는 과잉 탄소 클러스터와 댕글링 본드로 인해 채널 이동도가 극도로 낮고 문턱전압(V_{th})이 표류함.",
+          "evidenceQuote": "- **팹 양산 배경:** 전기차 및 AI 데이터센터 고전압(800V~1200V) 인버터용 SiC MOSFET은 $\\text{SiO}_2/\\text{SiC}$ 계면에 존재하는 과잉 탄소 클러스터와 댕글링 본드로 인해 채널 이동도가 극도로 낮고 문턱전압($V_{\\text{th}}$)이 표류함."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "SiC 계면 포스트 산화 어닐링: 등록 응용 논문 아카이브 09",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: 전기차 및 AI 데이터센터 고전압(800V~1200V) 인버터용 SiC MOSFET은 SiO_2/SiC 계면에 존재하는 과잉 탄소 클러스터와 댕글링 본드로 인해 채널 이동도가 극도로 낮고 문턱전압(V_{th})이 표류함.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** 계면 준위 밀도 $D_{\\text{it}}$를 $10^{13} \\to 1.5\\times 10^{11}\\ \\text{cm}^{-2}\\text{eV}^{-1}$로 2자리수 감쇄, 전계 효과 이동도 $15 \\to 60\\ \\text{cm}^2/\\text{V}\\cdot\\text{s}$ 급증.",
+          "specifications": [
+            {
+              "parameter": "POA 온도",
+              "value": "1200",
+              "unit": "°C",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 전기차 및 AI 데이터센터 고전압(800V~1200V) 인버터용 SiC MOSFET은 $\\text{SiO}_2/\\text{SiC}$ 계면에 존재하는 과잉 탄소 클러스터와 댕글링 본드로 인해 채널 이동도가 극도로 낮고 문턱전압($V_{\\text{th}}$)이 표류함.\n- **물리/화학적 메커니즘:** 게이트 산화막 형성 후 $1200^\\circ\\text{C}$ 고온 $\\text{NO}$ 또는 $\\text{N}_2\\text{O}$ 가스 포스트 산화 어닐링(POA). 질소 원자가 계면 탄소를 $\\text{CN}$ 가스로 휘발시키고 Si/C 댕글링 본드를 Si-N 결합으로 패시베이션.\n- **팹 실측 파라미터:** 계면 준위 밀도 $D_{\\text{it}}$를 $10^{13} \\to 1.5\\times 10^{11}\\ \\text{cm}^{-2}\\text{eV}^{-1}$로 2자리수 감쇄, 전계 효과 이동도 $15 \\to 60\\ \\text{cm}^2/\\text{V}\\cdot\\text{s}$ 급증."
+            },
+            {
+              "parameter": "계면 준위 밀도 변화",
+              "value": "10^13 → 1.5×10^11",
+              "unit": "cm^-2·eV^-1",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 전기차 및 AI 데이터센터 고전압(800V~1200V) 인버터용 SiC MOSFET은 $\\text{SiO}_2/\\text{SiC}$ 계면에 존재하는 과잉 탄소 클러스터와 댕글링 본드로 인해 채널 이동도가 극도로 낮고 문턱전압($V_{\\text{th}}$)이 표류함.\n- **물리/화학적 메커니즘:** 게이트 산화막 형성 후 $1200^\\circ\\text{C}$ 고온 $\\text{NO}$ 또는 $\\text{N}_2\\text{O}$ 가스 포스트 산화 어닐링(POA). 질소 원자가 계면 탄소를 $\\text{CN}$ 가스로 휘발시키고 Si/C 댕글링 본드를 Si-N 결합으로 패시베이션.\n- **팹 실측 파라미터:** 계면 준위 밀도 $D_{\\text{it}}$를 $10^{13} \\to 1.5\\times 10^{11}\\ \\text{cm}^{-2}\\text{eV}^{-1}$로 2자리수 감쇄, 전계 효과 이동도 $15 \\to 60\\ \\text{cm}^2/\\text{V}\\cdot\\text{s}$ 급증."
+            },
+            {
+              "parameter": "전계 효과 이동도 변화",
+              "value": "15 → 60",
+              "unit": "cm²/(V·s)",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 전기차 및 AI 데이터센터 고전압(800V~1200V) 인버터용 SiC MOSFET은 $\\text{SiO}_2/\\text{SiC}$ 계면에 존재하는 과잉 탄소 클러스터와 댕글링 본드로 인해 채널 이동도가 극도로 낮고 문턱전압($V_{\\text{th}}$)이 표류함.\n- **물리/화학적 메커니즘:** 게이트 산화막 형성 후 $1200^\\circ\\text{C}$ 고온 $\\text{NO}$ 또는 $\\text{N}_2\\text{O}$ 가스 포스트 산화 어닐링(POA). 질소 원자가 계면 탄소를 $\\text{CN}$ 가스로 휘발시키고 Si/C 댕글링 본드를 Si-N 결합으로 패시베이션.\n- **팹 실측 파라미터:** 계면 준위 밀도 $D_{\\text{it}}$를 $10^{13} \\to 1.5\\times 10^{11}\\ \\text{cm}^{-2}\\text{eV}^{-1}$로 2자리수 감쇄, 전계 효과 이동도 $15 \\to 60\\ \\text{cm}^2/\\text{V}\\cdot\\text{s}$ 급증."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "SiC와 절연막이 만나는 경계에 결함이 많으면 전자의 이동과 문턱전압이 불안정해질 수 있습니다. 열처리로 그 경계를 안정화하는 연구입니다. 전후의 결함 밀도와 이동도를 나란히 보되 다른 공정의 목표값으로 사용하지 않습니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "anneal",
+          "name": "어닐링",
+          "reason": "게이트 산화막 형성 후 수행하는 질소계 포스트 산화 어닐링이다.",
+          "evidenceQuote": "- **물리/화학적 메커니즘:** 게이트 산화막 형성 후 $1200^\\circ\\text{C}$ 고온 $\\text{NO}$ 또는 $\\text{N}_2\\text{O}$ 가스 포스트 산화 어닐링(POA). 질소 원자가 계면 탄소를 $\\text{CN}$ 가스로 휘발시키고 Si/C 댕글링 본드를 Si-N 결합으로 패시베이션."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "계면 처리",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "gan-hemt-current-collapse",
+      "title": "GaN HEMT 전류 붕괴 제어",
+      "engName": "GaN HEMT Current Collapse Control",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "전력 반도체",
+      "scaleLevel": 2,
+      "classificationNote": "GaN HEMT 전류 붕괴 제어의 기술적 대상을 전력 반도체에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "버퍼·표면의 전자 포획을 제어해 GaN 소자의 동적 온저항 증가를 줄이는 기술이다.",
+      "purpose": "48V/12V AI 가속기 VRM(전압 레귤레이터)용 고주파 GaN 트랜지스터에서 스위칭 동작 시 전자가 버퍼층 및 표면 트랩에 갇히는 전자 포획(Current Collapse) 현상으로 인해 고주파 동적 On-저항이 폭증함.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** AlGaN/GaN 이종접합의 압전/자발 분극을 이용한 2DEG 시트 캐리어 농도($n_s > 1\\times 10^{13}\\ \\text{cm}^{-2}$) 유지. 철(Fe)/탄소(C) 도핑된 GaN 버퍼층의 에너지 준위 최적화 및 원자층 $\\text{SiN}_x$ 인시츄 패시베이션.",
+      "evidenceQuote": "- **서지 정보:** T. Kikkawa, K. Imanishi et al. (Infineon Technologies & TSMC), *IEEE Transactions on Electron Devices (TED)*, Vol. 69, No. 4, pp. 1780–1786, 2022. DOI: 10.1109/TED.2022.3150242",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "AlGaN/GaN 이종접합의 압전/자발 분극을 이용한 2DEG 시트 캐리어 농도(n_s > 1× 10^{13}\\ cm^{-2}) 유지. 철(Fe)/탄소(C) 도핑된 GaN 버퍼층의 에너지 준위 최적화 및 원자층 SiN_x 인시츄 패시베이션.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** AlGaN/GaN 이종접합의 압전/자발 분극을 이용한 2DEG 시트 캐리어 농도($n_s > 1\\times 10^{13}\\ \\text{cm}^{-2}$) 유지. 철(Fe)/탄소(C) 도핑된 GaN 버퍼층의 에너지 준위 최적화 및 원자층 $\\text{SiN}_x$ 인시츄 패시베이션."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "48V/12V AI 가속기 VRM(전압 레귤레이터)용 고주파 GaN 트랜지스터에서 스위칭 동작 시 전자가 버퍼층 및 표면 트랩에 갇히는 전자 포획(Current Collapse) 현상으로 인해 고주파 동적 On-저항이 폭증함.",
+          "evidenceQuote": "- **팹 양산 배경:** 48V/12V AI 가속기 VRM(전압 레귤레이터)용 고주파 GaN 트랜지스터에서 스위칭 동작 시 전자가 버퍼층 및 표면 트랩에 갇히는 전자 포획(Current Collapse) 현상으로 인해 고주파 동적 On-저항이 폭증함."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "GaN HEMT 전류 붕괴 제어: 등록 응용 논문 아카이브 10",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: 48V/12V AI 가속기 VRM(전압 레귤레이터)용 고주파 GaN 트랜지스터에서 스위칭 동작 시 전자가 버퍼층 및 표면 트랩에 갇히는 전자 포획(Current Collapse) 현상으로 인해 고주파 동적 On-저항이 폭증함.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** 1MHz 하드 스위칭 조건에서 동적 $R_{\\text{on}}$ 상승률 $< 1.15$배(기존 2~3배 대비 안정화), 전력 변환 효율 $96.8\\%$ 달성.",
+          "specifications": [
+            {
+              "parameter": "평가 스위칭 주파수",
+              "value": "1",
+              "unit": "MHz",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 48V/12V AI 가속기 VRM(전압 레귤레이터)용 고주파 GaN 트랜지스터에서 스위칭 동작 시 전자가 버퍼층 및 표면 트랩에 갇히는 전자 포획(Current Collapse) 현상으로 인해 고주파 동적 On-저항이 폭증함.\n- **물리/화학적 메커니즘:** AlGaN/GaN 이종접합의 압전/자발 분극을 이용한 2DEG 시트 캐리어 농도($n_s > 1\\times 10^{13}\\ \\text{cm}^{-2}$) 유지. 철(Fe)/탄소(C) 도핑된 GaN 버퍼층의 에너지 준위 최적화 및 원자층 $\\text{SiN}_x$ 인시츄 패시베이션.\n- **팹 실측 파라미터:** 1MHz 하드 스위칭 조건에서 동적 $R_{\\text{on}}$ 상승률 $< 1.15$배(기존 2~3배 대비 안정화), 전력 변환 효율 $96.8\\%$ 달성."
+            },
+            {
+              "parameter": "동적 온저항 상승률",
+              "value": "< 1.15배",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 48V/12V AI 가속기 VRM(전압 레귤레이터)용 고주파 GaN 트랜지스터에서 스위칭 동작 시 전자가 버퍼층 및 표면 트랩에 갇히는 전자 포획(Current Collapse) 현상으로 인해 고주파 동적 On-저항이 폭증함.\n- **물리/화학적 메커니즘:** AlGaN/GaN 이종접합의 압전/자발 분극을 이용한 2DEG 시트 캐리어 농도($n_s > 1\\times 10^{13}\\ \\text{cm}^{-2}$) 유지. 철(Fe)/탄소(C) 도핑된 GaN 버퍼층의 에너지 준위 최적화 및 원자층 $\\text{SiN}_x$ 인시츄 패시베이션.\n- **팹 실측 파라미터:** 1MHz 하드 스위칭 조건에서 동적 $R_{\\text{on}}$ 상승률 $< 1.15$배(기존 2~3배 대비 안정화), 전력 변환 효율 $96.8\\%$ 달성."
+            },
+            {
+              "parameter": "기존 비교 상승률",
+              "value": "2~3배",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 48V/12V AI 가속기 VRM(전압 레귤레이터)용 고주파 GaN 트랜지스터에서 스위칭 동작 시 전자가 버퍼층 및 표면 트랩에 갇히는 전자 포획(Current Collapse) 현상으로 인해 고주파 동적 On-저항이 폭증함.\n- **물리/화학적 메커니즘:** AlGaN/GaN 이종접합의 압전/자발 분극을 이용한 2DEG 시트 캐리어 농도($n_s > 1\\times 10^{13}\\ \\text{cm}^{-2}$) 유지. 철(Fe)/탄소(C) 도핑된 GaN 버퍼층의 에너지 준위 최적화 및 원자층 $\\text{SiN}_x$ 인시츄 패시베이션.\n- **팹 실측 파라미터:** 1MHz 하드 스위칭 조건에서 동적 $R_{\\text{on}}$ 상승률 $< 1.15$배(기존 2~3배 대비 안정화), 전력 변환 효율 $96.8\\%$ 달성."
+            },
+            {
+              "parameter": "전력 변환 효율",
+              "value": "96.8",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 48V/12V AI 가속기 VRM(전압 레귤레이터)용 고주파 GaN 트랜지스터에서 스위칭 동작 시 전자가 버퍼층 및 표면 트랩에 갇히는 전자 포획(Current Collapse) 현상으로 인해 고주파 동적 On-저항이 폭증함.\n- **물리/화학적 메커니즘:** AlGaN/GaN 이종접합의 압전/자발 분극을 이용한 2DEG 시트 캐리어 농도($n_s > 1\\times 10^{13}\\ \\text{cm}^{-2}$) 유지. 철(Fe)/탄소(C) 도핑된 GaN 버퍼층의 에너지 준위 최적화 및 원자층 $\\text{SiN}_x$ 인시츄 패시베이션.\n- **팹 실측 파라미터:** 1MHz 하드 스위칭 조건에서 동적 $R_{\\text{on}}$ 상승률 $< 1.15$배(기존 2~3배 대비 안정화), 전력 변환 효율 $96.8\\%$ 달성."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "빠르게 켰다 끄는 전력 소자에서 전자가 결함에 붙잡히면 켜진 상태의 저항이 커질 수 있습니다. 도핑과 표면 보호막으로 이를 줄이는 연구입니다. 동적 저항 값은 정적인 저항과 다르며 표의 스위칭 조건과 함께 읽습니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "전력 반도체",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "cnt-pellicle-capping",
+      "title": "CNT 펠리클 캡핑",
+      "engName": "CNT Pellicle Capping",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "노광 부품",
+      "scaleLevel": 3,
+      "classificationNote": "CNT 펠리클 캡핑의 기술적 대상을 노광 부품에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "얇은 금속계 캡핑층으로 CNT 펠리클의 고열·수소 열화를 억제하는 기술이다.",
+      "purpose": "400W~ 600W 고출력 EUV 노광 시 펠리클 온도가 800^\\circC 이상 상승하며, 스캐너 챔버 세정용 수소 라디칼(H^*)에 의해 탄소나노튜브가 메탄(CH_4)으로 에칭 파단됨.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** 자립형(Free-standing) 다중벽 CNT 웹에 $1\\sim 2\\ \\text{nm}$ 두께의 $\\text{MoSi}_2 / \\text{Ru}$ 산화방지 캡핑층 ALD 코팅. 열 방사율($\\varepsilon > 0.4$) 극대화.",
+      "evidenceQuote": "- **서지 정보:** J. van Schoot, I. Pollentier et al. (imec & ASML Consortium), *SPIE Journal of Micro/Nanopatterning (JM3)*, Vol. 22, No. 2, 021004, 2023. DOI: 10.1117/1.JMM.22.2.021004",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "자립형(Free-standing) 다중벽 CNT 웹에 1~ 2\\ nm 두께의 MoSi_2 / Ru 산화방지 캡핑층 ALD 코팅. 열 방사율(\\varepsilon > 0.4) 극대화.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** 자립형(Free-standing) 다중벽 CNT 웹에 $1\\sim 2\\ \\text{nm}$ 두께의 $\\text{MoSi}_2 / \\text{Ru}$ 산화방지 캡핑층 ALD 코팅. 열 방사율($\\varepsilon > 0.4$) 극대화."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "400W~ 600W 고출력 EUV 노광 시 펠리클 온도가 800^\\circC 이상 상승하며, 스캐너 챔버 세정용 수소 라디칼(H^*)에 의해 탄소나노튜브가 메탄(CH_4)으로 에칭 파단됨.",
+          "evidenceQuote": "- **팹 양산 배경:** $400\\text{W}\\sim 600\\text{W}$ 고출력 EUV 노광 시 펠리클 온도가 $800^\\circ\\text{C}$ 이상 상승하며, 스캐너 챔버 세정용 수소 라디칼($H^*$)에 의해 탄소나노튜브가 메탄($\\text{CH}_4$)으로 에칭 파단됨."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "CNT 펠리클 캡핑: 등록 응용 논문 아카이브 11",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: 400W~ 600W 고출력 EUV 노광 시 펠리클 온도가 800^\\circC 이상 상승하며, 스캐너 챔버 세정용 수소 라디칼(H^*)에 의해 탄소나노튜브가 메탄(CH_4)으로 에칭 파단됨.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** EUV 투과율 $> 92\\%$, 10,000 웨이퍼 연속 노광 후 투과율 저하 $< 0.5\\%$, 기계적 처짐 $< 100\\ \\mu\\text{m}$.",
+          "specifications": [
+            {
+              "parameter": "캡핑층 두께",
+              "value": "1~2",
+              "unit": "nm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** $400\\text{W}\\sim 600\\text{W}$ 고출력 EUV 노광 시 펠리클 온도가 $800^\\circ\\text{C}$ 이상 상승하며, 스캐너 챔버 세정용 수소 라디칼($H^*$)에 의해 탄소나노튜브가 메탄($\\text{CH}_4$)으로 에칭 파단됨.\n- **물리/화학적 메커니즘:** 자립형(Free-standing) 다중벽 CNT 웹에 $1\\sim 2\\ \\text{nm}$ 두께의 $\\text{MoSi}_2 / \\text{Ru}$ 산화방지 캡핑층 ALD 코팅. 열 방사율($\\varepsilon > 0.4$) 극대화.\n- **팹 실측 파라미터:** EUV 투과율 $> 92\\%$, 10,000 웨이퍼 연속 노광 후 투과율 저하 $< 0.5\\%$, 기계적 처짐 $< 100\\ \\mu\\text{m}$."
+            },
+            {
+              "parameter": "EUV 투과율",
+              "value": "> 92",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** $400\\text{W}\\sim 600\\text{W}$ 고출력 EUV 노광 시 펠리클 온도가 $800^\\circ\\text{C}$ 이상 상승하며, 스캐너 챔버 세정용 수소 라디칼($H^*$)에 의해 탄소나노튜브가 메탄($\\text{CH}_4$)으로 에칭 파단됨.\n- **물리/화학적 메커니즘:** 자립형(Free-standing) 다중벽 CNT 웹에 $1\\sim 2\\ \\text{nm}$ 두께의 $\\text{MoSi}_2 / \\text{Ru}$ 산화방지 캡핑층 ALD 코팅. 열 방사율($\\varepsilon > 0.4$) 극대화.\n- **팹 실측 파라미터:** EUV 투과율 $> 92\\%$, 10,000 웨이퍼 연속 노광 후 투과율 저하 $< 0.5\\%$, 기계적 처짐 $< 100\\ \\mu\\text{m}$."
+            },
+            {
+              "parameter": "연속 노광 평가",
+              "value": "10,000",
+              "unit": "웨이퍼",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** $400\\text{W}\\sim 600\\text{W}$ 고출력 EUV 노광 시 펠리클 온도가 $800^\\circ\\text{C}$ 이상 상승하며, 스캐너 챔버 세정용 수소 라디칼($H^*$)에 의해 탄소나노튜브가 메탄($\\text{CH}_4$)으로 에칭 파단됨.\n- **물리/화학적 메커니즘:** 자립형(Free-standing) 다중벽 CNT 웹에 $1\\sim 2\\ \\text{nm}$ 두께의 $\\text{MoSi}_2 / \\text{Ru}$ 산화방지 캡핑층 ALD 코팅. 열 방사율($\\varepsilon > 0.4$) 극대화.\n- **팹 실측 파라미터:** EUV 투과율 $> 92\\%$, 10,000 웨이퍼 연속 노광 후 투과율 저하 $< 0.5\\%$, 기계적 처짐 $< 100\\ \\mu\\text{m}$."
+            },
+            {
+              "parameter": "평가 후 투과율 저하",
+              "value": "< 0.5",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** $400\\text{W}\\sim 600\\text{W}$ 고출력 EUV 노광 시 펠리클 온도가 $800^\\circ\\text{C}$ 이상 상승하며, 스캐너 챔버 세정용 수소 라디칼($H^*$)에 의해 탄소나노튜브가 메탄($\\text{CH}_4$)으로 에칭 파단됨.\n- **물리/화학적 메커니즘:** 자립형(Free-standing) 다중벽 CNT 웹에 $1\\sim 2\\ \\text{nm}$ 두께의 $\\text{MoSi}_2 / \\text{Ru}$ 산화방지 캡핑층 ALD 코팅. 열 방사율($\\varepsilon > 0.4$) 극대화.\n- **팹 실측 파라미터:** EUV 투과율 $> 92\\%$, 10,000 웨이퍼 연속 노광 후 투과율 저하 $< 0.5\\%$, 기계적 처짐 $< 100\\ \\mu\\text{m}$."
+            },
+            {
+              "parameter": "기계적 처짐",
+              "value": "< 100",
+              "unit": "㎛",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** $400\\text{W}\\sim 600\\text{W}$ 고출력 EUV 노광 시 펠리클 온도가 $800^\\circ\\text{C}$ 이상 상승하며, 스캐너 챔버 세정용 수소 라디칼($H^*$)에 의해 탄소나노튜브가 메탄($\\text{CH}_4$)으로 에칭 파단됨.\n- **물리/화학적 메커니즘:** 자립형(Free-standing) 다중벽 CNT 웹에 $1\\sim 2\\ \\text{nm}$ 두께의 $\\text{MoSi}_2 / \\text{Ru}$ 산화방지 캡핑층 ALD 코팅. 열 방사율($\\varepsilon > 0.4$) 극대화.\n- **팹 실측 파라미터:** EUV 투과율 $> 92\\%$, 10,000 웨이퍼 연속 노광 후 투과율 저하 $< 0.5\\%$, 기계적 처짐 $< 100\\ \\mu\\text{m}$."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "펠리클은 먼지를 막으면서 빛을 잘 통과시켜야 합니다. 너무 두꺼운 보호층은 빛을 막을 수 있어 얇은 캡핑으로 내구성과 투과성을 함께 다루는 연구입니다. 투과율 저하 값은 표에 적힌 연속 노광 평가 후의 결과입니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "ald",
+          "name": "원자층 증착",
+          "reason": "해당 CNT 캡핑은 MoSi2/Ru의 얇은 캡핑층을 ALD 코팅하는 구체적인 증착 공정으로 명시된다.",
+          "evidenceQuote": "산화방지 캡핑층 ALD 코팅."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "노광 부품",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "metal-oxide-resist",
+      "title": "금속 산화물 레지스트",
+      "engName": "Metal Oxide Resist",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "노광 재료",
+      "scaleLevel": 1,
+      "classificationNote": "금속 산화물 레지스트의 기술적 대상을 노광 재료에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "금속 산화물 나노입자의 광반응으로 패턴을 형성하는 감광 재료이다.",
+      "purpose": "0.55 High-NA 노광에서 피치가 24\\ nm 이하로 축소될 때 기존 유기 화학증폭형(CAR) 감광액은 산 확산(Acid Diffusion) 길이로 인해 패턴 블러(Blur)와 라인 브릿지 결함이 발생.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** 주석 옥소 케이지(Tin-oxide core) 무기 나노입자 기반 MOR 적용. 산 확산 과정 없이 EUV 광자 흡수 시 직접 광분해 및 교차결합(Cross-linking) 반응으로 극도로 작은 반응 부피 실현.",
+      "evidenceQuote": "- **서지 정보:** S. De Simone, M. Kocsis et al. (Inpria Corp & imec), *Proc. SPIE 12051, Advanced Lithography*, 1205106, 2022. DOI: 10.1117/12.2613988",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "주석 옥소 케이지(Tin-oxide core) 무기 나노입자 기반 MOR 적용. 산 확산 과정 없이 EUV 광자 흡수 시 직접 광분해 및 교차결합(Cross-linking) 반응으로 극도로 작은 반응 부피 실현.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** 주석 옥소 케이지(Tin-oxide core) 무기 나노입자 기반 MOR 적용. 산 확산 과정 없이 EUV 광자 흡수 시 직접 광분해 및 교차결합(Cross-linking) 반응으로 극도로 작은 반응 부피 실현."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "0.55 High-NA 노광에서 피치가 24\\ nm 이하로 축소될 때 기존 유기 화학증폭형(CAR) 감광액은 산 확산(Acid Diffusion) 길이로 인해 패턴 블러(Blur)와 라인 브릿지 결함이 발생.",
+          "evidenceQuote": "- **팹 양산 배경:** 0.55 High-NA 노광에서 피치가 $24\\ \\text{nm}$ 이하로 축소될 때 기존 유기 화학증폭형(CAR) 감광액은 산 확산(Acid Diffusion) 길이로 인해 패턴 블러(Blur)와 라인 브릿지 결함이 발생."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "금속 산화물 레지스트: 등록 응용 논문 아카이브 12",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: 0.55 High-NA 노광에서 피치가 24\\ nm 이하로 축소될 때 기존 유기 화학증폭형(CAR) 감광액은 산 확산(Acid Diffusion) 길이로 인해 패턴 블러(Blur)와 라인 브릿지 결함이 발생.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** 피치 $20\\ \\text{nm}$에서 라인 폭 러프니스(LWR) $< 1.8\\ \\text{nm}$, 잔류 결함(Micro-bridging) 0 ppm 달성.",
+          "specifications": [
+            {
+              "parameter": "평가 피치",
+              "value": "20",
+              "unit": "nm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 0.55 High-NA 노광에서 피치가 $24\\ \\text{nm}$ 이하로 축소될 때 기존 유기 화학증폭형(CAR) 감광액은 산 확산(Acid Diffusion) 길이로 인해 패턴 블러(Blur)와 라인 브릿지 결함이 발생.\n- **물리/화학적 메커니즘:** 주석 옥소 케이지(Tin-oxide core) 무기 나노입자 기반 MOR 적용. 산 확산 과정 없이 EUV 광자 흡수 시 직접 광분해 및 교차결합(Cross-linking) 반응으로 극도로 작은 반응 부피 실현.\n- **팹 실측 파라미터:** 피치 $20\\ \\text{nm}$에서 라인 폭 러프니스(LWR) $< 1.8\\ \\text{nm}$, 잔류 결함(Micro-bridging) 0 ppm 달성."
+            },
+            {
+              "parameter": "라인 폭 러프니스",
+              "value": "< 1.8",
+              "unit": "nm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 0.55 High-NA 노광에서 피치가 $24\\ \\text{nm}$ 이하로 축소될 때 기존 유기 화학증폭형(CAR) 감광액은 산 확산(Acid Diffusion) 길이로 인해 패턴 블러(Blur)와 라인 브릿지 결함이 발생.\n- **물리/화학적 메커니즘:** 주석 옥소 케이지(Tin-oxide core) 무기 나노입자 기반 MOR 적용. 산 확산 과정 없이 EUV 광자 흡수 시 직접 광분해 및 교차결합(Cross-linking) 반응으로 극도로 작은 반응 부피 실현.\n- **팹 실측 파라미터:** 피치 $20\\ \\text{nm}$에서 라인 폭 러프니스(LWR) $< 1.8\\ \\text{nm}$, 잔류 결함(Micro-bridging) 0 ppm 달성."
+            },
+            {
+              "parameter": "원문 제시 잔류 브리징",
+              "value": "0",
+              "unit": "ppm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 0.55 High-NA 노광에서 피치가 $24\\ \\text{nm}$ 이하로 축소될 때 기존 유기 화학증폭형(CAR) 감광액은 산 확산(Acid Diffusion) 길이로 인해 패턴 블러(Blur)와 라인 브릿지 결함이 발생.\n- **물리/화학적 메커니즘:** 주석 옥소 케이지(Tin-oxide core) 무기 나노입자 기반 MOR 적용. 산 확산 과정 없이 EUV 광자 흡수 시 직접 광분해 및 교차결합(Cross-linking) 반응으로 극도로 작은 반응 부피 실현.\n- **팹 실측 파라미터:** 피치 $20\\ \\text{nm}$에서 라인 폭 러프니스(LWR) $< 1.8\\ \\text{nm}$, 잔류 결함(Micro-bridging) 0 ppm 달성."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "회로를 그리는 감광 재료를 바꾸어 반응이 주변으로 퍼지는 문제를 줄이려는 연구입니다. 피치는 반복 패턴의 간격이고 러프니스는 선 가장자리의 들쭉날쭉함을 뜻합니다. 0 ppm은 이 평가에 보고된 값이지 모든 결함이 없다는 보장은 아닙니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "photoresist",
+          "name": "포토레지스트",
+          "reason": "주석 산화물 나노입자를 사용하는 EUV 감광 재료의 종류이다.",
+          "evidenceQuote": "- **물리/화학적 메커니즘:** 주석 옥소 케이지(Tin-oxide core) 무기 나노입자 기반 MOR 적용. 산 확산 과정 없이 EUV 광자 흡수 시 직접 광분해 및 교차결합(Cross-linking) 반응으로 극도로 작은 반응 부피 실현."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "노광 재료",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "supercritical-co2-drying",
+      "title": "초임계 CO2 건조",
+      "engName": "Supercritical CO2 Drying",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "세정·건조",
+      "scaleLevel": 3,
+      "classificationNote": "초임계 CO2 건조의 기술적 대상을 세정·건조에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "초임계 유체로 세정액을 치환해 건조 중 모세관력과 패턴 쓰러짐을 줄이는 공정이다.",
+      "purpose": "초미세 종횡비(> 20:1)의 커패시터 필러 및 GAA 핀 세정 후 탈이온수/IPA 건조 시 액체-기체 계면의 모세관력(Capillary Force: P_{cap} = 2\\gamma \\cos\\theta / d)으로 인해 인접 패턴이 서로 끌어당겨 부러짐.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** IPA 세정액을 고압($7.38\\ \\text{MPa}$ 이상, $31.1^\\circ\\text{C}$ 이상) 상태의 초임계 이산화탄소($\\text{scCO}_2$)로 치환. 표면장력($\\gamma = 0$) 환경에서 직접 기체로 감압 배출하여 모세관 응력을 완전히 제거.",
+      "evidenceQuote": "- **서지 정보:** T. Sugano, K. Miyahara et al. (Tokyo Electron Ltd), *IEEE Transactions on Semiconductor Manufacturing (TSM)*, Vol. 34, No. 3, pp. 345–351, 2021. DOI: 10.1109/TSM.2021.3087612",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "IPA 세정액을 고압(7.38\\ MPa 이상, 31.1^\\circC 이상) 상태의 초임계 이산화탄소(scCO_2)로 치환. 표면장력(\\gamma = 0) 환경에서 직접 기체로 감압 배출하여 모세관 응력을 완전히 제거.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** IPA 세정액을 고압($7.38\\ \\text{MPa}$ 이상, $31.1^\\circ\\text{C}$ 이상) 상태의 초임계 이산화탄소($\\text{scCO}_2$)로 치환. 표면장력($\\gamma = 0$) 환경에서 직접 기체로 감압 배출하여 모세관 응력을 완전히 제거."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "초미세 종횡비(> 20:1)의 커패시터 필러 및 GAA 핀 세정 후 탈이온수/IPA 건조 시 액체-기체 계면의 모세관력(Capillary Force: P_{cap} = 2\\gamma \\cos\\theta / d)으로 인해 인접 패턴이 서로 끌어당겨 부러짐.",
+          "evidenceQuote": "- **팹 양산 배경:** 초미세 종횡비($> 20:1$)의 커패시터 필러 및 GAA 핀 세정 후 탈이온수/IPA 건조 시 액체-기체 계면의 모세관력(Capillary Force: $P_{\\text{cap}} = 2\\gamma \\cos\\theta / d$)으로 인해 인접 패턴이 서로 끌어당겨 부러짐."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "초임계 CO2 건조: 등록 응용 논문 아카이브 13",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: 초미세 종횡비(> 20:1)의 커패시터 필러 및 GAA 핀 세정 후 탈이온수/IPA 건조 시 액체-기체 계면의 모세관력(Capillary Force: P_{cap} = 2\\gamma \\cos\\theta / d)으로 인해 인접 패턴이 서로 끌어당겨 부러짐.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** 종횡비 $30:1$ 실리콘 핀 패턴 쓰러짐 불량률 $100\\% \\to 0\\%$ 완전 해소.",
+          "specifications": [
+            {
+              "parameter": "초임계 압력 조건",
+              "value": "7.38 이상",
+              "unit": "MPa",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 초미세 종횡비($> 20:1$)의 커패시터 필러 및 GAA 핀 세정 후 탈이온수/IPA 건조 시 액체-기체 계면의 모세관력(Capillary Force: $P_{\\text{cap}} = 2\\gamma \\cos\\theta / d$)으로 인해 인접 패턴이 서로 끌어당겨 부러짐.\n- **물리/화학적 메커니즘:** IPA 세정액을 고압($7.38\\ \\text{MPa}$ 이상, $31.1^\\circ\\text{C}$ 이상) 상태의 초임계 이산화탄소($\\text{scCO}_2$)로 치환. 표면장력($\\gamma = 0$) 환경에서 직접 기체로 감압 배출하여 모세관 응력을 완전히 제거.\n- **팹 실측 파라미터:** 종횡비 $30:1$ 실리콘 핀 패턴 쓰러짐 불량률 $100\\% \\to 0\\%$ 완전 해소."
+            },
+            {
+              "parameter": "초임계 온도 조건",
+              "value": "31.1 이상",
+              "unit": "°C",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 초미세 종횡비($> 20:1$)의 커패시터 필러 및 GAA 핀 세정 후 탈이온수/IPA 건조 시 액체-기체 계면의 모세관력(Capillary Force: $P_{\\text{cap}} = 2\\gamma \\cos\\theta / d$)으로 인해 인접 패턴이 서로 끌어당겨 부러짐.\n- **물리/화학적 메커니즘:** IPA 세정액을 고압($7.38\\ \\text{MPa}$ 이상, $31.1^\\circ\\text{C}$ 이상) 상태의 초임계 이산화탄소($\\text{scCO}_2$)로 치환. 표면장력($\\gamma = 0$) 환경에서 직접 기체로 감압 배출하여 모세관 응력을 완전히 제거.\n- **팹 실측 파라미터:** 종횡비 $30:1$ 실리콘 핀 패턴 쓰러짐 불량률 $100\\% \\to 0\\%$ 완전 해소."
+            },
+            {
+              "parameter": "평가 핀 종횡비",
+              "value": "30:1",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 초미세 종횡비($> 20:1$)의 커패시터 필러 및 GAA 핀 세정 후 탈이온수/IPA 건조 시 액체-기체 계면의 모세관력(Capillary Force: $P_{\\text{cap}} = 2\\gamma \\cos\\theta / d$)으로 인해 인접 패턴이 서로 끌어당겨 부러짐.\n- **물리/화학적 메커니즘:** IPA 세정액을 고압($7.38\\ \\text{MPa}$ 이상, $31.1^\\circ\\text{C}$ 이상) 상태의 초임계 이산화탄소($\\text{scCO}_2$)로 치환. 표면장력($\\gamma = 0$) 환경에서 직접 기체로 감압 배출하여 모세관 응력을 완전히 제거.\n- **팹 실측 파라미터:** 종횡비 $30:1$ 실리콘 핀 패턴 쓰러짐 불량률 $100\\% \\to 0\\%$ 완전 해소."
+            },
+            {
+              "parameter": "원문 쓰러짐 불량률 변화",
+              "value": "100 → 0",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 초미세 종횡비($> 20:1$)의 커패시터 필러 및 GAA 핀 세정 후 탈이온수/IPA 건조 시 액체-기체 계면의 모세관력(Capillary Force: $P_{\\text{cap}} = 2\\gamma \\cos\\theta / d$)으로 인해 인접 패턴이 서로 끌어당겨 부러짐.\n- **물리/화학적 메커니즘:** IPA 세정액을 고압($7.38\\ \\text{MPa}$ 이상, $31.1^\\circ\\text{C}$ 이상) 상태의 초임계 이산화탄소($\\text{scCO}_2$)로 치환. 표면장력($\\gamma = 0$) 환경에서 직접 기체로 감압 배출하여 모세관 응력을 완전히 제거.\n- **팹 실측 파라미터:** 종횡비 $30:1$ 실리콘 핀 패턴 쓰러짐 불량률 $100\\% \\to 0\\%$ 완전 해소."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "작은 구조물 사이의 액체가 마를 때 표면장력이 이웃 구조물을 끌어당길 수 있습니다. 액체와 기체의 경계 문제를 줄이는 상태로 치환해 건조하는 방식입니다. 압력과 온도는 초임계 상태의 조건이며 표의 불량률 변화는 특정 핀 패턴 평가에 한정합니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "세정·건조",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "low-load-copper-cmp",
+      "title": "저하중 구리 CMP",
+      "engName": "Low Load Copper CMP",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "평탄화",
+      "scaleLevel": 3,
+      "classificationNote": "저하중 구리 CMP의 기술적 대상을 평탄화에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "BTA 보호막과 착화제 반응을 이용해 낮은 기계 하중에서 구리를 연마하는 공정이다.",
+      "purpose": "첨단 3nm 로직의 BEOL 극저유전체(Ultra Low-k, k < 2.2)는 다공성 구조로 인해 기계적 강도가 극히 취약하여 표준 하중 CMP 시 박리(Delamination) 발생. 저압에서 단차 제거 필요.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** BTA($5\\sim 15\\ \\text{mM}$)가 구리 표면에 $[\\text{Cu(I)BTA}]_n$ $1\\sim 2\\ \\text{nm}$ 불용성 피막을 형성하여 정적 부식을 차단하고, 돌출부만 패드 마찰로 보호막을 제거한 후 글리신(Glycine) 착화제와 반응.",
+      "evidenceQuote": "- **서지 정보:** S. Babu, Y. Sampurno et al. (Clarkson Univ & Entegris), *ECS Journal of Solid State Science and Technology*, Vol. 10, No. 6, 064005, 2021. DOI: 10.1149/2162-8777/ac0d5a",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "BTA(5~ 15\\ mM)가 구리 표면에 [Cu(I)BTA]_n 1~ 2\\ nm 불용성 피막을 형성하여 정적 부식을 차단하고, 돌출부만 패드 마찰로 보호막을 제거한 후 글리신(Glycine) 착화제와 반응.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** BTA($5\\sim 15\\ \\text{mM}$)가 구리 표면에 $[\\text{Cu(I)BTA}]_n$ $1\\sim 2\\ \\text{nm}$ 불용성 피막을 형성하여 정적 부식을 차단하고, 돌출부만 패드 마찰로 보호막을 제거한 후 글리신(Glycine) 착화제와 반응."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "첨단 3nm 로직의 BEOL 극저유전체(Ultra Low-k, k < 2.2)는 다공성 구조로 인해 기계적 강도가 극히 취약하여 표준 하중 CMP 시 박리(Delamination) 발생. 저압에서 단차 제거 필요.",
+          "evidenceQuote": "- **팹 양산 배경:** 첨단 3nm 로직의 BEOL 극저유전체(Ultra Low-k, $k < 2.2$)는 다공성 구조로 인해 기계적 강도가 극히 취약하여 표준 하중 CMP 시 박리(Delamination) 발생. 저압에서 단차 제거 필요."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "저하중 구리 CMP: 등록 응용 논문 아카이브 14",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: 첨단 3nm 로직의 BEOL 극저유전체(Ultra Low-k, k < 2.2)는 다공성 구조로 인해 기계적 강도가 극히 취약하여 표준 하중 CMP 시 박리(Delamination) 발생. 저압에서 단차 제거 필요.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** 하중 $0.8\\ \\text{psi}$에서 구리 연마율 $> 6000\\ \\text{\\AA/min}$, $10\\ \\mu\\text{m}$ 패드 디싱 $< 8\\ \\text{nm}$, Low-k 층 박리 결함 0건.",
+          "specifications": [
+            {
+              "parameter": "평가 연마 하중",
+              "value": "0.8",
+              "unit": "psi",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 첨단 3nm 로직의 BEOL 극저유전체(Ultra Low-k, $k < 2.2$)는 다공성 구조로 인해 기계적 강도가 극히 취약하여 표준 하중 CMP 시 박리(Delamination) 발생. 저압에서 단차 제거 필요.\n- **물리/화학적 메커니즘:** BTA($5\\sim 15\\ \\text{mM}$)가 구리 표면에 $[\\text{Cu(I)BTA}]_n$ $1\\sim 2\\ \\text{nm}$ 불용성 피막을 형성하여 정적 부식을 차단하고, 돌출부만 패드 마찰로 보호막을 제거한 후 글리신(Glycine) 착화제와 반응.\n- **팹 실측 파라미터:** 하중 $0.8\\ \\text{psi}$에서 구리 연마율 $> 6000\\ \\text{\\AA/min}$, $10\\ \\mu\\text{m}$ 패드 디싱 $< 8\\ \\text{nm}$, Low-k 층 박리 결함 0건."
+            },
+            {
+              "parameter": "BTA 농도",
+              "value": "5~15",
+              "unit": "mM",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 첨단 3nm 로직의 BEOL 극저유전체(Ultra Low-k, $k < 2.2$)는 다공성 구조로 인해 기계적 강도가 극히 취약하여 표준 하중 CMP 시 박리(Delamination) 발생. 저압에서 단차 제거 필요.\n- **물리/화학적 메커니즘:** BTA($5\\sim 15\\ \\text{mM}$)가 구리 표면에 $[\\text{Cu(I)BTA}]_n$ $1\\sim 2\\ \\text{nm}$ 불용성 피막을 형성하여 정적 부식을 차단하고, 돌출부만 패드 마찰로 보호막을 제거한 후 글리신(Glycine) 착화제와 반응.\n- **팹 실측 파라미터:** 하중 $0.8\\ \\text{psi}$에서 구리 연마율 $> 6000\\ \\text{\\AA/min}$, $10\\ \\mu\\text{m}$ 패드 디싱 $< 8\\ \\text{nm}$, Low-k 층 박리 결함 0건."
+            },
+            {
+              "parameter": "구리 연마율",
+              "value": "> 6000",
+              "unit": "Å/min",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 첨단 3nm 로직의 BEOL 극저유전체(Ultra Low-k, $k < 2.2$)는 다공성 구조로 인해 기계적 강도가 극히 취약하여 표준 하중 CMP 시 박리(Delamination) 발생. 저압에서 단차 제거 필요.\n- **물리/화학적 메커니즘:** BTA($5\\sim 15\\ \\text{mM}$)가 구리 표면에 $[\\text{Cu(I)BTA}]_n$ $1\\sim 2\\ \\text{nm}$ 불용성 피막을 형성하여 정적 부식을 차단하고, 돌출부만 패드 마찰로 보호막을 제거한 후 글리신(Glycine) 착화제와 반응.\n- **팹 실측 파라미터:** 하중 $0.8\\ \\text{psi}$에서 구리 연마율 $> 6000\\ \\text{\\AA/min}$, $10\\ \\mu\\text{m}$ 패드 디싱 $< 8\\ \\text{nm}$, Low-k 층 박리 결함 0건."
+            },
+            {
+              "parameter": "평가 패드 폭",
+              "value": "10",
+              "unit": "㎛",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 첨단 3nm 로직의 BEOL 극저유전체(Ultra Low-k, $k < 2.2$)는 다공성 구조로 인해 기계적 강도가 극히 취약하여 표준 하중 CMP 시 박리(Delamination) 발생. 저압에서 단차 제거 필요.\n- **물리/화학적 메커니즘:** BTA($5\\sim 15\\ \\text{mM}$)가 구리 표면에 $[\\text{Cu(I)BTA}]_n$ $1\\sim 2\\ \\text{nm}$ 불용성 피막을 형성하여 정적 부식을 차단하고, 돌출부만 패드 마찰로 보호막을 제거한 후 글리신(Glycine) 착화제와 반응.\n- **팹 실측 파라미터:** 하중 $0.8\\ \\text{psi}$에서 구리 연마율 $> 6000\\ \\text{\\AA/min}$, $10\\ \\mu\\text{m}$ 패드 디싱 $< 8\\ \\text{nm}$, Low-k 층 박리 결함 0건."
+            },
+            {
+              "parameter": "디싱 깊이",
+              "value": "< 8",
+              "unit": "nm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 첨단 3nm 로직의 BEOL 극저유전체(Ultra Low-k, $k < 2.2$)는 다공성 구조로 인해 기계적 강도가 극히 취약하여 표준 하중 CMP 시 박리(Delamination) 발생. 저압에서 단차 제거 필요.\n- **물리/화학적 메커니즘:** BTA($5\\sim 15\\ \\text{mM}$)가 구리 표면에 $[\\text{Cu(I)BTA}]_n$ $1\\sim 2\\ \\text{nm}$ 불용성 피막을 형성하여 정적 부식을 차단하고, 돌출부만 패드 마찰로 보호막을 제거한 후 글리신(Glycine) 착화제와 반응.\n- **팹 실측 파라미터:** 하중 $0.8\\ \\text{psi}$에서 구리 연마율 $> 6000\\ \\text{\\AA/min}$, $10\\ \\mu\\text{m}$ 패드 디싱 $< 8\\ \\text{nm}$, Low-k 층 박리 결함 0건."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "약한 절연층이 강한 압력을 견디기 어려워 화학 작용을 활용해 낮은 힘으로 연마하는 연구입니다. 표면 보호막은 가만히 있는 부분의 부식을 줄이고 마찰이 닿는 곳에서 제거됩니다. 디싱 값은 기재한 패드 폭과 연마 조건의 평가 결과입니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "cmp",
+          "name": "화학기계적 연마",
+          "reason": "BTA 슬러리 화학과 저하중을 사용하는 구리 CMP 방식이다.",
+          "evidenceQuote": "- **물리/화학적 메커니즘:** BTA($5\\sim 15\\ \\text{mM}$)가 구리 표면에 $[\\text{Cu(I)BTA}]_n$ $1\\sim 2\\ \\text{nm}$ 불용성 피막을 형성하여 정적 부식을 차단하고, 돌출부만 패드 마찰로 보호막을 제거한 후 글리신(Glycine) 착화제와 반응."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "평탄화",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "mr-muf",
+      "title": "매스 리플로우 몰디드 언더필",
+      "engName": "Mass Reflow Molded Underfill",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "접합·패키징",
+      "scaleLevel": 3,
+      "classificationNote": "매스 리플로우 몰디드 언더필의 기술적 대상을 접합·패키징에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "액상 몰딩 재료를 사용해 적층 칩 사이를 채우는 패키징 공정이다.",
+      "purpose": "12단/16단 HBM 스택에서 다이 두께가 30\\ \\mum로 얇아지고 범프 간격이 15\\ \\mum로 축소됨에 따라 기존 필름(TC-NCF)의 압착 기포 및 방열 저하가 심각한 수율 킬러로 작용.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** 모세관 젖음각($\\theta < 25^\\circ$)을 가진 액상 EMC 주입. 나노/마이크로 실리카 바이모달 입도 분포($> 85\\ \\text{wt}\\%$)로 고충진하면서 점도를 $1.5\\ \\text{Pa}\\cdot\\text{s}$ 이하로 유지하고 진공 차압 주입.",
+      "evidenceQuote": "- **서지 정보:** K. S. Choi, S. H. Lee et al. (SK hynix Packaging Development), *IEEE Electronic Components and Technology Conference (ECTC)*, pp. 142–148, 2022. DOI: 10.1109/ECTC51933.2022.00142",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "모세관 젖음각(\\theta < 25^\\circ)을 가진 액상 EMC 주입. 나노/마이크로 실리카 바이모달 입도 분포(> 85\\ wt%)로 고충진하면서 점도를 1.5\\ Pa\\cdots 이하로 유지하고 진공 차압 주입.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** 모세관 젖음각($\\theta < 25^\\circ$)을 가진 액상 EMC 주입. 나노/마이크로 실리카 바이모달 입도 분포($> 85\\ \\text{wt}\\%$)로 고충진하면서 점도를 $1.5\\ \\text{Pa}\\cdot\\text{s}$ 이하로 유지하고 진공 차압 주입."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "12단/16단 HBM 스택에서 다이 두께가 30\\ \\mum로 얇아지고 범프 간격이 15\\ \\mum로 축소됨에 따라 기존 필름(TC-NCF)의 압착 기포 및 방열 저하가 심각한 수율 킬러로 작용.",
+          "evidenceQuote": "- **팹 양산 배경:** 12단/16단 HBM 스택에서 다이 두께가 $30\\ \\mu\\text{m}$로 얇아지고 범프 간격이 $15\\ \\mu\\text{m}$로 축소됨에 따라 기존 필름(TC-NCF)의 압착 기포 및 방열 저하가 심각한 수율 킬러로 작용."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "매스 리플로우 몰디드 언더필: 등록 응용 논문 아카이브 15",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: 12단/16단 HBM 스택에서 다이 두께가 30\\ \\mum로 얇아지고 범프 간격이 15\\ \\mum로 축소됨에 따라 기존 필름(TC-NCF)의 압착 기포 및 방열 저하가 심각한 수율 킬러로 작용.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** 열전도도 $2.5\\ \\text{W/m}\\cdot\\text{K}$ (NCF 대비 2.5배), 패키지 열저항 36% 감쇄, 미세 보이드 불량률 0 ppm.",
+          "specifications": [
+            {
+              "parameter": "실리카 충진",
+              "value": "> 85",
+              "unit": "wt%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 12단/16단 HBM 스택에서 다이 두께가 $30\\ \\mu\\text{m}$로 얇아지고 범프 간격이 $15\\ \\mu\\text{m}$로 축소됨에 따라 기존 필름(TC-NCF)의 압착 기포 및 방열 저하가 심각한 수율 킬러로 작용.\n- **물리/화학적 메커니즘:** 모세관 젖음각($\\theta < 25^\\circ$)을 가진 액상 EMC 주입. 나노/마이크로 실리카 바이모달 입도 분포($> 85\\ \\text{wt}\\%$)로 고충진하면서 점도를 $1.5\\ \\text{Pa}\\cdot\\text{s}$ 이하로 유지하고 진공 차압 주입.\n- **팹 실측 파라미터:** 열전도도 $2.5\\ \\text{W/m}\\cdot\\text{K}$ (NCF 대비 2.5배), 패키지 열저항 36% 감쇄, 미세 보이드 불량률 0 ppm."
+            },
+            {
+              "parameter": "점도",
+              "value": "1.5 이하",
+              "unit": "Pa·s",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 12단/16단 HBM 스택에서 다이 두께가 $30\\ \\mu\\text{m}$로 얇아지고 범프 간격이 $15\\ \\mu\\text{m}$로 축소됨에 따라 기존 필름(TC-NCF)의 압착 기포 및 방열 저하가 심각한 수율 킬러로 작용.\n- **물리/화학적 메커니즘:** 모세관 젖음각($\\theta < 25^\\circ$)을 가진 액상 EMC 주입. 나노/마이크로 실리카 바이모달 입도 분포($> 85\\ \\text{wt}\\%$)로 고충진하면서 점도를 $1.5\\ \\text{Pa}\\cdot\\text{s}$ 이하로 유지하고 진공 차압 주입.\n- **팹 실측 파라미터:** 열전도도 $2.5\\ \\text{W/m}\\cdot\\text{K}$ (NCF 대비 2.5배), 패키지 열저항 36% 감쇄, 미세 보이드 불량률 0 ppm."
+            },
+            {
+              "parameter": "열전도도",
+              "value": "2.5",
+              "unit": "W/(m·K)",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 12단/16단 HBM 스택에서 다이 두께가 $30\\ \\mu\\text{m}$로 얇아지고 범프 간격이 $15\\ \\mu\\text{m}$로 축소됨에 따라 기존 필름(TC-NCF)의 압착 기포 및 방열 저하가 심각한 수율 킬러로 작용.\n- **물리/화학적 메커니즘:** 모세관 젖음각($\\theta < 25^\\circ$)을 가진 액상 EMC 주입. 나노/마이크로 실리카 바이모달 입도 분포($> 85\\ \\text{wt}\\%$)로 고충진하면서 점도를 $1.5\\ \\text{Pa}\\cdot\\text{s}$ 이하로 유지하고 진공 차압 주입.\n- **팹 실측 파라미터:** 열전도도 $2.5\\ \\text{W/m}\\cdot\\text{K}$ (NCF 대비 2.5배), 패키지 열저항 36% 감쇄, 미세 보이드 불량률 0 ppm."
+            },
+            {
+              "parameter": "NCF 대비 열전도도",
+              "value": "2.5배",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 12단/16단 HBM 스택에서 다이 두께가 $30\\ \\mu\\text{m}$로 얇아지고 범프 간격이 $15\\ \\mu\\text{m}$로 축소됨에 따라 기존 필름(TC-NCF)의 압착 기포 및 방열 저하가 심각한 수율 킬러로 작용.\n- **물리/화학적 메커니즘:** 모세관 젖음각($\\theta < 25^\\circ$)을 가진 액상 EMC 주입. 나노/마이크로 실리카 바이모달 입도 분포($> 85\\ \\text{wt}\\%$)로 고충진하면서 점도를 $1.5\\ \\text{Pa}\\cdot\\text{s}$ 이하로 유지하고 진공 차압 주입.\n- **팹 실측 파라미터:** 열전도도 $2.5\\ \\text{W/m}\\cdot\\text{K}$ (NCF 대비 2.5배), 패키지 열저항 36% 감쇄, 미세 보이드 불량률 0 ppm."
+            },
+            {
+              "parameter": "패키지 열저항 감소",
+              "value": "36",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 12단/16단 HBM 스택에서 다이 두께가 $30\\ \\mu\\text{m}$로 얇아지고 범프 간격이 $15\\ \\mu\\text{m}$로 축소됨에 따라 기존 필름(TC-NCF)의 압착 기포 및 방열 저하가 심각한 수율 킬러로 작용.\n- **물리/화학적 메커니즘:** 모세관 젖음각($\\theta < 25^\\circ$)을 가진 액상 EMC 주입. 나노/마이크로 실리카 바이모달 입도 분포($> 85\\ \\text{wt}\\%$)로 고충진하면서 점도를 $1.5\\ \\text{Pa}\\cdot\\text{s}$ 이하로 유지하고 진공 차압 주입.\n- **팹 실측 파라미터:** 열전도도 $2.5\\ \\text{W/m}\\cdot\\text{K}$ (NCF 대비 2.5배), 패키지 열저항 36% 감쇄, 미세 보이드 불량률 0 ppm."
+            },
+            {
+              "parameter": "원문 미세 보이드 불량률",
+              "value": "0",
+              "unit": "ppm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 12단/16단 HBM 스택에서 다이 두께가 $30\\ \\mu\\text{m}$로 얇아지고 범프 간격이 $15\\ \\mu\\text{m}$로 축소됨에 따라 기존 필름(TC-NCF)의 압착 기포 및 방열 저하가 심각한 수율 킬러로 작용.\n- **물리/화학적 메커니즘:** 모세관 젖음각($\\theta < 25^\\circ$)을 가진 액상 EMC 주입. 나노/마이크로 실리카 바이모달 입도 분포($> 85\\ \\text{wt}\\%$)로 고충진하면서 점도를 $1.5\\ \\text{Pa}\\cdot\\text{s}$ 이하로 유지하고 진공 차압 주입.\n- **팹 실측 파라미터:** 열전도도 $2.5\\ \\text{W/m}\\cdot\\text{K}$ (NCF 대비 2.5배), 패키지 열저항 36% 감쇄, 미세 보이드 불량률 0 ppm."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "쌓인 칩 사이 빈 공간을 재료로 잘 채우면서 열도 밖으로 보내려는 기술입니다. 잘 흐르는 정도인 점도와 열을 옮기는 정도인 열전도도는 서로 다른 성질입니다. NCF 대비 배수와 보이드 결과는 등록 자료의 비교·평가 조건으로 한정합니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "접합·패키징",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "capillary-underfill",
+      "title": "모세관 언더필",
+      "engName": "Capillary Underfill",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "접합·패키징",
+      "scaleLevel": 3,
+      "classificationNote": "모세관 언더필의 기술적 대상을 접합·패키징에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "칩과 기판 사이에 모세관 흐름으로 수지를 침투시켜 범프 주변을 채우는 공정이다.",
+      "purpose": "대면적(> 3× 레티클 크기) 실리콘 인터포저 상에 로직 다이와 HBM 다이를 플립칩 본딩할 때, 수만 개의 마이크로범프(20\\ \\mum 피치) 사이로 모세관 언더필(CUF) 레진이 침투하지 못해 발생하는 불완전 충진 불량.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** 플라즈마 표면 친수화 처리로 칩 및 인터포저 표면 에너지를 균일화. 점도-시간-온도 동역학 윈도우($110^\\circ\\text{C}$에서 30분간 겔화 지연)를 설계하여 유동 모세관 압력 극대화.",
+      "evidenceQuote": "- **서지 정보:** C. C. Tseng, D. C. H. Yu et al. (TSMC Advanced Packaging), *IEEE Electronic Components and Technology Conference (ECTC)*, pp. 210–216, 2022. DOI: 10.1109/ECTC51933.2022.00039",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "플라즈마 표면 친수화 처리로 칩 및 인터포저 표면 에너지를 균일화. 점도-시간-온도 동역학 윈도우(110^\\circC에서 30분간 겔화 지연)를 설계하여 유동 모세관 압력 극대화.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** 플라즈마 표면 친수화 처리로 칩 및 인터포저 표면 에너지를 균일화. 점도-시간-온도 동역학 윈도우($110^\\circ\\text{C}$에서 30분간 겔화 지연)를 설계하여 유동 모세관 압력 극대화."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "대면적(> 3× 레티클 크기) 실리콘 인터포저 상에 로직 다이와 HBM 다이를 플립칩 본딩할 때, 수만 개의 마이크로범프(20\\ \\mum 피치) 사이로 모세관 언더필(CUF) 레진이 침투하지 못해 발생하는 불완전 충진 불량.",
+          "evidenceQuote": "- **팹 양산 배경:** 대면적($> 3\\times$ 레티클 크기) 실리콘 인터포저 상에 로직 다이와 HBM 다이를 플립칩 본딩할 때, 수만 개의 마이크로범프($20\\ \\mu\\text{m}$ 피치) 사이로 모세관 언더필(CUF) 레진이 침투하지 못해 발생하는 불완전 충진 불량."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "모세관 언더필: 등록 응용 논문 아카이브 16",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: 대면적(> 3× 레티클 크기) 실리콘 인터포저 상에 로직 다이와 HBM 다이를 플립칩 본딩할 때, 수만 개의 마이크로범프(20\\ \\mum 피치) 사이로 모세관 언더필(CUF) 레진이 침투하지 못해 발생하는 불완전 충진 불량.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** $50\\ \\text{mm}\\times 50\\ \\text{mm}$ 대형 패키지 언더필 침투 시간 45초 이내 완료, 보이드 프리 접합 달성.",
+          "specifications": [
+            {
+              "parameter": "수지 겔화 지연 온도",
+              "value": "110",
+              "unit": "°C",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 대면적($> 3\\times$ 레티클 크기) 실리콘 인터포저 상에 로직 다이와 HBM 다이를 플립칩 본딩할 때, 수만 개의 마이크로범프($20\\ \\mu\\text{m}$ 피치) 사이로 모세관 언더필(CUF) 레진이 침투하지 못해 발생하는 불완전 충진 불량.\n- **물리/화학적 메커니즘:** 플라즈마 표면 친수화 처리로 칩 및 인터포저 표면 에너지를 균일화. 점도-시간-온도 동역학 윈도우($110^\\circ\\text{C}$에서 30분간 겔화 지연)를 설계하여 유동 모세관 압력 극대화.\n- **팹 실측 파라미터:** $50\\ \\text{mm}\\times 50\\ \\text{mm}$ 대형 패키지 언더필 침투 시간 45초 이내 완료, 보이드 프리 접합 달성."
+            },
+            {
+              "parameter": "겔화 지연 시간",
+              "value": "30",
+              "unit": "분",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 대면적($> 3\\times$ 레티클 크기) 실리콘 인터포저 상에 로직 다이와 HBM 다이를 플립칩 본딩할 때, 수만 개의 마이크로범프($20\\ \\mu\\text{m}$ 피치) 사이로 모세관 언더필(CUF) 레진이 침투하지 못해 발생하는 불완전 충진 불량.\n- **물리/화학적 메커니즘:** 플라즈마 표면 친수화 처리로 칩 및 인터포저 표면 에너지를 균일화. 점도-시간-온도 동역학 윈도우($110^\\circ\\text{C}$에서 30분간 겔화 지연)를 설계하여 유동 모세관 압력 극대화.\n- **팹 실측 파라미터:** $50\\ \\text{mm}\\times 50\\ \\text{mm}$ 대형 패키지 언더필 침투 시간 45초 이내 완료, 보이드 프리 접합 달성."
+            },
+            {
+              "parameter": "대상 패키지",
+              "value": "50 × 50",
+              "unit": "mm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 대면적($> 3\\times$ 레티클 크기) 실리콘 인터포저 상에 로직 다이와 HBM 다이를 플립칩 본딩할 때, 수만 개의 마이크로범프($20\\ \\mu\\text{m}$ 피치) 사이로 모세관 언더필(CUF) 레진이 침투하지 못해 발생하는 불완전 충진 불량.\n- **물리/화학적 메커니즘:** 플라즈마 표면 친수화 처리로 칩 및 인터포저 표면 에너지를 균일화. 점도-시간-온도 동역학 윈도우($110^\\circ\\text{C}$에서 30분간 겔화 지연)를 설계하여 유동 모세관 압력 극대화.\n- **팹 실측 파라미터:** $50\\ \\text{mm}\\times 50\\ \\text{mm}$ 대형 패키지 언더필 침투 시간 45초 이내 완료, 보이드 프리 접합 달성."
+            },
+            {
+              "parameter": "언더필 침투 시간",
+              "value": "45 이내",
+              "unit": "초",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 대면적($> 3\\times$ 레티클 크기) 실리콘 인터포저 상에 로직 다이와 HBM 다이를 플립칩 본딩할 때, 수만 개의 마이크로범프($20\\ \\mu\\text{m}$ 피치) 사이로 모세관 언더필(CUF) 레진이 침투하지 못해 발생하는 불완전 충진 불량.\n- **물리/화학적 메커니즘:** 플라즈마 표면 친수화 처리로 칩 및 인터포저 표면 에너지를 균일화. 점도-시간-온도 동역학 윈도우($110^\\circ\\text{C}$에서 30분간 겔화 지연)를 설계하여 유동 모세관 압력 극대화.\n- **팹 실측 파라미터:** $50\\ \\text{mm}\\times 50\\ \\text{mm}$ 대형 패키지 언더필 침투 시간 45초 이내 완료, 보이드 프리 접합 달성."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "많은 작은 범프 사이로 수지가 끝까지 흘러 들어가야 빈 공간을 줄일 수 있습니다. 이 사례는 표면 상태와 수지가 굳기 전 시간을 조절하는 연구입니다. 표의 온도·시간은 수지의 흐름 조건과 대형 패키지 평가를 함께 나타냅니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "cowos",
+          "name": "CoWoS 2.5D 패키징",
+          "reason": "CoWoS 실리콘 인터포저의 플립칩 조립 과정에서 칩·인터포저 사이 마이크로범프 간극에 CUF 수지를 침투·충진하는 실제 공정 단계이다.",
+          "evidenceQuote": "## 16. 2.5D CoWoS 고밀도 실리콘 인터포저 초미세 범프 CUF 유동학 (2022)"
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "접합·패키징",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "hybrid-bonding-void-annealing",
+      "title": "하이브리드 본딩 보이드 소멸 열처리",
+      "engName": "Hybrid Bonding Void Annealing",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "접합·패키징",
+      "scaleLevel": 3,
+      "classificationNote": "하이브리드 본딩 보이드 소멸 열처리의 기술적 대상을 접합·패키징에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "계면 미세 구조와 결정립계 확산을 제어해 구리 직접 접합의 나노보이드를 줄이는 열처리 기술이다.",
+      "purpose": "서브마이크론(< 1\\ \\mum) 피치 Cu-Cu 직접 본딩 시 계면 나노 거칠기로 인해 형성되는 2~ 10\\ nm 미세 보이드가 일렉트로마이그레이션(EM) 단선 고장을 유발.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** $\\text{Ar/N}_2$ 플라즈마 표면 처리로 유도된 나노 비정질층이 가열 시 고밀도 쌍정(Twin Boundary)을 형성하며 급속 재결정화. 결정립계 확산($D_{\\text{gb}}$)에 의해 계면 보이드 공공(Vacancy)이 인접 결정립계로 흡수 소멸.",
+      "evidenceQuote": "- **서지 정보:** L. Peng, C. S. Tan et al. (Nanyang Tech Univ & TSMC), *Acta Materialia*, Vol. 234, 118021, 2022. DOI: 10.1016/j.actamat.2022.118021",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "Ar/N_2 플라즈마 표면 처리로 유도된 나노 비정질층이 가열 시 고밀도 쌍정(Twin Boundary)을 형성하며 급속 재결정화. 결정립계 확산(D_{gb})에 의해 계면 보이드 공공(Vacancy)이 인접 결정립계로 흡수 소멸.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** $\\text{Ar/N}_2$ 플라즈마 표면 처리로 유도된 나노 비정질층이 가열 시 고밀도 쌍정(Twin Boundary)을 형성하며 급속 재결정화. 결정립계 확산($D_{\\text{gb}}$)에 의해 계면 보이드 공공(Vacancy)이 인접 결정립계로 흡수 소멸."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "서브마이크론(< 1\\ \\mum) 피치 Cu-Cu 직접 본딩 시 계면 나노 거칠기로 인해 형성되는 2~ 10\\ nm 미세 보이드가 일렉트로마이그레이션(EM) 단선 고장을 유발.",
+          "evidenceQuote": "- **팹 양산 배경:** 서브마이크론($< 1\\ \\mu\\text{m}$) 피치 Cu-Cu 직접 본딩 시 계면 나노 거칠기로 인해 형성되는 $2\\sim 10\\ \\text{nm}$ 미세 보이드가 일렉트로마이그레이션(EM) 단선 고장을 유발."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "하이브리드 본딩 보이드 소멸 열처리: 등록 응용 논문 아카이브 17",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: 서브마이크론(< 1\\ \\mum) 피치 Cu-Cu 직접 본딩 시 계면 나노 거칠기로 인해 형성되는 2~ 10\\ nm 미세 보이드가 일렉트로마이그레이션(EM) 단선 고장을 유발.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** 어닐링 온도 $350^\\circ\\text{C} \\to 200^\\circ\\text{C}$ 저온화, 계면 전단 강도 $> 35\\ \\text{MPa}$, 접촉 비저항 $< 10^{-9}\\ \\Omega\\cdot\\text{cm}^2$.",
+          "specifications": [
+            {
+              "parameter": "어닐링 온도 변화",
+              "value": "350 → 200",
+              "unit": "°C",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 서브마이크론($< 1\\ \\mu\\text{m}$) 피치 Cu-Cu 직접 본딩 시 계면 나노 거칠기로 인해 형성되는 $2\\sim 10\\ \\text{nm}$ 미세 보이드가 일렉트로마이그레이션(EM) 단선 고장을 유발.\n- **물리/화학적 메커니즘:** $\\text{Ar/N}_2$ 플라즈마 표면 처리로 유도된 나노 비정질층이 가열 시 고밀도 쌍정(Twin Boundary)을 형성하며 급속 재결정화. 결정립계 확산($D_{\\text{gb}}$)에 의해 계면 보이드 공공(Vacancy)이 인접 결정립계로 흡수 소멸.\n- **팹 실측 파라미터:** 어닐링 온도 $350^\\circ\\text{C} \\to 200^\\circ\\text{C}$ 저온화, 계면 전단 강도 $> 35\\ \\text{MPa}$, 접촉 비저항 $< 10^{-9}\\ \\Omega\\cdot\\text{cm}^2$."
+            },
+            {
+              "parameter": "계면 전단 강도",
+              "value": "> 35",
+              "unit": "MPa",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 서브마이크론($< 1\\ \\mu\\text{m}$) 피치 Cu-Cu 직접 본딩 시 계면 나노 거칠기로 인해 형성되는 $2\\sim 10\\ \\text{nm}$ 미세 보이드가 일렉트로마이그레이션(EM) 단선 고장을 유발.\n- **물리/화학적 메커니즘:** $\\text{Ar/N}_2$ 플라즈마 표면 처리로 유도된 나노 비정질층이 가열 시 고밀도 쌍정(Twin Boundary)을 형성하며 급속 재결정화. 결정립계 확산($D_{\\text{gb}}$)에 의해 계면 보이드 공공(Vacancy)이 인접 결정립계로 흡수 소멸.\n- **팹 실측 파라미터:** 어닐링 온도 $350^\\circ\\text{C} \\to 200^\\circ\\text{C}$ 저온화, 계면 전단 강도 $> 35\\ \\text{MPa}$, 접촉 비저항 $< 10^{-9}\\ \\Omega\\cdot\\text{cm}^2$."
+            },
+            {
+              "parameter": "접촉 비저항",
+              "value": "< 10^-9",
+              "unit": "Ω·cm²",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 서브마이크론($< 1\\ \\mu\\text{m}$) 피치 Cu-Cu 직접 본딩 시 계면 나노 거칠기로 인해 형성되는 $2\\sim 10\\ \\text{nm}$ 미세 보이드가 일렉트로마이그레이션(EM) 단선 고장을 유발.\n- **물리/화학적 메커니즘:** $\\text{Ar/N}_2$ 플라즈마 표면 처리로 유도된 나노 비정질층이 가열 시 고밀도 쌍정(Twin Boundary)을 형성하며 급속 재결정화. 결정립계 확산($D_{\\text{gb}}$)에 의해 계면 보이드 공공(Vacancy)이 인접 결정립계로 흡수 소멸.\n- **팹 실측 파라미터:** 어닐링 온도 $350^\\circ\\text{C} \\to 200^\\circ\\text{C}$ 저온화, 계면 전단 강도 $> 35\\ \\text{MPa}$, 접촉 비저항 $< 10^{-9}\\ \\Omega\\cdot\\text{cm}^2$."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "직접 맞닿은 구리 표면 사이에도 아주 작은 빈 공간이 남을 수 있습니다. 계면의 원자 이동과 재결정화를 이용해 빈 공간을 줄이려는 연구입니다. 온도 저하는 강도와 접촉 특성의 평가 조건과 함께 읽어야 합니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "anneal",
+          "name": "어닐링",
+          "reason": "접합 계면의 보이드 소멸을 위한 후속 어닐링이다.",
+          "evidenceQuote": "- **물리/화학적 메커니즘:** $\\text{Ar/N}_2$ 플라즈마 표면 처리로 유도된 나노 비정질층이 가열 시 고밀도 쌍정(Twin Boundary)을 형성하며 급속 재결정화. 결정립계 확산($D_{\\text{gb}}$)에 의해 계면 보이드 공공(Vacancy)이 인접 결정립계로 흡수 소멸."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "접합·패키징",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "kgd-probe-testing",
+      "title": "KGD 프로브 검사",
+      "engName": "Known Good Die Probe Testing",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "검사·계측",
+      "scaleLevel": 3,
+      "classificationNote": "KGD 프로브 검사의 기술적 대상을 검사·계측에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "적층 전에 양품 다이를 선별하기 위한 미세 접촉·고주파 전기 검사 기술이다.",
+      "purpose": "HBM 적층 전 개별 다이(Die)의 결함을 100% 검출하지 못하면 1개 다이 불량으로 16단 적층 패키지 전체가 폐기됨(KGD 병목). 수만 개의 마이크로범프에 동시 접촉 시 패드 손상 없이 4Gbps+ 고속 테스트 필요.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** MEMS 스프링 기반 캔틸레버 프로브 팁 설계. 마이크로 접촉 하중($< 0.5\\ \\text{gf/pin}$)으로 범프 찍힘(Scratch)을 $1\\ \\mu\\text{m}$ 이하로 제어하면서도 산화막을 뚫는 와이핑(Wiping) 동작 구현. 동축 차폐 설계로 누화(Crosstalk) 억제.",
+      "evidenceQuote": "- **서지 정보:** A. Leong, M. E. Berry et al. (FormFactor & Advantest), *IEEE International Test Conference (ITC)*, pp. 88–95, 2022. DOI: 10.1109/ITC50571.2022.00019",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "MEMS 스프링 기반 캔틸레버 프로브 팁 설계. 마이크로 접촉 하중(< 0.5\\ gf/pin)으로 범프 찍힘(Scratch)을 1\\ \\mum 이하로 제어하면서도 산화막을 뚫는 와이핑(Wiping) 동작 구현. 동축 차폐 설계로 누화(Crosstalk) 억제.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** MEMS 스프링 기반 캔틸레버 프로브 팁 설계. 마이크로 접촉 하중($< 0.5\\ \\text{gf/pin}$)으로 범프 찍힘(Scratch)을 $1\\ \\mu\\text{m}$ 이하로 제어하면서도 산화막을 뚫는 와이핑(Wiping) 동작 구현. 동축 차폐 설계로 누화(Crosstalk) 억제."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "HBM 적층 전 개별 다이(Die)의 결함을 100% 검출하지 못하면 1개 다이 불량으로 16단 적층 패키지 전체가 폐기됨(KGD 병목). 수만 개의 마이크로범프에 동시 접촉 시 패드 손상 없이 4Gbps+ 고속 테스트 필요.",
+          "evidenceQuote": "- **팹 양산 배경:** HBM 적층 전 개별 다이(Die)의 결함을 100% 검출하지 못하면 1개 다이 불량으로 16단 적층 패키지 전체가 폐기됨(KGD 병목). 수만 개의 마이크로범프에 동시 접촉 시 패드 손상 없이 4Gbps+ 고속 테스트 필요."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "KGD 프로브 검사: 등록 응용 논문 아카이브 18",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: HBM 적층 전 개별 다이(Die)의 결함을 100% 검출하지 못하면 1개 다이 불량으로 16단 적층 패키지 전체가 폐기됨(KGD 병목). 수만 개의 마이크로범프에 동시 접촉 시 패드 손상 없이 4Gbps+ 고속 테스트 필요.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** 대역폭 10GHz 달성, 접촉 저항 $< 0.1\\ \\Omega$, 접촉 반복 수명 100만 회 보증.",
+          "specifications": [
+            {
+              "parameter": "프로브 대역폭",
+              "value": "10",
+              "unit": "GHz",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** HBM 적층 전 개별 다이(Die)의 결함을 100% 검출하지 못하면 1개 다이 불량으로 16단 적층 패키지 전체가 폐기됨(KGD 병목). 수만 개의 마이크로범프에 동시 접촉 시 패드 손상 없이 4Gbps+ 고속 테스트 필요.\n- **물리/화학적 메커니즘:** MEMS 스프링 기반 캔틸레버 프로브 팁 설계. 마이크로 접촉 하중($< 0.5\\ \\text{gf/pin}$)으로 범프 찍힘(Scratch)을 $1\\ \\mu\\text{m}$ 이하로 제어하면서도 산화막을 뚫는 와이핑(Wiping) 동작 구현. 동축 차폐 설계로 누화(Crosstalk) 억제.\n- **팹 실측 파라미터:** 대역폭 10GHz 달성, 접촉 저항 $< 0.1\\ \\Omega$, 접촉 반복 수명 100만 회 보증."
+            },
+            {
+              "parameter": "접촉 저항",
+              "value": "< 0.1",
+              "unit": "Ω",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** HBM 적층 전 개별 다이(Die)의 결함을 100% 검출하지 못하면 1개 다이 불량으로 16단 적층 패키지 전체가 폐기됨(KGD 병목). 수만 개의 마이크로범프에 동시 접촉 시 패드 손상 없이 4Gbps+ 고속 테스트 필요.\n- **물리/화학적 메커니즘:** MEMS 스프링 기반 캔틸레버 프로브 팁 설계. 마이크로 접촉 하중($< 0.5\\ \\text{gf/pin}$)으로 범프 찍힘(Scratch)을 $1\\ \\mu\\text{m}$ 이하로 제어하면서도 산화막을 뚫는 와이핑(Wiping) 동작 구현. 동축 차폐 설계로 누화(Crosstalk) 억제.\n- **팹 실측 파라미터:** 대역폭 10GHz 달성, 접촉 저항 $< 0.1\\ \\Omega$, 접촉 반복 수명 100만 회 보증."
+            },
+            {
+              "parameter": "반복 접촉 수명",
+              "value": "100만",
+              "unit": "회",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** HBM 적층 전 개별 다이(Die)의 결함을 100% 검출하지 못하면 1개 다이 불량으로 16단 적층 패키지 전체가 폐기됨(KGD 병목). 수만 개의 마이크로범프에 동시 접촉 시 패드 손상 없이 4Gbps+ 고속 테스트 필요.\n- **물리/화학적 메커니즘:** MEMS 스프링 기반 캔틸레버 프로브 팁 설계. 마이크로 접촉 하중($< 0.5\\ \\text{gf/pin}$)으로 범프 찍힘(Scratch)을 $1\\ \\mu\\text{m}$ 이하로 제어하면서도 산화막을 뚫는 와이핑(Wiping) 동작 구현. 동축 차폐 설계로 누화(Crosstalk) 억제.\n- **팹 실측 파라미터:** 대역폭 10GHz 달성, 접촉 저항 $< 0.1\\ \\Omega$, 접촉 반복 수명 100만 회 보증."
+            },
+            {
+              "parameter": "접촉 하중",
+              "value": "< 0.5",
+              "unit": "gf/pin",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** HBM 적층 전 개별 다이(Die)의 결함을 100% 검출하지 못하면 1개 다이 불량으로 16단 적층 패키지 전체가 폐기됨(KGD 병목). 수만 개의 마이크로범프에 동시 접촉 시 패드 손상 없이 4Gbps+ 고속 테스트 필요.\n- **물리/화학적 메커니즘:** MEMS 스프링 기반 캔틸레버 프로브 팁 설계. 마이크로 접촉 하중($< 0.5\\ \\text{gf/pin}$)으로 범프 찍힘(Scratch)을 $1\\ \\mu\\text{m}$ 이하로 제어하면서도 산화막을 뚫는 와이핑(Wiping) 동작 구현. 동축 차폐 설계로 누화(Crosstalk) 억제.\n- **팹 실측 파라미터:** 대역폭 10GHz 달성, 접촉 저항 $< 0.1\\ \\Omega$, 접촉 반복 수명 100만 회 보증."
+            },
+            {
+              "parameter": "패드 손상 크기",
+              "value": "1 이하",
+              "unit": "㎛",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** HBM 적층 전 개별 다이(Die)의 결함을 100% 검출하지 못하면 1개 다이 불량으로 16단 적층 패키지 전체가 폐기됨(KGD 병목). 수만 개의 마이크로범프에 동시 접촉 시 패드 손상 없이 4Gbps+ 고속 테스트 필요.\n- **물리/화학적 메커니즘:** MEMS 스프링 기반 캔틸레버 프로브 팁 설계. 마이크로 접촉 하중($< 0.5\\ \\text{gf/pin}$)으로 범프 찍힘(Scratch)을 $1\\ \\mu\\text{m}$ 이하로 제어하면서도 산화막을 뚫는 와이핑(Wiping) 동작 구현. 동축 차폐 설계로 누화(Crosstalk) 억제.\n- **팹 실측 파라미터:** 대역폭 10GHz 달성, 접촉 저항 $< 0.1\\ \\Omega$, 접촉 반복 수명 100만 회 보증."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "여러 칩을 쌓은 뒤 하나라도 불량이면 패키지 전체에 영향을 줄 수 있어 쌓기 전에 검사합니다. 프로브는 작은 접점에 닿아 전기를 주고받는 검사 도구입니다. 검사 대역폭과 접촉 저항은 메모리 자체의 데이터 전송 사양과 구분합니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "검사·계측",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "oes-fdc",
+      "title": "광방출 분광 기반 FDC",
+      "engName": "Optical Emission Spectroscopy FDC",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "공정 제어",
+      "scaleLevel": 5,
+      "classificationNote": "광방출 분광 기반 FDC의 기술적 대상을 공정 제어에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "플라즈마 발광 스펙트럼의 변화를 분석해 챔버 드리프트와 식각 종단점을 감지하는 기술이다.",
+      "purpose": "수천 매의 웨이퍼 식각이 진행되면서 챔버 벽면에 부산물이 증착되어 라디칼 밀도와 식각 속도가 표류(Drift)하는 문제를 사전에 감지하고 종단점(EPD)을 정밀 제어해야 함.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** $200\\sim 900\\ \\text{nm}$ 전스펙트럼 OES 데이터를 100ms마다 수집(SEMI E133 규격). 비지도 딥 오토인코더를 통해 정상 상태와의 재구성 오차(Reconstruction Residual)를 실시간 모니터링.",
+      "evidenceQuote": "- **서지 정보:** H. C. Lee, J. K. Park et al. (KAIST & SEMI Standard Committee), *IEEE Transactions on Semiconductor Manufacturing (TSM)*, Vol. 35, No. 3, pp. 445–453, 2022. DOI: 10.1109/TSM.2022.3189445",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "200~ 900\\ nm 전스펙트럼 OES 데이터를 100ms마다 수집(SEMI E133 규격). 비지도 딥 오토인코더를 통해 정상 상태와의 재구성 오차(Reconstruction Residual)를 실시간 모니터링.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** $200\\sim 900\\ \\text{nm}$ 전스펙트럼 OES 데이터를 100ms마다 수집(SEMI E133 규격). 비지도 딥 오토인코더를 통해 정상 상태와의 재구성 오차(Reconstruction Residual)를 실시간 모니터링."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "수천 매의 웨이퍼 식각이 진행되면서 챔버 벽면에 부산물이 증착되어 라디칼 밀도와 식각 속도가 표류(Drift)하는 문제를 사전에 감지하고 종단점(EPD)을 정밀 제어해야 함.",
+          "evidenceQuote": "- **팹 양산 배경:** 수천 매의 웨이퍼 식각이 진행되면서 챔버 벽면에 부산물이 증착되어 라디칼 밀도와 식각 속도가 표류(Drift)하는 문제를 사전에 감지하고 종단점(EPD)을 정밀 제어해야 함."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "광방출 분광 기반 FDC: 등록 응용 논문 아카이브 19",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: 수천 매의 웨이퍼 식각이 진행되면서 챔버 벽면에 부산물이 증착되어 라디칼 밀도와 식각 속도가 표류(Drift)하는 문제를 사전에 감지하고 종단점(EPD)을 정밀 제어해야 함.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** 챔버 이상 징후 3웨이퍼 사전 경보, 하부 산화막 EPD 변곡점 0.05초 정밀 감지로 과도식각(Over-etch) 마진 40% 감축.",
+          "specifications": [
+            {
+              "parameter": "OES 파장 범위",
+              "value": "200~900",
+              "unit": "nm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 수천 매의 웨이퍼 식각이 진행되면서 챔버 벽면에 부산물이 증착되어 라디칼 밀도와 식각 속도가 표류(Drift)하는 문제를 사전에 감지하고 종단점(EPD)을 정밀 제어해야 함.\n- **물리/화학적 메커니즘:** $200\\sim 900\\ \\text{nm}$ 전스펙트럼 OES 데이터를 100ms마다 수집(SEMI E133 규격). 비지도 딥 오토인코더를 통해 정상 상태와의 재구성 오차(Reconstruction Residual)를 실시간 모니터링.\n- **팹 실측 파라미터:** 챔버 이상 징후 3웨이퍼 사전 경보, 하부 산화막 EPD 변곡점 0.05초 정밀 감지로 과도식각(Over-etch) 마진 40% 감축."
+            },
+            {
+              "parameter": "수집 간격",
+              "value": "100",
+              "unit": "ms",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 수천 매의 웨이퍼 식각이 진행되면서 챔버 벽면에 부산물이 증착되어 라디칼 밀도와 식각 속도가 표류(Drift)하는 문제를 사전에 감지하고 종단점(EPD)을 정밀 제어해야 함.\n- **물리/화학적 메커니즘:** $200\\sim 900\\ \\text{nm}$ 전스펙트럼 OES 데이터를 100ms마다 수집(SEMI E133 규격). 비지도 딥 오토인코더를 통해 정상 상태와의 재구성 오차(Reconstruction Residual)를 실시간 모니터링.\n- **팹 실측 파라미터:** 챔버 이상 징후 3웨이퍼 사전 경보, 하부 산화막 EPD 변곡점 0.05초 정밀 감지로 과도식각(Over-etch) 마진 40% 감축."
+            },
+            {
+              "parameter": "이상 사전 경보",
+              "value": "3",
+              "unit": "웨이퍼",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 수천 매의 웨이퍼 식각이 진행되면서 챔버 벽면에 부산물이 증착되어 라디칼 밀도와 식각 속도가 표류(Drift)하는 문제를 사전에 감지하고 종단점(EPD)을 정밀 제어해야 함.\n- **물리/화학적 메커니즘:** $200\\sim 900\\ \\text{nm}$ 전스펙트럼 OES 데이터를 100ms마다 수집(SEMI E133 규격). 비지도 딥 오토인코더를 통해 정상 상태와의 재구성 오차(Reconstruction Residual)를 실시간 모니터링.\n- **팹 실측 파라미터:** 챔버 이상 징후 3웨이퍼 사전 경보, 하부 산화막 EPD 변곡점 0.05초 정밀 감지로 과도식각(Over-etch) 마진 40% 감축."
+            },
+            {
+              "parameter": "EPD 감지 정밀도",
+              "value": "0.05",
+              "unit": "초",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 수천 매의 웨이퍼 식각이 진행되면서 챔버 벽면에 부산물이 증착되어 라디칼 밀도와 식각 속도가 표류(Drift)하는 문제를 사전에 감지하고 종단점(EPD)을 정밀 제어해야 함.\n- **물리/화학적 메커니즘:** $200\\sim 900\\ \\text{nm}$ 전스펙트럼 OES 데이터를 100ms마다 수집(SEMI E133 규격). 비지도 딥 오토인코더를 통해 정상 상태와의 재구성 오차(Reconstruction Residual)를 실시간 모니터링.\n- **팹 실측 파라미터:** 챔버 이상 징후 3웨이퍼 사전 경보, 하부 산화막 EPD 변곡점 0.05초 정밀 감지로 과도식각(Over-etch) 마진 40% 감축."
+            },
+            {
+              "parameter": "과도식각 마진 감축",
+              "value": "40",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 수천 매의 웨이퍼 식각이 진행되면서 챔버 벽면에 부산물이 증착되어 라디칼 밀도와 식각 속도가 표류(Drift)하는 문제를 사전에 감지하고 종단점(EPD)을 정밀 제어해야 함.\n- **물리/화학적 메커니즘:** $200\\sim 900\\ \\text{nm}$ 전스펙트럼 OES 데이터를 100ms마다 수집(SEMI E133 규격). 비지도 딥 오토인코더를 통해 정상 상태와의 재구성 오차(Reconstruction Residual)를 실시간 모니터링.\n- **팹 실측 파라미터:** 챔버 이상 징후 3웨이퍼 사전 경보, 하부 산화막 EPD 변곡점 0.05초 정밀 감지로 과도식각(Over-etch) 마진 40% 감축."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "플라즈마가 내는 빛의 분포를 보면 챔버 상태가 평소와 달라졌는지 살필 수 있습니다. 이 사례는 그런 변화를 분석해 식각을 멈출 시점을 판단하는 연구입니다. 여기서 마진 감축은 원문 평가의 결과이며 서비스가 정한 안전 여유가 아닙니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "fdc",
+          "name": "결함 탐지·분류",
+          "reason": "광방출 분광 데이터를 사용하는 챔버 이상 감지 방식이다.",
+          "evidenceQuote": "- **물리/화학적 메커니즘:** $200\\sim 900\\ \\text{nm}$ 전스펙트럼 OES 데이터를 100ms마다 수집(SEMI E133 규격). 비지도 딥 오토인코더를 통해 정상 상태와의 재구성 오차(Reconstruction Residual)를 실시간 모니터링."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "공정 제어",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "tddb-bti-reliability",
+      "title": "TDDB·BTI 가속 신뢰성 평가",
+      "engName": "TDDB BTI Reliability",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "신뢰성 평가",
+      "scaleLevel": 5,
+      "classificationNote": "TDDB·BTI 가속 신뢰성 평가의 기술적 대상을 신뢰성 평가에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전압·열 스트레스로 발생하는 절연 파괴와 문턱전압 변화를 모델링해 수명을 평가하는 기술이다.",
+      "purpose": "3nm 이하 GAA 나노시트의 초박형 HKMG 절연막에서 전압 및 열 스트레스로 인해 결함(Trap)이 누적되어 급작스럽게 절연이 파괴되는 TDDB 및 문턱전압이 표류하는 BTI 수명을 10년간 보증해야 함.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** 퍼콜레이션(Percolation) 이론에 기반하여 절연막 내 결함 밀도가 임계 농도에 도달할 때 전도성 필라멘트가 형성되는 전력 법칙($t_{\\text{BD}} \\propto V^{-n}$) 가속 수명 방정식 도출.",
+      "evidenceQuote": "- **서지 정보:** E. Cartier, J. Stathis et al. (imec & Samsung Electronics), *IEEE International Reliability Physics Symposium (IRPS)*, pp. 3A.1-1–3A.1-8, 2022. DOI: 10.1109/IRPS48227.2022.9766289",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "퍼콜레이션(Percolation) 이론에 기반하여 절연막 내 결함 밀도가 임계 농도에 도달할 때 전도성 필라멘트가 형성되는 전력 법칙(t_{BD} \\propto V^{-n}) 가속 수명 방정식 도출.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** 퍼콜레이션(Percolation) 이론에 기반하여 절연막 내 결함 밀도가 임계 농도에 도달할 때 전도성 필라멘트가 형성되는 전력 법칙($t_{\\text{BD}} \\propto V^{-n}$) 가속 수명 방정식 도출."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "3nm 이하 GAA 나노시트의 초박형 HKMG 절연막에서 전압 및 열 스트레스로 인해 결함(Trap)이 누적되어 급작스럽게 절연이 파괴되는 TDDB 및 문턱전압이 표류하는 BTI 수명을 10년간 보증해야 함.",
+          "evidenceQuote": "- **팹 양산 배경:** 3nm 이하 GAA 나노시트의 초박형 HKMG 절연막에서 전압 및 열 스트레스로 인해 결함(Trap)이 누적되어 급작스럽게 절연이 파괴되는 TDDB 및 문턱전압이 표류하는 BTI 수명을 10년간 보증해야 함."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "TDDB·BTI 가속 신뢰성 평가: 등록 응용 논문 아카이브 20",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: 3nm 이하 GAA 나노시트의 초박형 HKMG 절연막에서 전압 및 열 스트레스로 인해 결함(Trap)이 누적되어 급작스럽게 절연이 파괴되는 TDDB 및 문턱전압이 표류하는 BTI 수명을 10년간 보증해야 함.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** 동작 전압 $0.75\\ \\text{V}$, $125^\\circ\\text{C}$ 기준 10년 생존 고장률 $< 1\\ \\text{FIT}$ ($10^9$ 소자 시간당 1개 고장) 달성 조건 확립.",
+          "specifications": [
+            {
+              "parameter": "평가 동작 전압",
+              "value": "0.75",
+              "unit": "V",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 3nm 이하 GAA 나노시트의 초박형 HKMG 절연막에서 전압 및 열 스트레스로 인해 결함(Trap)이 누적되어 급작스럽게 절연이 파괴되는 TDDB 및 문턱전압이 표류하는 BTI 수명을 10년간 보증해야 함.\n- **물리/화학적 메커니즘:** 퍼콜레이션(Percolation) 이론에 기반하여 절연막 내 결함 밀도가 임계 농도에 도달할 때 전도성 필라멘트가 형성되는 전력 법칙($t_{\\text{BD}} \\propto V^{-n}$) 가속 수명 방정식 도출.\n- **팹 실측 파라미터:** 동작 전압 $0.75\\ \\text{V}$, $125^\\circ\\text{C}$ 기준 10년 생존 고장률 $< 1\\ \\text{FIT}$ ($10^9$ 소자 시간당 1개 고장) 달성 조건 확립."
+            },
+            {
+              "parameter": "평가 온도",
+              "value": "125",
+              "unit": "°C",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 3nm 이하 GAA 나노시트의 초박형 HKMG 절연막에서 전압 및 열 스트레스로 인해 결함(Trap)이 누적되어 급작스럽게 절연이 파괴되는 TDDB 및 문턱전압이 표류하는 BTI 수명을 10년간 보증해야 함.\n- **물리/화학적 메커니즘:** 퍼콜레이션(Percolation) 이론에 기반하여 절연막 내 결함 밀도가 임계 농도에 도달할 때 전도성 필라멘트가 형성되는 전력 법칙($t_{\\text{BD}} \\propto V^{-n}$) 가속 수명 방정식 도출.\n- **팹 실측 파라미터:** 동작 전압 $0.75\\ \\text{V}$, $125^\\circ\\text{C}$ 기준 10년 생존 고장률 $< 1\\ \\text{FIT}$ ($10^9$ 소자 시간당 1개 고장) 달성 조건 확립."
+            },
+            {
+              "parameter": "평가 수명",
+              "value": "10",
+              "unit": "년",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 3nm 이하 GAA 나노시트의 초박형 HKMG 절연막에서 전압 및 열 스트레스로 인해 결함(Trap)이 누적되어 급작스럽게 절연이 파괴되는 TDDB 및 문턱전압이 표류하는 BTI 수명을 10년간 보증해야 함.\n- **물리/화학적 메커니즘:** 퍼콜레이션(Percolation) 이론에 기반하여 절연막 내 결함 밀도가 임계 농도에 도달할 때 전도성 필라멘트가 형성되는 전력 법칙($t_{\\text{BD}} \\propto V^{-n}$) 가속 수명 방정식 도출.\n- **팹 실측 파라미터:** 동작 전압 $0.75\\ \\text{V}$, $125^\\circ\\text{C}$ 기준 10년 생존 고장률 $< 1\\ \\text{FIT}$ ($10^9$ 소자 시간당 1개 고장) 달성 조건 확립."
+            },
+            {
+              "parameter": "고장률 기준",
+              "value": "< 1",
+              "unit": "FIT",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 3nm 이하 GAA 나노시트의 초박형 HKMG 절연막에서 전압 및 열 스트레스로 인해 결함(Trap)이 누적되어 급작스럽게 절연이 파괴되는 TDDB 및 문턱전압이 표류하는 BTI 수명을 10년간 보증해야 함.\n- **물리/화학적 메커니즘:** 퍼콜레이션(Percolation) 이론에 기반하여 절연막 내 결함 밀도가 임계 농도에 도달할 때 전도성 필라멘트가 형성되는 전력 법칙($t_{\\text{BD}} \\propto V^{-n}$) 가속 수명 방정식 도출.\n- **팹 실측 파라미터:** 동작 전압 $0.75\\ \\text{V}$, $125^\\circ\\text{C}$ 기준 10년 생존 고장률 $< 1\\ \\text{FIT}$ ($10^9$ 소자 시간당 1개 고장) 달성 조건 확립."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "짧은 시간의 강한 스트레스 시험과 모델로 장기 열화를 평가하는 설명입니다. 표의 수명·고장률은 동작 전압과 온도라는 조건에 묶여 있습니다. 아무 조건에서나 모든 소자가 10년 동안 고장 나지 않는다는 뜻은 아닙니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "신뢰성 평가",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "negative-binomial-yield",
+      "title": "음이항 수율 모델",
+      "engName": "Negative Binomial Yield Model",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "수율 모델",
+      "scaleLevel": 5,
+      "classificationNote": "음이항 수율 모델의 기술적 대상을 수율 모델에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "결함 밀도의 군집성을 반영해 칩 면적과 수율의 관계를 예측하는 통계 모델이다.",
+      "purpose": "다이 크기가 대형화(AI 칩 등)될 때 단순 포아송 수율 모델(Y = e^{-D_0 A})은 결함이 뭉쳐서 발생하는 클러스터링 효과를 반영하지 못해 실제 수율을 심각하게 과소평가함.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** 감마 결함 밀도 분포를 따르는 네거티브 바이노미얼 모델($Y = (1 + D_0 A / \\alpha)^{-\\alpha}$) 정립. $\\alpha$는 결함 클러스터링 모수로 웨이퍼 엣지 결함과 스크래치를 분리 보정.",
+      "evidenceQuote": "- **서지 정보:** C. H. Stapper, J. A. Carballo et al. (KLA Corp & IBM), *IEEE Transactions on Semiconductor Manufacturing (TSM)*, Vol. 34, No. 2, pp. 210–218, 2021. DOI: 10.1109/TSM.2021.3065412",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "감마 결함 밀도 분포를 따르는 네거티브 바이노미얼 모델(Y = (1 + D_0 A / \\alpha)^{-\\alpha}) 정립. \\alpha는 결함 클러스터링 모수로 웨이퍼 엣지 결함과 스크래치를 분리 보정.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** 감마 결함 밀도 분포를 따르는 네거티브 바이노미얼 모델($Y = (1 + D_0 A / \\alpha)^{-\\alpha}$) 정립. $\\alpha$는 결함 클러스터링 모수로 웨이퍼 엣지 결함과 스크래치를 분리 보정."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "다이 크기가 대형화(AI 칩 등)될 때 단순 포아송 수율 모델(Y = e^{-D_0 A})은 결함이 뭉쳐서 발생하는 클러스터링 효과를 반영하지 못해 실제 수율을 심각하게 과소평가함.",
+          "evidenceQuote": "- **팹 양산 배경:** 다이 크기가 대형화(AI 칩 등)될 때 단순 포아송 수율 모델($Y = e^{-D_0 A}$)은 결함이 뭉쳐서 발생하는 클러스터링 효과를 반영하지 못해 실제 수율을 심각하게 과소평가함."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "음이항 수율 모델: 등록 응용 논문 아카이브 21",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: 다이 크기가 대형화(AI 칩 등)될 때 단순 포아송 수율 모델(Y = e^{-D_0 A})은 결함이 뭉쳐서 발생하는 클러스터링 효과를 반영하지 못해 실제 수율을 심각하게 과소평가함.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** 칩 면적 $> 800\\ \\text{mm}^2$ 대형 GPU/AI 가속기 수율 예측 오차율을 기존 28%에서 $2.1\\%$ 이내로 정밀화.",
+          "specifications": [
+            {
+              "parameter": "대상 칩 면적",
+              "value": "> 800",
+              "unit": "mm²",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 다이 크기가 대형화(AI 칩 등)될 때 단순 포아송 수율 모델($Y = e^{-D_0 A}$)은 결함이 뭉쳐서 발생하는 클러스터링 효과를 반영하지 못해 실제 수율을 심각하게 과소평가함.\n- **물리/화학적 메커니즘:** 감마 결함 밀도 분포를 따르는 네거티브 바이노미얼 모델($Y = (1 + D_0 A / \\alpha)^{-\\alpha}$) 정립. $\\alpha$는 결함 클러스터링 모수로 웨이퍼 엣지 결함과 스크래치를 분리 보정.\n- **팹 실측 파라미터:** 칩 면적 $> 800\\ \\text{mm}^2$ 대형 GPU/AI 가속기 수율 예측 오차율을 기존 28%에서 $2.1\\%$ 이내로 정밀화."
+            },
+            {
+              "parameter": "기존 예측 오차",
+              "value": "28",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 다이 크기가 대형화(AI 칩 등)될 때 단순 포아송 수율 모델($Y = e^{-D_0 A}$)은 결함이 뭉쳐서 발생하는 클러스터링 효과를 반영하지 못해 실제 수율을 심각하게 과소평가함.\n- **물리/화학적 메커니즘:** 감마 결함 밀도 분포를 따르는 네거티브 바이노미얼 모델($Y = (1 + D_0 A / \\alpha)^{-\\alpha}$) 정립. $\\alpha$는 결함 클러스터링 모수로 웨이퍼 엣지 결함과 스크래치를 분리 보정.\n- **팹 실측 파라미터:** 칩 면적 $> 800\\ \\text{mm}^2$ 대형 GPU/AI 가속기 수율 예측 오차율을 기존 28%에서 $2.1\\%$ 이내로 정밀화."
+            },
+            {
+              "parameter": "개선 예측 오차",
+              "value": "2.1 이내",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 다이 크기가 대형화(AI 칩 등)될 때 단순 포아송 수율 모델($Y = e^{-D_0 A}$)은 결함이 뭉쳐서 발생하는 클러스터링 효과를 반영하지 못해 실제 수율을 심각하게 과소평가함.\n- **물리/화학적 메커니즘:** 감마 결함 밀도 분포를 따르는 네거티브 바이노미얼 모델($Y = (1 + D_0 A / \\alpha)^{-\\alpha}$) 정립. $\\alpha$는 결함 클러스터링 모수로 웨이퍼 엣지 결함과 스크래치를 분리 보정.\n- **팹 실측 파라미터:** 칩 면적 $> 800\\ \\text{mm}^2$ 대형 GPU/AI 가속기 수율 예측 오차율을 기존 28%에서 $2.1\\%$ 이내로 정밀화."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "결함이 고르게 퍼지지 않고 몰려 생기면 단순한 수율 계산이 맞지 않을 수 있습니다. 이 모델은 결함의 몰림을 반영합니다. 2.1%는 수율 그 자체가 아니라 특정 대형 칩 조건에서 예측한 값의 오차라는 점을 구분합니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "수율 모델",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "broadband-plasma-inspection",
+      "title": "광대역 플라즈마 결함 검사",
+      "engName": "Broadband Plasma Inspection",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "검사·계측",
+      "scaleLevel": 3,
+      "classificationNote": "광대역 플라즈마 결함 검사의 기술적 대상을 검사·계측에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "광대역 광원과 위상·편광 광학계를 사용해 깊은 3D 구조의 결함 신호를 검출하는 기술이다.",
+      "purpose": "3D NAND 및 FinFET/GAA의 깊은 트렌치 내부 결함은 전통적인 표면 레이저 산란 검사로 투과하여 검출할 수 없음.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** 레이저 펌핑 제논 플라즈마를 광원으로 사용하여 $190\\sim 450\\ \\text{nm}$ 초광대역 DUV 파장 방출. 위상차(Phase-contrast) 및 편광(Polarization) 광학계를 결합하여 고종횡비 구조물 바닥 결함 신호 선택 증폭.",
+      "evidenceQuote": "- **서지 정보:** B. Saville, K. Bhattacharyya et al. (KLA Corporation), *Proc. SPIE 12053, Metrology, Inspection, and Process Control*, 1205303, 2022. DOI: 10.1117/12.2613589",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "레이저 펌핑 제논 플라즈마를 광원으로 사용하여 190~ 450\\ nm 초광대역 DUV 파장 방출. 위상차(Phase-contrast) 및 편광(Polarization) 광학계를 결합하여 고종횡비 구조물 바닥 결함 신호 선택 증폭.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** 레이저 펌핑 제논 플라즈마를 광원으로 사용하여 $190\\sim 450\\ \\text{nm}$ 초광대역 DUV 파장 방출. 위상차(Phase-contrast) 및 편광(Polarization) 광학계를 결합하여 고종횡비 구조물 바닥 결함 신호 선택 증폭."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "3D NAND 및 FinFET/GAA의 깊은 트렌치 내부 결함은 전통적인 표면 레이저 산란 검사로 투과하여 검출할 수 없음.",
+          "evidenceQuote": "- **팹 양산 배경:** 3D NAND 및 FinFET/GAA의 깊은 트렌치 내부 결함은 전통적인 표면 레이저 산란 검사로 투과하여 검출할 수 없음."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "광대역 플라즈마 결함 검사: 등록 응용 논문 아카이브 22",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: 3D NAND 및 FinFET/GAA의 깊은 트렌치 내부 결함은 전통적인 표면 레이저 산란 검사로 투과하여 검출할 수 없음.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** $80:1$ 종횡비 트렌치 바닥의 $10\\ \\text{nm}$ 미세 파티클 및 보이드 검출 감도 $99.5\\%$ 확보.",
+          "specifications": [
+            {
+              "parameter": "DUV 파장 범위",
+              "value": "190~450",
+              "unit": "nm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 3D NAND 및 FinFET/GAA의 깊은 트렌치 내부 결함은 전통적인 표면 레이저 산란 검사로 투과하여 검출할 수 없음.\n- **물리/화학적 메커니즘:** 레이저 펌핑 제논 플라즈마를 광원으로 사용하여 $190\\sim 450\\ \\text{nm}$ 초광대역 DUV 파장 방출. 위상차(Phase-contrast) 및 편광(Polarization) 광학계를 결합하여 고종횡비 구조물 바닥 결함 신호 선택 증폭.\n- **팹 실측 파라미터:** $80:1$ 종횡비 트렌치 바닥의 $10\\ \\text{nm}$ 미세 파티클 및 보이드 검출 감도 $99.5\\%$ 확보."
+            },
+            {
+              "parameter": "대상 트렌치 종횡비",
+              "value": "80:1",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 3D NAND 및 FinFET/GAA의 깊은 트렌치 내부 결함은 전통적인 표면 레이저 산란 검사로 투과하여 검출할 수 없음.\n- **물리/화학적 메커니즘:** 레이저 펌핑 제논 플라즈마를 광원으로 사용하여 $190\\sim 450\\ \\text{nm}$ 초광대역 DUV 파장 방출. 위상차(Phase-contrast) 및 편광(Polarization) 광학계를 결합하여 고종횡비 구조물 바닥 결함 신호 선택 증폭.\n- **팹 실측 파라미터:** $80:1$ 종횡비 트렌치 바닥의 $10\\ \\text{nm}$ 미세 파티클 및 보이드 검출 감도 $99.5\\%$ 확보."
+            },
+            {
+              "parameter": "검출 대상 크기",
+              "value": "10",
+              "unit": "nm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 3D NAND 및 FinFET/GAA의 깊은 트렌치 내부 결함은 전통적인 표면 레이저 산란 검사로 투과하여 검출할 수 없음.\n- **물리/화학적 메커니즘:** 레이저 펌핑 제논 플라즈마를 광원으로 사용하여 $190\\sim 450\\ \\text{nm}$ 초광대역 DUV 파장 방출. 위상차(Phase-contrast) 및 편광(Polarization) 광학계를 결합하여 고종횡비 구조물 바닥 결함 신호 선택 증폭.\n- **팹 실측 파라미터:** $80:1$ 종횡비 트렌치 바닥의 $10\\ \\text{nm}$ 미세 파티클 및 보이드 검출 감도 $99.5\\%$ 확보."
+            },
+            {
+              "parameter": "원문 검출 감도",
+              "value": "99.5",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 3D NAND 및 FinFET/GAA의 깊은 트렌치 내부 결함은 전통적인 표면 레이저 산란 검사로 투과하여 검출할 수 없음.\n- **물리/화학적 메커니즘:** 레이저 펌핑 제논 플라즈마를 광원으로 사용하여 $190\\sim 450\\ \\text{nm}$ 초광대역 DUV 파장 방출. 위상차(Phase-contrast) 및 편광(Polarization) 광학계를 결합하여 고종횡비 구조물 바닥 결함 신호 선택 증폭.\n- **팹 실측 파라미터:** $80:1$ 종횡비 트렌치 바닥의 $10\\ \\text{nm}$ 미세 파티클 및 보이드 검출 감도 $99.5\\%$ 확보."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "입체 구조의 깊은 곳에 있는 결함은 표면만 보는 검사로 찾기 어려울 수 있습니다. 여러 파장의 빛과 신호 처리 광학계를 이용해 바닥 결함을 살피는 연구입니다. 감도 값은 표에 제시한 구조와 결함 크기의 평가 결과입니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "inspection-metrology",
+          "name": "계측 및 결함 검사",
+          "reason": "광대역 플라즈마 광원을 사용하는 반도체 결함 검사 방식이다.",
+          "evidenceQuote": "- **물리/화학적 메커니즘:** 레이저 펌핑 제논 플라즈마를 광원으로 사용하여 $190\\sim 450\\ \\text{nm}$ 초광대역 DUV 파장 방출. 위상차(Phase-contrast) 및 편광(Polarization) 광학계를 결합하여 고종횡비 구조물 바닥 결함 신호 선택 증폭."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "검사·계측",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "ultrapure-water",
+      "title": "초순수",
+      "engName": "Ultrapure Water",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "팹 유틸리티",
+      "scaleLevel": 5,
+      "classificationNote": "초순수의 기술적 대상을 팹 유틸리티에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "용존 산소·유기물·이온 등을 극히 낮게 관리한 반도체 공정용 물이다.",
+      "purpose": "3nm 이하의 금속 배선 및 에피택시 표면 세정 시 초순수에 잔류하는 미량의 용존 산소(DO)와 유기물(TOC)이 자연 산화막(SiO_2) 형성 및 계면 카본 오염을 유발하여 콘택 저항 폭증.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** 진공 막 탈기 모듈(Membrane Degasser)과 팔라듐 촉매 수소 환원탑의 직렬 결합을 통해 용존 산소를 물($\\text{H}_2\\text{O}$)로 분자 환원. 185nm 자외선 산화탑으로 TOC를 $\\text{CO}_2$로 광분해 후 이온교환수지로 흡착 제거.",
+      "evidenceQuote": "- **서지 정보:** M. Sugawara, Y. Shimizu et al. (Kurita Water & Ebara Corp), *ECS Transactions*, Vol. 102, No. 1, pp. 45–52, 2021. DOI: 10.1149/10201.0045ecst",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "진공 막 탈기 모듈(Membrane Degasser)과 팔라듐 촉매 수소 환원탑의 직렬 결합을 통해 용존 산소를 물(H_2O)로 분자 환원. 185nm 자외선 산화탑으로 TOC를 CO_2로 광분해 후 이온교환수지로 흡착 제거.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** 진공 막 탈기 모듈(Membrane Degasser)과 팔라듐 촉매 수소 환원탑의 직렬 결합을 통해 용존 산소를 물($\\text{H}_2\\text{O}$)로 분자 환원. 185nm 자외선 산화탑으로 TOC를 $\\text{CO}_2$로 광분해 후 이온교환수지로 흡착 제거."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "3nm 이하의 금속 배선 및 에피택시 표면 세정 시 초순수에 잔류하는 미량의 용존 산소(DO)와 유기물(TOC)이 자연 산화막(SiO_2) 형성 및 계면 카본 오염을 유발하여 콘택 저항 폭증.",
+          "evidenceQuote": "- **팹 양산 배경:** 3nm 이하의 금속 배선 및 에피택시 표면 세정 시 초순수에 잔류하는 미량의 용존 산소(DO)와 유기물(TOC)이 자연 산화막($\\text{SiO}_2$) 형성 및 계면 카본 오염을 유발하여 콘택 저항 폭증."
+        },
+        {
+          "title": "자료의 비저항 값 검증 범위",
+          "description": "25°C에서 18.25 MΩ·cm라는 자료의 표기를 유지했다. 물성 기준치의 정확성과 운영 규격은 원 자료에서 추가 확인해야 한다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** 생산 팹 인입 초순수 스펙: $\\text{DO} < 0.1\\ \\text{ppb}$, $\\text{TOC} < 0.5\\ \\text{ppb}$, 비저항 $18.25\\ \\text{M}\\Omega\\cdot\\text{cm}$ ($25^\\circ\\text{C}$ 이론적 극한치) 연속 유지."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "초순수: 등록 응용 논문 아카이브 23",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: 3nm 이하의 금속 배선 및 에피택시 표면 세정 시 초순수에 잔류하는 미량의 용존 산소(DO)와 유기물(TOC)이 자연 산화막(SiO_2) 형성 및 계면 카본 오염을 유발하여 콘택 저항 폭증.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** 생산 팹 인입 초순수 스펙: $\\text{DO} < 0.1\\ \\text{ppb}$, $\\text{TOC} < 0.5\\ \\text{ppb}$, 비저항 $18.25\\ \\text{M}\\Omega\\cdot\\text{cm}$ ($25^\\circ\\text{C}$ 이론적 극한치) 연속 유지.",
+          "specifications": [
+            {
+              "parameter": "용존 산소",
+              "value": "< 0.1",
+              "unit": "ppb",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 3nm 이하의 금속 배선 및 에피택시 표면 세정 시 초순수에 잔류하는 미량의 용존 산소(DO)와 유기물(TOC)이 자연 산화막($\\text{SiO}_2$) 형성 및 계면 카본 오염을 유발하여 콘택 저항 폭증.\n- **물리/화학적 메커니즘:** 진공 막 탈기 모듈(Membrane Degasser)과 팔라듐 촉매 수소 환원탑의 직렬 결합을 통해 용존 산소를 물($\\text{H}_2\\text{O}$)로 분자 환원. 185nm 자외선 산화탑으로 TOC를 $\\text{CO}_2$로 광분해 후 이온교환수지로 흡착 제거.\n- **팹 실측 파라미터:** 생산 팹 인입 초순수 스펙: $\\text{DO} < 0.1\\ \\text{ppb}$, $\\text{TOC} < 0.5\\ \\text{ppb}$, 비저항 $18.25\\ \\text{M}\\Omega\\cdot\\text{cm}$ ($25^\\circ\\text{C}$ 이론적 극한치) 연속 유지."
+            },
+            {
+              "parameter": "총유기탄소",
+              "value": "< 0.5",
+              "unit": "ppb",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 3nm 이하의 금속 배선 및 에피택시 표면 세정 시 초순수에 잔류하는 미량의 용존 산소(DO)와 유기물(TOC)이 자연 산화막($\\text{SiO}_2$) 형성 및 계면 카본 오염을 유발하여 콘택 저항 폭증.\n- **물리/화학적 메커니즘:** 진공 막 탈기 모듈(Membrane Degasser)과 팔라듐 촉매 수소 환원탑의 직렬 결합을 통해 용존 산소를 물($\\text{H}_2\\text{O}$)로 분자 환원. 185nm 자외선 산화탑으로 TOC를 $\\text{CO}_2$로 광분해 후 이온교환수지로 흡착 제거.\n- **팹 실측 파라미터:** 생산 팹 인입 초순수 스펙: $\\text{DO} < 0.1\\ \\text{ppb}$, $\\text{TOC} < 0.5\\ \\text{ppb}$, 비저항 $18.25\\ \\text{M}\\Omega\\cdot\\text{cm}$ ($25^\\circ\\text{C}$ 이론적 극한치) 연속 유지."
+            },
+            {
+              "parameter": "원문 제시 비저항",
+              "value": "18.25",
+              "unit": "MΩ·cm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 3nm 이하의 금속 배선 및 에피택시 표면 세정 시 초순수에 잔류하는 미량의 용존 산소(DO)와 유기물(TOC)이 자연 산화막($\\text{SiO}_2$) 형성 및 계면 카본 오염을 유발하여 콘택 저항 폭증.\n- **물리/화학적 메커니즘:** 진공 막 탈기 모듈(Membrane Degasser)과 팔라듐 촉매 수소 환원탑의 직렬 결합을 통해 용존 산소를 물($\\text{H}_2\\text{O}$)로 분자 환원. 185nm 자외선 산화탑으로 TOC를 $\\text{CO}_2$로 광분해 후 이온교환수지로 흡착 제거.\n- **팹 실측 파라미터:** 생산 팹 인입 초순수 스펙: $\\text{DO} < 0.1\\ \\text{ppb}$, $\\text{TOC} < 0.5\\ \\text{ppb}$, 비저항 $18.25\\ \\text{M}\\Omega\\cdot\\text{cm}$ ($25^\\circ\\text{C}$ 이론적 극한치) 연속 유지."
+            },
+            {
+              "parameter": "비저항 기준 온도",
+              "value": "25",
+              "unit": "°C",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 3nm 이하의 금속 배선 및 에피택시 표면 세정 시 초순수에 잔류하는 미량의 용존 산소(DO)와 유기물(TOC)이 자연 산화막($\\text{SiO}_2$) 형성 및 계면 카본 오염을 유발하여 콘택 저항 폭증.\n- **물리/화학적 메커니즘:** 진공 막 탈기 모듈(Membrane Degasser)과 팔라듐 촉매 수소 환원탑의 직렬 결합을 통해 용존 산소를 물($\\text{H}_2\\text{O}$)로 분자 환원. 185nm 자외선 산화탑으로 TOC를 $\\text{CO}_2$로 광분해 후 이온교환수지로 흡착 제거.\n- **팹 실측 파라미터:** 생산 팹 인입 초순수 스펙: $\\text{DO} < 0.1\\ \\text{ppb}$, $\\text{TOC} < 0.5\\ \\text{ppb}$, 비저항 $18.25\\ \\text{M}\\Omega\\cdot\\text{cm}$ ($25^\\circ\\text{C}$ 이론적 극한치) 연속 유지."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "세정수에 아주 적게 남은 산소나 유기물도 미세 표면의 상태를 바꿀 수 있어 별도로 관리합니다. ppb는 매우 낮은 농도를 나타내는 단위입니다. 비저항 값은 등록 아카이브가 제시한 값이며 기준 온도와 함께 읽고 실제 공급 규격은 별도로 확인해야 합니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "팹 유틸리티",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "plasma-thermal-scrubber",
+      "title": "플라즈마·열 융합 스크러버",
+      "engName": "Plasma Thermal Scrubber",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "배기·환경 설비",
+      "scaleLevel": 5,
+      "classificationNote": "플라즈마·열 융합 스크러버의 기술적 대상을 배기·환경 설비에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "플라즈마와 열·습식 처리를 조합해 팹 배기 가스를 분해·중화하는 설비 기술이다.",
+      "purpose": "건식 식각 챔버에서 배출되는 과불화탄소(PFCs: CF_4, C_4F_8, SF_6, NF_3)는 지구온난화지수(GWP)가 CO_2의 수천~수만 배에 달하며, 특히 C-F 결합 에너지가 높아 일반 버너로 분해 불가.",
+      "summaryEvidenceQuote": "- **물리/화학적 메커니즘:** 고주파 마이크로웨이브 플라즈마 토치($T > 2500\\ \\text{K}$)에 수증기($\\text{H}_2\\text{O}$)와 산소($\\text{O}_2$)를 동시 주입. 고에너지 전자 충돌로 C-F 결합을 직접 절단하고 수소/산소 라디칼과 반응시켜 $\\text{HF}$ 및 $\\text{CO}_2$로 완전 산화 전환 후 습식 스크러버로 중화 포집.",
+      "evidenceQuote": "- **서지 정보:** D. R. Anderson, J. T. Higgins et al. (GlobalFoundries EHS & SEMATECH), *Science of The Total Environment*, Vol. 838, Part 3, 156382, 2022. DOI: 10.1016/j.scitotenv.2022.156382",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등록 연구 요약의 작동 메커니즘",
+          "content": "고주파 마이크로웨이브 플라즈마 토치(T > 2500\\ K)에 수증기(H_2O)와 산소(O_2)를 동시 주입. 고에너지 전자 충돌로 C-F 결합을 직접 절단하고 수소/산소 라디칼과 반응시켜 HF 및 CO_2로 완전 산화 전환 후 습식 스크러버로 중화 포집.",
+          "formula": null,
+          "evidenceQuote": "- **물리/화학적 메커니즘:** 고주파 마이크로웨이브 플라즈마 토치($T > 2500\\ \\text{K}$)에 수증기($\\text{H}_2\\text{O}$)와 산소($\\text{O}_2$)를 동시 주입. 고에너지 전자 충돌로 C-F 결합을 직접 절단하고 수소/산소 라디칼과 반응시켜 $\\text{HF}$ 및 $\\text{CO}_2$로 완전 산화 전환 후 습식 스크러버로 중화 포집."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문이 제시한 적용 배경·제약",
+          "description": "건식 식각 챔버에서 배출되는 과불화탄소(PFCs: CF_4, C_4F_8, SF_6, NF_3)는 지구온난화지수(GWP)가 CO_2의 수천~수만 배에 달하며, 특히 C-F 결합 에너지가 높아 일반 버너로 분해 불가.",
+          "evidenceQuote": "- **팹 양산 배경:** 건식 식각 챔버에서 배출되는 과불화탄소(PFCs: $\\text{CF}_4, \\text{C}_4\\text{F}_8, \\text{SF}_6, \\text{NF}_3$)는 지구온난화지수(GWP)가 $\\text{CO}_2$의 수천~수만 배에 달하며, 특히 C-F 결합 에너지가 높아 일반 버너로 분해 불가."
+        },
+        {
+          "title": "표제와 본문 수치 차이",
+          "description": "스크러버 제목은 99.9%이나 본문은 CF4 DRE >99.5%로 적었다. 본문 평가값을 사례에 보존하고 차이를 남긴다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** 가장 안정한 $\\text{CF}_4$ 가스 분해 제거 효율(DRE, Destruction Removal Efficiency) $> 99.5\\%$, 온실가스 규제 배출 한도 완전 충족."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "플라즈마·열 융합 스크러버: 등록 응용 논문 아카이브 24",
+          "perspectiveBadge": "로컬 응용 논문 요약",
+          "narrative": "등록 아카이브가 요약한 적용 조건: 건식 식각 챔버에서 배출되는 과불화탄소(PFCs: CF_4, C_4F_8, SF_6, NF_3)는 지구온난화지수(GWP)가 CO_2의 수천~수만 배에 달하며, 특히 C-F 결합 에너지가 높아 일반 버너로 분해 불가.",
+          "caution": "제공된 로컬 아카이브의 요약 조건·비교 결과다. 원 논문 전문·서지 진위·실제 양산 채택 및 보편적 공정 허용값은 외부 확인하지 않았다.",
+          "evidenceQuote": "- **팹 실측 파라미터:** 가장 안정한 $\\text{CF}_4$ 가스 분해 제거 효율(DRE, Destruction Removal Efficiency) $> 99.5\\%$, 온실가스 규제 배출 한도 완전 충족.",
+          "specifications": [
+            {
+              "parameter": "플라즈마 토치 온도",
+              "value": "> 2500",
+              "unit": "K",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 건식 식각 챔버에서 배출되는 과불화탄소(PFCs: $\\text{CF}_4, \\text{C}_4\\text{F}_8, \\text{SF}_6, \\text{NF}_3$)는 지구온난화지수(GWP)가 $\\text{CO}_2$의 수천~수만 배에 달하며, 특히 C-F 결합 에너지가 높아 일반 버너로 분해 불가.\n- **물리/화학적 메커니즘:** 고주파 마이크로웨이브 플라즈마 토치($T > 2500\\ \\text{K}$)에 수증기($\\text{H}_2\\text{O}$)와 산소($\\text{O}_2$)를 동시 주입. 고에너지 전자 충돌로 C-F 결합을 직접 절단하고 수소/산소 라디칼과 반응시켜 $\\text{HF}$ 및 $\\text{CO}_2$로 완전 산화 전환 후 습식 스크러버로 중화 포집.\n- **팹 실측 파라미터:** 가장 안정한 $\\text{CF}_4$ 가스 분해 제거 효율(DRE, Destruction Removal Efficiency) $> 99.5\\%$, 온실가스 규제 배출 한도 완전 충족."
+            },
+            {
+              "parameter": "원문 CF4 분해 제거 효율",
+              "value": "> 99.5",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **팹 양산 배경:** 건식 식각 챔버에서 배출되는 과불화탄소(PFCs: $\\text{CF}_4, \\text{C}_4\\text{F}_8, \\text{SF}_6, \\text{NF}_3$)는 지구온난화지수(GWP)가 $\\text{CO}_2$의 수천~수만 배에 달하며, 특히 C-F 결합 에너지가 높아 일반 버너로 분해 불가.\n- **물리/화학적 메커니즘:** 고주파 마이크로웨이브 플라즈마 토치($T > 2500\\ \\text{K}$)에 수증기($\\text{H}_2\\text{O}$)와 산소($\\text{O}_2$)를 동시 주입. 고에너지 전자 충돌로 C-F 결합을 직접 절단하고 수소/산소 라디칼과 반응시켜 $\\text{HF}$ 및 $\\text{CO}_2$로 완전 산화 전환 후 습식 스크러버로 중화 포집.\n- **팹 실측 파라미터:** 가장 안정한 $\\text{CF}_4$ 가스 분해 제거 효율(DRE, Destruction Removal Efficiency) $> 99.5\\%$, 온실가스 규제 배출 한도 완전 충족."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "식각 뒤 나오는 일부 가스는 안정해 일반 열처리만으로 분해하기 어렵습니다. 플라즈마로 결합을 끊고 반응 생성물을 후단에서 중화·포집하는 설명입니다. 제목의 99.9%와 본문의 >99.5%가 달라 본문 평가값을 보존하며 실제 배출 규정 충족 여부는 확인하지 않았습니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "배기·환경 설비",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "bit-line",
+      "title": "비트라인",
+      "engName": "BIT LINE",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "소자·전기 구조",
+      "scaleLevel": 2,
+      "classificationNote": "기존 등록 개념의 확정 분류를 유지한 관계 보강 기여이다.",
+      "summary": "DRAM 셀의 비트라인 배선으로, 원문은 비트라인 사이 간격 축소에 따른 기생 커패시턴스와 센싱 마진을 설명한다.",
+      "purpose": "",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "isA": [],
+      "partOf": [
+        {
+          "id": "dram",
+          "name": "DRAM",
+          "reason": "추가 전문 재독한 13번의 DRAM 비트라인 에어갭 항목이 DRAM의 비트라인 구조와 비트라인 사이 피치를 직접 설명한다. 일반 메모리 경로를 무조건 DRAM으로 제한하지 않고 이 명시적 DRAM 맥락에서 구성 관계를 제안한다. 대상 등록명은 DRAM이다.",
+          "evidenceQuote": "## 6. 1b/1c nm DRAM 비트라인 기생 용량 저감 선택적 에어갭(Air Gap) 공정 (2023)\n- **서지 정보:** H. S. Song, Y. N. Heo et al. (SK hynix Memory Division), *IEEE International Electron Devices Meeting (IEDM)*, pp. 312–315, 2023. DOI: 10.1109/IEDM83203.2023.10413812\n- **팹 양산 배경:** 비트라인(Bitline) 간 피치가 $30\\ \\text{nm}$ 이하로 좁아짐에 따라 비트라인 간 기생 커패시턴스($C_b$)가 급증하여 센스 앰프의 신호 감지 마진($\\Delta V \\propto C_s / (C_s + C_b)$)이 붕괴됨.\n- **물리/화학적 메커니즘:** 비트라인 측벽에 희생 절연막을 증착/식각한 후 상부 절연막 플라즈마 CVD 증착 시 불량한 스텝 커버리지(Pinch-off) 특성을 의도적으로 제어하여 비트라인 사이에 진공/공기층($k=1.0$)을 영구 밀봉.\n- **팹 실측 파라미터:** $C_b$ 기생 용량 $28\\%$ 감쇄, DRAM 센싱 마진 $35\\ \\text{mV}$ 추가 확보, 고속 동작 tRCD 15% 개선."
+        }
+      ],
+      "nextSteps": [],
+      "previousSteps": [],
+      "alternatives": []
+    }
+  ]
+}

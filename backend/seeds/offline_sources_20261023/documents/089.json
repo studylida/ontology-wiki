@@ -1,0 +1,80 @@
+{
+  "index": 89,
+  "filePath": "samsung/glossary/반도체-용어-사전led편-형광체.md",
+  "sourceHash": "7d9d80a7eafc8f01b737e8b6a6546886789dbcbe12550fc86e6c6de45f76ab02",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1452,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 빈 파서 후보를 대조해 실제 개념명·정의·명시된 적용 상황을 보완했다. 설명 예시를 실측 사양으로 바꾸지 않고 수치 없는 사례도 보존했다. "
+  },
+  "concepts": [
+    {
+      "conceptId": "phosphor",
+      "title": "형광체",
+      "engName": "Phosphor",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "발광 소재",
+      "scaleLevel": 1,
+      "classificationNote": "형광체의 원문 정의에 따라 발광 소재에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "LED 칩에서 나오는 빛의 색깔을 변화시키는 데 쓰이는 물질이다. LED 칩은 화합물의 에너지 준위 차이에 따라 특정 파장의 빛을 내므로 원하는 색을 얻는 데 형광체를 사용한다.",
+      "purpose": "LED에서 원하는 빛의 색을 얻는다.",
+      "summaryEvidenceQuote": "LED칩에서 나온 빛의 색깔을 변화시키는 데에 사용되는 물질.",
+      "evidenceQuote": "LED칩에서 나온 빛의 색깔을 변화시키는 데에 사용되는 물질.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "브라운관 내벽의 적·녹·청 형광체",
+          "perspectiveBadge": "TV·컴퓨터 모니터 브라운관",
+          "narrative": "TV나 컴퓨터 모니터 등의 브라운관 내벽에 적색·녹색·청색의 빛의 3원색으로 구성된 형광체를 도포한다.",
+          "caution": "",
+          "evidenceQuote": "LED칩은 구성하고 있는 화합물의 에너지 준위 차이에 따라 특정 파장(색)의 빛을 발하기 때문에 원하는 빛의 색을 얻기 위해서는 형광체가 필요하다. 예를 들어, TV나 컴퓨터 모니터 등의 브라운관 내벽에는 적색, 녹색, 청색 등 빛의 3원색으로 구성된 형광체를 도포하며, 조명용 백색 LED는 파란색 빛을 발하는 LED칩에 노란색 형광체를 사용하여 백색을 구현한다.",
+          "specifications": [
+            {
+              "parameter": "빛의 원색 수",
+              "value": "3",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "LED칩은 구성하고 있는 화합물의 에너지 준위 차이에 따라 특정 파장(색)의 빛을 발하기 때문에 원하는 빛의 색을 얻기 위해서는 형광체가 필요하다. 예를 들어, TV나 컴퓨터 모니터 등의 브라운관 내벽에는 적색, 녹색, 청색 등 빛의 3원색으로 구성된 형광체를 도포하며, 조명용 백색 LED는 파란색 빛을 발하는 LED칩에 노란색 형광체를 사용하여 백색을 구현한다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "브라운관 내벽의 형광체를 이용해 빛의 색을 구현하는 원문의 적용 예시이다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "파란 LED 칩과 노란 형광체를 이용한 백색 조명",
+          "perspectiveBadge": "조명용 백색 LED",
+          "narrative": "원문은 조명용 백색 LED가 파란색 빛을 내는 LED 칩에 노란색 형광체를 사용하여 백색을 구현한다고 설명한다.",
+          "caution": "",
+          "evidenceQuote": "LED칩은 구성하고 있는 화합물의 에너지 준위 차이에 따라 특정 파장(색)의 빛을 발하기 때문에 원하는 빛의 색을 얻기 위해서는 형광체가 필요하다. 예를 들어, TV나 컴퓨터 모니터 등의 브라운관 내벽에는 적색, 녹색, 청색 등 빛의 3원색으로 구성된 형광체를 도포하며, 조명용 백색 LED는 파란색 빛을 발하는 LED칩에 노란색 형광체를 사용하여 백색을 구현한다.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "원래 파란빛을 내는 LED 칩에 형광체를 함께 사용해 백색을 만드는 상황을 설명한다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "purposeEvidenceQuote": "LED칩은 구성하고 있는 화합물의 에너지 준위 차이에 따라 특정 파장(색)의 빛을 발하기 때문에 원하는 빛의 색을 얻기 위해서는 형광체가 필요하다. 예를 들어, TV나 컴퓨터 모니터 등의 브라운관 내벽에는 적색, 녹색, 청색 등 빛의 3원색으로 구성된 형광체를 도포하며, 조명용 백색 LED는 파란색 빛을 발하는 LED칩에 노란색 형광체를 사용하여 백색을 구현한다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "발광 소재",
+          "scaleLevel": 1
+        }
+      ]
+    }
+  ]
+}

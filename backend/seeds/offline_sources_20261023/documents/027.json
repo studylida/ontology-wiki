@@ -1,0 +1,54 @@
+{
+  "index": 27,
+  "filePath": "samsung/glossary/반도체-용어-사전-mcu.md",
+  "sourceHash": "f1ddba27c6bedb02a423d8095bbed4a1734028f55a8a2459e67032c6e5eda65b",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1418,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. "
+  },
+  "concepts": [
+    {
+      "conceptId": "mcu",
+      "title": "마이크로컨트롤러",
+      "engName": "Micro Controller Unit",
+      "aliases": [
+        "MCU",
+        "원 칩 컴퓨터",
+        "마이컴"
+      ],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 4,
+      "classificationNote": "여러 기능을 통합한 시스템 또는 패키지를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "CPU와 관련 모듈을 하나의 칩에 집적하여 기계·전자장치와 특정 시스템을 제어하는 시스템 반도체이다.",
+      "purpose": "기기 조작과 단순 기능부터 특수 기능까지 제품의 특성을 제어한다.",
+      "summaryEvidenceQuote": "특정 기계장치나 전자장치의 제어를 위해 하나의 칩에 CPU와 관련 모듈을 집적시킨 시스템 반도체로,  작은 컴퓨터 역할을 하고 있어 원 칩(One Chip) 컴퓨터 또는 마이컴이라 불리기도 한다.",
+      "evidenceQuote": "특정 기계장치나 전자장치의 제어를 위해 하나의 칩에 CPU와 관련 모듈을 집적시킨 시스템 반도체로,  작은 컴퓨터 역할을 하고 있어 원 칩(One Chip) 컴퓨터 또는 마이컴이라 불리기도 한다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "system-semiconductor",
+          "name": "시스템 반도체",
+          "reason": "본문이 CPU와 모듈을 통합한 시스템 반도체로 정의한다.",
+          "evidenceQuote": "특정 기계장치나 전자장치의 제어를 위해 하나의 칩에 CPU와 관련 모듈을 집적시킨 시스템 반도체로,  작은 컴퓨터 역할을 하고 있어 원 칩(One Chip) 컴퓨터 또는 마이컴이라 불리기도 한다."
+        }
+      ],
+      "purposeEvidenceQuote": "MCU는 전자제품의 두뇌역할을 하는 핵심 칩으로, 단순 기능부터 특수한 기능에 이르기까지 제품의 다양한 특성을 컨트롤하는 역할을 한다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 4
+        }
+      ]
+    }
+  ]
+}

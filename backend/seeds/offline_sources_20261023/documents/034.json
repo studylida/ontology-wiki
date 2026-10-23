@@ -1,0 +1,85 @@
+{
+  "index": 34,
+  "filePath": "samsung/glossary/반도체-용어-사전-ssd-solid-state-drive.md",
+  "sourceHash": "1d7150171135dab7cdde80a5ad295b644d677021684e2e5367d5d73d3aa72910",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1840,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. 2013년 본문의 DRAM 포함 구성 설명은 해당 원문 설명으로 보존하며 모든 SSD가 DRAM을 필수 탑재한다고 확대하지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "ssd",
+      "title": "SSD",
+      "engName": "Solid State Drive",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "반도체 저장 장치",
+      "scaleLevel": 4,
+      "classificationNote": "여러 기능을 통합한 시스템 또는 패키지를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "낸드플래시 등 메모리 반도체를 저장매체로 사용하여 운영체제와 데이터를 보관하는 대용량 보조기억장치이다.",
+      "purpose": "컴퓨터 운영체제와 데이터를 저장하며 HDD를 대체한다.",
+      "summaryEvidenceQuote": "메모리 반도체를 저장매체로 사용하는 차세대 대용량 저장장치.",
+      "evidenceQuote": "메모리 반도체를 저장매체로 사용하는 차세대 대용량 저장장치.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "기계 구동 없는 비휘발성 저장",
+          "content": "모터 없이 낸드플래시에 기록하여 속도와 안정성을 높이고 발열·소음·전력소모를 줄이며 소형·경량화한다. 낸드플래시는 전원을 꺼도 데이터를 유지한다.",
+          "formula": null,
+          "evidenceQuote": "SSD는 모터와 같은 기계적인 장치없이 낸드 플래시 메모리에 정보를 저장하기 때문에 빠른 속도와 높은 안정성을 가지고 있다."
+        },
+        {
+          "step": 2,
+          "title": "저장·제어·캐시 구성",
+          "content": "원문은 데이터 저장용 NAND, 인터페이스와 메모리 사이 교환을 제어하는 컨트롤러, 캐시 역할의 DRAM을 주요 구성으로 설명한다.",
+          "formula": null,
+          "evidenceQuote": "SSD는 크게 데이터 저장용 메모리인 낸드 플래시(NAND Flash), 인터페이스와 메모리 사이의 데이터 교환 작업을 제어하는 컨트롤러(Controller), 외부 장치와 캐시메모리 역할을 하는 DRAM으로 구성된다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "PC와 데이터센터 저장장치",
+          "perspectiveBadge": "노트북·데스크톱·데이터센터",
+          "narrative": "노트북과 데스크톱 PC에 사용되며 데이터센터에서 증가하는 데이터를 저장·관리하는 핵심 저장장치로 이용된다고 설명한다.",
+          "caution": "",
+          "evidenceQuote": "최근 고성능 보급형 SSD가 출시되면서 노트북이나 데스크탑 PC에 사용되고 있으며, 빅데이터 시대에 급증하는 데이터를 저장 및 관리하기 위한 데이터센터의 핵심 저장 장치로 이용되고 있다.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "개인용 컴퓨터와 큰 데이터센터 모두 운영체제와 데이터를 보관할 저장장치가 필요하다는 적용 맥락이다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "hdd",
+          "name": "하드디스크드라이브",
+          "reason": "같은 보조기억 용도를 대체하는 장치이다.",
+          "evidenceQuote": "HDD(Hard Disk Drive)를 대체해 컴퓨터의 운영체제(OS)와 데이터를 저장하는 보조기억장치로, 반도체 칩에 정보가 저장된다고 하여 SSD로 불린다."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "secondary-storage",
+          "name": "보조기억장치",
+          "reason": "본문이 OS와 데이터를 보관하는 보조기억장치로 설명한다.",
+          "evidenceQuote": "HDD(Hard Disk Drive)를 대체해 컴퓨터의 운영체제(OS)와 데이터를 저장하는 보조기억장치로, 반도체 칩에 정보가 저장된다고 하여 SSD로 불린다."
+        }
+      ],
+      "purposeEvidenceQuote": "HDD(Hard Disk Drive)를 대체해 컴퓨터의 운영체제(OS)와 데이터를 저장하는 보조기억장치로, 반도체 칩에 정보가 저장된다고 하여 SSD로 불린다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 4
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,320 @@
+{
+  "index": 10,
+  "filePath": "research_institutes/tier1_landmark_02_memory_3dnand_hbm.md",
+  "sourceHash": "c266f63a77734350d337cc99d1fce161f2a7b1afa899a0146234790d098f22ae",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 3327,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체를 끝까지 읽고 빈 파서 후보를 정정·보완했다. 원리·관계의 의미 및 사례·조건별 수치 귀속을 검토했다. 등록된 로컬 아카이브 요약만 검토했으며 인용된 원 논문의 전문·DOI 실재·최신 표준 판본은 외부 확인하지 않았다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "bics",
+      "title": "BiCS 3D NAND",
+      "engName": "Bit Cost Scalable NAND",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "비휘발성 메모리 구조",
+      "scaleLevel": 2,
+      "classificationNote": "BiCS 3D NAND의 기술적 대상을 비휘발성 메모리 구조에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "게이트·절연막을 적층한 뒤 수직 홀을 뚫고 채널과 ONO를 채우는 Punch and Plug 기반 3D NAND 구조이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 게이트 전극 층과 절연막 층을 다층으로 먼저 일괄 증착한 뒤, **단 한 번의 식각으로 수직 관통 홀(Memory Hole)을 뚫고(Punch), 그 안에 실리콘 채널과 산화막-질화막-산화막(ONO)을 채워 넣는(Plug)** 파괴적 혁신 공법 제안.",
+      "evidenceQuote": "- 게이트 전극 층과 절연막 층을 다층으로 먼저 일괄 증착한 뒤, **단 한 번의 식각으로 수직 관통 홀(Memory Hole)을 뚫고(Punch), 그 안에 실리콘 채널과 산화막-질화막-산화막(ONO)을 채워 넣는(Plug)** 파괴적 혁신 공법 제안.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "Punch and Plug",
+          "content": "다층막을 먼저 증착하고 수직 관통 홀을 일괄 형성한 뒤 실리콘 채널과 ONO를 채운다.",
+          "formula": null,
+          "evidenceQuote": "- 게이트 전극 층과 절연막 층을 다층으로 먼저 일괄 증착한 뒤, **단 한 번의 식각으로 수직 관통 홀(Memory Hole)을 뚫고(Punch), 그 안에 실리콘 채널과 산화막-질화막-산화막(ONO)을 채워 넣는(Plug)** 파괴적 혁신 공법 제안."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "평면 NAND의 축소 한계",
+          "description": "등록 요약은 15nm 이하 셀 간격에서 크로스토크와 전하 누설을 평면 NAND의 한계로 설명한다.",
+          "evidenceQuote": "- 2D 평면 낸드에서 셀 간격이 15nm 이하로 좁아짐에 따른 인접 셀 간 기생 정전용량 누설(Cross-talk) 및 플로팅 게이트 전하 누설 한계."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "nand-flash",
+          "name": "낸드 플래시",
+          "reason": "수직 적층 NAND 구조이다.",
+          "evidenceQuote": "### [LM-06] 3D NAND의 기원: BiCS 기술 최초 제안 (2007 IEDM)"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "비휘발성 메모리 구조",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "v-nand",
+      "title": "수직 적층 NAND",
+      "engName": "Vertical NAND",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "수직 적층 NAND의 기술적 대상을 비휘발성 메모리 구조에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전하 트랩과 원통형 게이트를 결합해 메모리 셀을 수직 적층하는 NAND 구조이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 플로팅 게이트(도체)의 전하 누설 및 식각 종횡비 한계를 극복하기 위해, 절연체인 실리콘 질화막($Si_3N_4$)의 깊은 트랩 준위에 전자를 비휘발성으로 포획하는 **CTF (Charge Trap Flash)** 기술을 3차원 원통형 게이트(GAA 형상)와 결합.",
+      "evidenceQuote": "- 플로팅 게이트(도체)의 전하 누설 및 식각 종횡비 한계를 극복하기 위해, 절연체인 실리콘 질화막($Si_3N_4$)의 깊은 트랩 준위에 전자를 비휘발성으로 포획하는 **CTF (Charge Trap Flash)** 기술을 3차원 원통형 게이트(GAA 형상)와 결합.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "삼성 TCAT·초기 V-NAND 아카이브의 성능 비교",
+          "perspectiveBadge": "Samsung / 등록 논문 요약",
+          "narrative": "등록 아카이브의 2009/2013 TCAT·초기 24단 V-NAND 설명이며 성능 비교 대상은 2D NAND이다.",
+          "caution": "등록된 초기 TCAT/V-NAND 요약의 비교값으로 한정한다.",
+          "evidenceQuote": "- 2D 낸드 대비 쓰기(Program) 속도 **2배 이상 향상**, 소비 전력 **50% 이상 절감**, 쓰기 내구성(Endurance) **10배 이상 향상(30,000회 이상)**.",
+          "specifications": [
+            {
+              "parameter": "2D NAND 대비 프로그램 속도",
+              "value": "2배 이상",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 2D 낸드 대비 쓰기(Program) 속도 **2배 이상 향상**, 소비 전력 **50% 이상 절감**, 쓰기 내구성(Endurance) **10배 이상 향상(30,000회 이상)**."
+            },
+            {
+              "parameter": "2D NAND 대비 전력 절감",
+              "value": "50 이상",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 2D 낸드 대비 쓰기(Program) 속도 **2배 이상 향상**, 소비 전력 **50% 이상 절감**, 쓰기 내구성(Endurance) **10배 이상 향상(30,000회 이상)**."
+            },
+            {
+              "parameter": "2D NAND 대비 내구성 향상",
+              "value": "10배 이상",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 2D 낸드 대비 쓰기(Program) 속도 **2배 이상 향상**, 소비 전력 **50% 이상 절감**, 쓰기 내구성(Endurance) **10배 이상 향상(30,000회 이상)**."
+            },
+            {
+              "parameter": "원문 제시 쓰기 내구성",
+              "value": "30,000 이상",
+              "unit": "회",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 2D 낸드 대비 쓰기(Program) 속도 **2배 이상 향상**, 소비 전력 **50% 이상 절감**, 쓰기 내구성(Endurance) **10배 이상 향상(30,000회 이상)**."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "실리콘 질화막 안에 전자를 붙잡아 데이터를 저장하고 셀을 위로 쌓는 방식의 초기 연구·제품 설명입니다. 표의 배수는 2D NAND와 비교한 값이며 서로 다른 세대의 모든 제품에 공통으로 적용되는 성능 보장은 아닙니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "비휘발성 메모리 구조",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "puc",
+      "title": "셀 하부 주변회로",
+      "engName": "Peri Under Cell",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "비휘발성 메모리 구조",
+      "scaleLevel": 2,
+      "classificationNote": "셀 하부 주변회로의 기술적 대상을 비휘발성 메모리 구조에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "주변 구동 회로를 셀 어레이 아래에 배치해 다이의 평면 점유를 줄이는 NAND 구조이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 기판 위에 페리 회로를 먼저 만들고, 그 위에 절연막을 덮은 뒤 메모리 셀 어레이를 옥상처럼 올려 쌓는 **PUC (Peri-Under-Cell)** 구조 완성.",
+      "evidenceQuote": "- 기판 위에 페리 회로를 먼저 만들고, 그 위에 절연막을 덮은 뒤 메모리 셀 어레이를 옥상처럼 올려 쌓는 **PUC (Peri-Under-Cell)** 구조 완성.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "SK하이닉스 96단 PUC 아카이브의 Net Die 개선",
+          "perspectiveBadge": "SK hynix / 등록 논문 요약",
+          "narrative": "2018 아카이브는 주변회로를 어레이 아래로 옮겨 웨이퍼당 정상 칩 수를 늘린다고 설명한다.",
+          "caution": "2018년 96단 PUC 아카이브 요약이며 최신 제품 수치로 일반화하지 않는다.",
+          "evidenceQuote": "- **정량 실측 데이터**: 동일 웨이퍼 한 장당 생산 가능한 정상 칩 수(Net Die) **30% 이상 증가**, 칩 사이즈 축소로 생산성 극대화.",
+          "specifications": [
+            {
+              "parameter": "동일 웨이퍼 Net Die 증가",
+              "value": "30 이상",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **정량 실측 데이터**: 동일 웨이퍼 한 장당 생산 가능한 정상 칩 수(Net Die) **30% 이상 증가**, 칩 사이즈 축소로 생산성 극대화."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "칩 옆에 있던 주변회로를 메모리 셀 아래로 옮겨 같은 웨이퍼에서 더 많은 칩을 얻는 구조입니다. Net Die 증가는 웨이퍼당 얻는 칩 수에 대한 설명이며 전송 속도가 그만큼 빨라졌다는 뜻은 아닙니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "3d-nand",
+          "name": "3D NAND",
+          "reason": "3D NAND 메모리에서 주변회로를 셀 어레이 아래에 놓는 내부 배치를 설명하므로 PUC는 3D NAND의 구성 구조이다.",
+          "evidenceQuote": "기판 위에 페리 회로를 먼저 만들고, 그 위에 절연막을 덮은 뒤 메모리 셀 어레이를 옥상처럼 올려 쌓는 **PUC (Peri-Under-Cell)** 구조 완성."
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "비휘발성 메모리 구조",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "hbm",
+      "title": "고대역폭 메모리",
+      "engName": "High Bandwidth Memory",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "적층 메모리",
+      "scaleLevel": 4,
+      "classificationNote": "고대역폭 메모리의 기술적 대상을 적층 메모리에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "DRAM 다이를 TSV로 적층하고 넓은 데이터 버스로 연결해 대역폭을 확보하는 메모리 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 4개의 2Gb DRAM 다이를 실리콘 관통 전극(TSV)으로 수직 관통하여 1024비트의 초광대역 버스 폭(Wide I/O)을 구축하고, 실리콘 인터포저 위에서 GPU와 직접 2.5D 병렬 연결.",
+      "evidenceQuote": "- 4개의 2Gb DRAM 다이를 실리콘 관통 전극(TSV)으로 수직 관통하여 1024비트의 초광대역 버스 폭(Wide I/O)을 구축하고, 실리콘 인터포저 위에서 GPU와 직접 2.5D 병렬 연결.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "2014 SK하이닉스·AMD 초기 HBM 아카이브",
+          "perspectiveBadge": "SK hynix / AMD / 등록 논문 요약",
+          "narrative": "4개의 2Gb DRAM과 TSV·2.5D 인터포저를 사용한 초기 HBM 실증을 기록한다.",
+          "caution": "등록된 초기 HBM 논문 요약이며 최신 세대 사양을 나타내지 않는다.",
+          "evidenceQuote": "- 작동 전압 **1.2V**, 대역폭 **128 GB/s** (당시 최고속 GDDR5 대비 대역폭 4배 이상, 대역폭당 전력 효율 2배 이상 우수).",
+          "specifications": [
+            {
+              "parameter": "적층 구성",
+              "value": "4 × 2Gb",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 4개의 2Gb DRAM 다이를 실리콘 관통 전극(TSV)으로 수직 관통하여 1024비트의 초광대역 버스 폭(Wide I/O)을 구축하고, 실리콘 인터포저 위에서 GPU와 직접 2.5D 병렬 연결."
+            },
+            {
+              "parameter": "버스 폭",
+              "value": "1024",
+              "unit": "bit",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 4개의 2Gb DRAM 다이를 실리콘 관통 전극(TSV)으로 수직 관통하여 1024비트의 초광대역 버스 폭(Wide I/O)을 구축하고, 실리콘 인터포저 위에서 GPU와 직접 2.5D 병렬 연결."
+            },
+            {
+              "parameter": "작동 전압",
+              "value": "1.2",
+              "unit": "V",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 작동 전압 **1.2V**, 대역폭 **128 GB/s** (당시 최고속 GDDR5 대비 대역폭 4배 이상, 대역폭당 전력 효율 2배 이상 우수)."
+            },
+            {
+              "parameter": "대역폭",
+              "value": "128",
+              "unit": "GB/s",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 작동 전압 **1.2V**, 대역폭 **128 GB/s** (당시 최고속 GDDR5 대비 대역폭 4배 이상, 대역폭당 전력 효율 2배 이상 우수)."
+            },
+            {
+              "parameter": "당시 GDDR5 대비 대역폭",
+              "value": "4배 이상",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 작동 전압 **1.2V**, 대역폭 **128 GB/s** (당시 최고속 GDDR5 대비 대역폭 4배 이상, 대역폭당 전력 효율 2배 이상 우수)."
+            },
+            {
+              "parameter": "대역폭당 전력 효율",
+              "value": "2배 이상",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 작동 전압 **1.2V**, 대역폭 **128 GB/s** (당시 최고속 GDDR5 대비 대역폭 4배 이상, 대역폭당 전력 효율 2배 이상 우수)."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "HBM은 여러 DRAM을 위로 쌓고 많은 데이터 길을 나란히 마련해 한 번에 오가는 데이터량을 늘립니다. 이 표는 2014년 초기 실증에 관한 수치입니다. 현재 HBM 제품 사양과 섞지 않고, 대역폭과 동작 전압을 다른 항목으로 읽는 것이 중요합니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "적층 메모리",
+          "scaleLevel": 4
+        }
+      ]
+    }
+  ]
+}

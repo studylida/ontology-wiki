@@ -1,0 +1,6026 @@
+{
+  "method": "codex-offline-concept-scale-review",
+  "externalModelCalls": 0,
+  "scope": "All registered definitions and principles; linked original sections rechecked for corrections and boundaries. Read scope is recorded per reviewer, not claimed as complete corpus rereading.",
+  "labels": {
+    "1": "원자·양자·재료 물성",
+    "2": "박막·소자·회로·패키지",
+    "3": "공정·레시피",
+    "4": "설비·시스템·모듈",
+    "5": "팹·운영·인프라"
+  },
+  "concepts": [
+    {
+      "conceptId": "2-5d-ic",
+      "oldScale": 4,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "현재 정의는 인터포저 위에 여러 다이를 배치한 집적회로 자체이다. 여러 다이가 있어도 반도체 집적회로·패키지 구조이므로 2이며 제조설비나 완성 컴퓨팅 장치가 아니다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "an integrated circuit (IC) formed by placing multiple integrated circuit (IC) dies side by side on an interposer, although some 2.5D ICs use some vertical stacking; may use through silicon vias (TSVs) in the interposer",
+          "sourceHash": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291"
+        }
+      ]
+    },
+    {
+      "conceptId": "3d-ic",
+      "oldScale": 4,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "웨이퍼·다이를 수직 적층해 TSV로 연결한 집적회로 제품·구조이다. 입체적이라는 이유로 시스템·설비 규모로 올리지 않고 집적회로 규모인 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "an integrated circuit (IC), formed by stacking wafers and/or dies vertically (three-dimensional) and connecting them electrically using through-silicon vias (TSVs)",
+          "sourceHash": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291"
+        }
+      ]
+    },
+    {
+      "conceptId": "3d-nand",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "현재 정의의 대상은 셀을 수직으로 배치한 메모리 소자 구조이며, 제작 단계의 설명이 있어도 소자 자체를 뜻하므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "3d-transistor",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "수직으로 형성한 트랜지스터의 형상과 구조를 뜻하므로 소자·구조에 해당하는 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "4f2",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "4F²라는 명칭의 숫자가 아니라 특정 DRAM 셀 구조가 대상이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "accelerated-test",
+      "oldScale": 5,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "가혹한 조건을 인위적으로 가해 열화·고장을 재현하는 구체적인 시험 방식이다. 품질보증 조직 전체가 아니라 검사·평가 절차 자체이므로 3이다.",
+      "evidence": [
+        {
+          "documentIndex": 121,
+          "quote": "하지만 수년에 달하는 제품의 수명을 실제 시간 그대로 기다려 신뢰성을 검증할 수는 없다. 따라서 실제 사용 환경보다 훨씬 가혹한 조건을 인위적으로 가해, 장기간에 걸쳐 나타날 수 있는 열화와 고장을 단기간에 재현하는 ‘가속 시험’ 방식을 활용한다. 극한의 스트레스 환경을 미리 조성해 제품의 내구성과 잠재적인 고장 요인을 미리 확인하는 것이다.",
+          "sourceHash": "70c5df391b61fb4acc2b6166ff0a370fe0d65d3fcd33619a614e5b62c04a2f15"
+        }
+      ]
+    },
+    {
+      "conceptId": "active-cooling-device",
+      "oldScale": 3,
+      "newScale": 4,
+      "decision": "change",
+      "reason": "열을 전기적·기계적 작용으로 제거하는 냉각 장치 자체를 정의한다. 제조 레시피가 아니며 소자 접합 구조도 특정하지 않으므로 장치·시스템 대상인 4로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 125,
+          "quote": "* 능동 냉각 소자: 반도체 칩이나 패키지에서 발생하는 열을 전기적 또는 기계적 작용을 통해 적극적으로 제거하는 장치"
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "conceptId": "adsorption",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "분자·원자가 고체 표면에 붙는 기초 표면 현상 자체를 정의하므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "advanced-packaging",
+      "oldScale": 4,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "원문은 와이어 본딩을 넘어선 여러 반도체 패키징 기술을 묶어 정의한다. 패키지 제품이 아닌 제조·조립 기술군이므로 3이다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "a term encompassing modern semiconductor packaging technologies that go beyond traditional wire bonding to achieve higher performance smaller form factors and improved thermal management; includes fan out wafer level packaging (FOWLP), system-in-package, and various 2.5D and 3D integration methods",
+          "sourceHash": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291"
+        }
+      ]
+    },
+    {
+      "conceptId": "ai-inference",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "uncertain",
+      "reason": "인공신경망이 문제를 푸는 계산 동작으로, 현재는 메모리·연산 장치가 결합한 AI 실행 맥락의 4이다. 물리적 소자 크기로 유일하게 대응시키기 어렵고 제조 절차도 아니므로 변경하지 않는다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "ai-training",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "uncertain",
+      "reason": "연결 강도를 갱신하는 학습 알고리즘과 이를 수행하는 메모리·연산 시스템의 맥락을 함께 가진다. 제조 공정과 혼동해 3으로 옮기지 않고 물리 규모가 유일하지 않아 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "ai-training-storage",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "keep",
+      "reason": "원본·가공 학습 데이터를 보관하고 서버에 공급하는 저장 시스템이다. 개별 메모리 칩이 아니라 저장 장치와 전송 경로를 포함하므로 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "air-gap",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "절연막 사이에 형성된 공기층의 배선 절연 구조를 뜻하며 공기 재료 자체의 물성이 대상이 아니므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "ald",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "전구체의 순차적 자기제한 반응을 반복해 박막을 형성하는 증착 절차이므로 3을 유지한다. 원자층이라는 명칭은 원자 물성이나 결과 박막을 정의한다는 뜻이 아니다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "all-flash-storage",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "keep",
+      "reason": "다수의 낸드플래시·SSD를 엮은 고속 대용량 저장 시스템이므로 완성 장치·시스템 규모인 4가 맞다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "alu",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "CPU 내부의 산술·논리 연산 회로가 대상이므로 완성 컴퓨팅 시스템이나 제조장비가 아닌 회로 규모 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "aluminum-interconnect",
+      "oldScale": 3,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "현재 정의의 대상은 알루미늄을 사용한 배선 자체이다. 별도 개념인 알루미늄 배선 패터닝과 달리 단계나 레시피를 정의하지 않으므로 배선 구조에 해당하는 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 99,
+          "quote": "대표적인 반도체용 금속 배선 재료로는 알루미늄(Al)이 있습니다. 산화막(Silicon Dioxide)과의 부착성이 좋고 가공성이 뛰어나기 때문입니다."
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "conceptId": "aluminum-interconnect-patterning",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "금속막 형성·노광·식각·유전체 채움의 순서를 가진 배선 제조 방식이므로 3을 유지한다. 완성된 알루미늄 배선 구조와 구분한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "analog-computing-in-memory",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "uncertain",
+      "reason": "메모리 셀 전류의 회로 동작과 셀·비셀·페이지의 시스템 공동 최적화를 함께 설명한다. 단일 소자·회로 구조 2와 연산 체계 4의 경계가 있어 정의를 축소하지 않고 기존 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "analog-ic",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "현재 정의는 아날로그 신호를 변환하는 집적회로형 시스템 반도체를 설명하므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "anamorphic-optics",
+      "oldScale": 3,
+      "newScale": 4,
+      "decision": "change",
+      "reason": "수평·수직 축소 배율을 달리한 투영 광학계가 대상이다. 노광 실행 절차가 아니라 스캐너의 광학 하부 시스템이므로 4로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 2,
+          "quote": "- 그림자 효과를 극복하기 위해 축소 투영 배율을 수평과 수직으로 비대칭 설계:"
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "conceptId": "angstrom",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "옹스트롬은 길이의 환산 단위이며 해당 단위가 쓰이는 공정이나 장비가 대상이 아니므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "anisotropic",
+      "oldScale": 1,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "현재 정의는 결정이나 재료의 방향별 물성이 아니라 반도체 제조 공정이 특정 방향으로 진행되는 특성이다. 해당 공정의 방향성 조건을 뜻하므로 3으로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "in semiconductor manufacturing, a term used to describe a process that is directional (versus isotropic, or uniformly in all directions)"
+        }
+      ]
+    },
+    {
+      "conceptId": "anisotropic-cooling-material",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "방향에 따른 열전도율 차이로 구분하는 소재이므로 사용처인 패키지나 냉각 설비 규모로 올리지 않고 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "anisotropic-etching",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "특정 방향에서 반응이 잘 일어나도록 재료를 제거하는 식각 방식이므로 3을 유지한다. 비등방성 물성 일반이나 완성된 형상을 뜻하지 않는다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "anneal",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "제어된 가열로 재료 성질을 바꾸는 제조 열처리 절차를 정의하므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "anti-reflective-layer",
+      "oldScale": 1,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "현재 정의는 광흡수 재료 자체가 아니라 웨이퍼의 반사 재료 위에 증착되어 있는 얇은 층을 대상으로 한다. 형성된 박막 구조이므로 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "a thin layer of light-absorbing material deposited on top of reflective materials on the wafer to improve photolithography results"
+        }
+      ]
+    },
+    {
+      "conceptId": "apc",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "원문은 팹의 외부 분석 엔진과 장비 제어기 사이의 공정 분석·보정을 다룬다. 개별 레시피보다 팹 호스트·장비 연계 운영 체계의 맥락이므로 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "artificial-neural-network",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "keep",
+      "reason": "다수의 뉴런과 계층을 연결한 프로그램 구조로 입력·출력을 처리하는 계산 체계이다. 원자 물성이나 제조 절차가 아니라 시스템 구조 맥락의 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "ashable-hardmask",
+      "oldScale": 1,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "탄소라는 원소나 재료 물성이 아니라 하부층을 보호하고 애싱으로 제거할 수 있는 실제 패터닝 막을 정의하므로 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "a carbon-based patterning film often used for its ability to provide better selectivity to and protection of underlying layers than conventional photoresist; easily removed by a dry process, such as ashing"
+        }
+      ]
+    },
+    {
+      "conceptId": "ashing",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "열·플라스마로 유기물과 레지스트를 제거하는 스트립 단계이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "asic",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "특정 용도에 맞추어 제작한 집적회로 제품의 종류이며 설계·제작 절차 자체가 대상이 아니므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "aspect-ratio",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "uncertain",
+      "reason": "현재 정의는 일반 형상의 높이·폭 비율이지만 관련 원문들은 식각·증착 피처의 공정 관리 치수로도 사용한다. 기하 물성 1과 공정 조건 지표 3 사이의 범위가 혼재하므로 오류로 단정하지 않고 3을 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "- **Definition**: the comparison of the height to the width of a geometric shape (for example, 20:1)"
+        }
+      ],
+      "notes": "문헌 7은 관련 표제어 절만 원문 대조했다. documentsRead의 characters는 그 절들의 합계이며 sha256은 원문 파일 전체의 바이트 해시이다."
+    },
+    {
+      "conceptId": "atomic-layer-etching",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "순차적 자기제한 반응으로 재료를 소수 원자층씩 제거하는 제조 절차이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "back-end",
+      "oldScale": 5,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "패키징과 소자 시험을 포함하는 제조 마무리 공정군이다. 생산사업체나 라인 운영체계가 아니라 공정 단계의 집합이므로 3이다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "the set of process steps including packaging (external connection) and device testing that complete semiconductor manufacturing; follows front end processes",
+          "sourceHash": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291"
+        }
+      ]
+    },
+    {
+      "conceptId": "back-side-illumination",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "웨이퍼 후면을 통해 빛을 받아들이도록 한 이미지센서 픽셀의 수광 구조가 대상이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "backpropagation",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "uncertain",
+      "reason": "신경망 가중치를 조정하는 수치 학습 방법이다. 모델 전체 학습의 맥락에서 4를 사용하고 있으며 물리 규모가 없는 알고리즘을 제조 공정 3으로 옮길 근거가 없어 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "band-gap",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "재료의 전자 에너지 준위 차이인 밴드 갭을 정의하며 LED 구조나 제조 절차가 아니므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "barc",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "현재 정의는 레지스트 도포 전에 바르는 반사 억제 물질의 역할을 설명한다. 형성된 층 구조보다 소재 기능이 정의의 중심이므로 1을 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 117,
+          "quote": "이는 미세화가 크게 진척되자 노광기에서 나온 빛이 웨이퍼에서 반사돼 패턴 형성에 영향을 주기 시작해 나온 아이디어로 포토레지스트를 도포하기 전, 미리 웨이퍼 표면에 발라서 빛의 반사를 막아주는 물질이다(포토레지스트 아래에 있으므로 Bottom이다)."
+        }
+      ]
+    },
+    {
+      "conceptId": "bare-wafer",
+      "oldScale": 1,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "가공 전이라는 상태가 붙은 웨이퍼를 뜻한다. 실리콘 원소나 원재료 조성이 아니라 회로를 형성할 원판 기판 자체이므로 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 93,
+          "quote": "가공 전의 웨이퍼를 아직 옷을 입지 않은 상태라는 의미로 베어 웨이퍼(Bare wafer)라고 합니다."
+        }
+      ]
+    },
+    {
+      "conceptId": "barrier",
+      "oldScale": 1,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "두 재료 사이에 실제로 증착하는 얇은 층이 정의의 대상이다. 상호작용 차단 기능을 가진 박막 구조이므로 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "a thin layer deposited between two materials to prevent their interaction"
+        }
+      ]
+    },
+    {
+      "conceptId": "barrier-metal",
+      "oldScale": 1,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "알루미늄과 웨이퍼 접합면 사이에 형성된 금속 장벽막을 정의한다. 금속 원소 일반이 아니라 접합부의 박막 구조이므로 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 99,
+          "quote": "알루미늄과 웨이퍼 접합면 사이에 장벽(Barrier) 역할을 하는 금속을 증착하는데, 이를 베리어 메탈(Barrier Metal)이라고 합니다."
+        }
+      ]
+    },
+    {
+      "conceptId": "beol",
+      "oldScale": 4,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "트랜지스터와 접점을 만든 뒤 배선 구조를 형성하는 공정 단계 집합이다. 배선 완제품이나 설비가 아니라 배선 제조 공정군이므로 3이다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "the set of steps that form the interconnect structures (wiring); follows front-end-of-line (transistors) and middle-of-line (contacts) processes",
+          "sourceHash": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291"
+        }
+      ]
+    },
+    {
+      "conceptId": "bert",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "uncertain",
+      "reason": "자연어 처리 신경망 모델이라는 가상 계산 대상이다. 검색·컴퓨팅 시스템의 맥락은 있으나 소자 규모로 유일하게 대응시킬 수 없어 기존 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "bevel",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "웨이퍼 가장자리의 둥글거나 경사진 영역이라는 물리적 기판 구조를 뜻하므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "bevel-clean",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "웨이퍼 가장자리의 불필요한 재료를 건식 또는 습식으로 제거하는 세정 공정이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "bevel-deposition",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "베벨을 보호하는 막을 형성하는 증착 방식이 대상이므로 3을 유지한다. Coronus 장비나 형성된 보호막 자체와 구별한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "bevel-etching",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "베벨 잔류물을 제거하여 입자 이동 결함을 줄이는 식각 작업이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "bics",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "게이트·절연막과 수직 채널로 구성되는 3D NAND 소자 구조가 대상이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "bit-line",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "메모리 셀의 소스·드레인을 연결하는 배선 경로 자체가 대상이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "bjt",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "접합형 트랜지스터라는 반도체 소자의 종류이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "blu",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "keep",
+      "reason": "LCD 뒷면에서 고르게 조명하는 광원 유닛이며 하나의 LED 소자와 구별되는 디스플레이 하부 모듈이므로 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "bottleneck",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "설비·공정에 물량이 몰려 전체 생산 흐름을 지연시키는 라인 운영 현상이므로 5가 맞다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "bragg-multilayer-optics",
+      "oldScale": 3,
+      "newScale": 4,
+      "decision": "change",
+      "reason": "Mo/Si 다층막 거울들을 사용하여 EUV를 반사·투영하는 광학계가 대상이다. 다층막을 만드는 증착 공정과 구별되는 노광 장비의 광학 시스템이므로 4로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 2,
+          "quote": "- 빛이 유리를 투과할 수 없으므로, 독일 자이스(Carl Zeiss)와 공동 개발한 **다층막 반사 거울**만을 사용."
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "conceptId": "branch-predictor",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "현재 정의는 CPU 내부의 분기 예측 디지털 회로를 대상으로 하므로 일반 예측 알고리즘으로 의미를 바꾸지 않고 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "broadband-plasma-inspection",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "현재 정의는 광원·광학계를 이용하여 3D 구조의 결함 신호를 검출하는 검사 기술이다. 광학 장치가 원리에 포함되어도 특정 장비 제품 자체가 대상은 아니므로 검사 공정 3을 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 13,
+          "quote": "- **물리/화학적 메커니즘:** 레이저 펌핑 제논 플라즈마를 광원으로 사용하여 $190\\sim 450\\ \\text{nm}$ 초광대역 DUV 파장 방출. 위상차(Phase-contrast) 및 편광(Polarization) 광학계를 결합하여 고종횡비 구조물 바닥 결함 신호 선택 증폭."
+        }
+      ],
+      "notes": "문헌 13은 연구 요약 11·18·22절만 대조했다. characters는 이 발췌 절들의 합계이며 원 논문 검증이나 전문 재독을 뜻하지 않는다."
+    },
+    {
+      "conceptId": "bspdn",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "uncertain",
+      "reason": "원문별로 후면 배선 구조와 이를 만드는 배선·박막화·접합 공정을 함께 설명한다. 현재 정의의 방식이라는 표현만으로 구조 2와 제조 통합 3 중 하나를 확정하기 어려워 기존 4를 유지하고 경계를 남긴다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "bump",
+      "oldScale": 1,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "접속 소재라는 표현을 쓰지만 실제 정의와 원문 문맥은 적층 칩을 전기적으로 잇는 범프 접속부이다. 소재 조성보다 형성된 패키지 연결 구조를 뜻하므로 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 128,
+          "quote": "* 범프(Bump): 수직 적층된 칩과 회로를 연결할 때, 각 칩을 전기적으로 연결하고 가교 역할을 하는 소재"
+        },
+        {
+          "documentIndex": 128,
+          "quote": "그림에서 볼 수 있듯이 솔더 범프는 약 100㎛(마이크로미터), 마이크로 범프는 약 20㎛ 수준인데, Cu–Cu 하이브리드 본딩에서는 피치가 약 1㎛ 이하까지 줄어든다."
+        }
+      ],
+      "notes": "원문에 적힌 피치 수치는 실제 연결 구조 문맥을 확인하는 근거이며 분류 단계의 길이 경계로 사용하지 않았다."
+    },
+    {
+      "conceptId": "cache-memory",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "CPU 등에 내장하는 고속 저장 메모리 구조를 뜻하므로 메모리 소자·회로에 해당하는 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "capacitance",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "전하량과 전압 사이 비율로 정의하는 전기적 물리량이며 커패시터 부품 자체와 구별되므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "capacitively-coupled-plasma",
+      "oldScale": 3,
+      "newScale": 4,
+      "decision": "change",
+      "reason": "원문은 RF 전원에 연결한 두 전극으로 구성되는 플라스마 소스의 유형이라고 정의한다. 재료 제거 레시피가 아니라 플라스마 공급 하부 시스템의 구조·동작이므로 4로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "- **Definition**: a type of plasma source in which the plasma is formed between two electrodes, typically closely spaced, which are connected to an RF power supply (one may also be connected to ground)"
+        }
+      ],
+      "notes": "문헌 7은 관련 표제어 절만 원문 대조했다. documentsRead의 characters는 그 절들의 합계이며 sha256은 원문 파일 전체의 바이트 해시이다."
+    },
+    {
+      "conceptId": "capacitor",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "절연체를 사이에 둔 도체판으로 전하를 저장하는 부품이며 정전용량이라는 물성 자체와 구별되므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "capillary-underfill",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "모세관 흐름으로 칩과 기판 사이에 수지를 침투시켜 범프 주변을 채우는 조립 절차이므로 3을 유지한다. 언더필 소재나 완성된 충진 구조를 정의하지 않는다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "ccd-image-sensor",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "이미지 정보를 전기 신호로 바꾸는 촬상 소자의 종류이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "ccfl-blu",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "keep",
+      "reason": "냉음극형광램프를 광원으로 갖춘 백라이트 모듈이 직접 대상이므로 디스플레이 하부 모듈 규모 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "cell-to-cell-interference",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "uncertain",
+      "reason": "원문은 저장 전자의 전기장이 이웃 셀에 영향을 주는 현상과 소자 판독 오류를 함께 설명한다. 기초 전자 현상인 1과 소자 동작 특성인 2 사이가 불명확하여 기존 2를 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 127,
+          "quote": "셀 크기를 줄이고, 위아래 셀 간 거리를 좁혀 밀도를 높일수록 더 많은 용량을 구현할 수 있지만, 셀 간 간섭(Cell to Cell Interference)이 심해진다. 셀 속 전자가 형성하는 전기장이 인접한 셀에 영향을 주는 것인데, 이에 따라 ▲문턱전압 왜곡 ▲전자 이동의 오류가 발생한다."
+        }
+      ],
+      "notes": "현재 정의의 의미를 바꾸지 않고 경계를 표시했다. 명백한 오류만 수정하는 요청에 따라 기존값을 유지한다."
+    },
+    {
+      "conceptId": "cfet",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "nMOS와 pMOS를 수직으로 적층한 트랜지스터 구조를 뜻하므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "channel",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "전자나 정공이 지나가며 게이트로 전류가 제어되는 소자 내부 전도 경로이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "charge-trap-isolation",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "현재 원리에는 질화막 식각·포켓 형성·CTN 채움 및 대안적 장벽 증착의 제조 단계가 들어 있다. 격리 결과 구조도 언급하지만 현재 추출 개념은 CTN을 분리하여 구현하는 기술을 설명하므로 3을 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 127,
+          "quote": "신규 CTI는 산화물 절연체 장벽(Oxide Barrier)을 ‘증착’해 포켓을 형성하고, 그 공간에 CTN 물질을 채우는 방식이다. 실리콘 질화막을 식각하지 않으므로 채널 홀 크기가 늘어나지 않는다. 낸드 집적도를 해치지 않으면서 CTI 구조를 구현할 수 있게 된 것이다. 또한 증착 공정은 식각 대비 채널 홀 상하부 크기의 균일도 확보에 유리하다. 연구에서는 176단 전체에서 균일한 특성 분포를 달성했는데, 이로써 기존의 들쭉날쭉한 공정 문제를 해결하고 양산성을 입증했다."
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "conceptId": "charge-trap-nitride",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "질화물 화학종 자체가 아니라 질화막에 전자를 저장해 셀 상태를 제어하는 메모리 저장 구조가 현재 대상이므로 2를 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 127,
+          "quote": "* CTN(Charge Trap Nitride): 전자(데이터)를 부도체인 질화막(Nitride)에 저장하는 기술. 도체에 저장하는 플로팅 게이트(Floating Gate) 기술 대비 단위당 셀 면적을 줄이면서도 읽기 · 쓰기 성능을 높일 수 있는 것이 특징"
+        }
+      ],
+      "notes": "재료 명칭이나 제조 원리보다 현재 정의가 설명하는 소자·막·부품의 구조적 역할을 기준으로 판단했다."
+    },
+    {
+      "conceptId": "chemical-etching",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "반응 물질을 선택해 대상 물질을 화학적으로 제거하는 제조 방식이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "chemically-amplified-resist",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "산 촉매 반응으로 광감도를 높이는 감광 재료의 종류를 정의한다. 베이크 절차가 원리에 포함되어도 대상은 소재이므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "chiplet",
+      "oldScale": 4,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "현재 정의는 별도 제조 후 조합하는 기능별 회로 블록이다. 칩렛 설계 생태계나 이를 조합한 완성 컴퓨팅 시스템 전체가 아니라 개별 칩·회로 블록이므로 2이다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "functional circuit blocks, often reusable intellectual property (IP) blocks, that are manufactured and recombined on a high-density interconnect",
+          "sourceHash": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291"
+        }
+      ]
+    },
+    {
+      "conceptId": "cleanroom",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "오염·습도·온도를 관리하는 반도체 제조용 밀폐 공간으로 시설 인프라에 해당하므로 5가 맞다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "cmos",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "상보적인 p형·n형 MOSFET을 조합한 논리 회로 방식이 대상이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "cmos-image-sensor",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "빛을 전기 신호로 바꾸는 감광 픽셀과 증폭 회로를 집적한 이미지센서 소자이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "cmp",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "슬러리의 화학 작용과 가압·회전 마찰을 결합해 웨이퍼를 평탄화하는 공정이므로 3을 유지한다. CMP 장비 플랫폼이나 슬러리 소재를 뜻하지 않는다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "cnt-pellicle-capping",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "원문이 명시한 대상은 CNT 웹에 산화방지층을 ALD로 코팅하여 열화를 억제하는 처리 기술이다. CNT 펠리클 부품이나 캡핑층의 재료 자체와 구별되므로 3을 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 13,
+          "quote": "- **물리/화학적 메커니즘:** 자립형(Free-standing) 다중벽 CNT 웹에 $1\\sim 2\\ \\text{nm}$ 두께의 $\\text{MoSi}_2 / \\text{Ru}$ 산화방지 캡핑층 ALD 코팅. 열 방사율($\\varepsilon > 0.4$) 극대화."
+        }
+      ],
+      "notes": "문헌 13은 연구 요약 11·18·22절만 대조했다. characters는 이 발췌 절들의 합계이며 원 논문 검증이나 전문 재독을 뜻하지 않는다."
+    },
+    {
+      "conceptId": "color-bin",
+      "oldScale": 5,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "LED 패키지를 색상 특성으로 구분하는 품질 분류 기준이다. 공장 운영 전체나 산업 사업체가 아니라 제품 특성의 선별·관리 지표이므로 3이다.",
+      "evidence": [
+        {
+          "documentIndex": 86,
+          "quote": "빈(Bin)이란 LED 패키지를 특성에 따라 나누는 것을 의미하는 것으로 컬러빈은 빛의 색상에 따라 패키지를 구분하는 것이다.",
+          "sourceHash": "f3d5e9186021e87dba3318656dfc642381bcbbe159a1c298795edb01f4589f4e"
+        }
+      ]
+    },
+    {
+      "conceptId": "color-gamut",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "디스플레이가 표현하는 색영역의 광학적 특성값이며 제조 공정의 조건이나 품질 관리 지표를 정의하지 않으므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "color-rendering-index",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "광원의 색 재현 성질을 나타내는 광학 물리 지표이므로 조명 제품이나 검사 공정의 규모로 옮기지 않고 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "color-temperature",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "흑체 온도를 이용해 광색을 나타내는 광학 물리량 자체가 대상이므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "computational-lithography",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "uncertain",
+      "reason": "회절·간섭 왜곡을 계산해 마스크와 조명을 최적화하는 알고리즘 기술군이다. 제조를 지원하는 계산 절차인 3과 노광 소프트웨어·제어 시스템인 4의 경계가 있으며 현재 정의가 독립 시스템을 특정하지 않으므로 3을 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 2,
+          "quote": "  - 특정 회로 패턴에 최적화된 맞춤형 조명 동공(Pupil) 형태(다이폴, 쿼드러폴 등)와 마스크 형상을 수학적 알고리즘으로 동시 합성."
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "conceptId": "computational-memory",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "uncertain",
+      "reason": "전류·전도 특성을 이용하는 단순 회로와 이를 묶은 뉴로모픽 연산 체계가 함께 설명된다. 대상 범위를 회로 하나로 좁혀 2로 옮기지 않고 시스템 맥락의 기존 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "computing-in-memory",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "uncertain",
+      "reason": "메모리 내부뿐 아니라 가까운 곳의 연산까지 포괄하는 접근이다. 단일 칩 내부 회로와 다중 부품의 연산 시스템을 모두 포함하므로 기존 시스템 맥락의 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "conductor",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "자유전자와 전기전도성으로 구분하는 재료의 정의이므로 실제 금속 배선 구조와 구별하여 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "conductor-etching",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "전기적으로 활성인 구성요소의 형상을 만드는 재료 제거 공정이므로 3을 유지한다. 형성되는 트랜지스터 구조와 다르다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "conformal",
+      "oldScale": 1,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "현재 정의는 재료 고유 물성이 아니라 굴곡진 피처 표면에 형성된 막의 두께가 일정한 피복 결과를 뜻한다. 증착 공정의 피복 품질 특성이므로 3으로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "a term used to describe uniform coverage of a layer of material over pre-existing topography; thickness of the layer remains the same everywhere on the surface of the feature"
+        }
+      ]
+    },
+    {
+      "conceptId": "contact",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "트랜지스터와 배선을 연결하는 전도성 접점 구조이며 접점을 제조하는 공정 자체가 대상이 아니므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "contact-silicide",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "현재 정의는 실리사이드 화학 물질 일반이 아니라 소자층과 금속 접점 사이의 계면 부위라는 구조를 뜻하므로 2를 유지한다.",
+      "evidence": [],
+      "notes": "재료 명칭이나 제조 원리보다 현재 정의가 설명하는 소자·막·부품의 구조적 역할을 기준으로 판단했다."
+    },
+    {
+      "conceptId": "copper-interconnect",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "회로 구성요소를 구리로 연결한 배선 구조이며 구리 원소의 물성이 대상이 아니므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "copper-overburden",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "원문은 비아·트렌치 충전 뒤 웨이퍼 위에 남은 과잉 증착 구리를 설명한다. 구리 원소 자체가 아니라 형성된 잔여 금속층이므로 2를 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "excess copper deposited on top of the wafer after filling vias and trenches; later removed using chemical-mechanical planarization (CMP)"
+        }
+      ],
+      "notes": "재료 명칭이나 제조 원리보다 현재 정의가 설명하는 소자·막·부품의 구조적 역할을 기준으로 판단했다."
+    },
+    {
+      "conceptId": "cowos",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "uncertain",
+      "reason": "현재 정의는 로직·HBM을 연결한 2.5D 집적 플랫폼이고 다른 원문은 패키징 방식으로 설명한다. 패키지 구조 2와 제조 방식 3이 혼용되어 대상 정의를 몰래 바꾸지 않고 기존 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "cpu",
+      "oldScale": 4,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "기준 정의와 원문이 CPU를 로직 칩의 한 종류라고 명시한다. 연산 기능을 통합한다는 사실로 컴퓨터 장비 자체가 되지 않으므로 칩 규모 2이다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "a type of logic chip; also called a central processing unit (CPU)",
+          "sourceHash": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291"
+        }
+      ]
+    },
+    {
+      "conceptId": "critical-dimension",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "최소 피처 폭을 정밀하게 형성·관리해야 하는 공정 치수 지표이므로 3을 유지한다. 실제 치수라는 이유만으로 물성 1이나 소자 구조 2로 옮기지 않는다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "cryogenic-etching",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "온도를 낮춰 식각 반응과 방향성을 조절하는 재료 제거 기법이므로 3을 유지한다. Flex·Vantex는 이 공정을 지원하는 별도 장비 사례이다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "cte-mismatch",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "이종 재료의 열팽창계수 차이에서 생기는 열기계적 현상을 정의한다. 크랙 검사 절차나 패키지 구조 자체가 대상은 아니므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "cuda",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "keep",
+      "reason": "GPU 프로그램 개발을 지원하는 소프트웨어 도구이다. 개별 반도체 칩이 아니라 컴퓨팅 시스템을 개발·실행하는 도구 맥락이므로 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "cvd",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "가스 화학반응을 제어하여 박막을 형성하는 증착 방법이므로 3을 유지한다. 열·플라스마·광 에너지 구분도 공정 실행 방식의 차이이다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "cxl",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "keep",
+      "reason": "CPU·메모리·확장 장치 사이의 데이터 공유·확장을 위한 인터페이스로 시스템 간 연결·동작 기술이므로 4가 맞다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "damascene",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "절연층 패턴 식각 후 금속을 채우고 여분을 연마해 배선을 만드는 제조 흐름이므로 3을 유지한다. 결과 구리 배선 구조와 구별한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "data-augmentation",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "uncertain",
+      "reason": "학습 데이터를 변형하는 알고리즘이다. 신경망 학습 시스템 맥락의 기존 4는 가능하지만 물리 규모가 고정되지 않으므로 유지하고 불확실성을 기록한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "ddi",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "디스플레이 부화소를 제어하는 집적회로 칩이므로 제조장비나 디스플레이 시스템 전체가 아닌 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "deep-reactive-ion-etching",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "고종횡비 피처를 깊게 식각하는 RIE 제조 기법이므로 3을 유지한다. Syndion이라는 지원 제품명이 정의에 등장해도 장비 자체가 대상은 아니다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "deep-silicon-etching",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "실리콘의 깊고 좁은 피처를 형성하는 방향성 플라스마 식각이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "defect",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "uncertain",
+      "reason": "원문은 입자·잔류물 오염과 보이드 같은 구조적 흠을 하나의 결함 개념에 포괄한다. 물질/구조 대상인 1·2와 공정 불량 관리 맥락인 3이 혼재하므로 명백한 단일 대체 규모를 정하지 않고 3을 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "- **Definition**: any contamination (such as particles or residues) or structural flaw (such as voids); can negatively impact device performance and/or yield"
+        }
+      ],
+      "notes": "문헌 7은 관련 표제어 절만 원문 대조했다. documentsRead의 characters는 그 절들의 합계이며 sha256은 원문 파일 전체의 바이트 해시이다."
+    },
+    {
+      "conceptId": "defectivity",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "결함의 수량·크기·유형을 목표나 허용 수준과 비교하는 공정 품질 지표이므로 3을 유지한다. 결함 실체 자체와 구별한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "deposition",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "기판 위에 박막을 형성하고 조건을 조절하는 제조 활동이므로 3을 유지한다. 생성된 박막이나 증착 장비 자체의 크기를 기준으로 분류하지 않는다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "deposition-uniformity",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "증착막 두께의 위치별 일관성을 나타내는 해당 공정 품질 지표이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "descum",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "트렌치 바닥 등에 남은 얇은 유기 잔류물을 제거하는 제조 세정 단계이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "die",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "웨이퍼 위에 형성된 개별 전자회로 칩 또는 절단한 베어칩을 뜻하므로 칩 구조에 해당하는 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "die-attach",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "절단한 칩을 리드프레임·PCB 위에 옮겨 부착하는 조립 단계이므로 3을 유지한다. 칩이나 기판 제품 자체를 뜻하지 않는다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "die-repair",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "전기 검사에서 수선 가능으로 판정된 칩을 수선하는 EDS 단계이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "die-to-wafer-hybrid-bonding",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "양품 다이를 선별하여 웨이퍼에 붙이는 접합 방식이므로 3을 유지한다. 접합 후 적층 패키지 구조를 정의하지 않는다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "dielectric-etching",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "절연 구조를 형성하기 위해 유전체 재료를 제거하는 식각 공정이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "diffraction-based-overlay",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "회절 정보를 이용해 층간 정렬 오차를 측정하는 계측 기술이므로 3을 유지한다. YieldStar 장비나 보정 시스템 전체를 현재 개념의 대상으로 확대하지 않는다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "diffusion-barrier-film",
+      "oldScale": 1,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "현재 정의는 구리 확산을 막는 재료 조성 일반이 아니라 배선 형성 영역에 씌운 보호 박막이다. 실제 확산 차단층 구조이므로 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 119,
+          "quote": "이를 방지하고자 구리 배선을 도포할 영역에 구리가 통과하지 못하는 일종의 보호막을 씌우는데, 여기에 고품질 박막이 필요했다."
+        }
+      ]
+    },
+    {
+      "conceptId": "digital-circuit",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "전압·전류를 논리값으로 구분하여 처리하는 회로 자체가 대상이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "digital-twin",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "uncertain",
+      "reason": "공정 또는 물리 자산의 가상 표현으로, 모델링할 대상이 개별 장비인지 시설인지 고정되어 있지 않다. 설계·유지보수 운영 맥락의 기존 5를 유일한 오류로 단정할 수 없어 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "diode",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "정류·발광 등 전기적 기능을 수행하는 반도체 소자이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "direct-blu",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "keep",
+      "reason": "블록별 LED 점멸로 명암비를 조절하는 디스플레이 백라이트 모듈이다. 개별 LED 패키지와 구별되는 유닛이므로 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "direct-immersion-cooling",
+      "oldScale": 3,
+      "newScale": 4,
+      "decision": "change",
+      "reason": "칩·패키지를 절연성 액체에 담그거나 흐름에 두어 동작 중 열을 제거하는 냉각 방식이다. 반도체를 제조하는 액침 공정이 아니라 열 관리 시스템의 동작 기술이므로 4로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 125,
+          "quote": "* 다이렉트 액침: 반도체 칩이나 패키지 전체를 전기 절연 특성을 가진 액체(Diel­ectric fluid) 속에 통째로 담그거나 혹은 그 흐름 속에 두어, 칩에서 발생한 열을 액체를 통해 직접 제거하는 냉각 방식"
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "conceptId": "directed-self-assembly-dsa",
+      "oldScale": 2,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "원문은 블록 공중합체를 사용하여 패턴을 정의하는 패터닝 기술이라고 명시한다. 형성된 회로나 소자가 아니라 제조 패터닝 방법이므로 2에서 3으로 변경한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "a patterning technology that uses block co-polymers to define patterns"
+        }
+      ]
+    },
+    {
+      "conceptId": "dishing",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "uncertain",
+      "reason": "원문은 CMP로 금속 배선이 오목하게 파인 현상과 결함 형상을 함께 설명한다. 형성된 구조 결함의 2와 공정 품질 현상의 3 사이가 불명확하므로 기존 2를 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 1,
+          "quote": "- **디싱(Dishing)**: 연마 속도가 빠른 금속(구리 Cu) 배선 부위가 절연막보다 오목하게 파여 들어가는 현상."
+        }
+      ],
+      "notes": "현재 정의의 의미를 바꾸지 않고 경계를 표시했다. 명백한 오류만 수정하는 요청에 따라 기존값을 유지한다."
+    },
+    {
+      "conceptId": "double-patterning",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "두 노광 단계나 SADP로 미세 패턴 밀도를 높이는 패터닝 공정이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "dram",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "트랜지스터와 커패시터 셀에 데이터를 저장하는 메모리 반도체 자체이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "dram-bitline-airgap",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "현재 정의는 비트라인 사이에 공기층을 밀봉한 절연 구조이며 공정 원리는 그 구조의 구현 설명이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "dropout",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "uncertain",
+      "reason": "신경망 변수 일부를 생략하는 학습 알고리즘이다. 물리 소자나 제조 절차가 아니라 모델 동작이므로 기존 계산 시스템 맥락의 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "dry-etching",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "가스·플라스마 등의 작용으로 재료를 제거하는 공정 방식이므로 3을 유지한다. 가스 물성이나 플라스마 소스 하드웨어와 구별한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "dry-oxidation",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "산소를 이용하여 실리콘 산화막을 성장시키는 제조 처리 방식이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "dry-photolithography",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "레지스트 부착과 헹구지 않는 현상 등 포토 실행 방식을 정의하므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "dsp",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "디지털 신호를 처리하는 집적회로형 마이크로프로세서 칩이므로 장치라는 이름으로 설비 규모로 올리지 않고 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "ecd",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "전극·화학 용액·전류를 이용해 금속층을 도금하는 증착 공정이므로 3을 유지한다. 전기도금 장비 자체를 뜻하지 않는다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "edge-blu",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "keep",
+      "reason": "디스플레이의 측면형 백라이트 유닛을 뜻한다. 사용 기기가 작아도 직접 대상은 광원 모듈이므로 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "edge-die",
+      "oldScale": 1,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "웨이퍼 가장자리에서 칩으로 활용하지 못하는 손실 영역을 정의한다. 재료의 기초 성질이나 수율 비율 자체가 아니라 웨이퍼 구성 영역이므로 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 58,
+          "quote": "④ Edge Die: 손실 부분. 직경이 작은 웨이퍼보다 큰 웨이퍼의 손실 부분이 적고, 손실률도 줄어든다."
+        }
+      ]
+    },
+    {
+      "conceptId": "edge-exclusion",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "웨이퍼 가장자리에서 양호한 공정 결과를 얻기 어려운 제외 거리를 나타내는 공정 관리 지표이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "eds",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "웨이퍼 상태의 칩을 전기 검사하고 수선·선별하는 검사 공정군이므로 3을 유지한다. 검사되는 칩과 검사 장비는 별도 대상이다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "eds-final-test",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "칩 수선 후 양품 여부를 재검증하는 EDS 검사 단계이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "electrical-test",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "개별 소자의 직류전압·전류 특성 파라미터로 동작을 판별하는 검사 과정이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "electrochemical-anodization",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "전기 화학적 처리로 웨이퍼에 산화막을 형성하는 제조 방식이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "electroless-deposition",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "환원제의 화학반응으로 금속층을 도금하는 제조 기법이므로 3을 유지한다. 외부 전력을 쓰지 않는다는 조건도 공정 방식의 특성이다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "electromigration",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "전자가 금속 원자에 운동량을 전달해 원자·이온을 이동시키는 기초 전자·원자 현상을 정의하므로 1을 유지한다.",
+      "evidence": [],
+      "notes": "기존 Lam 출처 분류 메모의 공정·장비 문구는 현재 원자 이동 현상 정의와 맞지 않는 메타데이터 표현이다. 규모 1 자체는 유지한다."
+    },
+    {
+      "conceptId": "electrostatic-chuck",
+      "oldScale": 3,
+      "newScale": 4,
+      "decision": "change",
+      "reason": "원문이 정적 전압장으로 웨이퍼를 고정하는 하드웨어라고 직접 정의한다. 웨이퍼 고정 절차나 레시피가 아니라 장비의 하부 하드웨어이므로 4로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "- **Definition**: a piece of hardware that holds the wafer in place by using a static voltage field, in contrast to vacuum-based or physical clamping"
+        }
+      ],
+      "notes": "문헌 7은 관련 표제어 절만 원문 대조했다. documentsRead의 characters는 그 절들의 합계이며 sha256은 원문 파일 전체의 바이트 해시이다."
+    },
+    {
+      "conceptId": "embedded-flash-logic-process",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "uncertain",
+      "reason": "현재 summary와 principles는 회로 내 플래시 구현 공정으로 설명하지만 원문은 구현된 회로 구성을 정의한다. 집적 제조 기술 3과 회로 구조 2의 범위가 혼재하므로 현재 정의를 몰래 바꾸지 않고 3을 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 59,
+          "quote": "시스템 반도체 회로 안에 플래시메모리 회로를 구현한 것"
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "conceptId": "emmc",
+      "oldScale": 4,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "현재 정의는 컨트롤러와 낸드플래시를 하나의 패키지에 통합한 내장 메모리이다. 저장 기능이 있어도 이 개념의 직접 대상은 통합 반도체 패키지이므로 2이다.",
+      "evidence": [
+        {
+          "documentIndex": 23,
+          "quote": "휴대폰, 태블릿PC 등 전자기기의 데이터 저장용으로 사용하는 탈착형 외장형 메모리카드와 달리, eMMC(embedded Multi Media Card)는 컨트롤러와 낸드 플래시가 패키지로 통합되어 제품에 내장되어 사용되는 메모리카드다.",
+          "sourceHash": "21e014a3c6aeb3e212f31dfbd125b88be97f8639909cb6fb63c47c4ed6fbd128"
+        }
+      ]
+    },
+    {
+      "conceptId": "enhanced-cu-interconnect",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "구리 배선을 탄탈륨과 코발트로 감싼 특정 배선 구조를 뜻하므로 재료 물성이나 공정 절차와 구별하여 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "epitaxy",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "기판 결정 격자를 따라 새로운 단결정 박막을 성장시키는 열화학 증착 방법이므로 3을 유지한다. 성장된 박막이나 에피택시 장비가 대상은 아니다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "eprom",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "정보를 지우고 다시 기록할 수 있는 ROM 소자의 종류이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "equipment-data-acquisition",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "장비와 팹 호스트 사이에서 고주파 센서 데이터를 수집하는 표준군이다. 호스트 부하·독립 수집 경로를 포함한 장비 연계 운영체계의 맥락이므로 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "equipment-ram",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "장비의 가공·대기·정비·중단 시간을 구분해 가용성과 운영성을 평가하는 체계이다. 장비 형상보다 설비 생산·정비 운영을 관리하므로 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "erosion",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "uncertain",
+      "reason": "원문은 연마로 배선 밀집 영역의 절연막이 낮아지는 현상을 설명한다. 결과 형상의 2와 CMP 품질 현상의 3을 명백히 구분하기 어려워 기존 2를 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 1,
+          "quote": "- **침식(Erosion)**: 미세 금속 배선이 밀집된 영역 전체의 절연막이 과도하게 깎여 낮아지는 현상."
+        }
+      ],
+      "notes": "현재 정의의 의미를 바꾸지 않고 경계를 표시했다. 명백한 오류만 수정하는 요청에 따라 기존값을 유지한다."
+    },
+    {
+      "conceptId": "etch-profile",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "건식 식각에서 관리하는 패턴 형상 인자로 현재 정의되어 있으므로 공정 품질 지표 3을 유지한다. 구체 구조 정의가 없는 상태에서 완성 소자 구조로 단정하지 않는다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "etch-rate",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "시간당 막질 제거량과 이를 바꾸는 반응성 원자·이온 조건을 설명하는 공정 품질 지표이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "etch-selectivity",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "제거할 물질과 보존할 물질의 상대적 제거 특성을 나타내는 식각 관리 지표이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "etch-uniformity",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "웨이퍼 위치별 식각 속도의 동일성을 평가하는 공정 품질 지표이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "etchant",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "식각 대상과 반응하는 화학종과 그 반응 특성을 설명한다. 식각 공정 자체가 아니라 투입 화학 물질이므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "etching",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "필요한 피처와 패턴을 얻기 위해 재료를 선택적으로 제거하는 제조 공정이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "euv-lithography",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "13.5nm 빛으로 회로 패턴을 전사하는 노광 기술이므로 3을 유지한다. 진공 광로와 반사 광학계는 이 공정의 장비 요구 조건이지 정의 대상 자체가 아니다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "euv-pellicle",
+      "oldScale": 3,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "마스크 오염을 막고 EUV를 투과시키는 얇은 보호막 자체를 정의한다. 보호막을 제조하는 절차가 아니므로 박막·구조 대상인 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 2,
+          "quote": "- 마스크 표면에 먼지/파티클이 앉는 것을 방지하는 투과성 보호막."
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "conceptId": "euv-stochastic-defects",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "현재 정의와 원리는 광자 수의 통계 변동 및 광화학 반응에서 생기는 결함 메커니즘이다. 결함 검사나 노광 조건 관리 지표 자체가 아니므로 기초 광학·통계 현상인 1을 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 12,
+          "quote": "1. **광자 샷 노이즈(Photon Shot Noise)와 광자 결핍:**"
+        }
+      ]
+    },
+    {
+      "conceptId": "external-quantum-efficiency",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "입력 대비 외부로 방출되는 광자 수의 변환 효율이라는 광학적 성질을 정의하므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "extract-ai",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "uncertain",
+      "reason": "현재 정의는 검사 데이터의 노이즈와 결함을 머신러닝으로 분리하는 알고리즘 기술이다. 검사 단계의 분석 절차인 3과 검사 소프트웨어 시스템인 4의 경계가 있으며 독립 장비·시스템이 명시되지 않으므로 3을 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 1,
+          "quote": "  - 전자빔/광학 검사에서 발생하는 수억 개의 무해한 웨이퍼 표면 노이즈(Noise)와 실제 칩 불량을 일으키는 치명적 결함(Defect)을 머신러닝으로 실시간 분리·분류."
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "conceptId": "extreme-ultraviolet",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "현재 정의의 대상은 특정 파장의 빛이며 EUV 노광 공정이나 광원 장비 자체가 아니므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "extrinsic-semiconductor",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "불순물로 전자·정공 수와 전도도를 바꾼 반도체 재료의 종류이므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "fab",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "반도체 제품을 제조하는 시설 그 자체를 뜻하므로 팹·시설 규모인 5가 맞다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "fab-industry",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "웨이퍼를 가공해 반도체를 제조하는 산업 활동을 뜻하므로 개별 공정군과 구별되는 산업 맥락의 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "fabless",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "설계 전문 업체의 사업체 유형을 뜻하므로 산업 구조·사업체 규모인 5가 맞다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "fan-in",
+      "oldScale": 3,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "신호선을 안쪽으로 모아 칩 면적과 패키지 크기를 줄이는 배선 구조 자체를 정의한다. 제조 단계·레시피가 아니므로 칩·패키지 구조 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 125,
+          "quote": "* Fan-In: 반대로 신호선을 내부로 집약해 칩 면적을 줄이거나 패키지 크기를 최소화하는 구조"
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "conceptId": "fan-out",
+      "oldScale": 3,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "신호선을 칩 바깥으로 확장해 배선 밀도와 I/O를 확보하는 패키지 배선 배치 방식이다. 현재 정의와 원문은 공정 조건보다 파생 구조를 설명하므로 칩·패키지 구조 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 125,
+          "quote": "* Fan-Out: 칩 외곽에서 신호선을 바깥쪽으로 확장해 배선 밀도를 높이고, 더 많은 입출력(I/O) 단자를 확보하는 방식"
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "conceptId": "fan-out-wafer-level-packaging",
+      "oldScale": 4,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "원형 형식으로 패키지를 만드는 패키징 기법으로 명시된다. 제작 결과인 패키지나 제조 설비가 아닌 제조·조립 공정이므로 3이다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "an advanced packaging technique that creates a package in a round 300/330 mm format",
+          "sourceHash": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291"
+        }
+      ]
+    },
+    {
+      "conceptId": "fdc",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "장비 센서와 정상 시그니처를 비교하는 기술이며 원문은 팹 외부 분석 엔진과 장비 제어기의 연계 운영 안에서 설명한다. 그 운영 체계 맥락에서 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "fenand-non-cell-optimization",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "uncertain",
+      "reason": "현재 정의는 워드라인 저항·커패시턴스를 낮추는 설계 접근이다. 원문에는 금속·에어갭 구조 변경과 메모리 동작 효율 최적화가 함께 있어 회로 구조 2와 시스템 설계 4의 경계가 남는다. 제조 공정이라고 확정하지도 새 규모를 임의 지정하지도 않고 3을 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 126,
+          "quote": "워드라인 저항과 커패시턴스는 3D FeNAND 배열의 주요 비셀 요소다. 워드라인 저항과 커패시턴스가 크면 신호 전달이 늦어지고 선택 · 비선택 상태를 전환하는 데 더 많은 에너지가 든다. 비셀 최적화에서는 이 두 요소를 낮춰 전환 부담을 줄이는 것이 중요하다."
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "conceptId": "feol",
+      "oldScale": 4,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "트랜지스터·저항·커패시터 같은 소자를 형성하는 공정 단계 집합이다. 소자 자체나 설비·시스템 전체가 아니라 제조 공정군이므로 3이다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "the set of process steps to form transistors and other circuit elements (such as resistors and capacitors) that are later connected electrically with middle-of-line (contacts) and back-end-of-line (wiring) processes",
+          "sourceHash": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291"
+        }
+      ]
+    },
+    {
+      "conceptId": "ferroelectric",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "잔류 분극과 전기적 분극 전환이라는 물성으로 구분하는 재료 자체를 정의하므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "fet",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "전기장으로 채널 전도도를 제어하는 트랜지스터 소자이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "finfet",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "지느러미 형상 채널을 가진 3차원 트랜지스터 구조가 대상이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "flash-memory",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "전기적으로 지우고 다시 쓰는 비휘발성 메모리 소자이며 이를 여러 개 조합한 저장 장치 전체와 구별되므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "flat-zone",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "웨이퍼 방향 판단을 위해 마련한 평평한 경계 영역이라는 기판 구조이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "flip-chip",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "현재 정의와 원문 표제어는 칩을 뒤집어 외부 회로에 접합하는 패키징 방법을 가리킨다. 패키지 크기와 범프 구조가 원리에 포함되어도 실행 대상이 접합 방식이므로 3을 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "- **Definition**: a packaging method that creates electrical connections between semiconductor devices by “flipping” the chip face-down to bond to the external circuitry"
+        }
+      ],
+      "notes": "문헌 7은 관련 표제어 절만 원문 대조했다. documentsRead의 characters는 그 절들의 합계이며 sha256은 원문 파일 전체의 바이트 해시이다."
+    },
+    {
+      "conceptId": "floating-point",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "uncertain",
+      "reason": "원문은 소수점 위치를 바꾸어 실수를 표현하는 수치 표현법을 정의하고 GPU 연산에서의 사용을 설명한다. 물리 회로 자체와 컴퓨팅 표현 방식의 경계가 불명확하여 기존 2를 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 113,
+          "quote": "* 부동소수점 : 실수에서 정수와 소수가 본래 소수점의 위치를 고정하는 고정소수점과 대비되는 개념으로 소수점의 위치를 바꿔 정수와 소수를 구분 표기해 연산에 용이하게 하는 것. 본래의 실수가 123.485인 경우, 1.23485X 10^2, 혹은 0.00123485X10^5 등으로 연산 표기한다."
+        }
+      ],
+      "notes": "현재 정의의 의미를 바꾸지 않고 경계를 표시했다. 명백한 오류만 수정하는 요청에 따라 기존값을 유지한다."
+    },
+    {
+      "conceptId": "fluid-cooling",
+      "oldScale": 3,
+      "newScale": 4,
+      "decision": "change",
+      "reason": "유체를 순환시켜 동작 중 칩·패키지의 열을 제거하는 열 관리 방식이다. 제조·조립 레시피가 아니라 냉각 시스템의 동작 기술이므로 4로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 125,
+          "quote": "* 유체 냉각: 반도체 칩 또는 패키지에서 발생한 열을 전기비전도성 액체나 물 같은 유체를 직접 순환시켜 빠르게 제거하는 기술"
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "conceptId": "forksheet",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "nMOS와 pMOS 사이의 유전체 벽으로 간격을 줄이는 트랜지스터 구조가 대상이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "foundry",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "다른 회사 제품의 제조를 맡는 웨이퍼 제조 시설 또는 위탁 제조업체이므로 시설·산업 사업체 규모인 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "foup",
+      "oldScale": 3,
+      "newScale": 4,
+      "decision": "change",
+      "reason": "공정 장비 사이에서 웨이퍼를 운반하고 오염 노출을 줄이는 전용 운반 용기 자체이다. 제조 절차나 공정 지표가 아닌 생산 장비의 운반 하드웨어이므로 4로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "- **Definition**: a specialized wafer carrier used to transport wafers from one processing tool to the next; used to minimize exposure to contamination"
+        }
+      ],
+      "notes": "문헌 7은 관련 표제어 절만 원문 대조했다. documentsRead의 characters는 그 절들의 합계이며 sha256은 원문 파일 전체의 바이트 해시이다."
+    },
+    {
+      "conceptId": "fpga",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "회로 구성을 프로그래밍할 수 있는 집적회로 칩이므로 프로그래밍 방법이나 컴퓨팅 시스템 전체와 구별하여 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "front-end",
+      "oldScale": 5,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "FEOL·MOL·BEOL을 포함하는 웨이퍼 가공 단계의 집합이다. 웨이퍼 제조 시설인 팹과 구별되는 공정군이므로 3이다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "the set of wafer processing steps that include forming the transistors (front-end-of-line, FEOL), contacts (middle-of-line, MOL), and wiring (back-end-of-line, BEOL); followed by back end processes",
+          "sourceHash": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291"
+        }
+      ]
+    },
+    {
+      "conceptId": "front-side-illumination",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "이미지센서의 전면 수광 픽셀 방식이 대상이므로 제조 절차나 광학 물성으로 바꾸지 않고 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "full-custom-ic",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "사용자 요구에 맞춰 구성한 주문형 집적회로 제품을 뜻하므로 설계 절차라는 사용 설명과 구별하여 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "gaa",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "게이트가 채널 전면을 감싸는 트랜지스터 구조가 대상이며 SiGe 제거 원리는 제작 설명이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "gan-hemt-current-collapse",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "uncertain",
+      "reason": "현재 정의는 GaN 소자의 전자 포획 억제를 다루고 원문은 버퍼 준위 설계와 인시츄 패시베이션을 함께 제시한다. 소자 동작·구조 설계와 제작 공정이 혼재하여 2가 명백한 오류라고 단정하지 않고 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 13,
+          "quote": "철(Fe)/탄소(C) 도핑된 GaN 버퍼층의 에너지 준위 최적화 및 원자층 $\\text{SiN}_x$ 인시츄 패시베이션."
+        }
+      ],
+      "notes": "현재 정의의 의미를 바꾸지 않고 경계를 표시했다. 명백한 오류만 수정하는 요청에 따라 기존값을 유지한다."
+    },
+    {
+      "conceptId": "gap-fill",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "증착막이 빈 공간과 요철을 채우는 정도를 나타내는 해당 공정의 품질 특성이므로 3을 유지한다. 빈 공간이라는 구조 자체를 정의하지 않는다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "gapfill-capability",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "현재 정의와 원리는 좁은 공간에 전도성·절연성 재료를 채우는 증착 공정을 설명하므로 3을 유지한다. 명칭에 능력이 포함되어도 공정/품질 지표 모두 기존 3 범위에 있다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "gate",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "전압을 인가하여 채널 전류를 제어하는 FET의 단자이므로 소자 구성 구조에 해당하는 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "gate-driver-ic",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "디스플레이 부화소의 게이트를 제어하는 DDI 내부 집적회로이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "gate-oxide",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "게이트와 전류 통로 사이를 절연하는 특정 소자 내 막 구조이며 산화물 재료 자체와 구별되므로 2를 유지한다.",
+      "evidence": [],
+      "notes": "재료 명칭이나 제조 원리보다 현재 정의가 설명하는 소자·막·부품의 구조적 역할을 기준으로 판단했다."
+    },
+    {
+      "conceptId": "gate-stack",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "FET 게이트를 이루는 절연층과 전도층의 집합 구조이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "gemm",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "uncertain",
+      "reason": "계산 알고리즘·연산 유형을 뜻하며 하나의 칩인지 여러 연산 장치인지 현재 정의가 한정하지 않는다. 물리적 길이가 없는 연산을 억지로 다른 규모에 대응시키지 않고 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "glass-substrate",
+      "oldScale": 1,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "유리의 조성·물성 일반이 아니라 칩렛을 배치하고 연결할 대면적 기판 및 스마트 인터포저 기반을 정의한다. 실제 패키징 지지 구조이므로 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 125,
+          "quote": "2.5D 구조로 실리콘 웨이퍼 위에 수백 개의 칩렛을 연결할 경우, 한 장의 웨이퍼 상에 구현할 수 있는 인터포저의 면적이 제한된다. 어느 정도의 반도체 공정 기술을 적용하면서, 대면적 공정이 가능해 대규모 칩렛 연결을 효율적으로 구현할 수 있는 기술이 유리기판이다."
+        }
+      ]
+    },
+    {
+      "conceptId": "gpu",
+      "oldScale": 4,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "실제 원문은 GPU를 그래픽 처리를 위해 설계한 반도체 칩이라고 명시한다. 그래픽 카드나 서버 전체가 아니라 처리 칩 자체이므로 2이다.",
+      "evidence": [
+        {
+          "documentIndex": 109,
+          "quote": "GPU는 본래 컴퓨터의 그래픽 처리를 전담하기 위해 설계된 반도체 칩이다.",
+          "sourceHash": "1eb25848ee08fe5d45e0455176727aaa9643eae6b2fccb16fbf90c7a4224e329"
+        }
+      ]
+    },
+    {
+      "conceptId": "gradient-descent",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "uncertain",
+      "reason": "손실을 줄이는 방향으로 함수를 갱신하는 수치 최적화 방법이다. 신경망 학습 시스템 맥락에서 4가 쓰였지만 물리적 규모가 고정되지 않아 기존값을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "half-bin",
+      "oldScale": 5,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "같은 LED 색상 범위를 둘로 나누는 품질 선별 기준이다. 범위의 세분화 정도를 나타내는 공정 품질 분류이므로 3이며 팹 운영 규모가 아니다.",
+      "evidence": [
+        {
+          "documentIndex": 86,
+          "quote": "겉으로 보기에는 같은 색 범위라도 이를 더욱 세부적으로 나눌 수 있다. 4개로 구분한 것을 쿼터빈(Quarter Bin), 2개로 구분한 것을 하프빈(Half Bin)이라고 한다. LED 제조사는 자신의 제품에 맞는 보다 정확한 색상의 빛을 요구하므로, 컬러의 범위를 더욱 세분화 할 수록 고객의 니즈를 충족시킬 수 있다.",
+          "sourceHash": "f3d5e9186021e87dba3318656dfc642381bcbbe159a1c298795edb01f4589f4e"
+        }
+      ]
+    },
+    {
+      "conceptId": "har-etch-charging",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "현재 정의의 중심은 깊은 홀의 전하 축적에 따른 이온 궤적 변화라는 전기적·입자적 현상이다. 식각 관리 수치나 특정 장비가 대상이 아니므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "hard-mask",
+      "oldScale": 3,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "원문이 포토레지스트보다 식각에 잘 견디는 막이라고 직접 정의한다. 식각 방법이나 보호막 형성 레시피가 아니라 하부층을 보호하는 막 구조이므로 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "- **Definition**: a film that is more resistant to etching than conventional photoresist, thereby better protecting underling layers from alteration; typically used when high-selectivity etching is required"
+        }
+      ],
+      "notes": "문헌 7은 관련 표제어 절만 원문 대조했다. documentsRead의 characters는 그 절들의 합계이며 sha256은 원문 파일 전체의 바이트 해시이다."
+    },
+    {
+      "conceptId": "hbf",
+      "oldScale": 4,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "여러 낸드를 쌓아 성능과 용량을 높인 메모리 기술이 직접 대상이다. 데이터센터나 저장 장치 전체가 아니라 적층 메모리 구조·패키지이므로 2이다.",
+      "evidence": [
+        {
+          "documentIndex": 128,
+          "quote": "* HBF(High Bandwidth Flash): 낸드를 여러 개 쌓아 속도와 용량을 크게 높인 차세대 메모리 기술",
+          "sourceHash": "d47e66d9d9106f9dc79adda18d806d45f10dc53d946a89bd836ad3a289de3a96"
+        }
+      ]
+    },
+    {
+      "conceptId": "hbm",
+      "oldScale": 4,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "여러 DRAM 다이를 TSV로 적층하고 버스로 연결한 메모리 제품·패키지 구조이다. GPU와 함께 쓰인다는 사용처와 분리하여 메모리 패키지 자체를 2로 분류한다.",
+      "evidence": [
+        {
+          "documentIndex": 10,
+          "quote": "- 4개의 2Gb DRAM 다이를 실리콘 관통 전극(TSV)으로 수직 관통하여 1024비트의 초광대역 버스 폭(Wide I/O)을 구축하고, 실리콘 인터포저 위에서 GPU와 직접 2.5D 병렬 연결.",
+          "sourceHash": "c266f63a77734350d337cc99d1fce161f2a7b1afa899a0146234790d098f22ae"
+        }
+      ]
+    },
+    {
+      "conceptId": "hdd",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "keep",
+      "reason": "플래터·모터·헤드가 결합한 완성 대용량 저장 장치이다. 자기 저장 물성이나 개별 부품이 아니라 장치 전체이므로 4가 맞다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "hdp-cvd",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "높은 플라스마 밀도를 이용하여 재료를 증착하는 CVD 공정이므로 3을 유지한다. ICP 소스는 사용 하드웨어이고 해당 증착 공정과 별개이다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "heterogeneous-3d-integration",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "uncertain",
+      "reason": "칩·소자층을 쌓는 집적 방법과 이를 통해 구현하는 시스템 구조를 포괄한다. 현재 정의만으로 제조 공정 3 또는 패키지 구조 2를 하나로 확정할 수 없어 기존 통합 시스템 맥락의 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "heterogeneous-computing",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "keep",
+      "reason": "CPU·GPU·FPGA 등 서로 다른 연산 장치가 업무를 나누는 시스템 동작 방식이므로 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "heterogeneous-integration",
+      "oldScale": 4,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "기준 정의와 원문은 서로 다른 다이·칩을 하나의 패키지로 통합하는 공정이라고 명시한다. 통합된 시스템 제품이 아니라 통합 제조 동작 자체이므로 3이다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "the process of integrating different types of dies or chips into a single package using advanced packaging, typically increasing the performance of devices by placing logic and memory closer together",
+          "sourceHash": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291"
+        }
+      ]
+    },
+    {
+      "conceptId": "high-aspect-ratio",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "uncertain",
+      "reason": "정의는 높고 좁은 피처의 형상 특성과 제조 난도를 함께 설명한다. 구조의 기하 특성인 2와 공정 형상 조건인 3의 경계가 현재 개념에서 분리되지 않아 단정적인 이동 대신 기존 1을 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "refers to very tall and narrow device features, for example, DRAM capacitor cells; the higher the aspect ratio of a feature, the more challenging it is to create; see also aspect ratio"
+        }
+      ]
+    },
+    {
+      "conceptId": "high-k-dielectric",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "높은 유전율과 누설 저감 역할로 구분하는 절연 재료의 정의이므로 실제 게이트 스택 구조와 구별하여 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "high-na-euv",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "현재 정의는 높은 개구수로 미세 패턴을 전사하는 EUV 노광 기술이다. EXE는 지원 플랫폼 명칭이므로 장비 제품 자체로 정의를 바꾸지 않고 공정 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "high-power-led-package",
+      "oldScale": 4,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "소비전력 특성으로 구분한 LED 패키지 제품이다. 가로등·차량의 조명 시스템에 쓰여도 개념 대상은 LED 패키지이므로 2이다.",
+      "evidence": [
+        {
+          "documentIndex": 78,
+          "quote": "일반적으로 소비전력이 1W(와트)를 넘는 제품을 하이파워, 그 미만을 미들파워 LED 패키지라고 부른다.",
+          "sourceHash": "0e58e6c332083b56f509061410d13c0475d9043d81884ebbb41644440f61d2d0"
+        }
+      ]
+    },
+    {
+      "conceptId": "high-selectivity-isotropic-etching",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "높은 선택비와 등방성으로 재료를 제거하는 식각 방식이므로 3을 유지한다. 지원 장비나 식각 결과 구조를 뜻하지 않는다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "hkmg",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "고유전율 절연체와 금속 전극을 조합한 게이트 구조를 뜻하므로 소재의 높은 유전율 자체가 아닌 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "holistic-lithography",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "keep",
+      "reason": "노광 스캐너·계측기·계산 소프트웨어를 폐루프로 묶는 장비·제어 시스템이다. 패턴 전사 공정 자체와 구별되는 통합 동작 기술이므로 4가 맞다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "hot-cold-test",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "상온보다 높은/낮은 온도에서 칩의 정상 동작과 불량 여부를 판정하는 검사 단계이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "hsms",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "팹 호스트와 장비 사이에서 SECS-II 메시지를 운반하는 통신 계층이다. 원문이 설명하는 팹 장비 연계 운영체계의 일부이므로 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "hybrid-bonding",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "절연체·구리 패드의 직접 접합을 수행하고 활성화·정렬·접촉·열처리를 조율하는 접합 기술이므로 3을 유지한다. 이종집적된 최종 칩 구조와 Kinex 장비를 정의하지 않는다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "hybrid-bonding-void-annealing",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "구리 접합 계면의 나노보이드를 줄이기 위해 미세구조와 확산을 제어하는 열처리 방식이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "hzo",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "하프늄·지르코늄 산화물 기반 강유전체 재료 자체를 정의하므로 응용 셀의 구조와 구별하여 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "idm",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "설계·제조·판매를 함께 운영하는 반도체 사업체 유형이므로 5가 맞다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "illuminance",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "단위 면적에 입사하는 광속이라는 광학 물리량을 정의하므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "image-sensor",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "빛 정보를 전기적 영상신호로 바꾸는 센서 소자를 뜻하며 완성 촬영 시스템 전체를 정의하지 않으므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "immersion-lithography",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "광 경로에 물을 사용하여 개구수를 높이는 노광 실행 방식이므로 3을 유지한다. 동작 중 칩을 냉각하는 다이렉트 액침과 구별한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "immersion-topcoat",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "uncertain",
+      "reason": "정의와 원문은 물을 튕기는 방수 코팅의 기능을 설명하지만 코팅용 소재와 형성된 상부막 구조를 구분하지 않는다. 소재 역할로 읽는 기존 1을 유지하고 2로의 이동은 보류한다.",
+      "evidence": [
+        {
+          "documentIndex": 117,
+          "quote": "물을 사용하는 노광장비(ArF Immersion*)들이 등장하자, 물방울을 튕겨내면서도 쉽게 손상되지 않는 방수 코팅(Top Anti-Reflective Coat)이 등장하기도 했다."
+        }
+      ]
+    },
+    {
+      "conceptId": "in-page-pipelining",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "uncertain",
+      "reason": "메모리 페이지 안에서 신경망 레이어 배치와 연산 순서를 조정하는 알고리즘이다. 회로 구조와 연산 시스템 동작의 경계가 있으므로 기존 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "inductively-coupled-plasma",
+      "oldScale": 3,
+      "newScale": 4,
+      "decision": "change",
+      "reason": "원문은 유도 코일·변압기 작용으로 RF 에너지를 기체에 결합하는 플라스마 소스 유형이라고 정의한다. 재료를 가공하는 레시피가 아닌 에너지 공급 하부 시스템의 구조·동작이므로 4로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "- **Definition**: a type of plasma source in which plasma is formed when radio frequency (RF) energy is coupled into a gas by an inductive coil through transformer action"
+        }
+      ],
+      "notes": "문헌 7은 관련 표제어 절만 원문 대조했다. documentsRead의 characters는 그 절들의 합계이며 sha256은 원문 파일 전체의 바이트 해시이다."
+    },
+    {
+      "conceptId": "inflection",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "제조 역량 개발을 이끄는 기술 전환·산업 변화의 개념이다. 특정 제조 단계가 아니라 산업의 변화 맥락이므로 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "info",
+      "oldScale": 4,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "칩 바깥으로 배선을 확장해 입출력을 연결하는 팬아웃 패키징 기술이다. 원문은 완성 모듈보다 배선 형성·패키징 방식으로 정의하므로 제조·조립 공정인 3이다.",
+      "evidence": [
+        {
+          "documentIndex": 124,
+          "quote": "* InFO(Integrated Fan-Out): 칩 바깥으로 배선을 넓혀 더 많은 I/O를 연결하는 팬아웃(Fan-Out) 방식의 패키징 기술",
+          "sourceHash": "f2f4e24313147b0df350e4e7bd70a986a81f7c75501758107bf5c9aad946afb1"
+        }
+      ]
+    },
+    {
+      "conceptId": "ingot",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "웨이퍼로 절단하기 전의 단결정 실리콘 원재료 봉을 정의한다. 원판 기판인 웨이퍼나 절단 공정 자체와 구별하여 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "inking",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "EDS 불량 칩과 미완성 다이를 데이터 또는 잉크로 식별해 조립에서 제외하는 공정 단계이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "inner-spacer",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "uncertain",
+      "reason": "현재 정의는 기생 용량을 줄이는 소자 내 절연 구조와 형성 공정을 함께 말한다. 원문 제목은 공정이지만 보호막 구조도 핵심이어서 정의를 바꾸지 않고 uncertain으로 기존 2를 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 13,
+          "quote": "## 3. GAA 나노시트 기생 정전용량 저감 저유전율 Inner Spacer 공정 (2021)"
+        },
+        {
+          "documentIndex": 13,
+          "quote": "- **물리/화학적 메커니즘:** SiGe 리세스 캐비티 내부에 ALD로 SiBCN/SiOCN 박막을 컨포멀 증착 후, 방향성 없이 공동(Cavity) 내부에만 보호막을 남기는 저손상 원자층 식각(ALE) 수행."
+        }
+      ],
+      "notes": "현재 정의의 의미를 바꾸지 않고 경계를 표시했다. 명백한 오류만 수정하는 요청에 따라 기존값을 유지한다."
+    },
+    {
+      "conceptId": "inspection-metrology",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "uncertain",
+      "reason": "현재 summary는 검사·측정 기술을 대상으로 하지만 원문 개요는 설비군으로도 부른다. 검사 공정 3과 장비군 4가 혼재하여 특정 제품 장비로 정의를 바꾸지 않고 3을 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 1,
+          "quote": "- 나노미터 단위의 회로 패턴 결함(Particle, Bridge, Not-Open, Pattern Collapse)을 인라인(In-line) 상에서 고속으로 찾아내고 수율 손실(Yield Killer)을 예방하는 설비군."
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "conceptId": "insulating-film",
+      "oldScale": 1,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "현재 정의와 원문은 증착으로 형성된 박막을 전기 절연·오염 차단 기능에 따라 나눈 막층이다. 절연체 재료 일반과 달리 실제 박막 구조이므로 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 98,
+          "quote": "증착공정을 통해 형성된 박막은 크게 회로들 간 전기적인 신호를 연결해주는 금속막(전도)층과 내부 연결층을 전기적으로 분리하거나 오염원으로부터 차단시켜주는 절연막층으로 구분됩니다."
+        }
+      ]
+    },
+    {
+      "conceptId": "insulator",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "자유전자·밴드갭과 절연성으로 구분한 비전도성 재료를 정의하므로 절연막 구조와 구별하여 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "integrated-circuit",
+      "oldScale": 4,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "같은 기판 위의 소자를 전기적으로 연결한 하나의 반도체 제품이다. 여러 기능을 포함해도 칩·집적회로 자체를 뜻하므로 2이다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "a single, complete semiconductor product of electrically connected components (such as transistors and capacitors) fabricated on the same substrate",
+          "sourceHash": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291"
+        }
+      ]
+    },
+    {
+      "conceptId": "integrated-gpu",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "CPU 칩 안에 내장된 GPU 회로가 대상이므로 독립 그래픽 카드·컴퓨팅 시스템과 구별하여 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "interlayer-dielectric",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "현재 정의와 용어집은 전도층 사이의 전기적 절연을 제공하는 재료 자체를 설명한다. 막이라는 제목만으로 박막 구조로 일괄 이동하지 않고 1을 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "an insulating material that provides electrical isolation between conducting layers"
+        }
+      ]
+    },
+    {
+      "conceptId": "intermetal-dielectric",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "현재 정의의 대상은 금속 배선 사이의 절연 기능을 제공하는 재료이다. 실제 구조로도 부르는 출처 메모가 있지만 정의의 재료 역할을 유지하는 범위에서는 1이 명백한 오류가 아니므로 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "an insulating material that provides electrical isolation between metal lines"
+        }
+      ],
+      "notes": "119번 분류 메모에 device·규모 2 문구가 있으나 현재 통합 정의는 절연 재료 역할이다. 이번에는 분야·공정군·정의를 바꾸지 않고 규모 1을 유지한다."
+    },
+    {
+      "conceptId": "internal-quantum-efficiency",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "물질 내부에서 빛으로 전환되는 비율을 광자 수로 나타낸 광학 변환 물성이므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "interposer",
+      "oldScale": 4,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "패키지 기판과 다이 사이에서 여러 칩의 연결을 돕는 실리콘·유기물 층이다. 시스템 전체가 아니라 패키지 내부 연결 기판·배선 구조이므로 2이다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "the layer between the package substrate and the CPU die made of silicon or organic material that facilitates electrical connections between multiple chips or dies on a package",
+          "sourceHash": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291"
+        }
+      ]
+    },
+    {
+      "conceptId": "intrinsic-semiconductor",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "불순물을 넣기 전의 순수 반도체 재료를 정의하므로 소자 구조와 구별하여 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "ion-implantation",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "불순물 이온을 웨이퍼의 원하는 깊이까지 넣어 전도성을 조절하는 제조 도핑 공정이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "isocell",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "이미지센서 픽셀 사이에 장벽을 둔 수광·격리 구조를 뜻하므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "isotropic",
+      "oldScale": 1,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "현재 정의는 물질 고유의 등방성이 아니라 반도체 제조 공정이 모든 방향에 같게 진행되는 특성을 뜻한다. 공정의 방향성 조건이므로 3으로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "in semiconductor manufacturing, a term used to describe a process that is the same in all directions (versus anisotropic, or directional)"
+        }
+      ]
+    },
+    {
+      "conceptId": "isotropic-etching",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "레지스트 열린 부분을 기준으로 여러 방향에서 재료를 제거하는 식각 방식이므로 3을 유지한다.",
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "conceptId": "ispp",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "uncertain",
+      "reason": "메모리 셀을 쓰기 위해 프로그램 전압을 높이는 동작 제어 방식이며 제조 레시피와 다르다. 셀 동작 2와 메모리 제어 알고리즘 4 중 현재 정의가 어느 대상을 대표하는지 경계가 남으므로 명백한 새 규모를 확정하지 않고 3을 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 126,
+          "quote": "* ISPP(Incremental Step Pulse Programming): 프로그램 전압을 단계적으로 높여 메모리 셀의 문턱전압을 조절하는 방식이다."
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "conceptId": "k-value",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "재료의 전하 저장 능력을 나타내는 유전율이라는 물성을 정의하므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "kgd-probe-testing",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "적층 전에 양품 다이를 선별하는 전기 검사 기술이 현재 대상이므로 3을 유지한다. 프로브 팁·차폐 구조는 검사 장치의 구현 원리이며 개념 자체를 프로브 카드 제품으로 바꾸지 않는다.",
+      "evidence": [
+        {
+          "documentIndex": 13,
+          "quote": "- **물리/화학적 메커니즘:** MEMS 스프링 기반 캔틸레버 프로브 팁 설계. 마이크로 접촉 하중($< 0.5\\ \\text{gf/pin}$)으로 범프 찍힘(Scratch)을 $1\\ \\mu\\text{m}$ 이하로 제어하면서도 산화막을 뚫는 와이핑(Wiping) 동작 구현. 동축 차폐 설계로 누화(Crosstalk) 억제."
+        }
+      ],
+      "notes": "문헌 13은 연구 요약 11·18·22절만 대조했다. characters는 이 발췌 절들의 합계이며 원 논문 검증이나 전문 재독을 뜻하지 않는다."
+    },
+    {
+      "conceptId": "lead-frame",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "패키지의 전기 연결과 지지 골격을 이루는 금속기판 구조이며 원재료 금속 자체나 완성 제조 설비가 아니므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "led",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "전류에 따라 빛을 내는 반도체 다이오드 소자이므로 발광 물성 자체와 구별하여 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "led-bin",
+      "oldScale": 5,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "LED 패키지를 특성에 따라 나누는 선별 분류이다. 라인 전체 운영 지표가 아니라 공정에서 관리하는 제품 품질 분류 기준이므로 3이다.",
+      "evidence": [
+        {
+          "documentIndex": 86,
+          "quote": "빈(Bin)이란 LED 패키지를 특성에 따라 나누는 것을 의미하는 것으로 컬러빈은 빛의 색상에 따라 패키지를 구분하는 것이다.",
+          "sourceHash": "f3d5e9186021e87dba3318656dfc642381bcbbe159a1c298795edb01f4589f4e"
+        }
+      ]
+    },
+    {
+      "conceptId": "led-blu",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "keep",
+      "reason": "발광다이오드를 광원으로 이용하는 백라이트 유닛이다. 개별 LED 칩·패키지와 구별되는 디스플레이 모듈이므로 4가 맞다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "lele",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "두 저밀도 패턴으로 나누어 노광·식각을 반복하는 제조 절차이므로 공정인 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "light-extraction-efficiency",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "LED에서 외부로 빠져나오는 광자의 효율이라는 광학 특성이므로 1을 유지한다. 원문이 외부 양자 효율과 추출 효율의 분모를 혼용하는 점은 정의 문제이며 규모를 바꾸는 근거는 아니다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "light-guide-plate",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "아크릴 소재 자체가 아니라 BLU 안에 조립되는 성형 광학 부품의 형상과 기능이 대상이므로 2를 유지한다.",
+      "evidence": [],
+      "notes": "재료 명칭이나 제조 원리보다 현재 정의가 설명하는 소자·막·부품의 구조적 역할을 기준으로 판단했다."
+    },
+    {
+      "conceptId": "lithography-alignment",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "이전 정렬 마크를 찾아 노광 시작 위치를 맞추는 작업이며 장비 자체나 마크 구조가 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "lithography-exposure",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "빛으로 마스크 패턴을 웨이퍼에 전사하는 제조 단계이고 원리도 전사·분해능·처리량을 설명하므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "logic",
+      "oldScale": 4,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "수학 연산 기능을 수행하는 회로요소로 이루어진 칩이라고 명시되어 있다. 이를 사용하는 전자기기 전체와 구별되는 반도체 칩이므로 2이다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "a chip consisting of circuit elements that together perform a function using various types of mathematical operations, for example, microprocessors; can be thought of as the “brains” of an electronic device",
+          "sourceHash": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291"
+        }
+      ]
+    },
+    {
+      "conceptId": "logic-ic",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "논리회로로 특정 기능을 제어하는 집적회로형 시스템 반도체이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "low-k-dielectric",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "낮은 유전율로 구분하는 절연 재료의 종류를 정의한다. 배선에 쓰인다는 이유로 배선 구조 규모로 바꾸지 않고 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "low-load-copper-cmp",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "BTA 피막 반응과 패드 마찰을 이용해 저하중에서 구리를 연마하는 공정이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "low-temperature-semiconductor-integration",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "현재 정의는 소재 자체가 아니라 저온 증착으로 여러 기판에 소자층을 구현하는 공정 접근이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "lpddr",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "모바일 기기에 쓰이는 저전력 DRAM 반도체 소자의 종류이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "lpp-euv-source",
+      "oldScale": 3,
+      "newScale": 4,
+      "decision": "change",
+      "reason": "레이저·주석 액적·플라즈마와 집광 거울을 결합해 빛을 공급하는 광원 하부 시스템이므로 제조 단계인 3에서 설비·모듈인 4로 변경한다.",
+      "evidence": [
+        {
+          "documentIndex": 2,
+          "quote": "집광 거울(Collector Mirror)을 통해 플라즈마에서 방출된 EUV 빛을 중간 초점(IF, Intermediate Focus)으로 집속."
+        }
+      ]
+    },
+    {
+      "conceptId": "luminance",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "특정 방향에서 관측되는 면적당 광도라는 광학 물리량을 정의하므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "luminous-efficacy",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "소비 전력당 광속이라는 광원의 광학 효율을 정의한다. 공정 처리량이나 제조 품질 지표가 아니므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "luminous-flux",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "가시광 총량을 나타내는 광학 물리량으로 정의되어 있으므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "luminous-intensity",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "특정 방향으로 나오는 가시광 강도라는 기초 광학 물리량이므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "mask-rom",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "제조 시 내용이 정해지는 ROM 소자의 종류이며 마스크 제조 공정이 대상이 아니므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "mask-shadowing",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "입사각과 입체 흡수체로 인해 광학적 그림자가 생기는 현상 자체를 정의한다. 마스크 장치나 별도의 노광 공정 단계가 아니므로 1을 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 2,
+          "quote": "- 개구수를 0.33에서 0.55로 키우면 광학계로 들어가는 빛의 입사각이 커져, 마스크 위의 3차원 흡수체 패턴(Cr/Ta/Ru)에 의해 인접 패턴에 그림자가 생기는 **마스크 섀도잉 현상** 발생."
+        }
+      ]
+    },
+    {
+      "conceptId": "masking-layer",
+      "oldScale": 3,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "현재 정의의 대상은 웨이퍼 일부를 덮는 형성된 재료층이며 마스킹 작업 자체가 아니므로 박막·구조인 2로 변경한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "a layer of material that protects certain areas of the wafer while other areas are being processed; generally later removed"
+        }
+      ],
+      "notes": "원문 MASK는 마스킹 재료층과 photomask의 줄임말을 함께 적지만 현재 요약의 중심 대상은 층이다. 재료 화학종인 1이나 마스킹 행위인 3으로 바꾸지 않는다."
+    },
+    {
+      "conceptId": "mcu",
+      "oldScale": 4,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "CPU와 관련 모듈을 하나의 칩에 집적한 시스템 반도체이다. 작은 컴퓨터라는 기능 비유가 있어도 실제 대상은 원칩 반도체이므로 2이다.",
+      "evidence": [
+        {
+          "documentIndex": 27,
+          "quote": "특정 기계장치나 전자장치의 제어를 위해 하나의 칩에 CPU와 관련 모듈을 집적시킨 시스템 반도체로,  작은 컴퓨터 역할을 하고 있어 원 칩(One Chip) 컴퓨터 또는 마이컴이라 불리기도 한다.",
+          "sourceHash": "f1ddba27c6bedb02a423d8095bbed4a1734028f55a8a2459e67032c6e5eda65b"
+        }
+      ]
+    },
+    {
+      "conceptId": "memory-bandwidth",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "원문에서 메모리 제품이 공급하는 데이터량의 성능 특성을 뜻한다. 측정 대상이 메모리 소자·제품이므로 사용처인 GPU 시스템 때문에 규모를 올리지 않고 2를 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 110,
+          "quote": "메모리는 다양한 특성을 가졌다. 이중 메모리 구매자가 중요하게 살펴보는 특성은 대역폭(Bandwidth), 반응 속도(Latency), 용량(Capacity)이다. 대역폭은 메모리에서 한 번에 빼낼 수 있는 데이터의 양을 의미한다. 반응 속도는 CPU나 GPU의 요청이 들어왔을 때 얼마나 빨리 첫 반응을 할 수 있는지를 뜻한다. 용량은 메모리 안에 얼마나 많은 데이터를 담을 수 있는지를 말한다."
+        }
+      ],
+      "notes": "메모리 제품 특성으로 읽었으며 공정 품질 지표나 기본 재료 물성으로 재정의하지 않았다."
+    },
+    {
+      "conceptId": "memory-capacity",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "메모리에 저장할 수 있는 데이터량이라는 메모리 제품 특성이 대상이다. 원문이 장비 규모나 팹 생산 용량을 뜻하지 않으므로 2를 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 110,
+          "quote": "메모리는 다양한 특성을 가졌다. 이중 메모리 구매자가 중요하게 살펴보는 특성은 대역폭(Bandwidth), 반응 속도(Latency), 용량(Capacity)이다. 대역폭은 메모리에서 한 번에 빼낼 수 있는 데이터의 양을 의미한다. 반응 속도는 CPU나 GPU의 요청이 들어왔을 때 얼마나 빨리 첫 반응을 할 수 있는지를 뜻한다. 용량은 메모리 안에 얼마나 많은 데이터를 담을 수 있는지를 말한다."
+        }
+      ],
+      "notes": "메모리 제품 특성으로 읽었으며 공정 품질 지표나 기본 재료 물성으로 재정의하지 않았다."
+    },
+    {
+      "conceptId": "memory-cell-capacitor",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "DRAM 셀 안에서 전하를 저장하는 커패시터 구성 소자이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "memory-latency",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "CPU·GPU 요청에 대한 메모리의 첫 응답 특성을 뜻한다. 제조 공정 시간이 아닌 메모리 제품의 동작 특성이므로 2를 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 110,
+          "quote": "메모리는 다양한 특성을 가졌다. 이중 메모리 구매자가 중요하게 살펴보는 특성은 대역폭(Bandwidth), 반응 속도(Latency), 용량(Capacity)이다. 대역폭은 메모리에서 한 번에 빼낼 수 있는 데이터의 양을 의미한다. 반응 속도는 CPU나 GPU의 요청이 들어왔을 때 얼마나 빨리 첫 반응을 할 수 있는지를 뜻한다. 용량은 메모리 안에 얼마나 많은 데이터를 담을 수 있는지를 말한다."
+        }
+      ],
+      "notes": "메모리 제품 특성으로 읽었으며 공정 품질 지표나 기본 재료 물성으로 재정의하지 않았다."
+    },
+    {
+      "conceptId": "memory-semiconductor",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "데이터를 저장하는 반도체 소자군을 뜻하므로 이를 사용하는 IT 시스템 전체와 구별하여 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "mems",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "uncertain",
+      "reason": "원문은 중앙 처리 요소와 센서 등이 결합한 miniature device로 설명한다. 하나의 집적 소자인지 여러 부품의 모듈인지 확정하지 않아 2와 4의 경계가 남으므로 기존 2를 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "a miniature device generally consisting of a central component for data processing (such as a microprocessor) and other components that interact with their surroundings (such as micro-sensors)"
+        }
+      ],
+      "notes": "현재 정의의 의미를 바꾸지 않고 경계를 표시했다. 명백한 오류만 수정하는 요청에 따라 기존값을 유지한다."
+    },
+    {
+      "conceptId": "metal-film",
+      "oldScale": 1,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "현재 정의와 원문은 증착 박막 중 회로의 전기적 신호를 연결하는 금속막층을 가리킨다. 금속 원소 일반이 아니라 형성된 박막 구조이므로 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 98,
+          "quote": "증착공정을 통해 형성된 박막은 크게 회로들 간 전기적인 신호를 연결해주는 금속막(전도)층과 내부 연결층을 전기적으로 분리하거나 오염원으로부터 차단시켜주는 절연막층으로 구분됩니다."
+        }
+      ]
+    },
+    {
+      "conceptId": "metal-film-deposition",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "진공 챔버를 이용한다는 것은 수단이며 정의 대상은 금속을 기화시켜 막을 형성하는 과정이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "metal-gate",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "금속을 게이트 전극 재료로 사용하는 트랜지스터 단자 구조를 뜻하므로 금속 원재료가 아닌 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "metal-hardmask",
+      "oldScale": 1,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "식각 선택비와 형상을 제어하기 위해 사용하는 실제 금속층을 정의한다. 금속의 물성 일반이 아니라 공정에 형성된 마스크 막이므로 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "a metal layer that may be used in critical patterning applications to improve etch selectivity and profile control"
+        }
+      ]
+    },
+    {
+      "conceptId": "metal-interconnect",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "uncertain",
+      "reason": "요약은 집적회로의 배선 구조를 뜻해 2에 가깝지만 현재 원리와 일부 출처는 배선 형성 공정군을 뜻한다. 구조와 공정이 혼용되어 기존 3을 불확실로 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "the intricate wiring that forms electrical connections between components in an integrated circuit"
+        },
+        {
+          "documentIndex": 120,
+          "quote": "이번에 살펴볼 금속배선 공정은 앞에서 살펴본 포토, 식각, 증착 등과 같은 단일 공정이 아니다."
+        }
+      ],
+      "notes": "Lam 정의와 현재 요약은 배선 구조이고 SK하이닉스 원문·기존 원리는 형성 공정군이다. 이 검토는 정의를 수정하지 않는다."
+    },
+    {
+      "conceptId": "metal-oxide-resist",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "금속 산화물 나노입자의 광분해·교차결합 반응으로 구분하는 감광 소재를 정의하므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "metallization",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "텅스텐 콘택트나 구리 배선이라는 완성 구조가 아니라 금속막을 증착하는 공정으로 정의되어 있으므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "micro-bump",
+      "oldScale": 1,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "원문은 칩 사이의 전기적 가교인 미세 접속부로 설명하며 범프 피치도 실제 연결 구조의 간격으로 다룬다. 접속 재료라는 명칭만으로 재료 물성에 두지 않고 구조인 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 125,
+          "quote": "* 마이크로 범프(Micro Bump): 마이크로 범프(Micro Bump): 수직 적층된 칩과 회로를 연결할 때, 각 칩의 가교 역할을 하는 소재"
+        },
+        {
+          "documentIndex": 128,
+          "quote": "그림에서 볼 수 있듯이 솔더 범프는 약 100㎛(마이크로미터), 마이크로 범프는 약 20㎛ 수준인데, Cu–Cu 하이브리드 본딩에서는 피치가 약 1㎛ 이하까지 줄어든다."
+        }
+      ],
+      "notes": "원문에 적힌 피치 수치는 실제 연결 구조 문맥을 확인하는 근거이며 새 수치 경계를 만들지 않았다."
+    },
+    {
+      "conceptId": "microchannel-cooling",
+      "oldScale": 3,
+      "newScale": 4,
+      "decision": "change",
+      "reason": "작은 채널로 유체가 이동하며 작동 중 칩·패키지의 열을 제거하는 냉각 동작 기술이다. 채널 제조 레시피가 아니므로 열 관리 시스템 맥락인 4로 변경한다.",
+      "evidence": [
+        {
+          "documentIndex": 125,
+          "quote": "반도체 칩이나 패키지 내부의 발열원을 직접적으로 접촉한 유체가 매우 작은 채널(보통 수 µm ~ 수십 µm)을 통과하면서 열을 효과적으로 제거하는 기술"
+        }
+      ],
+      "notes": "µm라는 채널 치수로 규모를 정하지 않았으며 냉각 중 유체의 열 제거 기능을 기준으로 했다. 채널 제작이나 팹 공용 냉각 인프라를 뜻하지 않는다."
+    },
+    {
+      "conceptId": "microcomponents",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "MPU·MCU·DSP 등 연산·제어 칩의 종류를 묶는 시스템 반도체 분류이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "micrometer",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "마이크로미터는 길이의 환산 단위이며 이를 쓰는 소자·장비와 구별되므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "mid-power-led-package",
+      "oldScale": 4,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "일정 소비전력 아래의 LED 패키지 제품을 뜻한다. 실내 조명 시스템 전체가 아니라 반도체 패키지 자체이므로 2이다.",
+      "evidence": [
+        {
+          "documentIndex": 78,
+          "quote": "일반적으로 소비전력이 1W(와트)를 넘는 제품을 하이파워, 그 미만을 미들파워 LED 패키지라고 부른다.",
+          "sourceHash": "0e58e6c332083b56f509061410d13c0475d9043d81884ebbb41644440f61d2d0"
+        }
+      ]
+    },
+    {
+      "conceptId": "millimeter",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "밀리미터는 길이 단위이고 웨이퍼 지름은 사용 예일 뿐이므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "mobile-ap",
+      "oldScale": 4,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "현재 정의는 스마트폰 안에서 여러 기능을 통합한 시스템 온 칩이다. 스마트폰·컴퓨팅 장비 전체가 아니라 단일 처리 칩이므로 2이다.",
+      "evidence": [
+        {
+          "documentIndex": 48,
+          "quote": "스마트폰, 태블릿PC와 같은 전자기기에 탑재되어 명령해석, 연산, 제어 등의 두뇌 역할을 하는 시스템 반도체.",
+          "sourceHash": "abda93129f88752603727a1ba7a130ffb436889a8e33fd3718936c4b45c10f36"
+        }
+      ]
+    },
+    {
+      "conceptId": "mobile-ddi",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "모바일 디스플레이용 구동 집적회로 칩이 대상이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "mobile-dram",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "모바일 AP와 데이터를 교환하는 휘발성 DRAM 소자를 뜻하며 모바일 시스템 전체가 아니므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "mol",
+      "oldScale": 5,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "FEOL과 BEOL 사이에서 게이트 접점 등 국부 전기 연결 구조를 만드는 웨이퍼 공정군이다. 제조 시설이 아니라 공정 단계 집합이므로 3이다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "the set of wafer processing steps used to create the structures that provide the local electrical connections between transistors; mainly gate contact formation; occurs after front-end-of-line (transistors) and before back-end-of-line (wiring) processes",
+          "sourceHash": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291"
+        }
+      ]
+    },
+    {
+      "conceptId": "molybdenum",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "낮은 비저항을 가진 금속 재료 자체를 정의하므로 몰리브덴 증착 공정이나 배선 구조와 구별하여 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "molybdenum-wordline-ald",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "무불소 전구체를 사용해 워드라인 막을 증착하는 ALD 공정이며 몰리브덴 물질이나 완성 워드라인 구조가 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "monolithic-3d-integration",
+      "oldScale": 4,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "기준 정의와 원리는 이미 형성된 기판 위에 새로운 소자층을 성장·증착·전사하여 집적하는 방법을 설명한다. 완성 3D 집적회로 제품과 구별되는 제조·집적 방식이므로 3이다.",
+      "evidence": [
+        {
+          "documentIndex": 125,
+          "quote": "2차원(2D) 평면에서의 미세화 한계를 극복하기 위해 이미 형성된 기판 위에 새로운 반도체 소자층을 쌓는 모놀리식(Monolithic) 3D 이종집적기술에 대한 연구는 1980년대 후반부터 시작됐다. 새로운 반도체 소자층을 형성하는 방법으로는 ①기판에서 직접 단결정을 성장시키는 결정 성장법 ②다결정 또는 비정질 반도체층을 증착한 후 레이저 등을 이용해 결정화하는 방법 ③완성된 소자를 ‘Smart-Cut*’ 등의 공정을 통해 다른 기판 위로 전사하는 방법 등이 시도됐다. 그러나 결정 성장 온도의 제약, 높은 결함 밀도, 전사 기술의 한계 등으로 인해 상용화에는 이르지 못했다. 그럼에도 불구하고, 이러한 초기 시도들은 후에 수백 단의 소자층을 수직으로 연결하는 수직 구조(Vertical) 낸드플래시(NAND Flash)로 구현됐기 때문에 완전한 실패로 보기는 어렵다.",
+          "sourceHash": "5e3f531d077891a284f05c1fad2714fd93332ee27ed53cffea507809b5c6b33a"
+        }
+      ]
+    },
+    {
+      "conceptId": "moores-law",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "집적회로 집적도와 비용이 세대별로 변하는 관찰·산업 추세이다. 트랜지스터 자체나 공정 조건이 아니라 기술 발전·산업 맥락에서 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "mosfet",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "금속·산화막·반도체 구조를 이용하는 전계효과 트랜지스터 소자의 종류이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "mr-muf",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "현재 정의와 원리는 액상 재료 주입으로 칩 사이를 채우는 조립·봉지 공정을 설명한다. HBM 패키지에 쓰여도 완성 패키지 자체가 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "mram",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "자기 저장 요소를 이용하는 비휘발성 메모리 소자의 종류이며 자기 물성 일반이 대상이 아니므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "multi-chip-module",
+      "oldScale": 4,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "원문은 여러 반도체 칩을 한 패키지 안에 집적한 구조로 설명한다. 독립적인 칩이 여러 개라는 이유로 외부 컴퓨팅 장비 전체가 되는 것은 아니므로 패키지 구조인 2이다.",
+      "evidence": [
+        {
+          "documentIndex": 125,
+          "quote": "* 멀티 칩 모듈(Multi-Chip Module, MCM): 여러 개의 반도체 칩을 하나의 패키지 안에 집적해, 서로 고속으로 신호를 주고받도록 구성한 기술, 칩 간 배선 길이를 줄여 전력 소모와 지연을 낮추며, 초기 SoC 개념의 전신으로 평가된다.",
+          "sourceHash": "5e3f531d077891a284f05c1fad2714fd93332ee27ed53cffea507809b5c6b33a"
+        }
+      ]
+    },
+    {
+      "conceptId": "multi-chip-package",
+      "oldScale": 4,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "현재 정의는 여러 반도체 칩을 쌓아 하나로 묶은 반도체 패키지이다. 제조 기술 설명도 있지만 직접 정의한 대상이 패키지 제품이므로 2이다.",
+      "evidence": [
+        {
+          "documentIndex": 26,
+          "quote": "MCP는 Multi Chip Package의 약자로 2개 이상의 반도체 칩을 적층해 하나의 패키지로 만드는 기술이다.",
+          "sourceHash": "c6c376b2aedb4b9490fd98a90a0705bc577ffc06e17c2e812fc0c708f8c53dee"
+        }
+      ]
+    },
+    {
+      "conceptId": "multi-station-sequential-deposition",
+      "oldScale": 3,
+      "newScale": 4,
+      "decision": "change",
+      "reason": "원문과 현재 정의가 복수 증착 스테이션을 갖춘 tool architecture를 직접 가리키므로 증착 레시피인 3에서 장비 구조인 4로 변경한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "a tool architecture with multiple deposition stations designed to improve film uniformity"
+        }
+      ]
+    },
+    {
+      "conceptId": "multi-station-sequential-processing",
+      "oldScale": 3,
+      "newScale": 4,
+      "decision": "change",
+      "reason": "정의 대상은 여러 스테이션에서 복수 웨이퍼를 처리하는 장비 아키텍처이므로 처리 단계인 3에서 설비 구조인 4로 변경한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "a tool architecture with multiple stations designed to improve process repeatability"
+        }
+      ]
+    },
+    {
+      "conceptId": "multiple-patterning",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "패턴 분할 또는 자기정렬을 통해 제조 단계를 조합하는 전략이며 완성 패턴이나 시스템 자체가 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "multiply-accumulate",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "uncertain",
+      "reason": "원문은 AI 추론·학습에서 반복하는 곱셈·덧셈 연산을 뜻하고 A-CiM 소자 내 수행을 설명한다. 연산 규칙 자체와 구현 회로·시스템 맥락이 혼재하여 명백한 대체 규모를 단정하지 않고 기존 2를 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 126,
+          "quote": "* 곱셈-누산(Multiply-and-Accumulate, MAC): 곱셈과 덧셈을 반복하는 연산으로, AI 모델의 추론과 학습에서 핵심적인 연산 방식"
+        }
+      ],
+      "notes": "현재 정의의 의미를 바꾸지 않고 경계를 표시했다. 명백한 오류만 수정하는 요청에 따라 기존값을 유지한다."
+    },
+    {
+      "conceptId": "n-type-semiconductor",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "불순물 첨가로 잉여전자와 전도성을 조절한 반도체 재료를 정의한다. 이온 주입이라는 제조 방법이 원리에 있어도 대상은 재료이므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "nand-flash",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "셀을 직렬로 연결한 비휘발성 메모리 소자가 대상이며 SSD·메모리 카드 등 사용처의 완성 장치와 구별되므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "nanometer",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "나노미터는 길이 단위이며 기술 노드에 사용된다는 이유로 공정 단계가 되지 않으므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "nas",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "keep",
+      "reason": "네트워크로 접근하는 저장 장치이며 여러 SSD를 넣은 공유 저장소를 설명한다. 완성 저장 시스템 규모인 4가 맞다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "negative-binomial-yield",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "칩 면적·결함 군집성으로 생산 수율을 예측하는 통계 모델이다. 모델의 길이가 아니라 제조 수율을 예측·관리하는 운영 맥락을 기준으로 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "negative-photoresist",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "빛을 받은 뒤 용해도·경화 특성이 달라지는 감광액의 종류이므로 패턴 구조나 현상 공정과 구별하여 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "neuromorphic-computing",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "uncertain",
+      "reason": "원문이 뇌를 모방하는 반도체부터 컴퓨팅 방식까지 다양한 구현을 명시한다. 단일 소자·칩으로 한정하지 못하므로 기존 시스템 맥락의 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "nfc",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "keep",
+      "reason": "단말기·태그 사이에서 데이터를 교환하는 근거리 통신 기술이다. 개별 칩을 뜻하지 않고 기기간 통신·시스템 동작을 정의하므로 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "noise-regularization",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "uncertain",
+      "reason": "신경망 학습에서 일부 내부 노이즈를 이용하는 방법이다. 재료의 잡음 물성이나 제조 조건이 아닌 모델 전체 학습 맥락이므로 기존 4를 유지하되 물리 규모의 불확실성을 남긴다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "non-uniformity",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "웨이퍼 공정 결과의 두께 변동 등을 평가하는 공정 품질 척도이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "nor-flash",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "셀을 병렬로 구성한 플래시 메모리 소자의 종류이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "npu",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "현재 정의는 독립 칩이나 다른 칩 내부에 구현하는 AI 연산 반도체이므로 완성 컴퓨팅 시스템으로 확대하지 않고 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "nucleation-layer",
+      "oldScale": 1,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "후속 금속막 성장을 돕기 위해 이미 형성해 두는 얇은 층을 정의한다. 전구체 화학종이나 핵생성 현상 일반이 아니라 박막 구조이므로 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "a thin layer of material generally used to aid subsequent metal film growth, for example, tungsten CVD for gapfill"
+        }
+      ]
+    },
+    {
+      "conceptId": "numerical-aperture",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "uncertain",
+      "reason": "현재 정의와 원문은 광학계의 집광·집속 능력을 나타내는 일반 척도이다. 기초 광학 특성인 1, 광학계 사양인 4, 노광 조건 지표인 3의 경계가 있어 기존 3을 불확실로 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "a measure of an optical system’s ability to collect and focus light; the higher the NA, the more light that is captured and the finer the details"
+        }
+      ],
+      "notes": "현재 정의에는 특정 노광 공정에 한정하는 조건이 없고 광학계의 일반 척도이다. 단계 변경의 명백성이 부족하여 유지한다."
+    },
+    {
+      "conceptId": "obem",
+      "oldScale": 5,
+      "newScale": 4,
+      "decision": "change",
+      "reason": "직접 대상은 다중 챔버·복합 모듈 장비 내부 구조의 객체 모델이다. 팹 전체 생산흐름이나 시설 공급망이 아니라 개별 제조장비의 시스템 구조를 표준화하므로 4이다.",
+      "evidence": [
+        {
+          "documentIndex": 108,
+          "quote": "- **목적**: 단일 챔버 장비를 넘어 다중 공정 챔버(Cluster Tool) 및 복합 모듈 장비의 내부 구조를 객체 지향적으로 표준화.",
+          "sourceHash": "440ee3981136b6c8b69e04be54f004e0bea7fd39c16be7420828faa1bafbb443"
+        }
+      ]
+    },
+    {
+      "conceptId": "oee",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "설비의 가용·운영 효율·양품률을 결합한 생산 효율 지표이므로 설비 운영관리 규모인 5가 맞다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "oem",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "장비를 설계·제조하는 공급 사업체를 뜻하므로 장비 제품 자체와 구별되는 산업 사업체 규모 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "oes-fdc",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "uncertain",
+      "reason": "챔버·식각 공정에 한정된 모니터링이지만 원문은 E133 데이터 수집과 학습 모델 및 운영 경보를 함께 설명한다. 공정 관리 3, 장비 제어 4, 팹 연계 운영 5의 경계가 있어 기존 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "opc",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "uncertain",
+      "reason": "마스크 패턴을 계산으로 사전 보정하는 기술로 제조 보정 절차인 3과 계산 리소그래피 소프트웨어인 4의 경계이다. 물리적 공정이라고 확정하거나 소프트웨어 시스템으로 정의를 바꾸지 않고 기존 3을 불확실로 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 2,
+          "quote": "빛의 간섭/회절 방정식을 역산하여, 마스크 패턴의 모서리에 세리프(Serif)를 붙이거나 보조 피처(SBAR, Sub-Resolution Assist Features)를 추가하여"
+        }
+      ],
+      "notes": "원문 계산 리소그래피 절을 읽었다. 알고리즘이라는 말만으로 시스템 규모로 올리거나 모든 계산 절차를 제조 공정으로 단정하지 않는다."
+    },
+    {
+      "conceptId": "optical-semiconductor",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "빛과 전기신호를 변환하는 반도체 소자군을 뜻하므로 광학 기초 현상 자체와 구별하여 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "overfitting",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "uncertain",
+      "reason": "학습 모델의 일반화 성능이 낮아지는 현상이다. 물리적 크기가 없는 모델 성질이며 기존 컴퓨팅 체계 맥락의 4를 명백한 오류로 확정할 수 없어 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "overlay-metrology",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "노광 결과 마크를 이용해 위치 오차와 회전을 측정하는 계측 작업이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "oxide",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "현재 정의는 주로 이산화규소를 가리키는 절연성 산화물 재료이다. 별도 개념인 형성된 산화막과 구별하여 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "oxide-film",
+      "oldScale": 1,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "현재 정의와 원문은 웨이퍼 표면에 형성된 얇고 균일한 실리콘 산화막을 뜻한다. 이산화규소 재료 일반이 아니라 보호·절연 기능을 수행하는 실제 막층이므로 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 52,
+          "quote": "고온에서 산소를 실리콘 웨이퍼 표면과 화학 반응시켜 생성되는 얇고 균일한 실리콘 산화막(SiO2)이다."
+        }
+      ]
+    },
+    {
+      "conceptId": "p-type-semiconductor",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "불순물 첨가로 정공과 전도성을 조절한 반도체 재료의 종류를 정의하므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "package-molding",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "수지 밀봉으로 원하는 형태를 만드는 패키지 제조 행위이며 완성 패키지 구조 자체가 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "package-test",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "완성 칩을 장비에 넣어 조건별 특성과 불량을 판정하는 검사 절차이며 검사 장비 자체가 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "packaging",
+      "oldScale": 4,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "칩을 보호 용기에 넣고 전력·신호 연결을 제공하는 공정으로 정의한다. 완성 패키지 제품이나 설비가 아니라 제조·조립 동작이므로 3이다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "the process of enclosing a chip in a protective container (package) and providing power and signal connectivity",
+          "sourceHash": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291"
+        }
+      ]
+    },
+    {
+      "conceptId": "page-splitting",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "uncertain",
+      "reason": "페이지를 나누고 신경망 데이터를 배치하는 메모리 연산 알고리즘이다. 메모리 배열 구조와 시스템 동작을 함께 가지므로 기존 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "panel-ddi",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "패널 디스플레이를 구동하는 집적회로 칩의 종류이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "panel-level-packaging",
+      "oldScale": 4,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "큰 형식의 기판에 칩을 부착하는 첨단 패키징 기법이다. 기판 자체가 아닌 부착·패키징 제조 방식이므로 3이다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "an advanced packaging technique where chips are attached to larger format substrates that could be round, square, or rectangular",
+          "sourceHash": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291"
+        }
+      ]
+    },
+    {
+      "conceptId": "particle",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "미세한 불필요 재료 조각 자체를 정의한다. 결함이 될 수 있다는 사용 문맥만으로 검사 공정 지표로 바꾸지 않고 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "patterning",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "노광 전사·증착·식각 등을 포함해 피처를 만드는 제조 공정군이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "pcie",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "keep",
+      "reason": "컴퓨터 장치 사이의 직렬 전송 인터페이스 규격이므로 시스템 통신·연결 기술 맥락의 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "pecvd",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "플라즈마를 이용해 낮은 온도에서 막을 증착하는 CVD 방식이며 PECVD 장비 제품은 정의 대상이 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "pellicle",
+      "oldScale": 3,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "현재 정의는 오염을 줄이는 보호막 자체이며 설치나 제작 공정이 아니다. 소재 화학종보다 형성된 막의 기능을 가리키므로 박막·구조인 2로 변경한다.",
+      "evidence": [
+        {
+          "documentIndex": 117,
+          "quote": "펠리클이라고 부르는 마스크 보호막을 도입하며 문제를 해결했다."
+        }
+      ],
+      "notes": "원문에 있는 보호막이라는 대상에 근거한다. 특정 원료 화학종이나 제조 장비의 조립 모듈로 재정의하지 않았다."
+    },
+    {
+      "conceptId": "phosphor",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "LED의 빛을 다른 색으로 변환하는 재료 자체가 정의의 대상이므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "photo-cvd",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "사용 에너지에 따라 구분한 화학 기상증착 방식이며 광원 장비의 정의가 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "photolithography",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "감광액 도포·노광·현상과 후속 검사를 포함한 패턴 전사 공정이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "photolithography-equipment",
+      "oldScale": 3,
+      "newScale": 4,
+      "decision": "change",
+      "reason": "정의와 실제 원문이 Stepper·EUV Scanner 같은 회로 전사용 제조 장비를 명시하므로 공정인 3에서 설비인 4로 변경한다.",
+      "evidence": [
+        {
+          "documentIndex": 113,
+          "quote": "반도체 제조 Photo공정에서 미세한 회로를 그리기 위해 빛을 직접 노출(Exposure)시키는 장비로 Stepper, EUV Scanner 등이 있다."
+        }
+      ]
+    },
+    {
+      "conceptId": "photomask",
+      "oldScale": 3,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "투명·불투명 패턴이 그려진 판 자체를 뜻하며 빛을 쬐는 노광 작업이나 복수 모듈로 된 장비가 아니다. 패턴이 형성된 기판 구조로 보아 2로 변경한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "a plate with transparent and opaque areas that allow ultraviolet light to shine through to create a pattern onto a wafer"
+        },
+        {
+          "documentIndex": 46,
+          "quote": "반도체 집적회로의 제조공정 중 포토공정에서 사용하는 미세한 전자회로가 그려진 유리판."
+        }
+      ],
+      "notes": "전자빔으로 회로 패턴을 만든 유리판을 가리킨다. 마스크 제작 공정은 3, 마스크를 쓰는 노광 장비는 4인 점과 구별했다."
+    },
+    {
+      "conceptId": "photoresist",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "빛에 반응하여 성질이 변하는 감광성 재료를 정의한다. 회전 도포 절차는 사용 원리이고 대상의 정체성은 소재이므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "photoresist-coating",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "감광액 물질이나 도포된 막 자체가 아니라 웨이퍼 표면에 골고루 바르는 제조 단계이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "photoresist-development",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "현상액으로 선택 영역을 제거하고 패턴을 남기는 공정이며 원리의 PEB와 린스도 절차를 설명하므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "photoresist-strip",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "식각·이온 주입 뒤 남은 레지스트를 제거하는 건식 또는 습식 공정이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "pim",
+      "oldScale": 4,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "현재 정의는 엄밀한 PIM을 DRAM 칩 내부에 연산기를 넣는 방식으로 한정한다. 메모리와 별도 로직 칩을 결합하는 PNM이나 전체 서버와 구별되는 칩 내부 회로 구조이므로 2이다.",
+      "evidence": [
+        {
+          "documentIndex": 113,
+          "quote": "PIM(Processing-In-Memory)",
+          "sourceHash": "c4269b449cd3cb92400850c02c34688b952a576a952c4242077c20213b80df41"
+        }
+      ]
+    },
+    {
+      "conceptId": "pitch",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "uncertain",
+      "reason": "현재 정의는 인접 피처 중심 사이의 거리라는 일반 기하량이다. 기본 길이량의 설명으로 볼지 회로 구조의 설계 치수나 공정 관리 지표로 볼지 문맥이 특정되지 않아 기존 1을 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "the distance from the center of one feature to the center of an adjacent feature, for example, from the center of one metal line to the center of an adjacent line"
+        }
+      ]
+    },
+    {
+      "conceptId": "plasma",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "자유전자와 이온으로 구성된 물질 상태 및 이온화 현상을 정의하므로 플라스마 발생 장비나 식각 공정과 구별하여 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "plasma-etch",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "플라즈마의 화학 작용과 이온 충격으로 웨이퍼 재료를 제거하는 공정이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "plasma-thermal-scrubber",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "팹 배기를 분해·중화하는 환경 처리 설비 기술이다. 개별 장비의 기계 부품보다 팹 배기·환경 인프라가 직접 맥락이므로 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "pn-junction",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "p형과 n형 반도체를 접합하여 만든 다이오드의 바탕 구조이며 개별 재료 자체가 아니므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "pnm",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "uncertain",
+      "reason": "별도 로직 칩을 DRAM 가까이 두는 구조이지만 하나의 패키지인지 더 넓은 연산 시스템인지 기준 정의에서 고정하지 않는다. 패키지 2와 시스템 4의 경계가 있어 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "positive-photoresist",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "빛을 받으면 현상액 용해도가 높아지는 감광 재료 종류를 뜻한다. 형성 패턴과 후속 처리 절차가 아닌 소재를 대상으로 하므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "power-ic",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "전력 변환·제어 기능을 수행하는 반도체 소자이며 이를 포함한 전원 시스템 전체가 대상이 아니므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "pre-metal-dielectric",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "트랜지스터와 첫 배선층 사이에 절연 기능을 제공하는 재료로 정의된다. 제목의 막 표현만으로 실제 층 구조와 동일시하지 않고 소재 역할에 따라 1을 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "an insulating material that provides electrical isolation between the transistors and the first interconnect layer"
+        }
+      ]
+    },
+    {
+      "conceptId": "preston-equation",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "uncertain",
+      "reason": "현재 정의는 압력·속도와 재료 제거율의 물리적 관계식이면서 CMP 공정 결과를 예측하는 모델이다. 기초 연마 물리인 1과 공정 품질 모델인 3의 경계가 있어 명백한 오류로 확정하지 않고 기존 1을 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 12,
+          "quote": "- **돌파구:** 프레스턴 법칙($\\text{MRR} = K_p \\cdot P \\cdot V$)을 국소 영역(Pattern density)과 패드 탄성 변형(Pad elasticity)의 유체역학적 상호작용으로 확장한 닫힌 형태(Closed-form)의 해석적 모델 제시."
+        }
+      ],
+      "notes": "현재 개념은 물리식과 공정 예측 모델을 함께 포함한다. 관련 논문 원본의 진위나 타당성은 검증하지 않았다."
+    },
+    {
+      "conceptId": "probe-card",
+      "oldScale": 3,
+      "newScale": 4,
+      "decision": "change",
+      "reason": "웨이퍼에 접촉하는 다수의 미세 핀으로 전기 신호를 전달하는 검사 장비의 부품이다. 검사 절차인 EDS와 구별하여 4로 변경한다.",
+      "evidence": [
+        {
+          "documentIndex": 100,
+          "quote": "프로브 카드에 있는 수많은 미세한 핀(Pin)이 웨이퍼와 접촉해 전기를 보내고 그 신호를 통해 불량 칩을 선별하게 됩니다."
+        }
+      ]
+    },
+    {
+      "conceptId": "process-flow",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "웨이퍼 제조에 필요한 수백 개 단계의 수행 순서로 생산 전반의 흐름을 나타낸다. 한 레시피의 조건이 아니라 전체 생산흐름 맥락에서 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "prom",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "사용자가 한 번 기록하는 ROM 소자의 종류이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "provision-ebeam",
+      "oldScale": 3,
+      "newScale": 4,
+      "decision": "change",
+      "reason": "현재 정의가 AMAT의 전자빔 검사 시스템을 명시하고 원문도 핵심 장비로 설명하므로 검사 행위인 3에서 설비·시스템인 4로 변경한다.",
+      "evidence": [
+        {
+          "documentIndex": 1,
+          "quote": "**PROVision® 전자빔(E-beam) 검사 시스템**"
+        }
+      ]
+    },
+    {
+      "conceptId": "puc",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "주변 회로를 셀 어레이 아래에 배치한 NAND 칩의 공간 구조를 뜻하므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "pulsed-cryogenic-har-etching",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "RF 펄스와 저온 반응 조건으로 NAND 홀을 식각하는 제조 기술이며 펄스 장치나 냉각 설비 자체가 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "pulsed-laser-deposition",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "펄스 레이저를 수단으로 증착 증기를 만들고 기판에 응축시키는 막 형성 공정이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "pvd",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "스퍼터링 등의 물리적 입자 공급으로 막을 형성하는 증착 방식이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "q-time",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "공정 사이의 최대 대기 시간을 관리하여 다음 공정 투입을 제한하는 생산 흐름 제약이다. 라인 대기·물류 관리 맥락이므로 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "quadruple-patterning",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "노광 분할 또는 SAQP를 이용해 피처 밀도를 높이는 제조 기법이므로 이름의 네 배라는 수치와 무관하게 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "quality-assurance",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "개발부터 양산·출하까지 위험을 진단하고 품질 체계를 운영하는 전사적 활동이다. 개별 검사 방식과 구별되는 운영관리 규모이므로 5가 맞다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "quantum-efficiency",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "입자 간 에너지 변환을 광자·전자 수의 비율로 나타내는 물리적 효율을 정의하므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "quarter-bin",
+      "oldScale": 5,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "LED의 같은 색상 범위를 넷으로 나누는 품질 선별 기준이다. 분류 수와 무관하게 공정의 제품 특성 관리 지표이므로 3이다.",
+      "evidence": [
+        {
+          "documentIndex": 86,
+          "quote": "겉으로 보기에는 같은 색 범위라도 이를 더욱 세부적으로 나눌 수 있다. 4개로 구분한 것을 쿼터빈(Quarter Bin), 2개로 구분한 것을 하프빈(Half Bin)이라고 한다. LED 제조사는 자신의 제품에 맞는 보다 정확한 색상의 빛을 요구하므로, 컬러의 범위를 더욱 세분화 할 수록 고객의 니즈를 충족시킬 수 있다.",
+          "sourceHash": "f3d5e9186021e87dba3318656dfc642381bcbbe159a1c298795edb01f4589f4e"
+        }
+      ]
+    },
+    {
+      "conceptId": "r2r-control",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "직전 웨이퍼 계측값을 다음 웨이퍼 조건에 반영하는 제어 방식이며 원문은 장비 외부 APC 엔진과 장비 제어기의 연계로 설명한다. 팹의 반복 생산 운영 체계 맥락에서 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "radical-oxidation",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "라디칼을 만들어 실리콘과 반응시켜 산화막을 형성하는 공정이며 라디칼 물질 자체의 정의가 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "ram",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "읽기·쓰기·수정 기능을 가진 메모리 반도체 소자를 뜻하므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "rayleigh-criterion",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "파장·개구수와 해상도의 관계를 설명하는 광학 물리식이 정의의 중심이다. 공정 상수가 포함되어도 레시피나 공정 관리 절차 자체가 아니므로 1을 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 2,
+          "quote": "## 1. 노광 물리학의 근본 법칙: 레일리 한계식 (Rayleigh Criterion)"
+        }
+      ]
+    },
+    {
+      "conceptId": "reactive-ion-etching",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "이온 충돌·표면 결합 약화와 라디칼 반응을 조합한 재료 제거 공정이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "redistribution-layer",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "패키징 중 칩에 추가되는 배선층 구조이며 그 층을 형성하는 제조 공정 자체가 아니므로 2를 유지한다.",
+      "evidence": [],
+      "notes": "재료 명칭이나 제조 원리보다 현재 정의가 설명하는 소자·막·부품의 구조적 역할을 기준으로 판단했다."
+    },
+    {
+      "conceptId": "reliability",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "uncertain",
+      "reason": "기준 정의는 소자가 수명 동안 기능을 유지하는 특성이지만 원리는 스트레스별 검증·평가를 포함한다. 특성·검사·품질 운영의 경계를 정의 변경 없이 하나로 정하기 어려워 기존 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "residue",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "이전 처리 후 남은 불필요 재료 자체를 정의하며 잔류물 측정값이나 제거 공정이 대상이 아니므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "resistance",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "전압·전류 및 도선 형상과 관계되는 전기적 물리량이다. 저항기라는 부품과 구별하여 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "resistivity",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "물질 고유의 전기 저항률을 정의하므로 도선 구조나 제조 조건이 아닌 물성인 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "resistor",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "전류를 조절하는 회로 구성 소자이며 전기 저항이라는 물성 자체와 구별되므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "rom",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "기록된 정보를 보관하고 읽는 비휘발성 메모리 소자군이므로 기록 방식의 하위 종류 차이와 무관하게 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "sadp",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "측벽 스페이서 증착과 원래 피처 제거로 패턴을 정의하는 제조 절차이며 남은 스페이서 구조 자체가 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "saqp",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "스페이서 막 형성을 반복해 패턴을 정의하는 공정이며 피처 밀도 4X라는 수치가 규모 단계에 영향을 주지 않으므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "sata",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "keep",
+      "reason": "저장 장치와 컴퓨터가 데이터를 교환하는 연결 인터페이스이다. 단일 반도체 소자가 아니라 시스템 연결·통신 기술이므로 4가 맞다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "schottky-diode",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "다이오드의 한 종류로 등록된 반도체 소자이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "scribe-line",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "웨이퍼의 개별 칩 사이에 절단 폭을 마련한 경계 구조이며 절단 공정 자체와 구별되므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "secs-gem",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "팹 호스트와 장비의 메시지·상태·원격 제어를 함께 정하는 자동화 통신 체계이므로 팹 운영 연계 규모인 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "seed-layer",
+      "oldScale": 1,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "후속 증착의 시작을 돕기 위해 형성한 초박막을 정의한다. 씨앗 화학종이나 반응 자체가 아니라 형성된 층 구조이므로 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "an ultra-thin film deposited to help initiate subsequent deposition; sometimes referred to as a nucleation layer"
+        }
+      ]
+    },
+    {
+      "conceptId": "selective-epitaxy",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "노출된 실리콘에서만 결정이 성장하도록 반응을 제어하는 박막 성장 공정이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "selectivity",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "두 재료의 제거 속도를 비교하는 공정 품질 척도이다. 기존 분류 메모가 구조라고 적은 것은 부정확하지만 규모 값 3은 맞으므로 유지한다.",
+      "evidence": [],
+      "notes": "소자 구조라고 적힌 기존 분류 메모는 정의와 맞지 않으나 실제 수치 3은 공정 품질 지표에 맞으므로 변경하지 않는다."
+    },
+    {
+      "conceptId": "self-aligned-contact",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "콘택트라는 결과물보다 식각 선택비로 게이트 측벽을 따라 콘택트를 만드는 방법으로 정의되어 있으므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "semi-custom-ic",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "일부 표준 설계를 이용한 주문형 집적회로 제품의 종류이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "semi-e30-gem",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "팹 호스트와 장비의 원격 제어·상태·이벤트·레시피 교환을 규정한다. 개별 장비 내부 형상보다 팹 장비 운영 연계 체계이므로 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "semi-e5-secs-ii",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "팹 호스트와 장비가 교환하는 상태·제어·알람·프로그램 메시지를 정의한다. 자동화 통신 운영체계의 구성 규격으로 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "semiconductor",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "현재 정의는 전기전도성이 도체와 절연체 사이인 물질이다. 반도체 칩이나 산업이라는 다른 의미로 바꾸지 않고 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "semiconductor-assembly",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "기준 정의는 다이를 잘라 보호 포장하는 사업이다. 개별 조립 공정으로 정의를 바꾸지 않고 산업 사업체·활동 맥락의 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "semiconductor-ip",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "uncertain",
+      "reason": "지적 재산인 설계 모듈로서 회로 설계 대상과 산업 설계 자산의 두 맥락이 있다. 실물 회로로 단정해 2로 옮기지 않고 기존 설계 자산 맥락의 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "semiconductor-manufacturing",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "전공정과 후공정 전체를 거쳐 반도체를 완성하는 제조 활동을 포괄한다. 특정 공정군이 아닌 제조 산업·생산 활동 전체의 맥락에서 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "semiconductor-metrology",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "현재 정의는 회로 치수·조성·결함의 측정 기술과 프로토콜이며 기관 자체나 팹 운영체계가 아니다. 제조 계측 공정·방법인 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "shallow-trench-isolation",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "절연재로 채운 얕은 트렌치의 소자 격리 구조가 대상이며 식각·충전 단계는 구현 설명이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "sic-interface-poa",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "산화 후 질소계 고온 열처리로 계면 결함을 줄이는 공정이며 SiC 소자 구조나 계면 물성 자체가 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "sige-selective-etching",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "교번 적층 중 SiGe만 선택 제거해 나노시트를 분리하는 식각 공정이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "silicidation",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "금속과 실리콘을 반응시켜 접점 계면을 형성하는 과정이며 완성 실리사이드 부위와 구별되므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "silicon",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "원자번호와 반도체 성질로 정의되는 규소 원소가 대상이므로 웨이퍼 구조나 잉곳 성장 공정과 구별하여 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "silicon-interposer",
+      "oldScale": 4,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "얇은 실리콘 기판의 미세 배선으로 칩을 연결하는 중간판이다. 여러 칩이 연결되어도 이 개념은 패키지의 기판·배선 구조 자체이므로 2이다.",
+      "evidence": [
+        {
+          "documentIndex": 124,
+          "quote": "* 실리콘 인터포저(Silicon Interposer): 얇은 실리콘 기판 위에 미세한 배선을 만들어 여러 칩을 서로 빠르고 촘촘하게 연결해주는 중간판",
+          "sourceHash": "f2f4e24313147b0df350e4e7bd70a986a81f7c75501758107bf5c9aad946afb1"
+        }
+      ]
+    },
+    {
+      "conceptId": "silicon-nitride",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "보호막으로 사용하는 질화규소라는 화학 재료를 정의한다. 막을 만드는 증착 공정이나 특정 형상 자체가 아니므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "single-wafer-clean",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "한 번에 웨이퍼 한 장을 처리하는 세정 방식이며 단일 웨이퍼 세정 장비의 하드웨어 정의가 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "smart-cut",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "이온 주입·접합·박리로 단결정층을 옮기는 제조 절차이며 옮겨진 층 자체가 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "smo",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "uncertain",
+      "reason": "조명 동공과 마스크 형상을 함께 합성하는 계산 최적화 방식이다. 노광 보정 절차인 3과 계산 소프트웨어 맥락인 4가 모두 가능해 기존 3을 불확실로 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 2,
+          "quote": "특정 회로 패턴에 최적화된 맞춤형 조명 동공(Pupil) 형태(다이폴, 쿼드러폴 등)와 마스크 형상을 수학적 알고리즘으로 동시 합성."
+        }
+      ],
+      "notes": "원문 계산 리소그래피 및 홀리스틱 리소그래피 맥락을 읽었으나 현재 정의의 절차/소프트웨어 경계가 남는다."
+    },
+    {
+      "conceptId": "soc",
+      "oldScale": 4,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "여러 기능을 하나의 칩에 구현한 통합 반도체이다. 이름에 시스템이 있어도 여러 장치가 결합한 외부 시스템이 아니라 단일 칩 제품이므로 2이다.",
+      "evidence": [
+        {
+          "documentIndex": 33,
+          "quote": "연산 소자(CPU), 메모리 소자(D램, 플래시 등), 디지털신호처리 소자(DSP) 등 주요 반도체 소자를 하나의 칩에 구현해 칩 자체가 하나의 시스템이 되도록 하는 것이다.",
+          "sourceHash": "abb3ad241d3f255c582aca46e5397cad82f62079f7d8e1f12be75956f41e593f"
+        }
+      ]
+    },
+    {
+      "conceptId": "soic",
+      "oldScale": 4,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "원문은 칩을 수직으로 쌓아 직접 연결하는 TSMC의 패키징 방식으로 정의한다. 완성된 패키지 형상보다 접합·조립 기술 자체를 설명하므로 3이다.",
+      "evidence": [
+        {
+          "documentIndex": 124,
+          "quote": "* SoIC(System on Integrated Chips)는 TSMC의 3D 적층 패키징 기술로, 칩을 위로 쌓아 직접 연결하는 방식. 하이브리드 본딩 등을 활용해 전력 소모와 지연을 줄이고, 칩 간 연결 밀도를 극대화하는 것이 특징",
+          "sourceHash": "f2f4e24313147b0df350e4e7bd70a986a81f7c75501758107bf5c9aad946afb1"
+        }
+      ]
+    },
+    {
+      "conceptId": "source-drain-contact-engineering",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "고농도 도핑 에피택시·금속 증착·레이저 어닐링으로 접촉 저항을 줄이는 제조 방법이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "source-driver-ic",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "RGB 부화소 신호를 조절하는 DDI 내부 회로를 뜻하므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "spacer",
+      "oldScale": 1,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "게이트 측벽 보호와 도펀트 배치를 위해 증착되어 있는 막을 정의하며 패턴의 형상 정의에도 쓰이는 구조이다. 소재 조성 일반이 아니라 형성된 박막·측벽 구조이므로 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "a deposited film commonly used to passivate sidewalls of the gate stack and to control the placement of dopants during ion implantation; also used to define the pattern in self-aligned multiple patterning schemes"
+        }
+      ]
+    },
+    {
+      "conceptId": "spc",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "원문은 팹 관리 상한·하한을 통계적으로 추적하는 운영 방식으로 설명한다. 개별 재료 물성이나 장비 부품이 아닌 팹 공정 관리 체계의 맥락에서 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "spiking-neural-network",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "keep",
+      "reason": "여러 인공 뉴런 사이의 신호 전달 방식을 구성하는 신경망 구조이다. 개별 물리 소자와 동일시하지 않고 정보 처리 체계 맥락의 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "spin-clean",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "웨이퍼를 회전시키며 용액으로 오염물을 제거하는 습식 세정 절차이며 스핀 장비 자체가 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "sputtering",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "입자를 충돌시켜 표면 물질을 제거하거나 증착 원료를 공급하는 제조 기법이며 입자·플라즈마 물성 자체가 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "sram",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "여러 트랜지스터로 데이터를 유지하는 메모리 반도체 소자이며 고속 저장 시스템 전체가 대상이 아니므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "ssd",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "keep",
+      "reason": "NAND·컨트롤러·캐시 등 여러 부품이 결합한 완성 저장 장치이다. 구성 반도체 칩과 구별되는 장치 전체이므로 4가 맞다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "stack-method",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "현재 정의와 원리는 웨이퍼 위로 층을 쌓아 셀을 집적하는 공법을 설명한다. 완성된 적층 셀 구조 자체로 의미를 바꾸지 않고 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "standard-ic",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "표준 규격으로 제작한 범용 집적회로 제품의 종류이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "step-coverage",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "단차 부위의 증착 두께 균일성을 평가하는 공정 품질 지표이며 박막 구조 자체가 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "stepper",
+      "oldScale": 3,
+      "newScale": 4,
+      "decision": "change",
+      "reason": "마스크를 장착하고 빛을 투과시켜 회로 패턴을 만드는 노광 장비 자체이다. 노광 절차와 구별하여 4로 변경한다.",
+      "evidence": [
+        {
+          "documentIndex": 39,
+          "quote": "이 과정은 노광장비로 불리는 스태퍼(Stepper)를 통해 진행되는데"
+        }
+      ]
+    },
+    {
+      "conceptId": "substrate",
+      "oldScale": 1,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "현재 용어집은 제조 시작 재료를 웨이퍼라고도 부른다고 정의한다. 이 개념의 대상은 실리콘 원소 일반보다 회로를 형성하는 실제 기판이므로 계약에 명시된 웨이퍼·기판 구조인 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "the starting material for the semiconductor manufacturing process, typically silicon; also referred to as a wafer"
+        }
+      ],
+      "notes": "웨이퍼라고도 부른다는 현재 원문 정의 범위에서 판단했다. 실리콘 원소 자체의 의미로 정의를 바꾸지 않았다."
+    },
+    {
+      "conceptId": "supercritical-co2-drying",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "초임계 유체 치환·감압 배출로 건조 중 모세관력을 줄이는 제조 공정이며 CO2 물질이나 고압 장비 자체가 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "switching-diode",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "스위칭 기능의 다이오드 소자로 분류된 개념이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "system-in-package",
+      "oldScale": 4,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "현재 정의와 원문은 서로 다른 IC를 하나의 모듈로 결합하는 패키징 기술이다. 만들어진 모듈 자체라는 새 정의로 바꾸지 않고, 명시된 제조·조립 기술을 기준으로 3이다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "a packaging technology that combines integrated circuits of different functionalities into a single module that performs as a unified system",
+          "sourceHash": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291"
+        }
+      ]
+    },
+    {
+      "conceptId": "system-semiconductor",
+      "oldScale": 4,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "연산·제어·변환·센싱을 수행하는 반도체 제품군이다. 다양한 시스템에서 쓰여도 직접 대상은 반도체 칩·회로이므로 2이다.",
+      "evidence": [
+        {
+          "documentIndex": 55,
+          "quote": "정보를 저장하는 메모리 반도체와 달리 시스템 반도체는 디지털화된 전기적 정보(Data)를 연산하거나 처리(제어, 변환, 가공 등)하는 반도체이다.",
+          "sourceHash": "cf3ed50861748ef9971da71bb9b47e494c0e99694702a3ee6530929e6a90fb1e"
+        }
+      ]
+    },
+    {
+      "conceptId": "tat",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "라인 투입부터 완제품 출하까지의 전체 소요 시간이며 병목·물량·설비·자재를 함께 관리한다. 전체 생산 흐름·생산성 운영 지표이므로 5가 맞다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "tcad",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "uncertain",
+      "reason": "소자 구조와 동작을 모사하는 시뮬레이션 기법이다. 실제 모사 대상의 크기와 시뮬레이션 시스템·설계 활동의 범위가 서로 달라 기존 5를 단일 오류로 확정하지 않고 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "tcb",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "열과 압력으로 칩·기판의 범프를 접합하는 조립 공정이며 본딩 장비나 접합 후 패키지를 가리키지 않으므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "tddb-bti-reliability",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "uncertain",
+      "reason": "절연막 열화를 평가하는 가속 수명 모델이며 시험 절차·모델 알고리즘·수명 보증이 함께 설명된다. 단순 검사 공정으로 정의를 바꾸지 않고 기존 신뢰성 보증 맥락의 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "technology-node",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "uncertain",
+      "reason": "소자 세대의 명칭이며 실제 길이도 역사적 의미로만 설명한다. 개별 구조나 공정·운영 중 한 규모와 유일하게 일치하지 않아 기존 세대·산업 맥락의 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "test-element-group",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "칩의 동작 여부를 확인하는 테스트용 칩 자체이며 검사 장비나 검사 공정이 아니므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "thermal-budget",
+      "oldScale": 1,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "재료의 열용량이나 기초 열에너지가 아니라 원하는 성능·수율을 위해 제조 온도와 시간에 허용하는 공정 한도이다. 공정 조건 관리 지표이므로 3으로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "the maximum thermal energy (determined by processing temperature and time) allowed for wafer fabrication processes to meet desired device performance and yield requirements"
+        }
+      ]
+    },
+    {
+      "conceptId": "thermal-cvd",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "외부 열에너지를 이용하는 화학 기상증착 방식이므로 열원 장비나 완성 막과 구별해 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "thermal-expansion",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "가열에 따라 물질의 크기가 변하는 기초 열기계 현상과 재료 간 팽창 차이를 정의하므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "thermal-oxidation",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "고온 반응으로 실리콘 산화막을 형성하는 제조 공정이다. 배치 장비 설명이 있어도 정의의 주체는 산화 행위이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "thin-film",
+      "oldScale": 1,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "현재 정의는 회로 사이를 구분·연결·보호하도록 형성된 얇은 막 자체이다. 원문 두께 수치를 새 분류 경계로 쓰는 것이 아니라 박막이라는 대상 정체성에 따라 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 98,
+          "quote": "이때 회로 간의 구분과 연결, 보호 역할을 하는 얇은 막을 박막(Thin film)이라고 합니다."
+        }
+      ]
+    },
+    {
+      "conceptId": "thin-film-deposition",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "전도성·절연성 막을 형성하는 건식·습식 제조 공정의 범주이므로 막 자체인 2와 구별해 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "three-d-fenand",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "강유전체 분극을 이용하여 셀 상태를 제어하는 3D NAND 소자 구조이며 강유전체 물성 자체가 아니므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "threshold-voltage",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "셀에 전류가 흐르기 시작하는 최소 전압이라는 소자의 전기적 특성을 정의한다. 문턱전압을 조절하는 공정이나 셀 구조 자체가 아니므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "tmdc",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "전이금속과 칼코겐의 결합 및 층상 성질로 구분하는 2차원 반도체 소재군이다. 이름의 2차원을 분류 단계로 해석하지 않고 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "transistor",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "신호를 증폭하거나 스위칭하는 반도체 소자로 정의되므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "trench",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "방향성 식각으로 만들어진 길고 좁은 물리적 피처가 대상이며 식각 공정 자체가 아니므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "trench-method",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "웨이퍼 표면 아래를 파서 셀을 집적하는 공법으로 정의되어 있다. 완성 트렌치 구조 자체를 뜻하도록 바꾸지 않고 제조 방법인 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "tsv",
+      "oldScale": 3,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "현재 정의의 주체는 다이·웨이퍼를 관통해 전기 연결을 만드는 고종횡비 구조이다. 식각·충전 레시피가 아닌 수직 전극 구조이므로 2로 변경한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "a high aspect ratio structure that creates vertical electrical connections through a die or a wafer; enables higher functionality and smaller form factor"
+        },
+        {
+          "documentIndex": 123,
+          "quote": "칩 내부를 수직으로 관통하는 미세한 구멍을 뚫어, 칩과 칩을 직접 연결해 최단 경로를 구축한다."
+        }
+      ],
+      "notes": "출처에는 연결 기술이라는 표현도 있지만 현재 요약과 Lam 정의가 수직 전극 구조를 명시하므로 구조 자체를 분류했다. TSV 제작 공정 레시피와 분리해야 한다."
+    },
+    {
+      "conceptId": "ucie",
+      "oldScale": 5,
+      "newScale": 4,
+      "decision": "change",
+      "reason": "UCIe는 물리 계층·프로토콜·소프트웨어 모델로 다이 간 통신을 정하는 인터페이스 규격이다. 컨소시엄의 산업 활동이 아니라 칩 간 연결 시스템의 동작 규약이므로 4이다.",
+      "evidence": [
+        {
+          "documentIndex": 124,
+          "quote": "UCIe 1.0 규격은 물리적 계층, 프로토콜 스택(기존 PCIe* 및 CXL* 활용), 소프트웨어 모델 및 규정 준수 테스트를 포함해 완전히 표준화된 D2D 상호 연결을 제공한다. 이를 통해 서로 다른 회사에서 만든 칩렛도 공통 규격만 맞으면 하나의 시스템처럼 통신할 수 있게 된다. 이러한 표준화의 목적은 우리가 다양한 칩을 PCB에 꽂아 시스템을 만드는 것처럼, 칩 제작도 궁극적으로는 ‘플러그 앤 플래이(Plug & Play)’ 방식의 조립형으로 바꾸는 데 있다.",
+          "sourceHash": "f2f4e24313147b0df350e4e7bd70a986a81f7c75501758107bf5c9aad946afb1"
+        }
+      ]
+    },
+    {
+      "conceptId": "ufs",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "keep",
+      "reason": "현재 정의는 읽기·쓰기를 제공하는 고속 플래시 저장 장치이다. 특정한 단일 칩·패키지 형상으로 한정하지 않고 내장 저장 장치의 동작 맥락에서 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "ultra-low-k-dielectric",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "매우 낮은 유전율과 기공 도입이라는 소재 물성으로 구분하는 절연 재료를 정의하므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "ultrapure-water",
+      "oldScale": 5,
+      "newScale": 1,
+      "decision": "change",
+      "reason": "기준 정의는 용존 산소·유기물·이온을 낮게 관리한 공정용 물이다. 원리에는 정제 설비도 나오지만 개념 자체는 공급 인프라가 아니라 화학종·재료인 물이므로 1이다.",
+      "evidence": [
+        {
+          "documentIndex": 13,
+          "quote": "초순수에 잔류하는 미량의 용존 산소(DO)와 유기물(TOC)",
+          "sourceHash": "b1d8dcadc591aec27c675008381f6174dfd72e9fd3c76713ad5da970f1399551"
+        }
+      ]
+    },
+    {
+      "conceptId": "underbump-metallization",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "범프 하부의 금속층 자체로도 쓰일 수 있는 이름이지만 현재 정의와 원문은 전기 연결을 만드는 금속 증착 공정을 명시하므로 3을 유지한다.",
+      "evidence": [],
+      "notes": "UBM이라는 명칭의 일반적인 다른 쓰임을 끌어오지 않고 이 데이터의 명시적 metal deposition process 정의를 따랐다."
+    },
+    {
+      "conceptId": "underfill",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "칩과 기판 사이의 간극을 채우는 충진 소재가 정의의 대상이다. 언더필 도포 공정이나 패키지 전체와 구별하여 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "uniformity",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "공정 결과의 일관성을 다이·웨이퍼·웨이퍼 사이에서 평가하는 품질 지표이므로 사용 범위가 넓어도 팹 운영인 5로 올리지 않고 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "uvtp",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "자외선과 열로 형성된 막의 특성을 바꾸는 증착 후처리 기법이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "v-nand",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "전하 트랩과 원통형 게이트를 갖는 수직 적층 NAND 소자 구조이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "variability",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "막 두께 등 제조 결과의 차이를 측정하는 공정 품질 척도이며 시스템 변동성 일반론이 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "verity-sem",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "uncertain",
+      "reason": "현재 요약은 CD-SEM을 이용하는 선폭 측정 기술인 반면 실제 문헌은 VeritySEM을 핵심 장비 항목에 둔다. 측정 절차와 제품 장비를 혼용할 여지가 있어 기존 3을 불확실로 유지한다.",
+      "evidence": [
+        {
+          "documentIndex": 1,
+          "quote": "### 3.2 핵심 장비 및 머신러닝 연동"
+        },
+        {
+          "documentIndex": 1,
+          "quote": "**VeritySEM®**: 주사전자현미경(CD-SEM)을 이용한 선폭(Critical Dimension) 초정밀 비파괴 측정."
+        }
+      ],
+      "notes": "브랜드명만으로 장비로 바꾸지 않았다. 원문 상위 문맥은 장비이나 현재 summary는 계측 기술이어서 3/4 경계를 보류했다."
+    },
+    {
+      "conceptId": "via",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "서로 다른 전도층을 잇는 배선 연결 경로의 구조를 뜻하므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "virtual-memory",
+      "oldScale": 4,
+      "newScale": 4,
+      "decision": "keep",
+      "reason": "시스템 메모리와 SSD·HDD 사이에서 데이터를 옮겨 주기억장치처럼 쓰는 관리 기법이다. 여러 저장 장치의 동작을 조율하는 시스템 기술이므로 4를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "void",
+      "oldScale": 3,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "현재 정의는 비아 등 구조 내부에 재료가 없는 빈 공간이라는 구조적 결함 자체이다. 보이드율 같은 품질 척도나 결함 검사 절차가 아니므로 2로 변경한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "a gap or hole defect where material is missing in a structure (such as a hole in a via)"
+        }
+      ]
+    },
+    {
+      "conceptId": "wafer",
+      "oldScale": 1,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "다수의 칩을 제조하는 원형 원판 기판을 정의한다. 그 재료인 규소의 원자·물성이나 웨이퍼 제조 공정과 구별되는 실제 구조이므로 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 58,
+          "quote": "반도체 집적회로를 만드는데 사용하는 주요 재료로, 주로 실리콘(규소, Si), 갈륨 아세나이드(GaAs) 등을 성장시켜 얻은 단결정 기둥(Ingot)을 적당한 지름으로 얇게 썬 얇은 원판모양의 판."
+        }
+      ]
+    },
+    {
+      "conceptId": "wafer-burn-in",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "열과 AC·DC 전압을 가해 잠재 불량을 찾는 웨이퍼 신뢰성 검사 절차이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "wafer-cleaning",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "입자·오염물·불필요 재료를 제거하는 건식·습식 제조 공정이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "wafer-dicing",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "스크라이브 라인을 따라 웨이퍼를 개별 칩으로 절단하는 조립 전 제조 단계이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "wafer-fabrication-equipment",
+      "oldScale": 3,
+      "newScale": 4,
+      "decision": "change",
+      "reason": "정의 대상은 집적회로 제조에 쓰는 도구와 기계이며 공정 절차나 팹 시설 전체가 아니다. 제조 설비인 4로 변경한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "the tools or machines used to manufacture integrated circuits"
+        }
+      ]
+    },
+    {
+      "conceptId": "wafer-lapping-polishing",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "절단된 웨이퍼 표면을 연마액과 장비로 가공하는 제조 단계이며 장비 자체가 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "wafer-level-packaging-wlp",
+      "oldScale": 2,
+      "newScale": 3,
+      "decision": "change",
+      "reason": "원문은 웨이퍼 상태에서 IC를 포장하는 전략을 개별 다이 절단 후 포장하는 방법과 대비한다. 완성 패키지 구조보다 패키징 수행 방식이 정의 대상이므로 2에서 제조·조립 공정인 3으로 변경한다.",
+      "evidence": [
+        {
+          "documentIndex": 7,
+          "quote": "a strategy for packaging integrated circuits while they are still part of the wafer; in contrast to conventional packaging methods, which first slice the wafer into dies and then package each die individually"
+        }
+      ]
+    },
+    {
+      "conceptId": "wafer-notch",
+      "oldScale": 1,
+      "newScale": 2,
+      "decision": "change",
+      "reason": "웨이퍼에 플랫존 대신 형성하는 노치 영역을 정의한다. 웨이퍼의 실제 기하 구조이므로 소재 물성이 아닌 2로 정정한다.",
+      "evidence": [
+        {
+          "documentIndex": 93,
+          "quote": "⑤ **노치(Notch)**: 최근에는 플랫존 대신 노치가 있는 웨이퍼도 있습니다. 노치 웨이퍼가 플랫존 웨이퍼보다 더 많은 다이를 만들 수 있어 효율이 높습니다."
+        }
+      ]
+    },
+    {
+      "conceptId": "wafer-slicing",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "잉곳을 균일한 원판으로 절단하는 제조 단계이며 잉곳 재료나 웨이퍼 완성품이 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "wafer-to-wafer-hybrid-bonding",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "두 웨이퍼를 붙이는 하이브리드 본딩의 조립 방식이며 접합된 구조 자체가 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "wafer-to-wafer-uniformity",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "웨이퍼 사이의 식각 프로파일 등 공정 결과 일관성을 평가하는 품질 지표이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "wavelength",
+      "oldScale": 1,
+      "newScale": 1,
+      "decision": "keep",
+      "reason": "파동이 한 주기에 진행하는 길이라는 기초 파동 물리량을 정의한다. LED의 파장 제어 공정이나 광원 장치가 대상이 아니므로 1을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "wet-clean",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "액체 화학물질로 오염물을 제거하는 세정 공정이며 세정액 물질 자체가 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "wet-etching",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "용액 반응으로 재료를 제거하는 식각 방식이며 식각액 조성이나 장비 자체의 정의가 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "wet-oxidation",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "수증기 반응으로 빠르고 두꺼운 산화막을 형성하는 열산화 방식이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "wire-bonding",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "칩과 기판의 접점을 가는 금선으로 연결하는 조립 공정이며 완성 와이어 구조나 본더 장비가 아니므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "within-wafer-uniformity",
+      "oldScale": 3,
+      "newScale": 3,
+      "decision": "keep",
+      "reason": "한 웨이퍼 전면에서 막 두께 등 공정 결과의 일관성을 평가하는 품질 지표이므로 3을 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "word-line",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "메모리 셀의 게이트를 연결하여 셀을 선택하는 배선 경로 자체가 대상이므로 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "yield",
+      "oldScale": 5,
+      "newScale": 5,
+      "decision": "keep",
+      "reason": "정상 작동하는 양품 다이의 비율·수로 웨이퍼 생산 품질과 생산성을 평가한다. 특정 공정 단계의 조건이 아닌 생산 운영 지표 맥락에서 5를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "zaz-dram-capacitor",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "ZrO2와 Al2O3 장벽층을 조합한 특정 DRAM 커패시터 소자 구조가 대상이므로 형성 원리에 ALD가 나와도 2를 유지한다.",
+      "evidence": []
+    },
+    {
+      "conceptId": "zener-diode",
+      "oldScale": 2,
+      "newScale": 2,
+      "decision": "keep",
+      "reason": "정전압 특성을 지닌 다이오드 소자의 종류이므로 2를 유지한다.",
+      "evidence": []
+    }
+  ],
+  "documentsRead": [
+    {
+      "index": 1,
+      "filePath": "amat/amat_core_technologies.md",
+      "sha256": "931ad284b700da3a319f779973f0d75e22fd70a13c5c5712542b82c7899f28b1",
+      "reviewReadings": [
+        {
+          "index": 1,
+          "filePath": "amat/amat_core_technologies.md",
+          "sha256": "931ad284b700da3a319f779973f0d75e22fd70a13c5c5712542b82c7899f28b1",
+          "characters": 2725,
+          "readScope": "전체 원문 확인",
+          "reviewGroup": "scale2"
+        },
+        {
+          "index": 1,
+          "filePath": "amat/amat_core_technologies.md",
+          "sha256": "931ad284b700da3a319f779973f0d75e22fd70a13c5c5712542b82c7899f28b1",
+          "characters": 2725,
+          "reviewGroup": "scale3a"
+        },
+        {
+          "index": 1,
+          "filePath": "amat/amat_core_technologies.md",
+          "sha256": "931ad284b700da3a319f779973f0d75e22fd70a13c5c5712542b82c7899f28b1",
+          "characters": 2725,
+          "notes": "원문 전체를 읽었다. 엔지니어링 스냅샷이며 원 장비 문서의 외부 검증은 하지 않았다. characters는 해당 파일 전체의 UTF-8 디코딩 문자 수이다.",
+          "reviewGroup": "scale3b"
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "filePath": "asml/asml_core_technologies.md",
+      "sha256": "b54b22b5d28b436d17269be4af6ff5513753c51a8c8e2bce0a72534e37d5646c",
+      "reviewReadings": [
+        {
+          "index": 2,
+          "filePath": "asml/asml_core_technologies.md",
+          "sha256": "b54b22b5d28b436d17269be4af6ff5513753c51a8c8e2bce0a72534e37d5646c",
+          "characters": 3576,
+          "readScope": "전문 재독",
+          "totalDocumentCharacters": 3576,
+          "reviewGroup": "scale1"
+        },
+        {
+          "index": 2,
+          "filePath": "asml/asml_core_technologies.md",
+          "sha256": "b54b22b5d28b436d17269be4af6ff5513753c51a8c8e2bce0a72534e37d5646c",
+          "characters": 3576,
+          "reviewGroup": "scale3a"
+        },
+        {
+          "index": 2,
+          "filePath": "asml/asml_core_technologies.md",
+          "sha256": "b54b22b5d28b436d17269be4af6ff5513753c51a8c8e2bce0a72534e37d5646c",
+          "characters": 3576,
+          "notes": "원문 전체를 읽었다. 엔지니어링 스냅샷이며 외부 사실 검증은 하지 않았다. characters는 해당 파일 전체의 UTF-8 디코딩 문자 수이다.",
+          "reviewGroup": "scale3b"
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "filePath": "lam_research/lam_technical_glossary.md",
+      "sha256": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291",
+      "reviewReadings": [
+        {
+          "index": 7,
+          "filePath": "lam_research/lam_technical_glossary.md",
+          "sha256": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291",
+          "characters": 3565,
+          "readScope": "관련 정의·문단 재대조. 동일 세션의 선행 독립 검토에서는 전문을 읽었으나 이번 재독 문자수는 발췌 범위만 기록했다.",
+          "totalDocumentCharacters": 43410,
+          "reviewGroup": "scale1"
+        },
+        {
+          "index": 7,
+          "filePath": "lam_research/lam_technical_glossary.md",
+          "sha256": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291",
+          "characters": 43410,
+          "readScope": "관련 정의 구간 확인: DSA·WLP·MEMS·구리 오버버든",
+          "reviewGroup": "scale2"
+        },
+        {
+          "index": 7,
+          "filePath": "lam_research/lam_technical_glossary.md",
+          "sha256": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291",
+          "characters": 2324,
+          "reviewGroup": "scale3a"
+        },
+        {
+          "index": 7,
+          "filePath": "lam_research/lam_technical_glossary.md",
+          "sha256": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291",
+          "characters": 44365,
+          "notes": "관련 MASK·RETICLE·INTERCONNECT·MSSD·MSSP·NA·TSV·VOID·WFE 정의와 인접 항목을 읽었다. 용어집 전문을 읽었다고 주장하지 않는다. characters는 해당 파일 전체의 UTF-8 디코딩 문자 수이다.",
+          "reviewGroup": "scale3b"
+        },
+        {
+          "index": 7,
+          "filePath": "lam_research/lam_technical_glossary.md",
+          "sha256": "32010c623a029c1a8bed2b14f5d837336ce03ba90fb4909465f1d23670042291",
+          "characters": 7151,
+          "fileCharacters": 43410,
+          "readScope": "selected_definition_sections_or_paragraphs",
+          "readCharacterRanges": [
+            {
+              "start": 500,
+              "end": 774
+            },
+            {
+              "start": 775,
+              "end": 990
+            },
+            {
+              "start": 1996,
+              "end": 2372
+            },
+            {
+              "start": 4467,
+              "end": 4681
+            },
+            {
+              "start": 4682,
+              "end": 4912
+            },
+            {
+              "start": 4913,
+              "end": 5151
+            },
+            {
+              "start": 7559,
+              "end": 7759
+            },
+            {
+              "start": 7837,
+              "end": 8042
+            },
+            {
+              "start": 11316,
+              "end": 11550
+            },
+            {
+              "start": 15103,
+              "end": 15227
+            },
+            {
+              "start": 15228,
+              "end": 15425
+            },
+            {
+              "start": 16490,
+              "end": 16646
+            },
+            {
+              "start": 16813,
+              "end": 17070
+            },
+            {
+              "start": 17071,
+              "end": 17374
+            },
+            {
+              "start": 18953,
+              "end": 19244
+            },
+            {
+              "start": 20626,
+              "end": 20945
+            },
+            {
+              "start": 20946,
+              "end": 21179
+            },
+            {
+              "start": 21695,
+              "end": 21932
+            },
+            {
+              "start": 23065,
+              "end": 23323
+            },
+            {
+              "start": 25419,
+              "end": 25554
+            },
+            {
+              "start": 25555,
+              "end": 25888
+            },
+            {
+              "start": 26502,
+              "end": 26755
+            },
+            {
+              "start": 29341,
+              "end": 29650
+            },
+            {
+              "start": 29768,
+              "end": 29939
+            },
+            {
+              "start": 29940,
+              "end": 30162
+            },
+            {
+              "start": 32584,
+              "end": 32825
+            },
+            {
+              "start": 36018,
+              "end": 36255
+            },
+            {
+              "start": 37761,
+              "end": 37987
+            },
+            {
+              "start": 37988,
+              "end": 38243
+            },
+            {
+              "start": 43202,
+              "end": 43410
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "filePath": "research_institutes/imec_nist_ieee_landmarks.md",
+      "sha256": "3f50aac12e88bc2f94c7dd98591356bdbd040c0e3aacad9d429840784d60807c",
+      "reviewReadings": [
+        {
+          "index": 8,
+          "filePath": "research_institutes/imec_nist_ieee_landmarks.md",
+          "sha256": "3f50aac12e88bc2f94c7dd98591356bdbd040c0e3aacad9d429840784d60807c",
+          "characters": 293,
+          "readScope": "관련 정의·문단 재대조. 동일 세션의 선행 독립 검토에서는 전문을 읽었으나 이번 재독 문자수는 발췌 범위만 기록했다.",
+          "totalDocumentCharacters": 2595,
+          "reviewGroup": "scale1"
+        }
+      ]
+    },
+    {
+      "index": 10,
+      "filePath": "research_institutes/tier1_landmark_02_memory_3dnand_hbm.md",
+      "sha256": "c266f63a77734350d337cc99d1fce161f2a7b1afa899a0146234790d098f22ae",
+      "reviewReadings": [
+        {
+          "index": 10,
+          "filePath": "research_institutes/tier1_landmark_02_memory_3dnand_hbm.md",
+          "sha256": "c266f63a77734350d337cc99d1fce161f2a7b1afa899a0146234790d098f22ae",
+          "characters": 793,
+          "fileCharacters": 3327,
+          "readScope": "selected_definition_sections_or_paragraphs",
+          "readCharacterRanges": [
+            {
+              "start": 2534,
+              "end": 3327
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    },
+    {
+      "index": 12,
+      "filePath": "research_institutes/tier1_landmark_04_process_physics_cmp_cryo_opc.md",
+      "sha256": "b30c0d293bcf1e44e203a44b4c774f507342995bdbaa00d1f447662f46d49c2c",
+      "reviewReadings": [
+        {
+          "index": 12,
+          "filePath": "research_institutes/tier1_landmark_04_process_physics_cmp_cryo_opc.md",
+          "sha256": "b30c0d293bcf1e44e203a44b4c774f507342995bdbaa00d1f447662f46d49c2c",
+          "characters": 4810,
+          "readScope": "전문 재독",
+          "totalDocumentCharacters": 4810,
+          "reviewGroup": "scale1"
+        }
+      ]
+    },
+    {
+      "index": 13,
+      "filePath": "research_institutes/tier2_current_production_applied_papers.md",
+      "sha256": "b1d8dcadc591aec27c675008381f6174dfd72e9fd3c76713ad5da970f1399551",
+      "reviewReadings": [
+        {
+          "index": 13,
+          "filePath": "research_institutes/tier2_current_production_applied_papers.md",
+          "sha256": "b1d8dcadc591aec27c675008381f6174dfd72e9fd3c76713ad5da970f1399551",
+          "characters": 16281,
+          "readScope": "전체 원문 확인",
+          "reviewGroup": "scale2"
+        },
+        {
+          "index": 13,
+          "filePath": "research_institutes/tier2_current_production_applied_papers.md",
+          "sha256": "b1d8dcadc591aec27c675008381f6174dfd72e9fd3c76713ad5da970f1399551",
+          "characters": 1909,
+          "reviewGroup": "scale3a"
+        },
+        {
+          "index": 13,
+          "filePath": "research_institutes/tier2_current_production_applied_papers.md",
+          "sha256": "b1d8dcadc591aec27c675008381f6174dfd72e9fd3c76713ad5da970f1399551",
+          "characters": 1949,
+          "fileCharacters": 16281,
+          "readScope": "selected_definition_sections_or_paragraphs",
+          "readCharacterRanges": [
+            {
+              "start": 12394,
+              "end": 13008
+            },
+            {
+              "start": 13010,
+              "end": 13651
+            },
+            {
+              "start": 14819,
+              "end": 15513
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    },
+    {
+      "index": 23,
+      "filePath": "samsung/glossary/반도체-용어-사전-emmc.md",
+      "sha256": "21e014a3c6aeb3e212f31dfbd125b88be97f8639909cb6fb63c47c4ed6fbd128",
+      "reviewReadings": [
+        {
+          "index": 23,
+          "filePath": "samsung/glossary/반도체-용어-사전-emmc.md",
+          "sha256": "21e014a3c6aeb3e212f31dfbd125b88be97f8639909cb6fb63c47c4ed6fbd128",
+          "characters": 131,
+          "fileCharacters": 1491,
+          "readScope": "selected_definition_sections_or_paragraphs",
+          "readCharacterRanges": [
+            {
+              "start": 828,
+              "end": 959
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    },
+    {
+      "index": 26,
+      "filePath": "samsung/glossary/반도체-용어-사전-mcp.md",
+      "sha256": "c6c376b2aedb4b9490fd98a90a0705bc577ffc06e17c2e812fc0c708f8c53dee",
+      "reviewReadings": [
+        {
+          "index": 26,
+          "filePath": "samsung/glossary/반도체-용어-사전-mcp.md",
+          "sha256": "c6c376b2aedb4b9490fd98a90a0705bc577ffc06e17c2e812fc0c708f8c53dee",
+          "characters": 181,
+          "fileCharacters": 1645,
+          "readScope": "selected_definition_sections_or_paragraphs",
+          "readCharacterRanges": [
+            {
+              "start": 816,
+              "end": 997
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    },
+    {
+      "index": 27,
+      "filePath": "samsung/glossary/반도체-용어-사전-mcu.md",
+      "sha256": "f1ddba27c6bedb02a423d8095bbed4a1734028f55a8a2459e67032c6e5eda65b",
+      "reviewReadings": [
+        {
+          "index": 27,
+          "filePath": "samsung/glossary/반도체-용어-사전-mcu.md",
+          "sha256": "f1ddba27c6bedb02a423d8095bbed4a1734028f55a8a2459e67032c6e5eda65b",
+          "characters": 109,
+          "fileCharacters": 1418,
+          "readScope": "selected_definition_sections_or_paragraphs",
+          "readCharacterRanges": [
+            {
+              "start": 823,
+              "end": 932
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    },
+    {
+      "index": 33,
+      "filePath": "samsung/glossary/반도체-용어-사전-soc.md",
+      "sha256": "abb3ad241d3f255c582aca46e5397cad82f62079f7d8e1f12be75956f41e593f",
+      "reviewReadings": [
+        {
+          "index": 33,
+          "filePath": "samsung/glossary/반도체-용어-사전-soc.md",
+          "sha256": "abb3ad241d3f255c582aca46e5397cad82f62079f7d8e1f12be75956f41e593f",
+          "characters": 139,
+          "fileCharacters": 1557,
+          "readScope": "selected_definition_sections_or_paragraphs",
+          "readCharacterRanges": [
+            {
+              "start": 811,
+              "end": 950
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    },
+    {
+      "index": 39,
+      "filePath": "samsung/glossary/반도체-용어-사전-노광.md",
+      "sha256": "e75011028a690ba5758249057412c0ef9b7bc20f0f10d5790e7097ae5d9b246c",
+      "reviewReadings": [
+        {
+          "index": 39,
+          "filePath": "samsung/glossary/반도체-용어-사전-노광.md",
+          "sha256": "e75011028a690ba5758249057412c0ef9b7bc20f0f10d5790e7097ae5d9b246c",
+          "characters": 1779,
+          "notes": "원문 전체를 읽었다. characters는 해당 파일 전체의 UTF-8 디코딩 문자 수이다.",
+          "reviewGroup": "scale3b"
+        }
+      ]
+    },
+    {
+      "index": 46,
+      "filePath": "samsung/glossary/반도체-용어-사전-마스크-mask.md",
+      "sha256": "bd569f79534b970647fe8774e5a11ff3ffe8fb56d58c235a8181cc4b9ec97cc9",
+      "reviewReadings": [
+        {
+          "index": 46,
+          "filePath": "samsung/glossary/반도체-용어-사전-마스크-mask.md",
+          "sha256": "bd569f79534b970647fe8774e5a11ff3ffe8fb56d58c235a8181cc4b9ec97cc9",
+          "characters": 1781,
+          "notes": "원문 전체를 읽었다. characters는 해당 파일 전체의 UTF-8 디코딩 문자 수이다.",
+          "reviewGroup": "scale3b"
+        }
+      ]
+    },
+    {
+      "index": 48,
+      "filePath": "samsung/glossary/반도체-용어-사전-모바일-ap.md",
+      "sha256": "abda93129f88752603727a1ba7a130ffb436889a8e33fd3718936c4b45c10f36",
+      "reviewReadings": [
+        {
+          "index": 48,
+          "filePath": "samsung/glossary/반도체-용어-사전-모바일-ap.md",
+          "sha256": "abda93129f88752603727a1ba7a130ffb436889a8e33fd3718936c4b45c10f36",
+          "characters": 61,
+          "fileCharacters": 1693,
+          "readScope": "selected_definition_sections_or_paragraphs",
+          "readCharacterRanges": [
+            {
+              "start": 801,
+              "end": 862
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    },
+    {
+      "index": 52,
+      "filePath": "samsung/glossary/반도체-용어-사전-산화막.md",
+      "sha256": "7c1f5c1c422c9fe934669aaf7bb786abeddb1c1bfe7a658c6087323ab7852bc2",
+      "reviewReadings": [
+        {
+          "index": 52,
+          "filePath": "samsung/glossary/반도체-용어-사전-산화막.md",
+          "sha256": "7c1f5c1c422c9fe934669aaf7bb786abeddb1c1bfe7a658c6087323ab7852bc2",
+          "characters": 1467,
+          "readScope": "전문 재독",
+          "totalDocumentCharacters": 1467,
+          "reviewGroup": "scale1"
+        }
+      ]
+    },
+    {
+      "index": 55,
+      "filePath": "samsung/glossary/반도체-용어-사전-시스템-반도체.md",
+      "sha256": "cf3ed50861748ef9971da71bb9b47e494c0e99694702a3ee6530929e6a90fb1e",
+      "reviewReadings": [
+        {
+          "index": 55,
+          "filePath": "samsung/glossary/반도체-용어-사전-시스템-반도체.md",
+          "sha256": "cf3ed50861748ef9971da71bb9b47e494c0e99694702a3ee6530929e6a90fb1e",
+          "characters": 81,
+          "fileCharacters": 1706,
+          "readScope": "selected_definition_sections_or_paragraphs",
+          "readCharacterRanges": [
+            {
+              "start": 826,
+              "end": 907
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    },
+    {
+      "index": 58,
+      "filePath": "samsung/glossary/반도체-용어-사전-웨이퍼.md",
+      "sha256": "50a94ed618c73530d244b243645862595231f43bad019690eb6a082e414cd2cf",
+      "reviewReadings": [
+        {
+          "index": 58,
+          "filePath": "samsung/glossary/반도체-용어-사전-웨이퍼.md",
+          "sha256": "50a94ed618c73530d244b243645862595231f43bad019690eb6a082e414cd2cf",
+          "characters": 1592,
+          "readScope": "전문 재독",
+          "totalDocumentCharacters": 1592,
+          "reviewGroup": "scale1"
+        }
+      ]
+    },
+    {
+      "index": 59,
+      "filePath": "samsung/glossary/반도체-용어-사전-임베디드-플래시-로직-공정.md",
+      "sha256": "c77e74fcd4d0d3863f5e1b9c1d1ef066e2f170ca310e7a44e12f29d11a7b0b2c",
+      "reviewReadings": [
+        {
+          "index": 59,
+          "filePath": "samsung/glossary/반도체-용어-사전-임베디드-플래시-로직-공정.md",
+          "sha256": "c77e74fcd4d0d3863f5e1b9c1d1ef066e2f170ca310e7a44e12f29d11a7b0b2c",
+          "characters": 1528,
+          "reviewGroup": "scale3a"
+        }
+      ]
+    },
+    {
+      "index": 78,
+      "filePath": "samsung/glossary/반도체-용어-사전led편-미들하이파워-led-패키지.md",
+      "sha256": "0e58e6c332083b56f509061410d13c0475d9043d81884ebbb41644440f61d2d0",
+      "reviewReadings": [
+        {
+          "index": 78,
+          "filePath": "samsung/glossary/반도체-용어-사전led편-미들하이파워-led-패키지.md",
+          "sha256": "0e58e6c332083b56f509061410d13c0475d9043d81884ebbb41644440f61d2d0",
+          "characters": 58,
+          "fileCharacters": 1465,
+          "readScope": "selected_definition_sections_or_paragraphs",
+          "readCharacterRanges": [
+            {
+              "start": 866,
+              "end": 924
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    },
+    {
+      "index": 86,
+      "filePath": "samsung/glossary/반도체-용어-사전led편-컬러빈.md",
+      "sha256": "f3d5e9186021e87dba3318656dfc642381bcbbe159a1c298795edb01f4589f4e",
+      "reviewReadings": [
+        {
+          "index": 86,
+          "filePath": "samsung/glossary/반도체-용어-사전led편-컬러빈.md",
+          "sha256": "f3d5e9186021e87dba3318656dfc642381bcbbe159a1c298795edb01f4589f4e",
+          "characters": 250,
+          "fileCharacters": 1480,
+          "readScope": "selected_definition_sections_or_paragraphs",
+          "readCharacterRanges": [
+            {
+              "start": 789,
+              "end": 859
+            },
+            {
+              "start": 861,
+              "end": 1041
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    },
+    {
+      "index": 93,
+      "filePath": "samsung/samsung_fab_01_wafer.md",
+      "sha256": "1375defd2d8bdec0bbf745043f6e9a13dc774ff2646bb9b7ee487c05a9a99ac8",
+      "reviewReadings": [
+        {
+          "index": 93,
+          "filePath": "samsung/samsung_fab_01_wafer.md",
+          "sha256": "1375defd2d8bdec0bbf745043f6e9a13dc774ff2646bb9b7ee487c05a9a99ac8",
+          "characters": 4224,
+          "readScope": "전문 재독",
+          "totalDocumentCharacters": 4224,
+          "reviewGroup": "scale1"
+        }
+      ]
+    },
+    {
+      "index": 98,
+      "filePath": "samsung/samsung_fab_06_deposition_ion.md",
+      "sha256": "927e7db37161fef50d68b9d6b52878b230268202b47ab7d12b6f04bb81b588f9",
+      "reviewReadings": [
+        {
+          "index": 98,
+          "filePath": "samsung/samsung_fab_06_deposition_ion.md",
+          "sha256": "927e7db37161fef50d68b9d6b52878b230268202b47ab7d12b6f04bb81b588f9",
+          "characters": 3342,
+          "readScope": "전문 재독",
+          "totalDocumentCharacters": 3342,
+          "reviewGroup": "scale1"
+        }
+      ]
+    },
+    {
+      "index": 99,
+      "filePath": "samsung/samsung_fab_07_metal_interconnect.md",
+      "sha256": "6d182bf94694513eb4ea85e2238c96780aa8c1954c68c12e18524645a6aaa356",
+      "reviewReadings": [
+        {
+          "index": 99,
+          "filePath": "samsung/samsung_fab_07_metal_interconnect.md",
+          "sha256": "6d182bf94694513eb4ea85e2238c96780aa8c1954c68c12e18524645a6aaa356",
+          "characters": 2755,
+          "readScope": "전문 재독",
+          "totalDocumentCharacters": 2755,
+          "reviewGroup": "scale1"
+        },
+        {
+          "index": 99,
+          "filePath": "samsung/samsung_fab_07_metal_interconnect.md",
+          "sha256": "6d182bf94694513eb4ea85e2238c96780aa8c1954c68c12e18524645a6aaa356",
+          "characters": 2755,
+          "reviewGroup": "scale3a"
+        }
+      ]
+    },
+    {
+      "index": 100,
+      "filePath": "samsung/samsung_fab_08_eds.md",
+      "sha256": "2453aa4615421ae769f60bf7dcf96f735f53a76f0425f9f6d22581537f412d95",
+      "reviewReadings": [
+        {
+          "index": 100,
+          "filePath": "samsung/samsung_fab_08_eds.md",
+          "sha256": "2453aa4615421ae769f60bf7dcf96f735f53a76f0425f9f6d22581537f412d95",
+          "characters": 4057,
+          "notes": "원문 전체를 읽었다. characters는 해당 파일 전체의 UTF-8 디코딩 문자 수이다.",
+          "reviewGroup": "scale3b"
+        }
+      ]
+    },
+    {
+      "index": 108,
+      "filePath": "semi/semi_standards_and_smart_fab.md",
+      "sha256": "440ee3981136b6c8b69e04be54f004e0bea7fd39c16be7420828faa1bafbb443",
+      "reviewReadings": [
+        {
+          "index": 108,
+          "filePath": "semi/semi_standards_and_smart_fab.md",
+          "sha256": "440ee3981136b6c8b69e04be54f004e0bea7fd39c16be7420828faa1bafbb443",
+          "characters": 3697,
+          "fileCharacters": 3697,
+          "readScope": "whole_document",
+          "readCharacterRanges": [
+            {
+              "start": 0,
+              "end": 3697
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    },
+    {
+      "index": 109,
+      "filePath": "skhynix/skhynix_ai_01_gpu.md",
+      "sha256": "1eb25848ee08fe5d45e0455176727aaa9643eae6b2fccb16fbf90c7a4224e329",
+      "reviewReadings": [
+        {
+          "index": 109,
+          "filePath": "skhynix/skhynix_ai_01_gpu.md",
+          "sha256": "1eb25848ee08fe5d45e0455176727aaa9643eae6b2fccb16fbf90c7a4224e329",
+          "characters": 862,
+          "fileCharacters": 9435,
+          "readScope": "selected_definition_sections_or_paragraphs",
+          "readCharacterRanges": [
+            {
+              "start": 4380,
+              "end": 4464
+            },
+            {
+              "start": 4466,
+              "end": 4647
+            },
+            {
+              "start": 7724,
+              "end": 7975
+            },
+            {
+              "start": 7977,
+              "end": 8323
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    },
+    {
+      "index": 110,
+      "filePath": "skhynix/skhynix_ai_02_hbm.md",
+      "sha256": "b362324110f6c54e36fbf01f14bdbee35b10f2ab1bfa602eaf10778aff485ed9",
+      "reviewReadings": [
+        {
+          "index": 110,
+          "filePath": "skhynix/skhynix_ai_02_hbm.md",
+          "sha256": "b362324110f6c54e36fbf01f14bdbee35b10f2ab1bfa602eaf10778aff485ed9",
+          "characters": 8257,
+          "readScope": "전체 원문 확인",
+          "reviewGroup": "scale2"
+        },
+        {
+          "index": 110,
+          "filePath": "skhynix/skhynix_ai_02_hbm.md",
+          "sha256": "b362324110f6c54e36fbf01f14bdbee35b10f2ab1bfa602eaf10778aff485ed9",
+          "characters": 27,
+          "fileCharacters": 8257,
+          "readScope": "selected_definition_sections_or_paragraphs",
+          "readCharacterRanges": [
+            {
+              "start": 4975,
+              "end": 5002
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    },
+    {
+      "index": 111,
+      "filePath": "skhynix/skhynix_ai_03_nand_ssd.md",
+      "sha256": "550d1d885c66a0d67567a71b8c9a3ae5fc651329c68010abf19dd392985d57a0",
+      "reviewReadings": [
+        {
+          "index": 111,
+          "filePath": "skhynix/skhynix_ai_03_nand_ssd.md",
+          "sha256": "550d1d885c66a0d67567a71b8c9a3ae5fc651329c68010abf19dd392985d57a0",
+          "characters": 126,
+          "fileCharacters": 6700,
+          "readScope": "selected_definition_sections_or_paragraphs",
+          "readCharacterRanges": [
+            {
+              "start": 4445,
+              "end": 4571
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    },
+    {
+      "index": 113,
+      "filePath": "skhynix/skhynix_ai_05_pim_pnm.md",
+      "sha256": "c4269b449cd3cb92400850c02c34688b952a576a952c4242077c20213b80df41",
+      "reviewReadings": [
+        {
+          "index": 113,
+          "filePath": "skhynix/skhynix_ai_05_pim_pnm.md",
+          "sha256": "c4269b449cd3cb92400850c02c34688b952a576a952c4242077c20213b80df41",
+          "characters": 7311,
+          "readScope": "전체 원문 확인",
+          "reviewGroup": "scale2"
+        },
+        {
+          "index": 113,
+          "filePath": "skhynix/skhynix_ai_05_pim_pnm.md",
+          "sha256": "c4269b449cd3cb92400850c02c34688b952a576a952c4242077c20213b80df41",
+          "characters": 7411,
+          "notes": "노광기 가격·노광기 정의 및 인접 문단을 읽었다. characters는 해당 파일 전체의 UTF-8 디코딩 문자 수이다.",
+          "reviewGroup": "scale3b"
+        },
+        {
+          "index": 113,
+          "filePath": "skhynix/skhynix_ai_05_pim_pnm.md",
+          "sha256": "c4269b449cd3cb92400850c02c34688b952a576a952c4242077c20213b80df41",
+          "characters": 7311,
+          "fileCharacters": 7311,
+          "readScope": "whole_document",
+          "readCharacterRanges": [
+            {
+              "start": 0,
+              "end": 7311
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    },
+    {
+      "index": 114,
+      "filePath": "skhynix/skhynix_ai_06_neuromorphic.md",
+      "sha256": "887b133003c672577ac73c26dcda420915efea4f61a071ecde298241d0361eb8",
+      "reviewReadings": [
+        {
+          "index": 114,
+          "filePath": "skhynix/skhynix_ai_06_neuromorphic.md",
+          "sha256": "887b133003c672577ac73c26dcda420915efea4f61a071ecde298241d0361eb8",
+          "characters": 939,
+          "fileCharacters": 8951,
+          "readScope": "selected_definition_sections_or_paragraphs",
+          "readCharacterRanges": [
+            {
+              "start": 528,
+              "end": 681
+            },
+            {
+              "start": 1048,
+              "end": 1144
+            },
+            {
+              "start": 4295,
+              "end": 4402
+            },
+            {
+              "start": 4404,
+              "end": 4532
+            },
+            {
+              "start": 4729,
+              "end": 4994
+            },
+            {
+              "start": 4996,
+              "end": 5186
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    },
+    {
+      "index": 115,
+      "filePath": "skhynix/skhynix_ai_07_summary.md",
+      "sha256": "d840fcab5e3d868290806b68d3934835e51bf2824b1e7ea909a25f01833e22b7",
+      "reviewReadings": [
+        {
+          "index": 115,
+          "filePath": "skhynix/skhynix_ai_07_summary.md",
+          "sha256": "d840fcab5e3d868290806b68d3934835e51bf2824b1e7ea909a25f01833e22b7",
+          "characters": 340,
+          "fileCharacters": 7631,
+          "readScope": "selected_definition_sections_or_paragraphs",
+          "readCharacterRanges": [
+            {
+              "start": 1059,
+              "end": 1224
+            },
+            {
+              "start": 5811,
+              "end": 5986
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    },
+    {
+      "index": 117,
+      "filePath": "skhynix/skhynix_frontend_03_photo.md",
+      "sha256": "344b25fee986850cec121432b8512244418a72feef55e803c7caafb37a2dd06e",
+      "reviewReadings": [
+        {
+          "index": 117,
+          "filePath": "skhynix/skhynix_frontend_03_photo.md",
+          "sha256": "344b25fee986850cec121432b8512244418a72feef55e803c7caafb37a2dd06e",
+          "characters": 8817,
+          "readScope": "전문 재독",
+          "totalDocumentCharacters": 8817,
+          "reviewGroup": "scale1"
+        },
+        {
+          "index": 117,
+          "filePath": "skhynix/skhynix_frontend_03_photo.md",
+          "sha256": "344b25fee986850cec121432b8512244418a72feef55e803c7caafb37a2dd06e",
+          "characters": 8951,
+          "notes": "펠리클·상하부 코팅과 인접 문단을 읽었다. characters는 해당 파일 전체의 UTF-8 디코딩 문자 수이다.",
+          "reviewGroup": "scale3b"
+        }
+      ]
+    },
+    {
+      "index": 119,
+      "filePath": "skhynix/skhynix_frontend_05_deposition.md",
+      "sha256": "d79bb94d95f09db03eee90b12a19b8af633323260682b354d33beaec36934148",
+      "reviewReadings": [
+        {
+          "index": 119,
+          "filePath": "skhynix/skhynix_frontend_05_deposition.md",
+          "sha256": "d79bb94d95f09db03eee90b12a19b8af633323260682b354d33beaec36934148",
+          "characters": 500,
+          "readScope": "관련 정의·문단 재대조. 동일 세션의 선행 독립 검토에서는 전문을 읽었으나 이번 재독 문자수는 발췌 범위만 기록했다.",
+          "totalDocumentCharacters": 9488,
+          "reviewGroup": "scale1"
+        }
+      ]
+    },
+    {
+      "index": 120,
+      "filePath": "skhynix/skhynix_frontend_06_metal.md",
+      "sha256": "ef4a193b65f178da4ca2d3b78fa5a5dac5e95edfb8bea3695758a5db7bb10a18",
+      "reviewReadings": [
+        {
+          "index": 120,
+          "filePath": "skhynix/skhynix_frontend_06_metal.md",
+          "sha256": "ef4a193b65f178da4ca2d3b78fa5a5dac5e95edfb8bea3695758a5db7bb10a18",
+          "characters": 8114,
+          "notes": "금속 배선의 단위 공정 구별·상부 배선과 인접 문단을 읽었다. characters는 해당 파일 전체의 UTF-8 디코딩 문자 수이다.",
+          "reviewGroup": "scale3b"
+        }
+      ]
+    },
+    {
+      "index": 121,
+      "filePath": "skhynix/skhynix_hypidia_reliability.md",
+      "sha256": "70c5df391b61fb4acc2b6166ff0a370fe0d65d3fcd33619a614e5b62c04a2f15",
+      "reviewReadings": [
+        {
+          "index": 121,
+          "filePath": "skhynix/skhynix_hypidia_reliability.md",
+          "sha256": "70c5df391b61fb4acc2b6166ff0a370fe0d65d3fcd33619a614e5b62c04a2f15",
+          "characters": 419,
+          "fileCharacters": 1850,
+          "readScope": "selected_definition_sections_or_paragraphs",
+          "readCharacterRanges": [
+            {
+              "start": 665,
+              "end": 892
+            },
+            {
+              "start": 894,
+              "end": 1086
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    },
+    {
+      "index": 123,
+      "filePath": "skhynix/skhynix_hypidia_tsv.md",
+      "sha256": "6499994b040f4a2f219845237680d13e0ee0d11fa9a3809cdfa8bcdcef77fd3a",
+      "reviewReadings": [
+        {
+          "index": 123,
+          "filePath": "skhynix/skhynix_hypidia_tsv.md",
+          "sha256": "6499994b040f4a2f219845237680d13e0ee0d11fa9a3809cdfa8bcdcef77fd3a",
+          "characters": 1590,
+          "notes": "원문 전체를 읽었다. characters는 해당 파일 전체의 UTF-8 디코딩 문자 수이다.",
+          "reviewGroup": "scale3b"
+        }
+      ]
+    },
+    {
+      "index": 124,
+      "filePath": "skhynix/skhynix_pkg_01_chiplet.md",
+      "sha256": "f2f4e24313147b0df350e4e7bd70a986a81f7c75501758107bf5c9aad946afb1",
+      "reviewReadings": [
+        {
+          "index": 124,
+          "filePath": "skhynix/skhynix_pkg_01_chiplet.md",
+          "sha256": "f2f4e24313147b0df350e4e7bd70a986a81f7c75501758107bf5c9aad946afb1",
+          "characters": 766,
+          "fileCharacters": 8546,
+          "readScope": "selected_definition_sections_or_paragraphs",
+          "readCharacterRanges": [
+            {
+              "start": 1949,
+              "end": 2029
+            },
+            {
+              "start": 2851,
+              "end": 3001
+            },
+            {
+              "start": 4044,
+              "end": 4101
+            },
+            {
+              "start": 5169,
+              "end": 5432
+            },
+            {
+              "start": 8082,
+              "end": 8214
+            },
+            {
+              "start": 8216,
+              "end": 8300
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    },
+    {
+      "index": 125,
+      "filePath": "skhynix/skhynix_pkg_02_3d_heterogeneous.md",
+      "sha256": "5e3f531d077891a284f05c1fad2714fd93332ee27ed53cffea507809b5c6b33a",
+      "reviewReadings": [
+        {
+          "index": 125,
+          "filePath": "skhynix/skhynix_pkg_02_3d_heterogeneous.md",
+          "sha256": "5e3f531d077891a284f05c1fad2714fd93332ee27ed53cffea507809b5c6b33a",
+          "characters": 417,
+          "readScope": "관련 정의·문단 재대조. 동일 세션의 선행 독립 검토에서는 전문을 읽었으나 이번 재독 문자수는 발췌 범위만 기록했다.",
+          "totalDocumentCharacters": 10846,
+          "reviewGroup": "scale1"
+        },
+        {
+          "index": 125,
+          "filePath": "skhynix/skhynix_pkg_02_3d_heterogeneous.md",
+          "sha256": "5e3f531d077891a284f05c1fad2714fd93332ee27ed53cffea507809b5c6b33a",
+          "characters": 10846,
+          "reviewGroup": "scale3a"
+        },
+        {
+          "index": 125,
+          "filePath": "skhynix/skhynix_pkg_02_3d_heterogeneous.md",
+          "sha256": "5e3f531d077891a284f05c1fad2714fd93332ee27ed53cffea507809b5c6b33a",
+          "characters": 10990,
+          "notes": "TSV·열 관리·마이크로 채널 정의 및 관련 FAQ와 인접 문단을 읽었다. characters는 해당 파일 전체의 UTF-8 디코딩 문자 수이다.",
+          "reviewGroup": "scale3b"
+        },
+        {
+          "index": 125,
+          "filePath": "skhynix/skhynix_pkg_02_3d_heterogeneous.md",
+          "sha256": "5e3f531d077891a284f05c1fad2714fd93332ee27ed53cffea507809b5c6b33a",
+          "characters": 837,
+          "fileCharacters": 10846,
+          "readScope": "selected_definition_sections_or_paragraphs",
+          "readCharacterRanges": [
+            {
+              "start": 1025,
+              "end": 1457
+            },
+            {
+              "start": 4951,
+              "end": 5092
+            },
+            {
+              "start": 8269,
+              "end": 8533
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    },
+    {
+      "index": 126,
+      "filePath": "skhynix/skhynix_research_computational_nand.md",
+      "sha256": "2e580573ad3cda6b5fa3a7b9cc0b247d1bc68714385599408ce8cbd5ba32fe91",
+      "reviewReadings": [
+        {
+          "index": 126,
+          "filePath": "skhynix/skhynix_research_computational_nand.md",
+          "sha256": "2e580573ad3cda6b5fa3a7b9cc0b247d1bc68714385599408ce8cbd5ba32fe91",
+          "characters": 10192,
+          "readScope": "MAC 정의와 A-CiM 수행 맥락 문단 확인",
+          "reviewGroup": "scale2"
+        },
+        {
+          "index": 126,
+          "filePath": "skhynix/skhynix_research_computational_nand.md",
+          "sha256": "2e580573ad3cda6b5fa3a7b9cc0b247d1bc68714385599408ce8cbd5ba32fe91",
+          "characters": 10192,
+          "reviewGroup": "scale3a"
+        },
+        {
+          "index": 126,
+          "filePath": "skhynix/skhynix_research_computational_nand.md",
+          "sha256": "2e580573ad3cda6b5fa3a7b9cc0b247d1bc68714385599408ce8cbd5ba32fe91",
+          "characters": 10192,
+          "fileCharacters": 10192,
+          "readScope": "whole_document",
+          "readCharacterRanges": [
+            {
+              "start": 0,
+              "end": 10192
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    },
+    {
+      "index": 127,
+      "filePath": "skhynix/skhynix_research_cti_nand.md",
+      "sha256": "ddb41f7ae7914bb8eb197d780efa8e4936f0d79cda09ec9efdaa0ee74b4613cb",
+      "reviewReadings": [
+        {
+          "index": 127,
+          "filePath": "skhynix/skhynix_research_cti_nand.md",
+          "sha256": "ddb41f7ae7914bb8eb197d780efa8e4936f0d79cda09ec9efdaa0ee74b4613cb",
+          "characters": 5324,
+          "readScope": "전체 원문 확인",
+          "reviewGroup": "scale2"
+        },
+        {
+          "index": 127,
+          "filePath": "skhynix/skhynix_research_cti_nand.md",
+          "sha256": "ddb41f7ae7914bb8eb197d780efa8e4936f0d79cda09ec9efdaa0ee74b4613cb",
+          "characters": 5324,
+          "reviewGroup": "scale3a"
+        },
+        {
+          "index": 127,
+          "filePath": "skhynix/skhynix_research_cti_nand.md",
+          "sha256": "ddb41f7ae7914bb8eb197d780efa8e4936f0d79cda09ec9efdaa0ee74b4613cb",
+          "characters": 90,
+          "fileCharacters": 5324,
+          "readScope": "selected_definition_sections_or_paragraphs",
+          "readCharacterRanges": [
+            {
+              "start": 4998,
+              "end": 5088
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    },
+    {
+      "index": 128,
+      "filePath": "skhynix/skhynix_tech_hybrid_bonding.md",
+      "sha256": "d47e66d9d9106f9dc79adda18d806d45f10dc53d946a89bd836ad3a289de3a96",
+      "reviewReadings": [
+        {
+          "index": 128,
+          "filePath": "skhynix/skhynix_tech_hybrid_bonding.md",
+          "sha256": "d47e66d9d9106f9dc79adda18d806d45f10dc53d946a89bd836ad3a289de3a96",
+          "characters": 279,
+          "readScope": "관련 정의·문단 재대조. 동일 세션의 선행 독립 검토에서는 전문을 읽었으나 이번 재독 문자수는 발췌 범위만 기록했다.",
+          "totalDocumentCharacters": 9123,
+          "reviewGroup": "scale1"
+        },
+        {
+          "index": 128,
+          "filePath": "skhynix/skhynix_tech_hybrid_bonding.md",
+          "sha256": "d47e66d9d9106f9dc79adda18d806d45f10dc53d946a89bd836ad3a289de3a96",
+          "characters": 65,
+          "fileCharacters": 9123,
+          "readScope": "selected_definition_sections_or_paragraphs",
+          "readCharacterRanges": [
+            {
+              "start": 4595,
+              "end": 4660
+            }
+          ],
+          "reviewGroup": "scale45"
+        }
+      ]
+    }
+  ]
+}

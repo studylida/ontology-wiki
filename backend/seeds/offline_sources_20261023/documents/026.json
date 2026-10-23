@@ -1,0 +1,72 @@
+{
+  "index": 26,
+  "filePath": "samsung/glossary/반도체-용어-사전-mcp.md",
+  "sourceHash": "c6c376b2aedb4b9490fd98a90a0705bc577ffc06e17c2e812fc0c708f8c53dee",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1645,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. 2개 이상과 원문 1.4mm 이내를 보존했다. 1.4mm는 규격 번호와 대상 상세가 없는 2013년 원문 주장으로 한정한다."
+  },
+  "concepts": [
+    {
+      "conceptId": "multi-chip-package",
+      "title": "다중 칩 패키지",
+      "engName": "Multi Chip Package",
+      "aliases": [
+        "MCP"
+      ],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 4,
+      "classificationNote": "여러 기능을 통합한 시스템 또는 패키지를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "2개 이상의 반도체 칩을 적층하여 하나의 패키지로 묶은 반도체이다.",
+      "purpose": "칩의 탑재 공간을 줄이고 좁은 공간에 많은 기능을 넣는다.",
+      "summaryEvidenceQuote": "MCP는 Multi Chip Package의 약자로 2개 이상의 반도체 칩을 적층해 하나의 패키지로 만드는 기술이다.",
+      "evidenceQuote": "MCP는 Multi Chip Package의 약자로 2개 이상의 반도체 칩을 적층해 하나의 패키지로 만드는 기술이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "칩 적층",
+          "content": "개별 칩을 평면에 여러 개 장착하는 대신 위로 쌓아 패키지에 넣는다.",
+          "formula": null,
+          "evidenceQuote": "MCP(다중 칩 패키지)는 과거 개별 반도체를 평면적으로 여러 개 장착하는 것과 달리, 모두 위로 쌓아 올림으로써 칩의 탑재 공간을 줄이는 것이다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문 두께 제한",
+          "description": "원문은 하나의 칩 두께가 국제 규격 1.4mm 이내라고 기술하여 얇게 만드는 기술의 중요성을 설명한다. 규격명과 적용 범위는 제시하지 않는다.",
+          "evidenceQuote": "하지만 하나의 칩 두께가 국제 규격 1.4mm 이내로 정해져 있기 때문에 다양한 기술로 하나의 칩 두께를 최대한 얇게 만드는 것이 중요하다."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "휴대용 기기 탑재 공간 축소",
+          "perspectiveBadge": "스마트폰·태블릿PC",
+          "narrative": "좁은 공간에 여러 기능을 넣을 수 있어 휴대용 기기에 필요하다고 설명한다.",
+          "caution": "",
+          "evidenceQuote": "이처럼 MCP는 좁은 공간에 많은 기능을 넣을 수 있기 때문에 스마트폰, 태블릿PC 등 휴대용 기기에 꼭 필요하다.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "칩들을 위로 쌓으면 기판에서 차지하는 공간을 줄일 수 있다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "purposeEvidenceQuote": "MCP(다중 칩 패키지)는 과거 개별 반도체를 평면적으로 여러 개 장착하는 것과 달리, 모두 위로 쌓아 올림으로써 칩의 탑재 공간을 줄이는 것이다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 4
+        }
+      ]
+    }
+  ]
+}

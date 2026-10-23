@@ -1,0 +1,569 @@
+{
+  "index": 6,
+  "filePath": "lam_research/lam_solution_etch_kr.md",
+  "sourceHash": "6f9abdff1211ccd312d7a68bb20159d081e5a74e8da38b49f03d62049bf1ec26",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 4968,
+    "method": "codex-offline-source-review",
+    "notes": "전체 원문을 읽고 일반 메커니즘은 principles에, 실제 제품군과 관련 블로그 발췌는 사례에 나눴다. 제품의 지원 기술과 응용 목록을 장비가 공정의 하위유형인 것처럼 기록하지 않았다. 극저온 온도, 선택비 수치와 이온 조건은 원문에 없어 생성하지 않았다. Sense.i 한영 기술 목록 차이는 사례에 보류 표시했다. 400층·600층 건물 비유를 1,000층 양산 실적으로 바꾸지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "etching",
+      "title": "식각",
+      "engName": "Etch",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "재료 제거 또는 웨이퍼 표면 보호를 수행하는 단위 공정이며 장비 제품은 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "웨이퍼에 증착된 막과 재료를 선택적으로 제거하여 반도체 소자의 피처를 만드는 공정이다. 전도성 구성요소와 절연 구조뿐 아니라 TSV·MEMS용 고종횡비 형상도 만든다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "식각 공정에서는 증착 시에 첨가된 유전(절연) 및 금속(전도) 물질을 선택적으로 제거하여 칩 피처의 형성을 돕습니다. 이러한 공정에서는 여러 종류의 재료를 사용하여 더 작고, 복잡하고, 길고 가는 피처를 제작해야 합니다. 1차 기술인 반응성 이온 식각(RIE)을 통해 웨이퍼 표면에 이온(하전 입자) 충격을 가하여 물질을 제거합니다. 가장 작은 피처의 경우는 원자층 식각(ALE)을 통해 한 번에 몇 개의 원자층을 제거합니다. 전도체 식각 공정은 트랜지스터 같은 임계 전기 구성요소의 형상을 정밀하게 만들고, 유전체 식각은 전도성 부품을 보호하는 절연 구조물을 형성합니다. 식각 공정에서는 칩을 서로 연결하는 TSV와 미세전자기계시스템(MEMS)에서 사용되는 기둥 모양의 기다란 피처도 만듭니다.",
+      "evidenceQuote": "식각 공정에서는 증착 시에 첨가된 유전(절연) 및 금속(전도) 물질을 선택적으로 제거하여 칩 피처의 형성을 돕습니다. 이러한 공정에서는 여러 종류의 재료를 사용하여 더 작고, 복잡하고, 길고 가는 피처를 제작해야 합니다. 1차 기술인 반응성 이온 식각(RIE)을 통해 웨이퍼 표면에 이온(하전 입자) 충격을 가하여 물질을 제거합니다. 가장 작은 피처의 경우는 원자층 식각(ALE)을 통해 한 번에 몇 개의 원자층을 제거합니다. 전도체 식각 공정은 트랜지스터 같은 임계 전기 구성요소의 형상을 정밀하게 만들고, 유전체 식각은 전도성 부품을 보호하는 절연 구조물을 형성합니다. 식각 공정에서는 칩을 서로 연결하는 TSV와 미세전자기계시스템(MEMS)에서 사용되는 기둥 모양의 기다란 피처도 만듭니다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "AI 시대 NAND 적층 구조에 관한 게시물 발췌",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "2024년 6월 12일 게시물 발췌는 AI의 성능 요구로 NAND가 수직 400층 이상으로 향하고 있으며 현재 소자 높이가 수 µm에서 수십 µm라고 설명한다.",
+          "caution": "400층 건물에 600층을 더하는 표현은 설명용 비유이며 실제 1,000층 양산 실적으로 기록하지 않았다. 게시물 전체가 아닌 발췌만 제공된다.",
+          "evidenceQuote": "The artificial intelligence era depends on the storage infrastructure needed to run advanced technology, such as generative AI. The performance requirements for these AI innovations are pushing NAND devices to quickly scale to 400 vertically stacked layers and beyond.    For readers who are new to semiconductors, that’s a big deal. Imagine a skyscraper with an unfathomable 400 floors, where each floor represents a layer of memory in a NAND device. Now, imagine adding 600 more floors to that building...only in semiconductors, this super tall structure is still invisible to the naked eye. Today, these devices range in height from a few micrometers (µm) to tens of micrometers.",
+          "specifications": [
+            {
+              "parameter": "NAND 적층 확대 방향",
+              "value": "400 vertically stacked layers and beyond",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "The artificial intelligence era depends on the storage infrastructure needed to run advanced technology, such as generative AI. The performance requirements for these AI innovations are pushing NAND devices to quickly scale to 400 vertically stacked layers and beyond.    For readers who are new to semiconductors, that’s a big deal. Imagine a skyscraper with an unfathomable 400 floors, where each floor represents a layer of memory in a NAND device. Now, imagine adding 600 more floors to that building...only in semiconductors, this super tall structure is still invisible to the naked eye. Today, these devices range in height from a few micrometers (µm) to tens of micrometers."
+            },
+            {
+              "parameter": "소자 높이 범위",
+              "value": "a few micrometers (µm) to tens of micrometers",
+              "unit": "µm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "The artificial intelligence era depends on the storage infrastructure needed to run advanced technology, such as generative AI. The performance requirements for these AI innovations are pushing NAND devices to quickly scale to 400 vertically stacked layers and beyond.    For readers who are new to semiconductors, that’s a big deal. Imagine a skyscraper with an unfathomable 400 floors, where each floor represents a layer of memory in a NAND device. Now, imagine adding 600 more floors to that building...only in semiconductors, this super tall structure is still invisible to the naked eye. Today, these devices range in height from a few micrometers (µm) to tens of micrometers."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "메모리 층을 높이 쌓으면 여러 층을 관통하는 형상을 만드는 식각이 필요해진다. 제시된 층수와 높이는 이 게시물 발췌가 설명한 맥락의 값이다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "AI 시대 GAA·3D NAND 식각 응용에 관한 게시물 발췌",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "2023년 11월 8일 발췌는 3D 소자 구조에 새로운 식각 기술이 필요하다고 설명한다. 여러 방향의 재료 제거를 GAA 형성 및 원자층 수정과 연결하고 종횡비 의존 식각을 2D에서 3D NAND로의 전환과 연결한다.",
+          "caution": "관련 게시물 발췌의 표현을 보존한 적용 맥락이다. 구체적 반응 조건이나 장비별 실증 수치는 없다.",
+          "evidenceQuote": "The rise of artificial intelligence (AI) has placed significant demands on semiconductor performance, particularly in the realm of etching technology. AI requires massive amounts of data for training, necessitating high levels of parallel processing, non-volatile memory, and fast data transfer rates.    To achieve these capabilities advanced devices are designed in three dimensions, leading to the need for novel etching techniques. Perpendicular etching, which involves removing materials in multiple directions, is essential for crafting gate-all-around (GAA) transistor architectures and precise modification of atomic layers. Aspect-ratio-dependent etching is crucial for the transition from 2D to 3D NAND architecture, enabling the efficient storage capacity increase by etching through numerous layers.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "GAA에서는 채널 주변을 가공해야 하고 3D NAND에서는 많은 층을 통과하는 형상을 만들어야 하므로 서로 다른 형태를 제어하는 식각이 필요하다는 설명이다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [
+        {
+          "id": "deposition",
+          "name": "증착",
+          "reason": "원문은 웨이퍼에 앞서 증착된 막과 재료를 식각으로 제거한다고 설명한다.",
+          "evidenceQuote": "식각 공정에서는 증착 시에 첨가된 유전(절연) 및 금속(전도) 물질을 선택적으로 제거하여 칩 피처의 형성을 돕습니다. 이러한 공정에서는 여러 종류의 재료를 사용하여 더 작고, 복잡하고, 길고 가는 피처를 제작해야 합니다. 1차 기술인 반응성 이온 식각(RIE)을 통해 웨이퍼 표면에 이온(하전 입자) 충격을 가하여 물질을 제거합니다. 가장 작은 피처의 경우는 원자층 식각(ALE)을 통해 한 번에 몇 개의 원자층을 제거합니다. 전도체 식각 공정은 트랜지스터 같은 임계 전기 구성요소의 형상을 정밀하게 만들고, 유전체 식각은 전도성 부품을 보호하는 절연 구조물을 형성합니다. 식각 공정에서는 칩을 서로 연결하는 TSV와 미세전자기계시스템(MEMS)에서 사용되는 기둥 모양의 기다란 피처도 만듭니다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "reactive-ion-etching",
+      "title": "반응성 이온 식각",
+      "engName": "Reactive Ion Etch (RIE)",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "재료 제거 또는 웨이퍼 표면 보호를 수행하는 단위 공정이며 장비 제품은 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "이온을 이용해 웨이퍼 표면을 활성화하거나 충격을 가하여 재료를 제거하는 식각 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "식각 공정에서는 증착 시에 첨가된 유전(절연) 및 금속(전도) 물질을 선택적으로 제거하여 칩 피처의 형성을 돕습니다. 이러한 공정에서는 여러 종류의 재료를 사용하여 더 작고, 복잡하고, 길고 가는 피처를 제작해야 합니다. 1차 기술인 반응성 이온 식각(RIE)을 통해 웨이퍼 표면에 이온(하전 입자) 충격을 가하여 물질을 제거합니다. 가장 작은 피처의 경우는 원자층 식각(ALE)을 통해 한 번에 몇 개의 원자층을 제거합니다. 전도체 식각 공정은 트랜지스터 같은 임계 전기 구성요소의 형상을 정밀하게 만들고, 유전체 식각은 전도성 부품을 보호하는 절연 구조물을 형성합니다. 식각 공정에서는 칩을 서로 연결하는 TSV와 미세전자기계시스템(MEMS)에서 사용되는 기둥 모양의 기다란 피처도 만듭니다.",
+      "evidenceQuote": "식각 공정에서는 증착 시에 첨가된 유전(절연) 및 금속(전도) 물질을 선택적으로 제거하여 칩 피처의 형성을 돕습니다. 이러한 공정에서는 여러 종류의 재료를 사용하여 더 작고, 복잡하고, 길고 가는 피처를 제작해야 합니다. 1차 기술인 반응성 이온 식각(RIE)을 통해 웨이퍼 표면에 이온(하전 입자) 충격을 가하여 물질을 제거합니다. 가장 작은 피처의 경우는 원자층 식각(ALE)을 통해 한 번에 몇 개의 원자층을 제거합니다. 전도체 식각 공정은 트랜지스터 같은 임계 전기 구성요소의 형상을 정밀하게 만들고, 유전체 식각은 전도성 부품을 보호하는 절연 구조물을 형성합니다. 식각 공정에서는 칩을 서로 연결하는 TSV와 미세전자기계시스템(MEMS)에서 사용되는 기둥 모양의 기다란 피처도 만듭니다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "이온에 의한 표면 작용",
+          "content": "이온으로 웨이퍼 표면을 활성화하거나 충격을 가해 재료를 제거한다.",
+          "formula": null,
+          "evidenceQuote": "식각 공정에서는 증착 시에 첨가된 유전(절연) 및 금속(전도) 물질을 선택적으로 제거하여 칩 피처의 형성을 돕습니다. 이러한 공정에서는 여러 종류의 재료를 사용하여 더 작고, 복잡하고, 길고 가는 피처를 제작해야 합니다. 1차 기술인 반응성 이온 식각(RIE)을 통해 웨이퍼 표면에 이온(하전 입자) 충격을 가하여 물질을 제거합니다. 가장 작은 피처의 경우는 원자층 식각(ALE)을 통해 한 번에 몇 개의 원자층을 제거합니다. 전도체 식각 공정은 트랜지스터 같은 임계 전기 구성요소의 형상을 정밀하게 만들고, 유전체 식각은 전도성 부품을 보호하는 절연 구조물을 형성합니다. 식각 공정에서는 칩을 서로 연결하는 TSV와 미세전자기계시스템(MEMS)에서 사용되는 기둥 모양의 기다란 피처도 만듭니다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "Sense.i 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "컴팩트한 고밀도 구조에 시스템 지능을 갖춘 식각 플랫폼으로 소개된다.",
+          "caution": "한국어 페이지는 DRIE와 RIE를, 영어 페이지는 RIE를 표기한다. 기술 표기 차이는 원문 인용에 보존했으며 장비 기능의 동등성을 확인하지 않았다.",
+          "evidenceQuote": "SENSE.I 제품군\n\nDeep Reactive Ion Etch (DRIE) Reactive Ion Etch (RIE)\n\n램리서치의 최신 식각 플랫폼은 컴팩트한 고밀도 구조에 누구도 따라올 수 없는 시스템 지능을 갖추고 있어 공정 성능을 최고의 생산성으로 구현합니다.\n\nAdvanced Memory, Interconnect, Patterning, Transistor",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "여러 식각 기능을 작은 공간에 배치하고 장비 지능으로 공정 성능과 생산성을 높이려는 플랫폼이다.",
+            "background": null
+          }
+        }
+      ],
+      "isA": [
+        {
+          "id": "etching",
+          "name": "식각",
+          "reason": "원문에서 해당 재료 제거 기법 또는 식각 응용으로 제시한다.",
+          "evidenceQuote": "식각 공정에서는 증착 시에 첨가된 유전(절연) 및 금속(전도) 물질을 선택적으로 제거하여 칩 피처의 형성을 돕습니다. 이러한 공정에서는 여러 종류의 재료를 사용하여 더 작고, 복잡하고, 길고 가는 피처를 제작해야 합니다. 1차 기술인 반응성 이온 식각(RIE)을 통해 웨이퍼 표면에 이온(하전 입자) 충격을 가하여 물질을 제거합니다. 가장 작은 피처의 경우는 원자층 식각(ALE)을 통해 한 번에 몇 개의 원자층을 제거합니다. 전도체 식각 공정은 트랜지스터 같은 임계 전기 구성요소의 형상을 정밀하게 만들고, 유전체 식각은 전도성 부품을 보호하는 절연 구조물을 형성합니다. 식각 공정에서는 칩을 서로 연결하는 TSV와 미세전자기계시스템(MEMS)에서 사용되는 기둥 모양의 기다란 피처도 만듭니다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "atomic-layer-etching",
+      "title": "원자층 식각",
+      "engName": "Atomic Layer Etch (ALE)",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "재료 제거 또는 웨이퍼 표면 보호를 수행하는 단위 공정이며 장비 제품은 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "한 번에 몇 개의 원자층을 제거하여 매우 작은 피처를 형성할 수 있는 정밀 식각 기법이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "식각 공정에서는 증착 시에 첨가된 유전(절연) 및 금속(전도) 물질을 선택적으로 제거하여 칩 피처의 형성을 돕습니다. 이러한 공정에서는 여러 종류의 재료를 사용하여 더 작고, 복잡하고, 길고 가는 피처를 제작해야 합니다. 1차 기술인 반응성 이온 식각(RIE)을 통해 웨이퍼 표면에 이온(하전 입자) 충격을 가하여 물질을 제거합니다. 가장 작은 피처의 경우는 원자층 식각(ALE)을 통해 한 번에 몇 개의 원자층을 제거합니다. 전도체 식각 공정은 트랜지스터 같은 임계 전기 구성요소의 형상을 정밀하게 만들고, 유전체 식각은 전도성 부품을 보호하는 절연 구조물을 형성합니다. 식각 공정에서는 칩을 서로 연결하는 TSV와 미세전자기계시스템(MEMS)에서 사용되는 기둥 모양의 기다란 피처도 만듭니다.",
+      "evidenceQuote": "식각 공정에서는 증착 시에 첨가된 유전(절연) 및 금속(전도) 물질을 선택적으로 제거하여 칩 피처의 형성을 돕습니다. 이러한 공정에서는 여러 종류의 재료를 사용하여 더 작고, 복잡하고, 길고 가는 피처를 제작해야 합니다. 1차 기술인 반응성 이온 식각(RIE)을 통해 웨이퍼 표면에 이온(하전 입자) 충격을 가하여 물질을 제거합니다. 가장 작은 피처의 경우는 원자층 식각(ALE)을 통해 한 번에 몇 개의 원자층을 제거합니다. 전도체 식각 공정은 트랜지스터 같은 임계 전기 구성요소의 형상을 정밀하게 만들고, 유전체 식각은 전도성 부품을 보호하는 절연 구조물을 형성합니다. 식각 공정에서는 칩을 서로 연결하는 TSV와 미세전자기계시스템(MEMS)에서 사용되는 기둥 모양의 기다란 피처도 만듭니다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "소수 원자층 제거",
+          "content": "한 번에 몇 개의 원자층을 제거해 작은 피처를 정밀하게 만든다.",
+          "formula": null,
+          "evidenceQuote": "식각 공정에서는 증착 시에 첨가된 유전(절연) 및 금속(전도) 물질을 선택적으로 제거하여 칩 피처의 형성을 돕습니다. 이러한 공정에서는 여러 종류의 재료를 사용하여 더 작고, 복잡하고, 길고 가는 피처를 제작해야 합니다. 1차 기술인 반응성 이온 식각(RIE)을 통해 웨이퍼 표면에 이온(하전 입자) 충격을 가하여 물질을 제거합니다. 가장 작은 피처의 경우는 원자층 식각(ALE)을 통해 한 번에 몇 개의 원자층을 제거합니다. 전도체 식각 공정은 트랜지스터 같은 임계 전기 구성요소의 형상을 정밀하게 만들고, 유전체 식각은 전도성 부품을 보호하는 절연 구조물을 형성합니다. 식각 공정에서는 칩을 서로 연결하는 TSV와 미세전자기계시스템(MEMS)에서 사용되는 기둥 모양의 기다란 피처도 만듭니다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "isA": [
+        {
+          "id": "etching",
+          "name": "식각",
+          "reason": "원문에서 해당 재료 제거 기법 또는 식각 응용으로 제시한다.",
+          "evidenceQuote": "식각 공정에서는 증착 시에 첨가된 유전(절연) 및 금속(전도) 물질을 선택적으로 제거하여 칩 피처의 형성을 돕습니다. 이러한 공정에서는 여러 종류의 재료를 사용하여 더 작고, 복잡하고, 길고 가는 피처를 제작해야 합니다. 1차 기술인 반응성 이온 식각(RIE)을 통해 웨이퍼 표면에 이온(하전 입자) 충격을 가하여 물질을 제거합니다. 가장 작은 피처의 경우는 원자층 식각(ALE)을 통해 한 번에 몇 개의 원자층을 제거합니다. 전도체 식각 공정은 트랜지스터 같은 임계 전기 구성요소의 형상을 정밀하게 만들고, 유전체 식각은 전도성 부품을 보호하는 절연 구조물을 형성합니다. 식각 공정에서는 칩을 서로 연결하는 TSV와 미세전자기계시스템(MEMS)에서 사용되는 기둥 모양의 기다란 피처도 만듭니다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "conductor-etching",
+      "title": "전도체 식각",
+      "engName": "Conductor Etch",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "재료 제거 또는 웨이퍼 표면 보호를 수행하는 단위 공정이며 장비 제품은 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "트랜지스터 같은 전기적으로 활성인 구성요소의 형상을 정밀하게 만드는 식각 공정이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "식각 공정에서는 증착 시에 첨가된 유전(절연) 및 금속(전도) 물질을 선택적으로 제거하여 칩 피처의 형성을 돕습니다. 이러한 공정에서는 여러 종류의 재료를 사용하여 더 작고, 복잡하고, 길고 가는 피처를 제작해야 합니다. 1차 기술인 반응성 이온 식각(RIE)을 통해 웨이퍼 표면에 이온(하전 입자) 충격을 가하여 물질을 제거합니다. 가장 작은 피처의 경우는 원자층 식각(ALE)을 통해 한 번에 몇 개의 원자층을 제거합니다. 전도체 식각 공정은 트랜지스터 같은 임계 전기 구성요소의 형상을 정밀하게 만들고, 유전체 식각은 전도성 부품을 보호하는 절연 구조물을 형성합니다. 식각 공정에서는 칩을 서로 연결하는 TSV와 미세전자기계시스템(MEMS)에서 사용되는 기둥 모양의 기다란 피처도 만듭니다.",
+      "evidenceQuote": "식각 공정에서는 증착 시에 첨가된 유전(절연) 및 금속(전도) 물질을 선택적으로 제거하여 칩 피처의 형성을 돕습니다. 이러한 공정에서는 여러 종류의 재료를 사용하여 더 작고, 복잡하고, 길고 가는 피처를 제작해야 합니다. 1차 기술인 반응성 이온 식각(RIE)을 통해 웨이퍼 표면에 이온(하전 입자) 충격을 가하여 물질을 제거합니다. 가장 작은 피처의 경우는 원자층 식각(ALE)을 통해 한 번에 몇 개의 원자층을 제거합니다. 전도체 식각 공정은 트랜지스터 같은 임계 전기 구성요소의 형상을 정밀하게 만들고, 유전체 식각은 전도성 부품을 보호하는 절연 구조물을 형성합니다. 식각 공정에서는 칩을 서로 연결하는 TSV와 미세전자기계시스템(MEMS)에서 사용되는 기둥 모양의 기다란 피처도 만듭니다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "Akara 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "밀리초 수준의 공정 반응으로 웨이퍼 처리량을 높이고 낭비 시간을 줄이는 전도체 식각 장비이다. 옹스트롬 수준 균일도와 웨이퍼 간 반복성을 제공한다고 소개한다.",
+          "caution": "",
+          "evidenceQuote": "Akara®\n\nConductor Etch\n\nAkara®는 밀리초 단위로 단축한 공정 반응 시간을 통해 웨이퍼 출력을 증가시키고, 낭비되는 시간을 줄여 최대의 공정 수율을 제공합니다.  업계에서 가장 앞선 식각 균일성 제어 기술로 옹스트롬 수준의 높은 균일성과 웨이퍼 간 반복성을 제공합니다.\n\nDRAM, NAND, 로직",
+          "specifications": [
+            {
+              "parameter": "공정 반응 시간 수준",
+              "value": "밀리초 수준",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "Akara®\n\nConductor Etch\n\nAkara®는 밀리초 단위로 단축한 공정 반응 시간을 통해 웨이퍼 출력을 증가시키고, 낭비되는 시간을 줄여 최대의 공정 수율을 제공합니다.  업계에서 가장 앞선 식각 균일성 제어 기술로 옹스트롬 수준의 높은 균일성과 웨이퍼 간 반복성을 제공합니다.\n\nDRAM, NAND, 로직"
+            },
+            {
+              "parameter": "식각 균일도 수준",
+              "value": "옹스트롬 수준",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "Akara®\n\nConductor Etch\n\nAkara®는 밀리초 단위로 단축한 공정 반응 시간을 통해 웨이퍼 출력을 증가시키고, 낭비되는 시간을 줄여 최대의 공정 수율을 제공합니다.  업계에서 가장 앞선 식각 균일성 제어 기술로 옹스트롬 수준의 높은 균일성과 웨이퍼 간 반복성을 제공합니다.\n\nDRAM, NAND, 로직"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "소자의 전도성 부분을 깎는 장비로, 공정 변화에 빠르게 반응하고 웨이퍼마다 비슷한 모양을 만드는 제어 능력을 강조한다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "Kiyo 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "RIE 기반의 전도체 식각 제품으로 주요 소자 피처에 필요한 정밀도와 공정 제어를 제공한다.",
+          "caution": "",
+          "evidenceQuote": "KIYO 제품군\n\nReactive Ion Etch (RIE)\n\n시장을 선도하는 램리서치의 전도체 식각 제품은 주요 소자 피처(feature)에 요구되는 고성능 정밀도와 제어력이 특징입니다.\n\nAdvanced Memory, Analog & Mixed Signal, Discrete & Power Devices, Interconnect, Patterning, Transistor, 센서 및 트랜스듀서",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "전기가 흐르는 소자 부분을 원하는 모양으로 깎기 위해 RIE를 사용하는 장비 사례이다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "Versys Metal 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "RIE 기반 금속 식각 제품군으로 전기 연결과 금속 하드마스크 응용의 공정 제어를 제공한다.",
+          "caution": "",
+          "evidenceQuote": "VERSYS METAL 제품군\n\nReactive Ion Etch (RIE)\n\n이 금속 식각 제품은 전기 연결 및 금속 하드마스크 분야에서 높은 생산성으로 공정을 완벽하게 제어합니다.\n\nAdvanced Memory, Analog & Mixed Signal, Discrete & Power Devices, Interconnect, Patterning",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "전기 연결용 금속이나 패턴 보호용 금속막을 필요한 모양으로 깎는 장비 사례이다.",
+            "background": null
+          }
+        }
+      ],
+      "isA": [
+        {
+          "id": "etching",
+          "name": "식각",
+          "reason": "원문에서 해당 재료 제거 기법 또는 식각 응용으로 제시한다.",
+          "evidenceQuote": "식각 공정에서는 증착 시에 첨가된 유전(절연) 및 금속(전도) 물질을 선택적으로 제거하여 칩 피처의 형성을 돕습니다. 이러한 공정에서는 여러 종류의 재료를 사용하여 더 작고, 복잡하고, 길고 가는 피처를 제작해야 합니다. 1차 기술인 반응성 이온 식각(RIE)을 통해 웨이퍼 표면에 이온(하전 입자) 충격을 가하여 물질을 제거합니다. 가장 작은 피처의 경우는 원자층 식각(ALE)을 통해 한 번에 몇 개의 원자층을 제거합니다. 전도체 식각 공정은 트랜지스터 같은 임계 전기 구성요소의 형상을 정밀하게 만들고, 유전체 식각은 전도성 부품을 보호하는 절연 구조물을 형성합니다. 식각 공정에서는 칩을 서로 연결하는 TSV와 미세전자기계시스템(MEMS)에서 사용되는 기둥 모양의 기다란 피처도 만듭니다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "dielectric-etching",
+      "title": "유전체 식각",
+      "engName": "Dielectric Etch",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "재료 제거 또는 웨이퍼 표면 보호를 수행하는 단위 공정이며 장비 제품은 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전도성 구성요소를 보호하는 절연 구조물을 형성하는 식각 공정이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "식각 공정에서는 증착 시에 첨가된 유전(절연) 및 금속(전도) 물질을 선택적으로 제거하여 칩 피처의 형성을 돕습니다. 이러한 공정에서는 여러 종류의 재료를 사용하여 더 작고, 복잡하고, 길고 가는 피처를 제작해야 합니다. 1차 기술인 반응성 이온 식각(RIE)을 통해 웨이퍼 표면에 이온(하전 입자) 충격을 가하여 물질을 제거합니다. 가장 작은 피처의 경우는 원자층 식각(ALE)을 통해 한 번에 몇 개의 원자층을 제거합니다. 전도체 식각 공정은 트랜지스터 같은 임계 전기 구성요소의 형상을 정밀하게 만들고, 유전체 식각은 전도성 부품을 보호하는 절연 구조물을 형성합니다. 식각 공정에서는 칩을 서로 연결하는 TSV와 미세전자기계시스템(MEMS)에서 사용되는 기둥 모양의 기다란 피처도 만듭니다.",
+      "evidenceQuote": "식각 공정에서는 증착 시에 첨가된 유전(절연) 및 금속(전도) 물질을 선택적으로 제거하여 칩 피처의 형성을 돕습니다. 이러한 공정에서는 여러 종류의 재료를 사용하여 더 작고, 복잡하고, 길고 가는 피처를 제작해야 합니다. 1차 기술인 반응성 이온 식각(RIE)을 통해 웨이퍼 표면에 이온(하전 입자) 충격을 가하여 물질을 제거합니다. 가장 작은 피처의 경우는 원자층 식각(ALE)을 통해 한 번에 몇 개의 원자층을 제거합니다. 전도체 식각 공정은 트랜지스터 같은 임계 전기 구성요소의 형상을 정밀하게 만들고, 유전체 식각은 전도성 부품을 보호하는 절연 구조물을 형성합니다. 식각 공정에서는 칩을 서로 연결하는 TSV와 미세전자기계시스템(MEMS)에서 사용되는 기둥 모양의 기다란 피처도 만듭니다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "Flex 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "ALE·극저온 식각·RIE를 지원하는 유전체 식각 제품군으로 첨단 소자의 다양한 구조 형성을 대상으로 한다.",
+          "caution": "",
+          "evidenceQuote": "FLEX 제품군\n\nAtomic Layer Etch (ALE) Reactive Ion Etch (RIE) 극저온 식각 극저온 식각\n\n램리서치의 유전체 식각 시스템은 용도에 맞춘 기능 덕분에 고급 소자의 까다로운 구조를 다양하게 만들 수 있습니다.\n\nAdvanced Memory, Advanced Packaging, Analog & Mixed Signal, Discrete & Power Devices, Interconnect, Optoelectronics & Photonics, Patterning, Transistor",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "소자에서 절연 재료를 깎아 필요한 모양을 만드는 장비군이다. 원자층 식각 등 여러 식각 방식을 제공한다.",
+            "background": null
+          }
+        }
+      ],
+      "isA": [
+        {
+          "id": "etching",
+          "name": "식각",
+          "reason": "원문에서 해당 재료 제거 기법 또는 식각 응용으로 제시한다.",
+          "evidenceQuote": "식각 공정에서는 증착 시에 첨가된 유전(절연) 및 금속(전도) 물질을 선택적으로 제거하여 칩 피처의 형성을 돕습니다. 이러한 공정에서는 여러 종류의 재료를 사용하여 더 작고, 복잡하고, 길고 가는 피처를 제작해야 합니다. 1차 기술인 반응성 이온 식각(RIE)을 통해 웨이퍼 표면에 이온(하전 입자) 충격을 가하여 물질을 제거합니다. 가장 작은 피처의 경우는 원자층 식각(ALE)을 통해 한 번에 몇 개의 원자층을 제거합니다. 전도체 식각 공정은 트랜지스터 같은 임계 전기 구성요소의 형상을 정밀하게 만들고, 유전체 식각은 전도성 부품을 보호하는 절연 구조물을 형성합니다. 식각 공정에서는 칩을 서로 연결하는 TSV와 미세전자기계시스템(MEMS)에서 사용되는 기둥 모양의 기다란 피처도 만듭니다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "cryogenic-etching",
+      "title": "극저온 식각",
+      "engName": "Cryogenic Etching",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "재료 제거 또는 웨이퍼 표면 보호를 수행하는 단위 공정이며 장비 제품은 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "원문이 Flex와 Vantex의 지원 기술로 제시하는 극저온 식각 기법이다. Vantex는 Sense.i 플랫폼에서 고종횡비 식각을 대상으로 한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "VANTEX 제품군\n\nReactive Ion Etch (RIE) 극저온 식각 극저온 식각\n\nSense.i 플랫폼용으로 설계한 Vantex는 기술 혁신과 Equipment Intelligence로 고종횡비 식각을 새롭게 정의합니다.\n\nAdvanced Memory",
+      "evidenceQuote": "VANTEX 제품군\n\nReactive Ion Etch (RIE) 극저온 식각 극저온 식각\n\nSense.i 플랫폼용으로 설계한 Vantex는 기술 혁신과 Equipment Intelligence로 고종횡비 식각을 새롭게 정의합니다.\n\nAdvanced Memory",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "Vantex 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "Sense.i 플랫폼용으로 설계한 RIE·극저온 식각 제품군이며 고종횡비 식각을 대상으로 한다.",
+          "caution": "",
+          "evidenceQuote": "VANTEX 제품군\n\nReactive Ion Etch (RIE) 극저온 식각 극저온 식각\n\nSense.i 플랫폼용으로 설계한 Vantex는 기술 혁신과 Equipment Intelligence로 고종횡비 식각을 새롭게 정의합니다.\n\nAdvanced Memory",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "Sense.i 플랫폼에서 높고 좁은 구조를 식각하기 위한 제품이다. 이 발췌에는 극저온의 구체적 온도값은 없다.",
+            "background": null
+          }
+        }
+      ],
+      "isA": [
+        {
+          "id": "etching",
+          "name": "식각",
+          "reason": "원문에서 해당 재료 제거 기법 또는 식각 응용으로 제시한다.",
+          "evidenceQuote": "VANTEX 제품군\n\nReactive Ion Etch (RIE) 극저온 식각 극저온 식각\n\nSense.i 플랫폼용으로 설계한 Vantex는 기술 혁신과 Equipment Intelligence로 고종횡비 식각을 새롭게 정의합니다.\n\nAdvanced Memory"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "deep-reactive-ion-etching",
+      "title": "심부 반응성 이온 식각",
+      "engName": "Deep Reactive Ion Etch (DRIE)",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "재료 제거 또는 웨이퍼 표면 보호를 수행하는 단위 공정이며 장비 제품은 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "깊은 식각에 사용하는 반응성 이온 식각 기술이다. Syndion은 고종횡비 피처에서 웨이퍼 전면 균일도 제어를 제공하는 제품군으로 소개된다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "Syndion 제품군\n\nDeep Reactive Ion Etch (DRIE) Reactive Ion Etch (RIE)\n\n딥 식각 응용 부문에서 이 제품군은 고종횡비 피처를 형성하는 데 필요한 우수한 웨이퍼 균일도 제어 능력을 제공합니다.\n\nAdvanced Packaging, Interconnect, 센서 및 트랜스듀서",
+      "evidenceQuote": "Syndion 제품군\n\nDeep Reactive Ion Etch (DRIE) Reactive Ion Etch (RIE)\n\n딥 식각 응용 부문에서 이 제품군은 고종횡비 피처를 형성하는 데 필요한 우수한 웨이퍼 균일도 제어 능력을 제공합니다.\n\nAdvanced Packaging, Interconnect, 센서 및 트랜스듀서",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "Reliant Etch 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "DRIE와 RIE 기술을 포함하며 특수 기술 로드맵과 팹 생산 수명 연장을 지원하는 제품군이다.",
+          "caution": "",
+          "evidenceQuote": "Reliant Etch 제품\n\nDeep Reactive Ion Etch (DRIE) Reactive Ion Etch (RIE) Reliant Systems\n\n램리서치의 Reliant 식각 제품군은 특수 기술의 로드맵을 지원하고 제조 시설의 생산 수명을 연장하는 솔루션을 제공합니다.\n\nAdvanced Memory, Advanced Packaging, Analog & Mixed Signal, Discrete & Power Devices, Interconnect, Optoelectronics & Photonics, Transistor, 센서 및 트랜스듀서",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "특수 소자 제조에 사용하는 일반 및 깊은 식각용 장비를 묶어 소개한 제품군이다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "Syndion 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "심부 식각에서 주요 고종횡비 피처를 형성하기 위한 웨이퍼 전면 균일도 제어를 제공한다.",
+          "caution": "",
+          "evidenceQuote": "Syndion 제품군\n\nDeep Reactive Ion Etch (DRIE) Reactive Ion Etch (RIE)\n\n딥 식각 응용 부문에서 이 제품군은 고종횡비 피처를 형성하는 데 필요한 우수한 웨이퍼 균일도 제어 능력을 제공합니다.\n\nAdvanced Packaging, Interconnect, 센서 및 트랜스듀서",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "깊고 좁은 구조를 만들 때 웨이퍼의 위치에 따라 깎이는 결과가 달라지지 않도록 제어하는 장비이다.",
+            "background": null
+          }
+        }
+      ],
+      "isA": [
+        {
+          "id": "reactive-ion-etching",
+          "name": "반응성 이온 식각",
+          "reason": "원문 장비 기술명이 심부 반응성 이온 식각으로 명시된다.",
+          "evidenceQuote": "Syndion 제품군\n\nDeep Reactive Ion Etch (DRIE) Reactive Ion Etch (RIE)\n\n딥 식각 응용 부문에서 이 제품군은 고종횡비 피처를 형성하는 데 필요한 우수한 웨이퍼 균일도 제어 능력을 제공합니다.\n\nAdvanced Packaging, Interconnect, 센서 및 트랜스듀서"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "high-selectivity-isotropic-etching",
+      "title": "Lam 고선택비 등방성 식각",
+      "engName": "Lam Selective Etch Portfolio",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "재료 제거 또는 웨이퍼 표면 보호를 수행하는 단위 공정이며 장비 제품은 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "재료를 등방성으로 제거하면서 옹스트롬 수준의 정밀도와 매우 높은 선택비를 제공하는 식각 기술이다. 원문은 3D 구조와 첨단 로직·파운드리 응용을 대상으로 제시한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "고선택비 식각 제품군\n\nSelective Etch 선택적 식각\n\n획기적인 고선택비 식각 장비 포트폴리오는 3D 구조와 첨단 로직 및 파운드리 애플리케이션을 위한 옹스트롬(Å) 수준의 정밀도와 초고도 선택비 기반의 역량으로 등방성 식각을 지원합니다.\n\nAdvanced Memory, Interconnect, Patterning, Transistor",
+      "evidenceQuote": "고선택비 식각 제품군\n\nSelective Etch 선택적 식각\n\n획기적인 고선택비 식각 장비 포트폴리오는 3D 구조와 첨단 로직 및 파운드리 애플리케이션을 위한 옹스트롬(Å) 수준의 정밀도와 초고도 선택비 기반의 역량으로 등방성 식각을 지원합니다.\n\nAdvanced Memory, Interconnect, Patterning, Transistor",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등방성 선택 제거",
+          "content": "재료를 여러 방향에서 등방성으로 제거하면서 높은 선택비와 옹스트롬 수준의 정밀도를 제공한다.",
+          "formula": null,
+          "evidenceQuote": "고선택비 식각 제품군\n\nSelective Etch 선택적 식각\n\n획기적인 고선택비 식각 장비 포트폴리오는 3D 구조와 첨단 로직 및 파운드리 애플리케이션을 위한 옹스트롬(Å) 수준의 정밀도와 초고도 선택비 기반의 역량으로 등방성 식각을 지원합니다.\n\nAdvanced Memory, Interconnect, Patterning, Transistor"
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "Selective Etch 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "3D 구조와 첨단 로직·파운드리 응용에서 등방성 재료 제거와 옹스트롬 수준 정밀도 및 매우 높은 선택비를 제공한다.",
+          "caution": "",
+          "evidenceQuote": "고선택비 식각 제품군\n\nSelective Etch 선택적 식각\n\n획기적인 고선택비 식각 장비 포트폴리오는 3D 구조와 첨단 로직 및 파운드리 애플리케이션을 위한 옹스트롬(Å) 수준의 정밀도와 초고도 선택비 기반의 역량으로 등방성 식각을 지원합니다.\n\nAdvanced Memory, Interconnect, Patterning, Transistor",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "여러 재료가 함께 있는 구조에서 특정 재료를 더 잘 제거하면서 여러 방향으로 정밀하게 깎는 식각 장비군이다.",
+            "background": null
+          }
+        }
+      ],
+      "isA": [
+        {
+          "id": "etching",
+          "name": "식각",
+          "reason": "원문에서 해당 재료 제거 기법 또는 식각 응용으로 제시한다.",
+          "evidenceQuote": "고선택비 식각 제품군\n\nSelective Etch 선택적 식각\n\n획기적인 고선택비 식각 장비 포트폴리오는 3D 구조와 첨단 로직 및 파운드리 애플리케이션을 위한 옹스트롬(Å) 수준의 정밀도와 초고도 선택비 기반의 역량으로 등방성 식각을 지원합니다.\n\nAdvanced Memory, Interconnect, Patterning, Transistor"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "bevel-etching",
+      "title": "베벨 식각",
+      "engName": "Plasma Bevel Etch",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "재료 제거 또는 웨이퍼 표면 보호를 수행하는 단위 공정이며 장비 제품은 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "웨이퍼 가장자리의 잔류물을 제거하여 다른 영역으로 이동한 입자가 소자 결함을 일으키는 위험을 줄이는 식각 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "CORONUS 제품군\n\nAdvanced Packaging Plasma Bevel Etch and Deposition\n\nCoronus 시스템은 웨이퍼 베벨 엣지에 중점을 두어 전반적인 수율을 높입니다. 반도체 공정 진행 시 웨이퍼 가장자리를 따라 잔여물과 거칠기가 누적됩니다. 이는 웨이퍼의 다른 영역으로 떨어져 날리면 장치의 고장을 유발하는 결함을 발생시킬 수 있습니다. Coronus 식각 제품은 웨이퍼 베벨에 있는 잔여물을 제거하고 Coronus 증착 제품은 웨이퍼 베벨이 손상되지 않도록 보호합니다.\n\nAdvanced Memory, Interconnect, Patterning, Transistor",
+      "evidenceQuote": "CORONUS 제품군\n\nAdvanced Packaging Plasma Bevel Etch and Deposition\n\nCoronus 시스템은 웨이퍼 베벨 엣지에 중점을 두어 전반적인 수율을 높입니다. 반도체 공정 진행 시 웨이퍼 가장자리를 따라 잔여물과 거칠기가 누적됩니다. 이는 웨이퍼의 다른 영역으로 떨어져 날리면 장치의 고장을 유발하는 결함을 발생시킬 수 있습니다. Coronus 식각 제품은 웨이퍼 베벨에 있는 잔여물을 제거하고 Coronus 증착 제품은 웨이퍼 베벨이 손상되지 않도록 보호합니다.\n\nAdvanced Memory, Interconnect, Patterning, Transistor",
+      "principles": [
+        {
+          "step": 1,
+          "title": "가장자리 잔류물 제거",
+          "content": "베벨에 누적된 잔류물과 거칠기가 떨어져 다른 영역으로 이동하면 결함을 일으킬 수 있으므로 베벨 잔류물을 제거한다.",
+          "formula": null,
+          "evidenceQuote": "CORONUS 제품군\n\nAdvanced Packaging Plasma Bevel Etch and Deposition\n\nCoronus 시스템은 웨이퍼 베벨 엣지에 중점을 두어 전반적인 수율을 높입니다. 반도체 공정 진행 시 웨이퍼 가장자리를 따라 잔여물과 거칠기가 누적됩니다. 이는 웨이퍼의 다른 영역으로 떨어져 날리면 장치의 고장을 유발하는 결함을 발생시킬 수 있습니다. Coronus 식각 제품은 웨이퍼 베벨에 있는 잔여물을 제거하고 Coronus 증착 제품은 웨이퍼 베벨이 손상되지 않도록 보호합니다.\n\nAdvanced Memory, Interconnect, Patterning, Transistor"
+        }
+      ],
+      "limitations": [
+        {
+          "title": "가장자리 잔류물의 이동",
+          "description": "웨이퍼 가장자리의 잔류물과 거칠기가 떨어져 다른 영역으로 이동하면 소자 고장을 유발하는 결함을 만들 수 있다.",
+          "evidenceQuote": "CORONUS 제품군\n\nAdvanced Packaging Plasma Bevel Etch and Deposition\n\nCoronus 시스템은 웨이퍼 베벨 엣지에 중점을 두어 전반적인 수율을 높입니다. 반도체 공정 진행 시 웨이퍼 가장자리를 따라 잔여물과 거칠기가 누적됩니다. 이는 웨이퍼의 다른 영역으로 떨어져 날리면 장치의 고장을 유발하는 결함을 발생시킬 수 있습니다. Coronus 식각 제품은 웨이퍼 베벨에 있는 잔여물을 제거하고 Coronus 증착 제품은 웨이퍼 베벨이 손상되지 않도록 보호합니다.\n\nAdvanced Memory, Interconnect, Patterning, Transistor"
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "Coronus 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "식각 제품이 베벨 잔류물을 제거하고 증착 제품은 베벨 손상을 방지한다. 가장자리에서 떨어진 잔류물이 다른 영역에 결함을 만드는 위험을 대상으로 한다.",
+          "caution": "",
+          "evidenceQuote": "CORONUS 제품군\n\nAdvanced Packaging Plasma Bevel Etch and Deposition\n\nCoronus 시스템은 웨이퍼 베벨 엣지에 중점을 두어 전반적인 수율을 높입니다. 반도체 공정 진행 시 웨이퍼 가장자리를 따라 잔여물과 거칠기가 누적됩니다. 이는 웨이퍼의 다른 영역으로 떨어져 날리면 장치의 고장을 유발하는 결함을 발생시킬 수 있습니다. Coronus 식각 제품은 웨이퍼 베벨에 있는 잔여물을 제거하고 Coronus 증착 제품은 웨이퍼 베벨이 손상되지 않도록 보호합니다.\n\nAdvanced Memory, Interconnect, Patterning, Transistor",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "웨이퍼 가장자리에 쌓인 찌꺼기가 다른 곳으로 옮겨가면 결함이 생길 수 있다. 이 제품군은 찌꺼기를 제거하거나 가장자리를 보호해 그 문제를 다룬다.",
+            "background": null
+          }
+        }
+      ],
+      "isA": [
+        {
+          "id": "etching",
+          "name": "식각",
+          "reason": "원문에서 해당 재료 제거 기법 또는 식각 응용으로 제시한다.",
+          "evidenceQuote": "CORONUS 제품군\n\nAdvanced Packaging Plasma Bevel Etch and Deposition\n\nCoronus 시스템은 웨이퍼 베벨 엣지에 중점을 두어 전반적인 수율을 높입니다. 반도체 공정 진행 시 웨이퍼 가장자리를 따라 잔여물과 거칠기가 누적됩니다. 이는 웨이퍼의 다른 영역으로 떨어져 날리면 장치의 고장을 유발하는 결함을 발생시킬 수 있습니다. Coronus 식각 제품은 웨이퍼 베벨에 있는 잔여물을 제거하고 Coronus 증착 제품은 웨이퍼 베벨이 손상되지 않도록 보호합니다.\n\nAdvanced Memory, Interconnect, Patterning, Transistor"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "bevel-deposition",
+      "title": "베벨 증착",
+      "engName": "Bevel Deposition",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "증착",
+      "scaleLevel": 3,
+      "classificationNote": "재료 제거 또는 웨이퍼 표면 보호를 수행하는 단위 공정이며 장비 제품은 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "웨이퍼 베벨을 손상으로부터 보호하기 위해 가장자리에 적용하는 증착 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "CORONUS 제품군\n\nAdvanced Packaging Plasma Bevel Etch and Deposition\n\nCoronus 시스템은 웨이퍼 베벨 엣지에 중점을 두어 전반적인 수율을 높입니다. 반도체 공정 진행 시 웨이퍼 가장자리를 따라 잔여물과 거칠기가 누적됩니다. 이는 웨이퍼의 다른 영역으로 떨어져 날리면 장치의 고장을 유발하는 결함을 발생시킬 수 있습니다. Coronus 식각 제품은 웨이퍼 베벨에 있는 잔여물을 제거하고 Coronus 증착 제품은 웨이퍼 베벨이 손상되지 않도록 보호합니다.\n\nAdvanced Memory, Interconnect, Patterning, Transistor",
+      "evidenceQuote": "CORONUS 제품군\n\nAdvanced Packaging Plasma Bevel Etch and Deposition\n\nCoronus 시스템은 웨이퍼 베벨 엣지에 중점을 두어 전반적인 수율을 높입니다. 반도체 공정 진행 시 웨이퍼 가장자리를 따라 잔여물과 거칠기가 누적됩니다. 이는 웨이퍼의 다른 영역으로 떨어져 날리면 장치의 고장을 유발하는 결함을 발생시킬 수 있습니다. Coronus 식각 제품은 웨이퍼 베벨에 있는 잔여물을 제거하고 Coronus 증착 제품은 웨이퍼 베벨이 손상되지 않도록 보호합니다.\n\nAdvanced Memory, Interconnect, Patterning, Transistor",
+      "principles": [
+        {
+          "step": 1,
+          "title": "베벨 손상 보호",
+          "content": "Coronus 증착 제품은 웨이퍼 베벨을 손상으로부터 보호한다.",
+          "formula": null,
+          "evidenceQuote": "CORONUS 제품군\n\nAdvanced Packaging Plasma Bevel Etch and Deposition\n\nCoronus 시스템은 웨이퍼 베벨 엣지에 중점을 두어 전반적인 수율을 높입니다. 반도체 공정 진행 시 웨이퍼 가장자리를 따라 잔여물과 거칠기가 누적됩니다. 이는 웨이퍼의 다른 영역으로 떨어져 날리면 장치의 고장을 유발하는 결함을 발생시킬 수 있습니다. Coronus 식각 제품은 웨이퍼 베벨에 있는 잔여물을 제거하고 Coronus 증착 제품은 웨이퍼 베벨이 손상되지 않도록 보호합니다.\n\nAdvanced Memory, Interconnect, Patterning, Transistor"
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "증착",
+          "scaleLevel": 3
+        }
+      ]
+    }
+  ]
+}

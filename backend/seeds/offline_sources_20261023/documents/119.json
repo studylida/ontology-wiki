@@ -1,0 +1,777 @@
+{
+  "index": 119,
+  "filePath": "skhynix/skhynix_frontend_05_deposition.md",
+  "sourceHash": "d79bb94d95f09db03eee90b12a19b8af633323260682b354d33beaec36934148",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 9488,
+    "method": "codex-offline-source-review",
+    "notes": "raw 119.txt 전체와 빈 파서 후보를 독립 대조했다. 일반 공정 설명은 principles·limitations에, 원문 실제 적용인 DRAM 커패시터 ALD와 인텔 코발트 배선을 사례로 나누었다. 원문 ALD의 생성물 A 제거는 막 축적과 상충하여 보류했다. 매 주기 1원자층은 교육 예시로 한정하고 알루미늄 녹는점550도는 미검증 원문 표기로만 보존했다. Al/SiO2 열팽창 계수40배 초과와 공정 온도·압력의 상대 조건을 유지했다. 외부 전문가 칼럼이며 공식 입장과 다를 수 있고 그림은 본문·캡션만 검토했다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "deposition",
+      "title": "증착",
+      "engName": "Deposition",
+      "aliases": [
+        "박막 공정",
+        "Thin Film Process"
+      ],
+      "domainFacet": "unit_process",
+      "category": "증착",
+      "scaleLevel": 3,
+      "classificationNote": "증착의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "웨이퍼 표면에 외부 물질을 추가해 필요한 두께의 박막을 형성하는 공정이다.",
+      "purpose": "소자·배선·절연·보호·후속 공정용으로 얇고 균일한 막을 만든다.",
+      "summaryEvidenceQuote": "처리하고자 하는 웨이퍼를 준비한 뒤, 증착 기기에 투입하고 표면에 충분한 두께의 박막이 생기기를 기다리는 것이다.",
+      "evidenceQuote": "처리하고자 하는 웨이퍼를 준비한 뒤, 증착 기기에 투입하고 표면에 충분한 두께의 박막이 생기기를 기다리는 것이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "막 형성과 후속 제거",
+          "content": "막을 형성한 뒤 불필요한 부분을 제거하고 다음 공정을 진행한다. 게이트 유전막·하드 마스크·금속 배선 등 다양한 단계에서 사용하며, 미세화된 게이트 유전막은 과거 산화 대신 증착을 주로 사용한다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "게이트 유전막의 경우, 과거에는 산화 공정으로 만들었지만, 미세화가 진행된 현재는 증착 공정을 주로 사용하고 있다."
+        },
+        {
+          "step": 2,
+          "title": "온도·압력 절충",
+          "content": "저압은 기체 충돌을 줄여 수직 방향 증착을 강화하지만 생성 속도는 느려진다. 높은 온도는 순도를 높이나 이미 형성된 재료를 변화시킬 수 있다.",
+          "formula": null,
+          "evidenceQuote": "증착 과정에서 낮은 기압을 사용하면 막의 생성 속도가 느려지는 대신, 막의 수직 방향 증착을 강화할 수 있다."
+        },
+        {
+          "step": 3,
+          "title": "같은 SiO₂의 서로 다른 공정",
+          "content": "게이트 절연막은 고품질을 위해 고온·저압을, STI는 절연 역할과 빠른 처리량을 위해 저온·고압을 사용한다고 비교한다. 특정 회사 레시피나 절대 온도는 제시하지 않는다.",
+          "formula": null,
+          "evidenceQuote": "게이트 절연막은 핵심 소자 부위이기 때문에 고품질을 위해 고온, 저압 공정을 사용하지만, STI는 두 소자 경계부에서 절연체의 역할만 하면 되기 때문에 저온, 고압의 공정을 사용해 빠른 처리 속도에 집중한다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "전후 공정의 재료 호환성",
+          "description": "원하는 순도와 속도뿐 아니라 후속 식각·CMP로 제거하기 쉬운지와 열에 대한 전후 재료 호환성을 고려해야 한다. 원문 알루미늄 녹는점 550도는 별도 검증이 없는 원문 표기로만 보존하며 확정 재료상수로 사용하지 않았다.",
+          "evidenceQuote": "알루미늄과 같이 녹는 점(550도)이 낮은 금속이 전 단계 공정에서 사용됐다면 문제가 생기게 된다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "thermal-oxidation",
+          "name": "산화 공정",
+          "reason": "SiO₂와 게이트 유전막을 다른 방법으로 형성할 수 있다.",
+          "evidenceQuote": "이산화규소(SiO2)는 산화 공정으로도 만들 수 있지만, 증착을 통해서도 만들 수 있다."
+        }
+      ],
+      "partOf": [],
+      "isA": [],
+      "purposeEvidenceQuote": "간섭받으면 안 되는 두 영역을 구분 지어야 하고, 연결돼야 하는 곳들은 전선을 통해 연결해야 한다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "diffusion-barrier-film",
+      "title": "확산 방지막",
+      "engName": "Diffusion Barrier Film",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "금속 배선 재료",
+      "scaleLevel": 1,
+      "classificationNote": "확산 방지막의 원문 역할에 따라 materials_infra, 규모 1로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "구리가 이산화규소 등 원치 않는 영역으로 퍼지는 것을 막기 위해 배선 형성 영역에 씌우는 고품질 보호 박막이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "구리 배선을 도포할 영역에 구리가 통과하지 못하는 일종의 보호막을 씌우는데, 여기에 고품질 박막이 필요했다.",
+      "evidenceQuote": "구리 배선을 도포할 영역에 구리가 통과하지 못하는 일종의 보호막을 씌우는데, 여기에 고품질 박막이 필요했다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "구리의 확산 차단",
+          "content": "구리는 알루미늄과 달리 이산화규소까지 뚫고 확산하는 성질이 있어 추가 방지막 공정이 필요하다.",
+          "formula": null,
+          "evidenceQuote": "구리 원자는 알루미늄과는 달리 반도체 회사들이 원치 않는 곳(이산화규소, SiO2)까지 뚫고 확산하는 성질이 있다는 것이다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "barrier",
+          "name": "배리어층",
+          "reason": "119의 확산 방지막은 구리와 주변 재료 사이의 확산을 막는 보호 박막이다. 두 재료 사이에 증착해 상호작용을 막는 등록 배리어층 중 확산 차단 목적의 하위 종류다.",
+          "evidenceQuote": "구리 배선을 도포할 영역에 구리가 통과하지 못하는 일종의 보호막을 씌우는데, 여기에 고품질 박막이 필요했다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "금속 배선 재료",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "shallow-trench-isolation",
+      "title": "얕은 트렌치 절연",
+      "engName": "Shallow Trench Isolation",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "소자·전기 구조",
+      "scaleLevel": 2,
+      "classificationNote": "얕은 트렌치 절연의 원문 역할에 따라 device, 규모 2로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "소자 경계부의 누설전류를 막는 참호 형태의 절연 보호 구조이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "STI(Shallow Trench Isolation): 소자 경계부 누설 전류를 방지하는 참호 형태의 보호막",
+      "evidenceQuote": "STI(Shallow Trench Isolation): 소자 경계부 누설 전류를 방지하는 참호 형태의 보호막",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "소자 절연 구조",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "intermetal-dielectric",
+      "title": "금속간 절연막",
+      "engName": "Intermetal Dielectric",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "재료·물성·치수",
+      "scaleLevel": 1,
+      "classificationNote": "금속간 절연막의 원문 역할에 따라 device, 규모 2로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "금속 배선층 사이에서 원치 않는 전류 흐름을 막는 절연 보호막이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "금속 배선 층 사이에 원치 않는 전류 흐름을 막는 보호막",
+      "evidenceQuote": "금속 배선 층 사이에 원치 않는 전류 흐름을 막는 보호막",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "배선 절연 구조",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "contact",
+      "title": "컨택",
+      "engName": "Contact",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "소자·회로 구조",
+      "scaleLevel": 2,
+      "classificationNote": "컨택의 원문 역할에 따라 device, 규모 2로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "반도체 소자와 금속 배선을 전기적으로 연결해 주는 접점이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "각 금속 배선과 소자들을 연결해주는 접점(Contact)을 만들어야 한다.",
+      "evidenceQuote": "각 금속 배선과 소자들을 연결해주는 접점(Contact)을 만들어야 한다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "배선 접점",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "deposition-uniformity",
+      "title": "증착 균일도",
+      "engName": "Deposition Uniformity",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "공정 품질 지표",
+      "scaleLevel": 3,
+      "classificationNote": "증착 균일도의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "증착된 막의 두께가 웨이퍼 위치에 따라 얼마나 균일한지를 나타내는 공정 특성이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "균일도는 증착 과정에서 물질이 얼마나 균일한 두께로 생성됐는지를 표현하는 수치다.",
+      "evidenceQuote": "균일도는 증착 과정에서 물질이 얼마나 균일한 두께로 생성됐는지를 표현하는 수치다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "웨이퍼 전면 두께 분포",
+          "content": "웨이퍼 전체를 장비에 넣고 처리하므로 지점별 두께가 다를 수 있다. 균일도가 높다는 것은 전체 영역에 골고루 도포된다는 의미이다.",
+          "formula": null,
+          "evidenceQuote": "균일도가 높을수록 전 웨이퍼 영역에 골고루 물질이 도포된다고 생각하면 된다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "uniformity",
+          "name": "균일도",
+          "reason": "119의 증착 균일도는 공정 결과의 일관성을 나타내는 등록 균일도를 막 두께 분포에 적용한 구체적인 종류다.",
+          "evidenceQuote": "균일도는 증착 과정에서 물질이 얼마나 균일한 두께로 생성됐는지를 표현하는 수치다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "공정 품질 지표",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "step-coverage",
+      "title": "스텝 커버리지",
+      "engName": "Step Coverage",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "공정 품질 지표",
+      "scaleLevel": 3,
+      "classificationNote": "스텝 커버리지의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "단차가 있는 표면에서 상부와 하부 또는 측벽의 막 두께가 얼마나 비슷한지를 나타내는 증착 특성이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "스텝 커버리지는 증착이 이뤄지는 울퉁불퉁한 표면의 상단 부분 막질과 하단 부분 막질의 두께 차이, 혹은 상단 부분 막질과 측벽 막질의 두께 차이를 말하는 것이다.",
+      "evidenceQuote": "스텝 커버리지는 증착이 이뤄지는 울퉁불퉁한 표면의 상단 부분 막질과 하단 부분 막질의 두께 차이, 혹은 상단 부분 막질과 측벽 막질의 두께 차이를 말하는 것이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "두께 비의 해석",
+          "content": "원문은 1에 가까울수록 상·하부 차이가 적고 1보다 작으면 하부나 측벽이 더 얇다고 설명한다. 임의 계산식은 추가하지 않았다.",
+          "formula": null,
+          "evidenceQuote": "스텝 커버리지가 1에 가까울수록 상단부와 하단부의 차이가 적다는 것이며, 스텝 커버리지가 1보다 작은 경우 하단부나 측벽의 두께가 얇게 생성된다는 의미다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "공정 품질 지표",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "gap-fill",
+      "title": "갭 필",
+      "engName": "Gap Fill",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "공정 품질 지표",
+      "scaleLevel": 3,
+      "classificationNote": "갭 필의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "증착으로 반도체 표면의 빈 공간과 요철을 얼마나 잘 채우는지를 나타내는 특성이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "이름에서 알 수 있듯 빈 공간(Gap)을 얼마나 잘 채우는지를 나타내는 특성이다.",
+      "evidenceQuote": "이름에서 알 수 있듯 빈 공간(Gap)을 얼마나 잘 채우는지를 나타내는 특성이다.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "공동과 구조 붕괴",
+          "description": "빈 공간을 충분히 채우지 못하면 내부 공동이 남고 후속 과정에서 구조물이 무너질 수 있다.",
+          "evidenceQuote": "갭 필 특성이 좋지 않으면 내부에 공동(Void)이 생기게 되고, 추후 구조물이 무너질 수 있다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "공정 품질 지표",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "cvd",
+      "title": "화학 기상 증착",
+      "engName": "Chemical Vapor Deposition",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "증착",
+      "scaleLevel": 3,
+      "classificationNote": "화학 기상 증착의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "원료 기체에 에너지 등을 가해 화학 반응으로 웨이퍼 표면에 원하는 막을 형성하는 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "화학 기상 증착은 웨이퍼 표면에 화학적 방법을 통해 물질을 씌우는 것을 포괄하는 방법이다.",
+      "evidenceQuote": "화학 기상 증착은 웨이퍼 표면에 화학적 방법을 통해 물질을 씌우는 것을 포괄하는 방법이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "기체 반응",
+          "content": "원하는 물질 A를 생성하는 B·C 기체에 에너지 등을 공급하면 A와 부산물이 생긴다.",
+          "formula": "B + C + (에너지 등) → A + 부산물",
+          "evidenceQuote": "B + C + (에너지 등) → A + 부산물"
+        }
+      ],
+      "limitations": [
+        {
+          "title": "속도·스텝 커버리지와 불순물",
+          "description": "속도가 빠르고 표면 반응으로 스텝 커버리지가 우수하나 부산물 가스를 완전히 제거하기 어려워 불순물이 섞일 수 있다. 본문은 하드 마스크 같은 소모막과 두꺼운 차단막을 용도로 든다.",
+          "evidenceQuote": "반응 과정에서 부산물 기체가 끊임없이 생겨나며, 이를 공정 진행 과정에서 완벽히 제거할 방법이 없기 때문에 각종 불순물이 섞일 수 있다는 단점이 있다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "pvd",
+          "name": "물리 기상 증착",
+          "reason": "원문이 직접 비교한 증착 방식이다.",
+          "evidenceQuote": "화학 기상 증착(Chemical Vapor Deposition: CVD)과 물리 기상 증착(Physical Vapor Deposition: PVD)으로 나뉜다."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "deposition",
+          "name": "증착",
+          "reason": "화학 반응으로 막을 만드는 방식이다.",
+          "evidenceQuote": "화학 기상 증착(Chemical Vapor Deposition: CVD)과 물리 기상 증착(Physical Vapor Deposition: PVD)으로 나뉜다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "pvd",
+      "title": "물리 기상 증착",
+      "engName": "Physical Vapor Deposition",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "증착",
+      "scaleLevel": 3,
+      "classificationNote": "물리 기상 증착의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "증착할 물질을 물리적으로 기화·방출시켜 웨이퍼 표면에 직접 달라붙게 하는 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "웨이퍼 표면에 증착하고 싶은 물질을 직접 날려 보내 달라붙게 하는 방법이다.",
+      "evidenceQuote": "웨이퍼 표면에 증착하고 싶은 물질을 직접 날려 보내 달라붙게 하는 방법이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "스퍼터링에 의한 물질 공급",
+          "content": "가속한 이온, 주로 불활성 기체를 표적에 충돌시켜 원료 입자를 떨어뜨리고 그 입자를 웨이퍼에 증착한다.",
+          "formula": null,
+          "evidenceQuote": "A 물질 덩어리인 표적(Target)에 가속된 이온(주로 불활성기체)을 날려 보냄으로써 A 입자가 떨어져 나오게 하는 것이다."
+        },
+        {
+          "step": 2,
+          "title": "순도와 금속막",
+          "content": "원문은 부산물 기체가 없어 순도가 높고 반응성이 없는 순수 W·Co 등도 증착할 수 있어 금속 배선에 주로 사용한다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "예를 들면, 순수한 텅스텐(W), 코발트(Co) 등도 증착이 가능하다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "cvd",
+          "name": "화학 기상 증착",
+          "reason": "화학 반응 방식과 직접 물질 전달 방식이 비교된다.",
+          "evidenceQuote": "화학 기상 증착(Chemical Vapor Deposition: CVD)과 물리 기상 증착(Physical Vapor Deposition: PVD)으로 나뉜다."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "deposition",
+          "name": "증착",
+          "reason": "물리적인 입자 전달 방식이다.",
+          "evidenceQuote": "화학 기상 증착(Chemical Vapor Deposition: CVD)과 물리 기상 증착(Physical Vapor Deposition: PVD)으로 나뉜다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "ald",
+      "title": "원자층 증착",
+      "engName": "Atomic Layer Deposition",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "증착",
+      "scaleLevel": 3,
+      "classificationNote": "원자층 증착의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "표면에 흡착하는 전구체와 반응 물질의 공급·잔여 기체 제거를 반복하여 매우 얇은 막의 두께를 제어하는 증착 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "이 과정을 반복하면 막의 두께를 원자 단위로 제어할 수 있다.",
+      "evidenceQuote": "이 과정을 반복하면 막의 두께를 원자 단위로 제어할 수 있다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "교대 흡착과 반응",
+          "content": "원문 예에서는 전구체 B가 표면에 잘 붙지만 서로는 잘 붙지 않는다는 조건에서 B를 흡착하고 남은 B 기체를 제거한다. 이후 반응성 C를 넣어 A막과 부산물을 만들며 반복으로 두께를 제어한다.",
+          "formula": null,
+          "evidenceQuote": "이후에는 잔여 B 기체를 제거해준 뒤, C 기체를 투입한다."
+        },
+        {
+          "step": 2,
+          "title": "균일도와 스텝 커버리지",
+          "content": "전구체가 수직·수평의 다양한 표면에 흡착하고 얇은 층 단위로 진행해 균일도와 스텝 커버리지가 우수하다고 설명한다. 원문의 한 주기 1원자층은 해당 교육 예시의 설명으로 보존한다.",
+          "formula": null,
+          "evidenceQuote": "ALD 한 주기당 단 1개의 원자층만 생성되기 때문이다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "처리 속도와 품질",
+          "description": "원자층 단위로 진행해 느리지만 높은 종횡비에서 고품질 막이 필요한 DRAM 커패시터 등에 주로 쓰인다고 설명한다.",
+          "evidenceQuote": "하지만 원자층 단위로 작업을 하므로, 진행 속도가 느리다는 단점 역시 존재한다."
+        },
+        {
+          "title": "원문 생성물 제거 문장 보류",
+          "description": "본문은 막 A를 생성한 후 A와 부산물 가스를 제거한다고 적었으나 두께를 늘리는 반복 설명과 상충한다. A 제거를 정상 공정 단계로 확정하지 않고 원문 이상으로 조리법을 만들지 않았다.",
+          "evidenceQuote": "이후 A와 부산물 가스를 제거한다."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "고종횡비 DRAM 커패시터의 박막 형성",
+          "perspectiveBadge": "DRAM 커패시터",
+          "narrative": "원문은 높은 종횡비와 고품질 막이 요구되는 DRAM 커패시터 부위에 ALD를 주로 사용한다고 설명한다.",
+          "caution": "특정 회사·제품·온도·종횡비·막 두께 수치는 없다.",
+          "evidenceQuote": "ALD 공정은 D램의 커패시터 등 종횡비*가 높은데 고품질의 막질이 필요한 부위에 주로 사용된다.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "좁고 깊은 저장 구조의 옆면에도 고르게 막을 붙여야 한다. 한 번에 얇게 붙이고 반복하는 방법은 느리지만 그런 모양에서 막 품질을 유지하는 데 유리하다는 사례이다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "deposition",
+          "name": "증착",
+          "reason": "원자층 단위 제어를 위한 증착 방식이다.",
+          "evidenceQuote": "한 가지 독특한 예로 원자층 증착(Atomic Layer Deposition: ALD)이 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "thermal-expansion",
+      "title": "열팽창",
+      "engName": "Thermal Expansion",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "재료 물성",
+      "scaleLevel": 1,
+      "classificationNote": "열팽창의 원문 역할에 따라 materials_infra, 규모 1로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "물질이 가열될 때 크기가 변하는 현상으로, 서로 다른 재료의 팽창 차이는 반도체 구조 손상을 일으킬 수 있다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "물질은 열을 받으면 조금이라도 크기가 변하는데, 이를 열팽창이라고 한다.",
+      "evidenceQuote": "물질은 열을 받으면 조금이라도 크기가 변하는데, 이를 열팽창이라고 한다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "막 사이의 팽창 차이",
+          "content": "원문은 알루미늄 열팽창 계수가 산화 실리콘의 40배를 넘는다고 제시한다. 산화 실리콘 위 Al막에 후속 고온 공정을 적용하면 서로 다른 팽창으로 내부 구조가 휘고 망가질 수 있다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "알루미늄의 열팽창 계수는 산화 실리콘의 40배가 넘는다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "재료 물성",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "electromigration",
+      "title": "일렉트로마이그레이션",
+      "engName": "Electromigration",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "배선 신뢰성",
+      "scaleLevel": 1,
+      "classificationNote": "일렉트로마이그레이션의 원문 역할에 따라 materials_infra, 규모 1로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "금속 배선에 흐르는 전자가 금속 원자에 작용해 그 위치를 바꾸는 현상이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "움직이던 전자들이 금속배선 원자를 때려 위치를 바꿔버리는 현상이다.",
+      "evidenceQuote": "움직이던 전자들이 금속배선 원자를 때려 위치를 바꿔버리는 현상이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "재료 대체와 추가 공정",
+          "content": "Al 등 경금속에서 주로 발생하여 구리 도입을 촉진했지만 구리는 확산 방지막이 필요했다. 미세화가 진행되면 구리에서도 발생한다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "미세화가 더 진척되자 EM은 구리 배선에서도 나타났으며"
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "구리 EM에 대응한 코발트 배선 사용",
+          "perspectiveBadge": "인텔",
+          "narrative": "원문은 구리 배선에서도 EM이 나타나자 인텔이 금속층에 코발트 배선을 사용하기도 했다고 설명한다.",
+          "caution": "이 문헌에는 해당 공정 노드·시점·정량 개선치가 없다.",
+          "evidenceQuote": "이를 해결하기 위해 인텔은 금속층에 코발트 배선을 사용하기도 했다.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "배선 재료를 바꾸면 전류로 원자가 움직이는 문제를 줄이려 할 수 있다. 그러나 바뀐 재료와 위아래 층을 함께 만들 수 있도록 주변 공정도 바꿔야 한다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "배선 신뢰성",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "sputtering",
+      "title": "스퍼터링",
+      "engName": "Sputtering",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "전공정",
+      "scaleLevel": 3,
+      "classificationNote": "스퍼터링의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "고에너지 입자 충돌로 물질 표면을 떨어뜨리는 물리 기법이다. 식각은 웨이퍼를 직접 제거하고 증착은 표적에서 떨어뜨린 물질을 웨이퍼에 붙인다는 차이가 있다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "스퍼터링(Sputtering): 높은 에너지를 특정 물질에 충돌시켜 물질 표면이 떨어져 나가게 하는 물리적 방법",
+      "evidenceQuote": "스퍼터링(Sputtering): 높은 에너지를 특정 물질에 충돌시켜 물질 표면이 떨어져 나가게 하는 물리적 방법",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "cmp",
+      "title": "화학 기계적 연마",
+      "engName": "CMP",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "평탄화",
+      "scaleLevel": 3,
+      "classificationNote": "화학 기계적 연마의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "물리·화학적 연마로 웨이퍼 표면을 갈아 물질을 제거하는 공정이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "CMP : 물리, 화학적 연마 공정. 웨이퍼 표면을 갈아 내서 물질을 제거하는 공정",
+      "evidenceQuote": "CMP : 물리, 화학적 연마 공정. 웨이퍼 표면을 갈아 내서 물질을 제거하는 공정",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "multiple-patterning",
+      "title": "멀티 패터닝",
+      "engName": "Multi Patterning",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "패터닝",
+      "scaleLevel": 3,
+      "classificationNote": "멀티 패터닝의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "더 미세한 반도체 패턴을 만들기 위해 노광과 식각 등을 여러 번 반복하는 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "노광과 식각 공정 등을 여러 번 반복하는 방법이다.",
+      "evidenceQuote": "노광과 식각 공정 등을 여러 번 반복하는 방법이다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "패터닝",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "hard-mask",
+      "title": "하드 마스크",
+      "engName": "Hard Mask",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "패터닝 재료·부품",
+      "scaleLevel": 3,
+      "classificationNote": "하드 마스크의 원문 역할에 따라 materials_infra, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "멀티 패터닝에서 증착으로 형성해 사용하는 마스크 막이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "멀티 패터닝*에 사용하는 하드 마스크를 씌울 때도 사용된다.",
+      "evidenceQuote": "멀티 패터닝*에 사용하는 하드 마스크를 씌울 때도 사용된다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "패터닝 보조막",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "aspect-ratio",
+      "title": "종횡비",
+      "engName": "Aspect Ratio",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "공정 품질 지표",
+      "scaleLevel": 3,
+      "classificationNote": "종횡비의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "구조물 폭에 대한 높이의 비율이며 값이 높을수록 폭이 좁고 높다는 뜻이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "종횡비가 높다는 것은 구조물의 폭이 좁은데 높다는 의미",
+      "evidenceQuote": "종횡비가 높다는 것은 구조물의 폭이 좁은데 높다는 의미",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "형상 지표",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "copper-interconnect",
+      "title": "구리 배선",
+      "engName": "COPPER INTERCONNECT",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "소자·전기 구조",
+      "scaleLevel": 2,
+      "classificationNote": "기존 등록 개념의 확정 분류를 유지한 관계 보강 기여이다.",
+      "summary": "알루미늄 배선의 미세화 한계에 대응해 구리를 도입한 반도체 배선이다.",
+      "purpose": "",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "isA": [],
+      "partOf": [],
+      "nextSteps": [],
+      "previousSteps": [],
+      "alternatives": [
+        {
+          "id": "aluminum-interconnect",
+          "name": "알루미늄 배선",
+          "reason": "추가 전문 재독한 119번은 알루미늄 배선 미세화 한계 때문에 구리를 대체 배선 물질로 사용하려 했다고 직접 설명하여 같은 배선 목적의 대안임을 지지한다. 대상 등록명은 알루미늄 배선이다.",
+          "evidenceQuote": "바로 반도체 미세화 때문이다. 전자제품의 성능 및 저전력 요구가 높아짐에 따라 반도체에 미세화가 진행돼야 했다. 더 작고 에너지 소비가 적은 반도체를 도입하면 기기에 더 많은 기능을 추가할 수 있기 때문이다. 반도체 미세화가 진행되니 내부에는 각기 다른 역할을 하는 다양한 물질로 구성된 얇은 막이 필요해졌다. 그중 하나가 금속 피막이다. 과거 반도체 회사들은 칩 내부의 금속 배선으로 전도도*가 높은 알루미늄을 사용했는데, 알루미늄의 미세화가 한계에 다다르자 대체 배선 물질로 알루미늄보다 전도도가 높은 구리를 사용하려 했다. 문제는 구리 원자는 알루미늄과는 달리 반도체 회사들이 원치 않는 곳(이산화규소, SiO2)까지 뚫고 확산하는 성질이 있다는 것이다. 이를 방지하고자 구리 배선을 도포할 영역에 구리가 통과하지 못하는 일종의 보호막을 씌우는데, 여기에 고품질 박막이 필요했다."
+        }
+      ]
+    }
+  ]
+}

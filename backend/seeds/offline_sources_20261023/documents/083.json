@@ -1,0 +1,77 @@
+{
+  "index": 83,
+  "filePath": "samsung/glossary/반도체-용어-사전led편-연색지수.md",
+  "sourceHash": "6c8067f10a9d41249b24959afd905b8da83394cc7975a1eaf9ae28b00f43551f",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1456,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 빈 파서 후보를 대조해 실제 개념명·정의·명시된 적용 상황을 보완했다. 설명 예시를 실측 사양으로 바꾸지 않고 수치 없는 사례도 보존했다. 원문의 CRI·백분율·백열전구 기준 설명을 원문 범위로 보존했으며 별도 표준을 검증하지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "color-rendering-index",
+      "title": "연색지수",
+      "engName": "Color Rendering Index",
+      "aliases": [
+        "CRI"
+      ],
+      "domainFacet": "materials_infra",
+      "category": "광원의 색 재현 지표",
+      "scaleLevel": 1,
+      "classificationNote": "연색지수의 원문 정의에 따라 광원의 색 재현 지표에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "조명된 사물의 색 재현 충실도를 나타내는 광원의 성질이다. 자연광에서 본 사물색과 특정 조명에서 본 색의 유사성을 수치화한다. 원문은 CRI와 백분율(%)로 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "광원의 성질 중 하나. 단위는 CRI.\n조명된 사물의 색재현 충실도를 나타낸다. 자연광(태양광)에서 본 사물색과 특정조명에서 본 사물의 색이 어느 정도 유사한 가를 수치화 한 것이다. 기준 광원(백열전구) 대비 백분율(%)로 표기하며, 100에 가까울수록 연색성이 좋음을 의미한다. 태양광의 연색성은 100%으로, 광원의 경우 그 파장이 태양광 파장과 유사하게 균일하게 분포된 것이 연색성이 우수하다.",
+      "evidenceQuote": "광원의 성질 중 하나. 단위는 CRI.\n조명된 사물의 색재현 충실도를 나타낸다. 자연광(태양광)에서 본 사물색과 특정조명에서 본 사물의 색이 어느 정도 유사한 가를 수치화 한 것이다. 기준 광원(백열전구) 대비 백분율(%)로 표기하며, 100에 가까울수록 연색성이 좋음을 의미한다. 태양광의 연색성은 100%으로, 광원의 경우 그 파장이 태양광 파장과 유사하게 균일하게 분포된 것이 연색성이 우수하다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "기준 광원과 비교",
+          "content": "원문은 기준 광원인 백열전구 대비 백분율로 나타내고 100에 가까울수록 연색성이 좋다고 설명한다. 태양광 파장과 유사하게 균일한 분포를 가진 광원은 연색성이 우수하다고 한다.",
+          "formula": null,
+          "evidenceQuote": "광원의 성질 중 하나. 단위는 CRI.\n조명된 사물의 색재현 충실도를 나타낸다. 자연광(태양광)에서 본 사물색과 특정조명에서 본 사물의 색이 어느 정도 유사한 가를 수치화 한 것이다. 기준 광원(백열전구) 대비 백분율(%)로 표기하며, 100에 가까울수록 연색성이 좋음을 의미한다. 태양광의 연색성은 100%으로, 광원의 경우 그 파장이 태양광 파장과 유사하게 균일하게 분포된 것이 연색성이 우수하다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "태양광의 연색성 기준 설명",
+          "perspectiveBadge": "태양광",
+          "narrative": "원문은 태양광의 연색성을 100%로 설명한다.",
+          "caution": "",
+          "evidenceQuote": "광원의 성질 중 하나. 단위는 CRI.\n조명된 사물의 색재현 충실도를 나타낸다. 자연광(태양광)에서 본 사물색과 특정조명에서 본 사물의 색이 어느 정도 유사한 가를 수치화 한 것이다. 기준 광원(백열전구) 대비 백분율(%)로 표기하며, 100에 가까울수록 연색성이 좋음을 의미한다. 태양광의 연색성은 100%으로, 광원의 경우 그 파장이 태양광 파장과 유사하게 균일하게 분포된 것이 연색성이 우수하다.",
+          "specifications": [
+            {
+              "parameter": "연색성",
+              "value": "100",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "광원의 성질 중 하나. 단위는 CRI.\n조명된 사물의 색재현 충실도를 나타낸다. 자연광(태양광)에서 본 사물색과 특정조명에서 본 사물의 색이 어느 정도 유사한 가를 수치화 한 것이다. 기준 광원(백열전구) 대비 백분율(%)로 표기하며, 100에 가까울수록 연색성이 좋음을 의미한다. 태양광의 연색성은 100%으로, 광원의 경우 그 파장이 태양광 파장과 유사하게 균일하게 분포된 것이 연색성이 우수하다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "빛이 물체의 색을 얼마나 충실히 보이게 하는지 설명하기 위한 기준 사례이다. 특정 LED 제품의 측정치는 아니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "광원의 색 재현 지표",
+          "scaleLevel": 1
+        }
+      ]
+    }
+  ]
+}

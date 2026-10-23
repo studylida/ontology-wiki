@@ -1,0 +1,114 @@
+{
+  "index": 123,
+  "filePath": "skhynix/skhynix_hypidia_tsv.md",
+  "sourceHash": "6499994b040f4a2f219845237680d13e0ee0d11fa9a3809cdfa8bcdcef77fd3a",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1566,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체 대조. TSV와 비교 대상인 와이어 본딩을 분리하고 HBM의 수치 없는 적용 맥락과 수천 개라는 범위 표현을 보존했다. 특정 SK하이닉스 제품 세대의 측정 사양으로 귀속하지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "tsv",
+      "title": "실리콘 관통 전극",
+      "engName": "Through-Silicon Via",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "접합·패키징",
+      "scaleLevel": 3,
+      "classificationNote": "패키징 인터커넥트 분야이며, 특정 연결·접합·전사·제어·냉각 공정이나 장비 기술이므로 규모 3으로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "칩 내부를 수직으로 관통하는 미세 구멍을 통해 적층된 칩 사이의 신호를 직접 전달하는 인터커넥션 기술이다.",
+      "purpose": "신호 경로를 줄여 고대역 데이터의 고속 전송과 저전력 동작을 돕는다.",
+      "summaryEvidenceQuote": "TSV(Through-Silicon Via)는 AI 시대를 선도하는 HBM의 압도적인 성능을 완성한 패키지 기술 중 하나다. 반도체 칩 자체에 수천 개의 수직 관통 구멍을 뚫어 층간 신호를 직접 전달하는 TSV는 기존 배선 방식이 가진 물리적 제약을 극복하며 HBM이 요구하는 초고속 · 저전력 성능을 뒷받침한다.",
+      "evidenceQuote": "TSV(Through-Silicon Via)는 AI 시대를 선도하는 HBM의 압도적인 성능을 완성한 패키지 기술 중 하나다. 반도체 칩 자체에 수천 개의 수직 관통 구멍을 뚫어 층간 신호를 직접 전달하는 TSV는 기존 배선 방식이 가진 물리적 제약을 극복하며 HBM이 요구하는 초고속 · 저전력 성능을 뒷받침한다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "수직 직접 연결",
+          "content": "칩 내부의 관통 구멍으로 칩과 칩을 직접 연결해 신호 지연과 전력 소모를 줄인다.",
+          "formula": null,
+          "evidenceQuote": "TSV는 이 구조를 근본적으로 바꿨다. 칩 내부를 수직으로 관통하는 미세한 구멍을 뚫어, 칩과 칩을 직접 연결해 최단 경로를 구축한다. 마치 건물 한가운데 초고속 엘리베이터를 설치한 것과 같다. 이를 통해 신호 지연을 최소화하여 고대역 데이터의 고속 전송을 구현하고, 전력 소모를 대폭 줄여 저전력 · 고효율을 동시에 달성한다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "적층 휨과 발열",
+          "description": "층수가 높아질수록 휨이 심해지고 밀집 구조로 발열이 발생하므로 소재·공법으로 수율과 신뢰성을 확보해야 한다.",
+          "evidenceQuote": "TSV는 단일 칩의 한계를 넘어 어드밴스드 패키징(Advanced Packaging) 혁신을 이끄는 핵심 인터커넥션 기술이다. 그러나 TSV를 활용해 칩을 수직으로 높이 쌓아 올리는 과정은 결코 단순하지 않다. 층이 높아질수록 심화되는 휨 현상(Warpage)이나 밀집 구조로 인한 발열 등의 물리적 난제가 계속해서 발생하기 때문이다. 따라서 TSV와 같은 혁신 기술 개발뿐만 아니라, 이를 제어하기 위한 신규 소재와 공법을 개발하여 최적의 수율과 신뢰성을 확보하는 것까지 모두 PKG개발 직무의 역할이다."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "HBM 적층 칩의 수직 연결",
+          "perspectiveBadge": "HBM",
+          "narrative": "원문은 HBM에서 칩 자체의 수천 개 수직 관통 구멍으로 층간 신호를 직접 전달해 초고속·저전력 성능을 뒷받침한다고 설명한다.",
+          "caution": "특정 HBM 세대나 실제 측정 성능 값은 제시하지 않는다.",
+          "evidenceQuote": "TSV(Through-Silicon Via)는 AI 시대를 선도하는 HBM의 압도적인 성능을 완성한 패키지 기술 중 하나다. 반도체 칩 자체에 수천 개의 수직 관통 구멍을 뚫어 층간 신호를 직접 전달하는 TSV는 기존 배선 방식이 가진 물리적 제약을 극복하며 HBM이 요구하는 초고속 · 저전력 성능을 뒷받침한다.",
+          "specifications": [
+            {
+              "parameter": "칩의 수직 관통 구멍",
+              "value": "수천 개",
+              "unit": "개",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "TSV(Through-Silicon Via)는 AI 시대를 선도하는 HBM의 압도적인 성능을 완성한 패키지 기술 중 하나다. 반도체 칩 자체에 수천 개의 수직 관통 구멍을 뚫어 층간 신호를 직접 전달하는 TSV는 기존 배선 방식이 가진 물리적 제약을 극복하며 HBM이 요구하는 초고속 · 저전력 성능을 뒷받침한다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "메모리 칩을 여러 층 쌓을 때 신호가 칩 바깥으로 돌아가지 않고 안쪽 통로로 곧장 오가게 하는 방식이다. 통로가 짧아지면 신호가 이동하는 시간과 전력을 줄이는 데 도움이 된다.",
+            "background": null
+          }
+        }
+      ],
+      "alternatives": [
+        {
+          "id": "wire-bonding",
+          "name": "와이어 본딩",
+          "reason": "원문은 칩 바깥을 우회하는 와이어 본딩과 칩 내부를 관통하는 TSV의 연결 경로를 대조한다.",
+          "evidenceQuote": "반도체 칩 사이를 연결하는 전통적인 방식은 ‘와이어 본딩(Wire Bonding)’이다. 칩 바깥으로 가느다란 금속 선을 뽑아 연결하는 이 구조에서 데이터는 외부로 우회한 뒤 다시 다른 칩으로 진입하게 된다. 층수가 늘어날수록 경로도 길어지고, 신호 전달 속도는 느려지며 전력 소모도 커진다. 마치 고층 건물을 오르내릴 때마다 건물 밖 비상계단을 빙빙 돌아야 하는 셈이다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "패키징 인터커넥트",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "wire-bonding",
+      "title": "와이어 본딩",
+      "engName": "Wire Bonding",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "접합·패키징",
+      "scaleLevel": 3,
+      "classificationNote": "패키징 접합 분야이며, 특정 연결·접합·전사·제어·냉각 공정이나 장비 기술이므로 규모 3으로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "칩 바깥으로 가느다란 금속 선을 뽑아 다른 칩과 연결하는 전통적인 배선 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "반도체 칩 사이를 연결하는 전통적인 방식은 ‘와이어 본딩(Wire Bonding)’이다. 칩 바깥으로 가느다란 금속 선을 뽑아 연결하는 이 구조에서 데이터는 외부로 우회한 뒤 다시 다른 칩으로 진입하게 된다. 층수가 늘어날수록 경로도 길어지고, 신호 전달 속도는 느려지며 전력 소모도 커진다. 마치 고층 건물을 오르내릴 때마다 건물 밖 비상계단을 빙빙 돌아야 하는 셈이다.",
+      "evidenceQuote": "반도체 칩 사이를 연결하는 전통적인 방식은 ‘와이어 본딩(Wire Bonding)’이다. 칩 바깥으로 가느다란 금속 선을 뽑아 연결하는 이 구조에서 데이터는 외부로 우회한 뒤 다시 다른 칩으로 진입하게 된다. 층수가 늘어날수록 경로도 길어지고, 신호 전달 속도는 느려지며 전력 소모도 커진다. 마치 고층 건물을 오르내릴 때마다 건물 밖 비상계단을 빙빙 돌아야 하는 셈이다.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "외부 우회 경로",
+          "description": "적층 층수가 늘면 외부를 우회하는 신호 경로가 길어져 전달 속도가 느려지고 전력 소모가 커진다.",
+          "evidenceQuote": "반도체 칩 사이를 연결하는 전통적인 방식은 ‘와이어 본딩(Wire Bonding)’이다. 칩 바깥으로 가느다란 금속 선을 뽑아 연결하는 이 구조에서 데이터는 외부로 우회한 뒤 다시 다른 칩으로 진입하게 된다. 층수가 늘어날수록 경로도 길어지고, 신호 전달 속도는 느려지며 전력 소모도 커진다. 마치 고층 건물을 오르내릴 때마다 건물 밖 비상계단을 빙빙 돌아야 하는 셈이다."
+        }
+      ],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "패키징 접합",
+          "scaleLevel": 3
+        }
+      ]
+    }
+  ]
+}

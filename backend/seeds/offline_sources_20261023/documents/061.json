@@ -1,0 +1,88 @@
+{
+  "index": 61,
+  "filePath": "samsung/glossary/반도체-용어-사전-저항.md",
+  "sourceHash": "4bf5cc85c8cb0b0c79bd6e4d859ecd3da878c6091878b3f41e78401ee67d3ea1",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1466,
+    "method": "codex-offline-source-review",
+    "notes": "텍스트 원문 전체와 초안을 대조했다. 빈 파서 후보를 실제 개념명과 정의로 보완했으며 웹 메뉴·관련기사·발행사를 사례로 만들지 않았다. 원문에 없는 조리법·안전마진은 추가하지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "resistance",
+      "title": "전기 저항",
+      "engName": "Resistance",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "전기 물성",
+      "scaleLevel": 1,
+      "classificationNote": "저항의 원문 정의에 따라 전기적 물성에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전류의 흐름을 방해하는 정도를 나타내는 성질이다. 기호는 R, 단위는 옴(Ω)이며 1Ω은 1V에서 1A의 전류가 흐를 때의 저항이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "전류의 흐름을 방해하는 정도를 나타내는 성질.",
+      "evidenceQuote": "전류의 흐름을 방해하는 정도를 나타내는 성질.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "도선 형상과 비저항",
+          "content": "저항 R은 도선 길이 L에 비례하고 단면적 A에 반비례한다. 비례상수 ρ는 물질 고유의 저항률 또는 비저항이다.",
+          "formula": "R =ρ L /A",
+          "evidenceQuote": "도선의 길이, 단면적과 저항의 관계를 식으로 나타내면,  R =ρ L /A 가 된다. 비례상수 ρ는 물질의 고유한 값으로 저항률 또는 비저항이라 한다."
+        },
+        {
+          "step": 2,
+          "title": "단위 정의",
+          "content": "1Ω은 1V의 전압으로 1A의 전류가 흐를 때의 저항이다.",
+          "formula": null,
+          "evidenceQuote": "기호는 R, 단위는 옴[Ω]이며 1Ω은 1V의 전압으로 1A의 전류가 흐를 때의 저항을 말한다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "전기적 물성",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "resistivity",
+      "title": "저항률",
+      "engName": "저항률",
+      "aliases": [
+        "비저항"
+      ],
+      "domainFacet": "materials_infra",
+      "category": "전기적 물성",
+      "scaleLevel": 1,
+      "classificationNote": "저항률의 원문 정의에 따라 전기적 물성에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "도선의 저항과 길이·단면적의 관계식 R =ρ L /A에서 물질에 고유한 비례상수 ρ이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "도선의 길이, 단면적과 저항의 관계를 식으로 나타내면,  R =ρ L /A 가 된다. 비례상수 ρ는 물질의 고유한 값으로 저항률 또는 비저항이라 한다.",
+      "evidenceQuote": "도선의 길이, 단면적과 저항의 관계를 식으로 나타내면,  R =ρ L /A 가 된다. 비례상수 ρ는 물질의 고유한 값으로 저항률 또는 비저항이라 한다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "전기적 물성",
+          "scaleLevel": 1
+        }
+      ]
+    }
+  ]
+}

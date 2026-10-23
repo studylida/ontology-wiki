@@ -1,0 +1,130 @@
+{
+  "index": 73,
+  "filePath": "samsung/glossary/반도체-용어-사전-플래시-메모리.md",
+  "sourceHash": "80b58b0e12e632edc63a636f3e7547b57ff75d9484e0e7465f4c19bb60cd6c1a",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1720,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 빈 파서 후보를 대조하여 실제 개념명·정의·명시된 종류·선후 관계를 보완했다. 발행사나 관련기사를 도입 사례로 추정하지 않았다. "
+  },
+  "concepts": [
+    {
+      "conceptId": "flash-memory",
+      "title": "플래시 메모리",
+      "engName": "Flash Memory",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "플래시 메모리의 원문 정의에 따라 비휘발성 메모리에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전원이 끊겨도 데이터를 보존하며 전기적으로 정보를 입출력하는 비휘발성 메모리이다. 트랜지스터 1개로 셀 하나를 구성하고 전력소모가 적으며 고속 프로그래밍이 가능하다.",
+      "purpose": "디지털 카메라·MP3·휴대전화·USB 드라이브 등 휴대형 기기에 대용량 정보를 저장한다.",
+      "summaryEvidenceQuote": "플래시 메모리는 전기적인 방법으로 정보를 자유롭게 입출력할 수 있으며, 전력소모가 적고 고속프로그래밍이 가능하다. 일반적으로 D램은 트랜지스터 1개와 커패시터 1개로 셀이 구성되지만, 플래시 메모리는 트랜지스터 1개로 하나의 셀을 구성한다.",
+      "evidenceQuote": "플래시 메모리는 전기적인 방법으로 정보를 자유롭게 입출력할 수 있으며, 전력소모가 적고 고속프로그래밍이 가능하다. 일반적으로 D램은 트랜지스터 1개와 커패시터 1개로 셀이 구성되지만, 플래시 메모리는 트랜지스터 1개로 하나의 셀을 구성한다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "비휘발성 및 자유로운 입출력",
+          "content": "전원이 꺼져도 데이터를 보존하는 ROM의 장점과 정보 입출력이 자유로운 RAM의 장점을 가진다.",
+          "formula": null,
+          "evidenceQuote": "전원이 꺼지더라도 저장된 데이터를 보존하는 롬(ROM)의 장점과 정보의 입출력이 자유로운 램(RAM)의 장점을 동시에 지닌 특성 때문에 디지털 카메라, MP3, 휴대전화, USB 드라이브 등 휴대형 기기에서 대용량 정보 저장 용도로 사용된다."
+        },
+        {
+          "step": 2,
+          "title": "단일 트랜지스터 셀",
+          "content": "일반적으로 DRAM은 트랜지스터 1개와 커패시터 1개로 셀을 구성하지만 플래시메모리는 트랜지스터 1개로 셀을 구성한다.",
+          "formula": null,
+          "evidenceQuote": "플래시 메모리는 전기적인 방법으로 정보를 자유롭게 입출력할 수 있으며, 전력소모가 적고 고속프로그래밍이 가능하다. 일반적으로 D램은 트랜지스터 1개와 커패시터 1개로 셀이 구성되지만, 플래시 메모리는 트랜지스터 1개로 하나의 셀을 구성한다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "purposeEvidenceQuote": "전원이 꺼지더라도 저장된 데이터를 보존하는 롬(ROM)의 장점과 정보의 입출력이 자유로운 램(RAM)의 장점을 동시에 지닌 특성 때문에 디지털 카메라, MP3, 휴대전화, USB 드라이브 등 휴대형 기기에서 대용량 정보 저장 용도로 사용된다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "비휘발성 메모리",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "nand-flash",
+      "title": "낸드 플래시 메모리",
+      "engName": "NAND",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "낸드 플래시 메모리의 원문 정의에 따라 비휘발성 메모리에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "플래시메모리의 회로 형태에 따른 NAND형으로 데이터 저장에 쓰이며 용량을 늘리기 쉽다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "플래시 메모리는 반도체 칩 내부의 전자회로 형태에 따라 NAND(데이터 저장)형과 NOR(코드 저장)형으로 구분된다. 낸드플래시는 용량을 늘리기에 쉽고, 노어 플래시는 읽기 속도가 빠른 장점을 가지고 있다.",
+      "evidenceQuote": "플래시 메모리는 반도체 칩 내부의 전자회로 형태에 따라 NAND(데이터 저장)형과 NOR(코드 저장)형으로 구분된다. 낸드플래시는 용량을 늘리기에 쉽고, 노어 플래시는 읽기 속도가 빠른 장점을 가지고 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "flash-memory",
+          "name": "플래시 메모리",
+          "reason": "원문에서 내부 회로 형태에 따른 플래시메모리의 종류로 구분한다.",
+          "evidenceQuote": "플래시 메모리는 반도체 칩 내부의 전자회로 형태에 따라 NAND(데이터 저장)형과 NOR(코드 저장)형으로 구분된다. 낸드플래시는 용량을 늘리기에 쉽고, 노어 플래시는 읽기 속도가 빠른 장점을 가지고 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "비휘발성 메모리",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "nor-flash",
+      "title": "노어 플래시 메모리",
+      "engName": "NOR",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "노어 플래시 메모리의 원문 정의에 따라 비휘발성 메모리에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "플래시메모리의 회로 형태에 따른 NOR형으로 코드 저장에 쓰이며 읽기 속도가 빠르다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "플래시 메모리는 반도체 칩 내부의 전자회로 형태에 따라 NAND(데이터 저장)형과 NOR(코드 저장)형으로 구분된다. 낸드플래시는 용량을 늘리기에 쉽고, 노어 플래시는 읽기 속도가 빠른 장점을 가지고 있다.",
+      "evidenceQuote": "플래시 메모리는 반도체 칩 내부의 전자회로 형태에 따라 NAND(데이터 저장)형과 NOR(코드 저장)형으로 구분된다. 낸드플래시는 용량을 늘리기에 쉽고, 노어 플래시는 읽기 속도가 빠른 장점을 가지고 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "flash-memory",
+          "name": "플래시 메모리",
+          "reason": "원문에서 내부 회로 형태에 따른 플래시메모리의 종류로 구분한다.",
+          "evidenceQuote": "플래시 메모리는 반도체 칩 내부의 전자회로 형태에 따라 NAND(데이터 저장)형과 NOR(코드 저장)형으로 구분된다. 낸드플래시는 용량을 늘리기에 쉽고, 노어 플래시는 읽기 속도가 빠른 장점을 가지고 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "비휘발성 메모리",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,476 @@
+{
+  "index": 108,
+  "filePath": "semi/semi_standards_and_smart_fab.md",
+  "sourceHash": "440ee3981136b6c8b69e04be54f004e0bea7fd39c16be7420828faa1bafbb443",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 3697,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체를 끝까지 읽고 파서 제안을 대조했다. 문서 맥락의 정의·원리·조건·사례와 관계를 구분했다. 원문 요약의 주장은 제공 자료의 범위로 한정했으며 장비 최신 성능·표준 판본을 외부 확인하지 않았다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "secs-gem",
+      "title": "SECS/GEM 장비 통신",
+      "engName": "SECS/GEM",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "장비 자동화 표준",
+      "scaleLevel": 5,
+      "classificationNote": "SECS/GEM 장비 통신의 기술적 대상을 장비 자동화 표준에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "장비와 팹 호스트 사이의 메시지·동작 모델을 표준화하는 반도체 자동화 통신 체계이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "## 1. SECS/GEM 통신 및 장비 제어 모델 (The Automation Foundation)",
+      "evidenceQuote": "## 1. SECS/GEM 통신 및 장비 제어 모델 (The Automation Foundation)",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "장비 자동화 표준",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "semi-e30-gem",
+      "title": "GEM 장비 동작 모델",
+      "engName": "SEMI E30 GEM",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "장비 자동화 표준",
+      "scaleLevel": 5,
+      "classificationNote": "GEM 장비 동작 모델의 기술적 대상을 장비 자동화 표준에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "팹 호스트와의 통신·원격 제어를 위한 장비의 표준 동작과 상태 모델이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- **정의**: 반도체 제조 장비가 팹 호스트(Factory Host) 시스템과 통신하고 원격 제어되기 위해 반드시 구현해야 하는 표준 동작 및 상태 모델(State Model).",
+      "evidenceQuote": "- **정의**: 반도체 제조 장비가 팹 호스트(Factory Host) 시스템과 통신하고 원격 제어되기 위해 반드시 구현해야 하는 표준 동작 및 상태 모델(State Model).",
+      "principles": [
+        {
+          "step": 1,
+          "title": "제어 상태",
+          "content": "Offline과 Online을 구분하고 Online에서 Local 모니터링과 Remote 원격 제어를 나눈다.",
+          "formula": null,
+          "evidenceQuote": "1. **Control State Model**: Offline(호스트와 단절) vs Online(호스트 통신 활성: Local 모니터링 전용 vs Remote 원격 레시피/시작 제어)."
+        },
+        {
+          "step": 2,
+          "title": "처리 상태",
+          "content": "Idle·Setting Up·Executing·Paused로 장비 가공 상태를 나타낸다.",
+          "formula": null,
+          "evidenceQuote": "2. **Processing State Model**: Idle(대기), Setting Up(셋업), Executing(가공 중), Paused(일시정지)."
+        },
+        {
+          "step": 3,
+          "title": "이벤트·변수·알람·레시피",
+          "content": "상태 변경 이벤트, 읽기 전용 SV와 읽고 쓸 수 있는 EC, 알람 보고와 레시피 송수신·무결성 기능을 구분한다.",
+          "formula": null,
+          "evidenceQuote": "3. **Data Collection Events (CE)**: 장비 내 상태 변경(웨이퍼 투입, 챔버 가공 완료, 밸브 개폐) 발생 시 호스트에 실시간 보고되는 이벤트."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "secs-gem",
+          "name": "SECS/GEM 장비 통신",
+          "reason": "SECS/GEM 체계의 장비 동작·상태·원격 제어를 맡는 GEM 구성 규격으로 명시된다.",
+          "evidenceQuote": "### 1.1 SEMI E30 (GEM, Generic Equipment Model)"
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "장비 자동화 표준",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "semi-e5-secs-ii",
+      "title": "SECS-II 메시지 내용",
+      "engName": "SEMI E5 SECS-II",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "장비 자동화 표준",
+      "scaleLevel": 5,
+      "classificationNote": "SECS-II 메시지 내용의 기술적 대상을 장비 자동화 표준에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "장비와 호스트가 교환하는 메시지의 문법·데이터 타입·Stream과 Function을 정의하는 표준이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- **정의**: 장비와 호스트 간에 교환되는 메시지의 문법과 데이터 타입(Stream & Function)을 정의.",
+      "evidenceQuote": "- **정의**: 장비와 호스트 간에 교환되는 메시지의 문법과 데이터 타입(Stream & Function)을 정의.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "메시지 범주",
+          "content": "등록 요약은 S1 상태, S2 제어, S5 알람, S6 데이터 수집, S7 프로그램 관리를 구분한다.",
+          "formula": null,
+          "evidenceQuote": "- `S1`: Equipment Status (S1F13/S1F14 Establish Communications, S1F3 Status Request)."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "secs-gem",
+          "name": "SECS/GEM 장비 통신",
+          "reason": "SECS/GEM 체계의 메시지 문법·내용·데이터 타입을 맡는 SECS-II 구성 규격이다.",
+          "evidenceQuote": "### 1.2 SEMI E5 (SECS-II, SEMI Equipment Communications Standard 2 Message Content)"
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "장비 자동화 표준",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "hsms",
+      "title": "HSMS 전송",
+      "engName": "SEMI E37 HSMS",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "장비 자동화 표준",
+      "scaleLevel": 5,
+      "classificationNote": "HSMS 전송의 기술적 대상을 장비 자동화 표준에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "TCP/IP 이더넷으로 SECS-II 메시지를 전송하는 통신 프로토콜이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- TCP/IP 이더넷 기반으로 SECS-II 메시지를 고속 전송하기 위한 물리/전송 계층 프로토콜(과거 RS-232 시리얼 통신 규격인 SEMI E4를 대체).",
+      "evidenceQuote": "- TCP/IP 이더넷 기반으로 SECS-II 메시지를 고속 전송하기 위한 물리/전송 계층 프로토콜(과거 RS-232 시리얼 통신 규격인 SEMI E4를 대체).",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "secs-gem",
+          "name": "SECS/GEM 장비 통신",
+          "reason": "SECS/GEM 통신 절에서 SECS-II 메시지를 TCP/IP로 전달하는 전송 계층 규격이므로 전체 통신 체계의 구성 부분이다.",
+          "evidenceQuote": "TCP/IP 이더넷 기반으로 SECS-II 메시지를 고속 전송하기 위한 물리/전송 계층 프로토콜"
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "장비 자동화 표준",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "obem",
+      "title": "객체 기반 장비 모델",
+      "engName": "SEMI E98 OBEM",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "장비 자동화 표준",
+      "scaleLevel": 5,
+      "classificationNote": "객체 기반 장비 모델의 기술적 대상을 장비 자동화 표준에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "다중 챔버·복합 모듈 장비의 내부 구조를 객체로 표준화하는 장비 모델이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- **목적**: 단일 챔버 장비를 넘어 다중 공정 챔버(Cluster Tool) 및 복합 모듈 장비의 내부 구조를 객체 지향적으로 표준화.",
+      "evidenceQuote": "- **목적**: 단일 챔버 장비를 넘어 다중 공정 챔버(Cluster Tool) 및 복합 모듈 장비의 내부 구조를 객체 지향적으로 표준화.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "장비 객체",
+          "content": "Loadport·이송 로봇·Process Chamber·Buffer Station을 장비 내부 객체로 구분한다.",
+          "formula": null,
+          "evidenceQuote": "- `Loadport`: 웨이퍼 캐리어(FOUP) 안착 및 개폐 도어."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "장비 자동화 표준",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "apc",
+      "title": "첨단 공정 제어",
+      "engName": "Advanced Process Control",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "공정 제어",
+      "scaleLevel": 5,
+      "classificationNote": "첨단 공정 제어의 기술적 대상을 공정 제어에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "계측 결과와 장비 데이터로 공정 조건을 분석·보정하는 제어 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- **목적**: 장비 외부의 전문 분석 엔진(APC, FDC, R2R Control)과 장비 제어기간의 실시간 데이터 교환 표준.",
+      "evidenceQuote": "- **목적**: 장비 외부의 전문 분석 엔진(APC, FDC, R2R Control)과 장비 제어기간의 실시간 데이터 교환 표준.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "공정 제어",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "fdc",
+      "title": "결함 탐지·분류",
+      "engName": "Fault Detection and Classification",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "공정 제어",
+      "scaleLevel": 5,
+      "classificationNote": "결함 탐지·분류의 기술적 대상을 공정 제어에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "장비 센서 시계열을 정상 시그니처와 비교해 이상을 탐지·분류하는 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- **FDC (Fault Detection & Classification)**: 챔버 내부의 수십 종 센서(RF 바이어스, 가스 유량, 압력, 척 온도)를 10~100Hz 고주파로 수집하여 정상 골든 시그니처(Golden Signature)와 비교, 결함 및 설비 이상 징후 실시간 탐지.",
+      "evidenceQuote": "- **FDC (Fault Detection & Classification)**: 챔버 내부의 수십 종 센서(RF 바이어스, 가스 유량, 압력, 척 온도)를 10~100Hz 고주파로 수집하여 정상 골든 시그니처(Golden Signature)와 비교, 결함 및 설비 이상 징후 실시간 탐지.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "SEMI E133 개요의 FDC 데이터 수집 예시",
+          "perspectiveBadge": "등록 SEMI 개요",
+          "narrative": "RF 바이어스·가스 유량·압력·척 온도 등을 수집해 정상 시그니처와 비교하는 애플리케이션 예시이다.",
+          "caution": "공식 표준 전문이 아닌 로컬 표준 개요의 애플리케이션 예시이다.",
+          "evidenceQuote": "- **FDC (Fault Detection & Classification)**: 챔버 내부의 수십 종 센서(RF 바이어스, 가스 유량, 압력, 척 온도)를 10~100Hz 고주파로 수집하여 정상 골든 시그니처(Golden Signature)와 비교, 결함 및 설비 이상 징후 실시간 탐지.",
+          "specifications": [
+            {
+              "parameter": "원문 제시 센서 수집 주파수",
+              "value": "10~100",
+              "unit": "Hz",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **FDC (Fault Detection & Classification)**: 챔버 내부의 수십 종 센서(RF 바이어스, 가스 유량, 압력, 척 온도)를 10~100Hz 고주파로 수집하여 정상 골든 시그니처(Golden Signature)와 비교, 결함 및 설비 이상 징후 실시간 탐지."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "FDC는 센서가 평소와 다른 움직임을 보이는지 살펴 장비 이상을 조기에 찾는 방식입니다. Hz는 초당 데이터를 몇 번 모으는지 나타냅니다. 이 문서의 수집 예시가 표준이 모든 장비에 요구하는 고정 주파수라는 뜻은 아닙니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "공정 제어",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "r2r-control",
+      "title": "런투런 제어",
+      "engName": "Run-to-Run Control",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "공정 제어",
+      "scaleLevel": 5,
+      "classificationNote": "런투런 제어의 기술적 대상을 공정 제어에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "직전 웨이퍼의 계측 결과 등을 이용해 다음 웨이퍼의 공정 조건을 보정하는 제어 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- **R2R (Run-to-Run) Control**: 직전 웨이퍼의 가공 결과(계측 두께, 선폭)를 피드백 받아 다음 웨이퍼의 공정 시간/파워 파라미터를 자동 보정(Feedforward / Feedback).",
+      "evidenceQuote": "- **R2R (Run-to-Run) Control**: 직전 웨이퍼의 가공 결과(계측 두께, 선폭)를 피드백 받아 다음 웨이퍼의 공정 시간/파워 파라미터를 자동 보정(Feedforward / Feedback).",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "apc",
+          "name": "첨단 공정 제어",
+          "reason": "계측 결과로 다음 웨이퍼 공정 시간·파워를 자동 보정하는 구체적 방식은 첨단 공정 제어의 조건 분석·보정 기능에 해당한다.",
+          "evidenceQuote": "**R2R (Run-to-Run) Control**: 직전 웨이퍼의 가공 결과(계측 두께, 선폭)를 피드백 받아 다음 웨이퍼의 공정 시간/파워 파라미터를 자동 보정(Feedforward / Feedback)."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "공정 제어",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "spc",
+      "title": "통계적 공정 관리",
+      "engName": "Statistical Process Control",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "공정 제어",
+      "scaleLevel": 5,
+      "classificationNote": "통계적 공정 관리의 기술적 대상을 공정 제어에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "공정 관리 상한·하한 등 통계 기준으로 변동을 추적하는 관리 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- **SPC (Statistical Process Control)**: 팹 관리 상한선(UCL/LCL) 통계적 추적.",
+      "evidenceQuote": "- **SPC (Statistical Process Control)**: 팹 관리 상한선(UCL/LCL) 통계적 추적.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "공정 제어",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "equipment-data-acquisition",
+      "title": "장비 데이터 수집 Interface A",
+      "engName": "Equipment Data Acquisition",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "장비 자동화 표준",
+      "scaleLevel": 5,
+      "classificationNote": "장비 데이터 수집 Interface A의 기술적 대상을 장비 자동화 표준에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "장비 상태 모델과 고주파 센서 데이터 수집을 위한 SEMI E120·E125·E132·E134 표준군의 인터페이스이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- **표준군**: SEMI E120, E125, E132, E134.",
+      "evidenceQuote": "- **표준군**: SEMI E120, E125, E132, E134.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "별도 고대역폭 수집 경로",
+          "content": "로컬 개요는 독립 이더넷을 통한 수천 Hz 센서 스트리밍을 설명한다. SOAP/XML과 gRPC/Protobuf의 판본별 적용 범위는 이 자료만으로 확정하지 않는다.",
+          "formula": null,
+          "evidenceQuote": "- 기존 SECS/GEM 대역폭의 한계를 극복하기 위해, 별도의 독립 기가비트 이더넷 포트를 통해 SOAP/XML, gRPC/Protobuf 기반으로 수천 Hz의 고주파 센서 데이터를 호스트 부하 없이 스트리밍 수집하는 표준."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "장비 자동화 표준",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "equipment-ram",
+      "title": "장비 신뢰성·가용성·보전성",
+      "engName": "Equipment Reliability Availability Maintainability",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "설비 생산성",
+      "scaleLevel": 5,
+      "classificationNote": "장비 신뢰성·가용성·보전성의 기술적 대상을 설비 생산성에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "장비의 가공·대기·엔지니어링·계획/비계획 중단·비가동 상태를 구분해 신뢰성과 가용성을 평가하는 체계이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "### 4.1 SEMI E10 (RAM, Reliability, Availability, Maintainability)",
+      "evidenceQuote": "### 4.1 SEMI E10 (RAM, Reliability, Availability, Maintainability)",
+      "principles": [
+        {
+          "step": 1,
+          "title": "장비 시간 상태",
+          "content": "Productive·Standby·Engineering·Scheduled Downtime·Unscheduled Downtime·Non-Scheduled Time을 구분한다.",
+          "formula": null,
+          "evidenceQuote": "- 반도체 장비의 24시간 가동 상태를 6대 기본 상태로 엄격히 분류:"
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "설비 생산성",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "oee",
+      "title": "설비 종합 효율",
+      "engName": "Overall Equipment Effectiveness",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "설비 생산성",
+      "scaleLevel": 5,
+      "classificationNote": "설비 종합 효율의 기술적 대상을 설비 생산성에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "가용률·운영 효율·양품률의 곱으로 설비 생산 효율을 나타내는 지표이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 설비의 종합적인 생산 효율을 측정하는 글로벌 표준 지표:",
+      "evidenceQuote": "- 설비의 종합적인 생산 효율을 측정하는 글로벌 표준 지표:",
+      "principles": [
+        {
+          "step": 1,
+          "title": "효율 요소의 곱",
+          "content": "이 자료는 Availability·Operational Efficiency·Rate of Quality를 곱하는 OEE 식을 제시한다.",
+          "formula": "\\mathrm{OEE}=\\mathrm{Availability}\\times\\mathrm{OperationalEfficiency}\\times\\mathrm{Quality}",
+          "evidenceQuote": "$$\\text{OEE} = \\text{Availability (가용률)} \\times \\text{Operational Efficiency (운영 효율)} \\times \\text{Rate of Quality (양품률)}$$"
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "설비 생산성",
+          "scaleLevel": 5
+        }
+      ]
+    }
+  ]
+}

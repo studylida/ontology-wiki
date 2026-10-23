@@ -1,0 +1,57 @@
+{
+  "index": 60,
+  "filePath": "samsung/glossary/반도체-용어-사전-잉곳.md",
+  "sourceHash": "0851acfc002e874c937f383570363a2ea9dcec46bfbe1d00550a0794044a4ef6",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1451,
+    "method": "codex-offline-source-review",
+    "notes": "텍스트 원문 전체와 초안을 대조했다. 빈 파서 후보를 실제 개념명과 정의로 보완했으며 웹 메뉴·관련기사·발행사를 사례로 만들지 않았다. 원문에 없는 조리법·안전마진은 추가하지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "ingot",
+      "title": "잉곳",
+      "engName": "Ingot",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "반도체 기초 재료",
+      "scaleLevel": 1,
+      "classificationNote": "잉곳의 원문 정의에 따라 반도체 원재료에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "고온에서 녹인 고순도 실리콘 용액을 균일한 둥근 막대 모양의 단결정으로 성장·냉각시킨 실리콘 기둥이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "고온에서 녹인 실리콘으로 만든 실리콘 기둥.",
+      "evidenceQuote": "고온에서 녹인 실리콘으로 만든 실리콘 기둥.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "정제 및 단결정 성장",
+          "content": "모래에서 추출한 규소는 반도체 원료로 쓰기 위해 정제가 필요하다. 초크랄스키법 같은 결정 성장기술로 녹인 고순도 실리콘을 둥근 막대 모양의 단결정으로 식힌다.",
+          "formula": null,
+          "evidenceQuote": "그래서 초크랄스키법 같은 실리콘 결정 성장기술을 이용하는데, 실리콘을 뜨거운 열로 녹여 고순도의 실리콘 용액으로 만들고, 이것을 균일한 둥근 막대 모양의 단결정으로 식힌다."
+        },
+        {
+          "step": 2,
+          "title": "웨이퍼 절단",
+          "content": "성장된 잉곳을 다이아몬드 톱으로 균일한 두께로 절단하면 웨이퍼가 된다.",
+          "formula": null,
+          "evidenceQuote": "여기서 성장된 단결정이 바로 ‘잉곳(ingot)’으로 이 것을 다이아몬드 톱을 이용해 균일한 두께로 절단하면 웨이퍼가 된다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "반도체 원재료",
+          "scaleLevel": 1
+        }
+      ]
+    }
+  ]
+}

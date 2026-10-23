@@ -1,0 +1,79 @@
+{
+  "index": 28,
+  "filePath": "samsung/glossary/반도체-용어-사전-nfc.md",
+  "sourceHash": "91df30b05368926df24a6d9e0d866233446cdda8a554c7f3ca3fd97e4f8aab8c",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1484,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. 통신거리 10cm 이내, 13.56MHz, 상대적 보안이라는 한정을 보존했다. 발행사를 도입 기업으로 만들지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "nfc",
+      "title": "근거리 무선통신",
+      "engName": "Near Field communication",
+      "aliases": [
+        "NFC"
+      ],
+      "domainFacet": "materials_infra",
+      "category": "통신·인터페이스",
+      "scaleLevel": 4,
+      "classificationNote": "여러 기능을 통합한 시스템 또는 패키지를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "10cm 이내에서 데이터를 교환하며 13.56MHz 주파수 대역을 사용하는 비접촉 근거리 통신 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "10cm 이내의 근거리에서 데이터를 교환할 수 있는 무선통신기술의 하나.",
+      "evidenceQuote": "10cm 이내의 근거리에서 데이터를 교환할 수 있는 무선통신기술의 하나.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "근접 비접촉 통신",
+          "content": "NFC 단말기나 태그를 가까이 대어 기기간 별도 설정 없이 정보를 주고받는다. 주파수 대역은 13.56MHz이다.",
+          "formula": null,
+          "evidenceQuote": "전자태그(RFID) 기술의 한 종류로 13.56MHz의 주파수 대역을 사용하는 비접촉식 근거리 통신 기술이다."
+        },
+        {
+          "step": 2,
+          "title": "근거리의 특성",
+          "content": "짧은 통신거리 때문에 보안이 상대적으로 우수하고 가격이 저렴하다고 설명한다. 보안의 절대적 보장은 아니다.",
+          "formula": null,
+          "evidenceQuote": "NFC 기능이 탑재된 단말기나 태그를 서로 근접시켜, 기기간의 설정없이도 정보를 주고 받을 수 있다. 또한 통신거리가 짧아 상대적으로 보안이 우수하고 가격이 저렴하다는 장점을 가지고 있다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "교통카드와 전자결제",
+          "perspectiveBadge": "근거리 결제",
+          "narrative": "교통카드와 전자결제에서 대표적으로 사용되며 IT기기와 생활 가전제품으로 확대된다고 설명한다.",
+          "caution": "",
+          "evidenceQuote": "NFC 기술은 교통카드 이용 및 전자결제 부분에서 대표적으로 사용되며, IT기기 및 생활 가전제품으로도 그 영역이 확대되고 있다.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "단말기나 태그를 가까이 대어 데이터를 주고받는 방식이 결제와 기기 연결에 쓰인다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "rfid",
+          "name": "RFID",
+          "reason": "원문이 전자태그 기술의 한 종류라고 명시한다.",
+          "evidenceQuote": "전자태그(RFID) 기술의 한 종류로 13.56MHz의 주파수 대역을 사용하는 비접촉식 근거리 통신 기술이다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "통신·인터페이스",
+          "scaleLevel": 4
+        }
+      ]
+    }
+  ]
+}

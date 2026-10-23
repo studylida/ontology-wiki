@@ -1,0 +1,74 @@
+{
+  "index": 21,
+  "filePath": "samsung/glossary/반도체-용어-사전-d램.md",
+  "sourceHash": "a57448bf6de114e743257173d870b225fbbb9abb936fe717b34129787da2e067",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1734,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. "
+  },
+  "concepts": [
+    {
+      "conceptId": "dram",
+      "title": "D램",
+      "engName": "Dynamic Random Access Memory",
+      "aliases": [
+        "DRAM",
+        "동적 메모리"
+      ],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "커패시터의 전하로 데이터를 저장하며 전원 공급 중에도 주기적인 리프레시가 필요한 휘발성 램이다.",
+      "purpose": "용량과 속도를 활용하여 컴퓨터의 주력 메모리로 사용한다.",
+      "summaryEvidenceQuote": "D램은 전원이 차단될 경우 저장된 데이터가 소멸되는 휘발성 기억소자이며, 시간이 지나면서 축적된 전하가 감소되기 때문에 전원이 차단되지 않더라도 저장된 데이터가 자연히 소멸되는 단점이 있다.",
+      "evidenceQuote": "D램은 전원이 차단될 경우 저장된 데이터가 소멸되는 휘발성 기억소자이며, 시간이 지나면서 축적된 전하가 감소되기 때문에 전원이 차단되지 않더라도 저장된 데이터가 자연히 소멸되는 단점이 있다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "1T1C 셀의 전하 저장",
+          "content": "메모리셀은 트랜지스터 1개와 커패시터 1개로 구성되며 전하 유무로 0 또는 1을 저장한다.",
+          "formula": null,
+          "evidenceQuote": "메모리셀은 트랜지스터와 커패시터 각각 1개로 구성된다. 커패시터는 전하의 유무에 따라 디지털 정보의 기본 단위인 0 혹은 1이라는 정보를 저장하고 이 두 숫자를 판별하는 방식으로 데이터를 저장한다."
+        },
+        {
+          "step": 2,
+          "title": "주기적 재생",
+          "content": "시간에 따른 커패시터 전자 누설로 저장 상태가 약해지므로 주기적으로 리프레시하여 데이터를 유지한다.",
+          "formula": null,
+          "evidenceQuote": "하지만, 시간이 지나면서 커패시터의 전자가 누전되어 데이터를 유지하는 시간이 짧아지는데, 이를 방지하기 위해서 커패시터에 주기적으로 리프레시(재생)를 시켜 데이터를 상기시켜 주는 것이다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "전원 차단 및 전하 감소",
+          "description": "전원이 끊기면 저장 데이터가 소멸하고 전원을 유지해도 전하가 감소하여 리프레시가 필요하다.",
+          "evidenceQuote": "D램은 전원이 차단될 경우 저장된 데이터가 소멸되는 휘발성 기억소자이며, 시간이 지나면서 축적된 전하가 감소되기 때문에 전원이 차단되지 않더라도 저장된 데이터가 자연히 소멸되는 단점이 있다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "ram",
+          "name": "램",
+          "reason": "원문이 D램을 램의 종류로 설명한다.",
+          "evidenceQuote": "용량이 크고 속도가 빠르기 때문에 컴퓨터의 주력 메모리로 사용되는 램."
+        }
+      ],
+      "purposeEvidenceQuote": "용량이 크고 속도가 빠르기 때문에 컴퓨터의 주력 메모리로 사용되는 램.",
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

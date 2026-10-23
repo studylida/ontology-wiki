@@ -1,0 +1,53 @@
+{
+  "index": 18,
+  "filePath": "samsung/glossary/반도체-용어-사전-cmos.md",
+  "sourceHash": "621370ff48b9d17300aa1b3451085300e360807bbc88fc719e0ad2fd4be50be8",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1463,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. MOSFET·PMOS·NMOS는 구성 요소로 보존하고 단순 명칭만으로 독립 원리나 특정 칩 소속 관계를 만들지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "cmos",
+      "title": "CMOS",
+      "engName": "Complementary Metal Oxide Semiconductor",
+      "aliases": [
+        "상보형 금속 산화 반도체"
+      ],
+      "domainFacet": "device",
+      "category": "트랜지스터·게이트 구조",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "PMOS와 NMOS를 결합한 상보 회로 방식으로 디지털 집적회로를 구성하는 기술이다.",
+      "purpose": "마이크로프로세서와 S램 등 디지털 회로를 구성한다.",
+      "summaryEvidenceQuote": "CMOS는 일반 금속 산화막 반도체 전계효과 트랜지스터(MOSFET)의  P채널 트랜지스터(PMOS)와 N채널 트랜지스터(NMOS)가 접합된 상보 회로방식으로 구성되어 있다.",
+      "evidenceQuote": "CMOS는 일반 금속 산화막 반도체 전계효과 트랜지스터(MOSFET)의  P채널 트랜지스터(PMOS)와 N채널 트랜지스터(NMOS)가 접합된 상보 회로방식으로 구성되어 있다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "상보 회로 구성",
+          "content": "P채널·N채널 MOSFET을 함께 사용하여 높은 집적도와 낮은 소모 전력을 얻는다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "집적도가 높고 소모전력이 매우 적다는 이점을 가지며 휴대용 계산기, 전자시계, 소형 컴퓨터 등의 제품에서 사용되고 있다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "purposeEvidenceQuote": "마이크로프로세서나 S램 등 디지털 회로를 구성하는데 사용되는 집적회로의 한 종류.",
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

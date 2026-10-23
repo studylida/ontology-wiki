@@ -1,0 +1,562 @@
+{
+  "index": 110,
+  "filePath": "skhynix/skhynix_ai_02_hbm.md",
+  "sourceHash": "b362324110f6c54e36fbf01f14bdbee35b10f2ab1bfa602eaf10778aff485ed9",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 8257,
+    "method": "codex-offline-source-review",
+    "notes": "text/110.txt 전체 8257자와 초안을 대조했다. 원문 기술 정의·HBM 적층/발열/반응 속도 절충과 용량당 비용을 보존했다. AlexNet의 GTX 580 결합, A100/A6000 비교, H100 당시 시작 용량을 분리했다. A600 표기와 제품 사양의 정확성은 외부 검증하지 않았다. 챗GPT 메모리, GPT-3 처리 시간, 더 큰 H100은 예상·외삽으로 한정했다. ImageNet TOP5 정확도 변화는 AI 학습 사례에 보존하고 반도체 사양과 구분했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "hbm",
+      "title": "고대역폭 메모리",
+      "engName": "HBM",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "적층 메모리",
+      "scaleLevel": 4,
+      "classificationNote": "적층 메모리 범주이며 여러 D램 다이와 연결을 통합한 적층 메모리 제품이므로 패키지 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "여러 D램 칩을 수직으로 적층하고 TSV 전극으로 연결하여 제한된 면적에서 높은 용량과 대역폭을 제공하는 메모리 제품이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "HBM*은 대역폭과 용량에 중점을 두고, 반응 속도를 다소 양보한 제품이다.",
+      "evidenceQuote": "HBM*은 대역폭과 용량에 중점을 두고, 반응 속도를 다소 양보한 제품이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "수직 적층과 고밀도 연결",
+          "content": "여러 D램을 적층하고 TSV로 연결 통로를 밀집시켜 기반 면적당 용량과 대역폭을 높인다.",
+          "formula": null,
+          "evidenceQuote": "D램을 여러 개 적층했으므로 기반 면적당 높은 용량을 확보할 수 있다."
+        },
+        {
+          "step": 2,
+          "title": "기반 면적 대비 대역폭",
+          "content": "원문은 TSV의 밀집 연결 덕분에 칩 하나 면적 수준에서 메모리 네 개 이상의 대역폭을 제공한다고 설명한다. 비교 대상의 구체적인 규격은 제시하지 않는다.",
+          "formula": null,
+          "evidenceQuote": "고작 칩 하나 면적 수준에서 메모리 4개 이상의 대역폭을 가진다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "열과 반응 속도의 절충",
+          "description": "원문은 적층으로 발열 해소 문제가 생길 수 있어 개별 칩의 동작 속도를 약간 줄였으며 반응 속도에서 손해가 있다고 설명한다.",
+          "evidenceQuote": "칩을 적층한 이유로 발열 해소에 문제가 생길 수 있어, 개별 칩의 동작 속도는 약간 줄었다. 이로 인해 반응 속도에서 약간의 손해가 발생한다."
+        },
+        {
+          "title": "용량당 가격",
+          "description": "GB당 가격은 일반 DDR 메모리보다 높다.",
+          "evidenceQuote": "HBM을 사용할 경우 GB당 가격은 일반 DDR 메모리보다 훨씬 높아지게 되지만"
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "A100의 HBM과 A6000의 GDDR 비교",
+          "perspectiveBadge": "NVIDIA A100 / A6000",
+          "narrative": "칼럼은 물리적 크기가 같은 두 카드에서 A100이 더 큰 메모리 용량과 대역폭을 제공한다고 비교한다.",
+          "caution": "원문은 A6000 문맥의 대역폭 문장에서 A600으로 표기한다. 외부 사양 정정은 하지 않았다. 신경망 속도 2배 주장은 보편적인 실측 성능으로 일반화하지 않는다.",
+          "evidenceQuote": "HBM을 사용하는 NVIDIA A100 카드와 GDDR을 사용하는 NVIDIA A6000 카드의 메모리가 사용하는 면적 차이를 보면 그 힘을 알 수 있다.",
+          "specifications": [
+            {
+              "parameter": "A6000 메모리 용량",
+              "value": "24~48",
+              "unit": "GB",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "A6000이 24~48GB, A100이 40~80GB"
+            },
+            {
+              "parameter": "A100 메모리 용량",
+              "value": "40~80",
+              "unit": "GB",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "A6000이 24~48GB, A100이 40~80GB"
+            },
+            {
+              "parameter": "비교 카드의 원문 대역폭",
+              "value": "약 800",
+              "unit": "GB/s",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "A600은 약 800GB/s"
+            },
+            {
+              "parameter": "A100 대역폭",
+              "value": "1,900",
+              "unit": "GB/s",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "A100은 1,900GB/s"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "같은 크기의 카드에 더 큰 메모리와 더 넓은 데이터 통로를 넣으면 큰 신경망을 담고 데이터를 공급하기 수월해진다는 제품 비교다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "A100 용량 이력과 H100의 시작 용량",
+          "perspectiveBadge": "NVIDIA H100 / A100",
+          "narrative": "A100은 40GB에서 80GB 카드로 확대됐고 원문은 당시 차기 H100이 80GB부터 시작한다고 설명한다.",
+          "caution": "80GB보다 큰 H100은 필자의 예상이며 출시 실적으로 기록하지 않는다.",
+          "evidenceQuote": "NVIDIA의 차기 학습용 GPU인 H100의 경우 80GB 메모리부터 시작한다.",
+          "specifications": [
+            {
+              "parameter": "H100 시작 용량",
+              "value": "80",
+              "unit": "GB",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "H100의 경우 80GB 메모리부터 시작한다."
+            },
+            {
+              "parameter": "A100 용량 이력",
+              "value": "40에서 출발하여 80GB 카드 출시",
+              "unit": "GB",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "A100 역시 40GB에서 출발하여 80GB 카드를 출시"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "기존 제품에서 용량을 늘린 경험을 바탕으로 후속 제품도 더 커질 수 있다고 전망한 사례다. 이미 나온 용량과 앞으로 나올 것이라는 예상은 구별해야 한다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "dram",
+          "name": "D램",
+          "reason": "여러 D램을 연결한 적층 메모리 제품이다.",
+          "evidenceQuote": "여러 개의 D램을 수직으로 연결해"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "적층 메모리",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "tsv",
+      "title": "실리콘 관통 전극",
+      "engName": "TSV",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "접합·패키징",
+      "scaleLevel": 3,
+      "classificationNote": "수직 연결 기술 범주이며 칩을 관통하는 연결을 형성하는 기술이므로 단위 공정·연결 기술 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "칩에 미세한 구멍을 뚫고 이를 관통하는 전극으로 여러 칩을 연결해 데이터를 전달하는 기술이다.",
+      "purpose": "적층 칩의 신호 전달과 집적도 확보",
+      "summaryEvidenceQuote": "TSV(Through Silicon Via) : 수천 개의 미세한 구멍을 뚫고 이를 관통하는 전극으로 여러 개의 칩을 연결해 데이터를 전달한다.",
+      "evidenceQuote": "TSV(Through Silicon Via) : 수천 개의 미세한 구멍을 뚫고 이를 관통하는 전극으로 여러 개의 칩을 연결해 데이터를 전달한다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "수직 연결 기술",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "memory-bandwidth",
+      "title": "메모리 대역폭",
+      "engName": "Bandwidth",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 성능 특성",
+      "scaleLevel": 2,
+      "classificationNote": "메모리 성능 특성 범주이며 메모리 장치의 데이터 공급 특성이므로 소자 특성 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "원문은 메모리에서 한 번에 빼낼 수 있는 데이터의 양으로 설명하며 GPU에 필요한 데이터 공급 능력을 좌우하는 특성으로 다룬다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "대역폭은 메모리에서 한 번에 빼낼 수 있는 데이터의 양을 의미한다.",
+      "evidenceQuote": "대역폭은 메모리에서 한 번에 빼낼 수 있는 데이터의 양을 의미한다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "메모리 성능 특성",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "memory-latency",
+      "title": "메모리 반응 속도",
+      "engName": "Latency",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 성능 특성",
+      "scaleLevel": 2,
+      "classificationNote": "메모리 성능 특성 범주이며 메모리 장치의 응답 특성이므로 소자 특성 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "CPU나 GPU의 요청에 대해 메모리가 첫 반응을 내기까지의 속도를 나타내는 특성이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "반응 속도는 CPU나 GPU의 요청이 들어왔을 때 얼마나 빨리 첫 반응을 할 수 있는지를 뜻한다.",
+      "evidenceQuote": "반응 속도는 CPU나 GPU의 요청이 들어왔을 때 얼마나 빨리 첫 반응을 할 수 있는지를 뜻한다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "메모리 성능 특성",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "memory-capacity",
+      "title": "메모리 용량",
+      "engName": "Capacity",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 용량 특성",
+      "scaleLevel": 2,
+      "classificationNote": "메모리 용량 특성 범주이며 메모리 장치의 저장량 특성이므로 소자 특성 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "메모리에 담을 수 있는 데이터의 총량을 뜻하는 특성이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "용량은 메모리 안에 얼마나 많은 데이터를 담을 수 있는지를 말한다.",
+      "evidenceQuote": "용량은 메모리 안에 얼마나 많은 데이터를 담을 수 있는지를 말한다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "메모리 용량 특성",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "ai-training",
+      "title": "인공신경망 학습",
+      "engName": "Training",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "인공지능 연산",
+      "scaleLevel": 4,
+      "classificationNote": "인공지능 연산 범주이며 신경망·학습 데이터·연산 장치에 걸친 학습 동작이므로 시스템 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "학습 데이터의 문제와 정답을 이용해 신경망 연결 강도를 조정하는 과정이다. 학습 대상 신경망뿐 아니라 데이터 배치와 연구개발용 정보까지 저장해야 하므로 추론보다 많은 메모리를 사용하는 상황을 원문이 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "GPU 내부 메모리에는 학습 대상 인공신경망 + 학습시킬 데이터 배치(Batch)* + 각종 연구 개발용 정보 등 다양한 데이터가 들어가야 하기 때문이다.",
+      "evidenceQuote": "GPU 내부 메모리에는 학습 대상 인공신경망 + 학습시킬 데이터 배치(Batch)* + 각종 연구 개발용 정보 등 다양한 데이터가 들어가야 하기 때문이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "배치와 연결 강도의 반복 조정",
+          "content": "데이터 묶음을 처리하고 오류를 줄이는 방향으로 연결 강도를 반복 수정한다.",
+          "formula": null,
+          "evidenceQuote": "학습 과정에서 각 인공 뉴런 사이의 연결 강도는 수십만 번 이상 변화한다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "AlexNet의 GPU 메모리 한계 대응",
+          "perspectiveBadge": "AlexNet / GTX 580",
+          "narrative": "칼럼은 AlexNet이 GPU 메모리 용량 한계를 넘기 위해 GTX 580 두 개를 결합했다고 설명한다.",
+          "caution": "원문이 인용한 AlexNet 논문 전체나 상세 분할 방법은 검증하지 않았다.",
+          "evidenceQuote": "GPU 2개(GTX 580)를 결합하는 테크닉을 사용하는 등 다양한 연구를 해야 했다.",
+          "specifications": [
+            {
+              "parameter": "결합 GPU",
+              "value": "GTX 580 2개",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "GPU 2개(GTX 580)"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "신경망이 한 GPU의 메모리에 다 들어가지 않으면 여러 GPU에 나누어 담아야 하는 사례다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "학습 데이터 메모리 비중의 일반적 예",
+          "perspectiveBadge": "원문 조건 예시",
+          "narrative": "원문은 신경망 크기를 1로 볼 때 학습 데이터에 쓰는 메모리가 4~5 이상인 경우도 있다고 설명한다.",
+          "caution": "특정 제품 측정이나 모든 모델에 고정되는 비율이 아니다.",
+          "evidenceQuote": "신경망의 크기가 1이라고 하면, 학습 데이터에 사용되는 메모리가 4~5 이상 되는 경우도 있다.",
+          "specifications": [
+            {
+              "parameter": "정규화한 신경망 크기",
+              "value": "1",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "신경망의 크기가 1"
+            },
+            {
+              "parameter": "학습 데이터 메모리의 상대 크기",
+              "value": "4~5 이상인 경우도 있음",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "학습 데이터에 사용되는 메모리가 4~5 이상 되는 경우도 있다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "학습 때는 신경망 자체보다 학습 자료와 중간 정보가 더 큰 공간을 차지할 수도 있다는 설명이다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "학습 규모와 소요 시간의 일반 설명",
+          "perspectiveBadge": "원문 범위 예시",
+          "narrative": "원문은 수만~수백만 학습 데이터와 수백~수백억 뉴런 연결을 조정하는 데 24시간 GPU를 구동해도 수시간~수개월이 걸릴 수 있다고 설명한다.",
+          "caution": "특정 제품·모델의 벤치마크가 아닌 폭넓은 일반 설명이다.",
+          "evidenceQuote": "이는 24시간 내내 GPU를 구동해도 수시간, 수개월이 걸리는 매우 고된 작업이다.",
+          "specifications": [
+            {
+              "parameter": "학습 데이터 수",
+              "value": "수만~수백만 개",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "수만~수백만 개의 데이터를 준비"
+            },
+            {
+              "parameter": "조정하는 뉴런 연결 규모",
+              "value": "수백~수백억 개 뉴런의 연결 강도",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "수백~수백억 개의 뉴런 연결 강도"
+            },
+            {
+              "parameter": "소요 시간의 원문 표현",
+              "value": "24시간 내내 GPU 구동해도 수시간~수개월",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "24시간 내내 GPU를 구동해도 수시간, 수개월"
+            },
+            {
+              "parameter": "연결 강도 변경 횟수",
+              "value": "수십만 번 이상",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "수십만 번 이상 변화"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "학습은 자료를 한 번 읽고 끝내는 일이 아니라 많은 연결값을 여러 번 고치는 작업이어서 자료와 계산 장치를 오래 활용할 수 있다는 설명이다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "ImageNet의 신경망 성과 변화",
+          "perspectiveBadge": "ImageNet Challenge / AlexNet",
+          "narrative": "원문은 2012년 AlexNet 우승과 함께 ImageNet TOP5 모델의 정확도가 2011년 73.8%에서 2016년 93.95%까지 상승했다고 제시한다.",
+          "caution": "모델별 AI 분류 성과이며 HBM 성능 수치가 아니다.",
+          "evidenceQuote": "이미지넷 챌린지 TOP5 모델의 정확도는 2011년 73.8%를 기록했으나, 2012년 알렉스넷이 등장함에 따라 가파르게 상승, 2016년 93.95%에 다다르게 된다.",
+          "specifications": [
+            {
+              "parameter": "2011년 TOP5 모델 정확도",
+              "value": "73.8",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "2011년 73.8%"
+            },
+            {
+              "parameter": "2016년 TOP5 모델 정확도",
+              "value": "93.95",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "2016년 93.95%"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "사진 분류 성과의 변화는 신경망 학습이 주목받은 배경이다. 모델 정확도와 메모리 자체의 처리 성능은 다른 지표다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "인공지능 연산",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "ai-inference",
+      "title": "인공신경망 추론",
+      "engName": "Inference",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "인공지능 연산",
+      "scaleLevel": 4,
+      "classificationNote": "인공지능 연산 범주이며 학습된 모델을 실행하는 시스템 동작이므로 시스템 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "학습된 인공신경망이 실제 입력 문제를 푸는 행위다. 원문은 초거대 모델의 추론에도 큰 메모리 용량과 대역폭이 필요할 수 있다고 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "추론 : 인공신경망이 실제로 문제를 푸는 행위",
+      "evidenceQuote": "추론 : 인공신경망이 실제로 문제를 푸는 행위",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "챗GPT 메모리 용량에 대한 당시 필자 추정",
+          "perspectiveBadge": "챗GPT / 필자 예상",
+          "narrative": "자료형 선택에 따라 챗GPT가 320~640GB 정도의 메모리를 사용할 것으로 예상한다.",
+          "caution": "공개된 실측 사양이나 현재 서비스 사양이 아닌 칼럼의 예상이다.",
+          "evidenceQuote": "챗GPT의 경우 자료형 선택에 따라 320~640GB 정도의 메모리를 사용할 것으로 예상된다.",
+          "specifications": [
+            {
+              "parameter": "예상 메모리 용량",
+              "value": "자료형 선택에 따라 320~640 정도",
+              "unit": "GB",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "자료형 선택에 따라 320~640GB 정도의 메모리를 사용할 것으로 예상된다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "같은 모델이라도 숫자를 저장하는 형식에 따라 메모리 사용량이 달라진다는 당시의 추정이다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "GPT-2 CPU 추론 인용과 GPT-3 외삽",
+          "perspectiveBadge": "Hugging Face / 필자 외삽",
+          "narrative": "GPT-2의 CPU 처리당 0.05~0.1초를 인용하고, 100배 이상 큰 GPT-3에 처리당 10초 이상이 필요하다고 필자가 추론한다.",
+          "caution": "CPU·배치·처리 단위의 상세 조건이 없으며 GPT-3 수치는 직접 벤치마크가 아니다.",
+          "evidenceQuote": "Hugging Face*에 공개된 GPT-2 알고리즘 기준 CPU에서 추론 시 처리당 0.05~0.1초의 시간이 필요했다.",
+          "specifications": [
+            {
+              "parameter": "GPT-2 CPU 인용 시간",
+              "value": "처리당 0.05~0.1",
+              "unit": "초",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "처리당 0.05~0.1초의 시간이 필요했다."
+            },
+            {
+              "parameter": "GPT-3 상대 크기와 추정 시간",
+              "value": "GPT-2보다 100배 이상 거대, 처리당 10초 이상이라는 필자 추론",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "이보다 100배 이상 거대한 GPT-3 모델의 경우, CPU에서 처리당 10초 이상이 소요된다는 의미다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "큰 메모리를 CPU에 붙이는 것만으로는 빠른 추론을 보장하지 못한다는 설명이다. GPT-2 인용값과 GPT-3에 대한 계산상 예상은 다른 근거 수준이다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "인공지능 연산",
+          "scaleLevel": 4
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "index": 57,
+  "filePath": "samsung/glossary/반도체-용어-사전-아이소셀.md",
+  "sourceHash": "4b1d7cacc74a6e920844eee191687425b9ffdc14c685b3e6933360c3795969d2",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1573,
+    "method": "codex-offline-source-review",
+    "notes": "텍스트 원문 전체와 초안을 대조했다. 빈 파서 후보를 실제 개념명과 정의로 보완했으며 웹 메뉴·관련기사·발행사를 사례로 만들지 않았다. 원문에 없는 조리법·안전마진은 추가하지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "isocell",
+      "title": "아이소셀",
+      "engName": "ISOCELL",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "광반도체 소자",
+      "scaleLevel": 2,
+      "classificationNote": "아이소셀의 원문 정의에 따라 이미지센서 화소 구조에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "CMOS 이미지센서의 픽셀 사이에 절연부를 형성하여 각 화소에 들어온 빛이 주변 픽셀에 영향을 주는 간섭을 줄이는 구조 기술이다.",
+      "purpose": "화소에 모인 빛을 활용하고 색상 재현성을 높이며 어두운 환경에서도 선명한 이미지를 얻는다.",
+      "summaryEvidenceQuote": "‘격리하다(isolate)’와 ‘세포(cell)’의 뜻이 합쳐진 어원으로, 이미지센서를 구성하는 픽셀과 픽셀 사이에 절연부를 형성해 픽셀로 들어온 빛이 밖으로 나가지 않도록 하는 첨단 기술이다.",
+      "evidenceQuote": "‘격리하다(isolate)’와 ‘세포(cell)’의 뜻이 합쳐진 어원으로, 이미지센서를 구성하는 픽셀과 픽셀 사이에 절연부를 형성해 픽셀로 들어온 빛이 밖으로 나가지 않도록 하는 첨단 기술이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "화소 사이 절연",
+          "content": "픽셀과 픽셀 사이에 절연부를 형성해 들어온 빛이 밖으로 나가지 않도록 한다.",
+          "formula": null,
+          "evidenceQuote": "‘격리하다(isolate)’와 ‘세포(cell)’의 뜻이 합쳐진 어원으로, 이미지센서를 구성하는 픽셀과 픽셀 사이에 절연부를 형성해 픽셀로 들어온 빛이 밖으로 나가지 않도록 하는 첨단 기술이다."
+        },
+        {
+          "step": 2,
+          "title": "간섭 감소",
+          "content": "주변 픽셀에 영향을 주는 간섭현상을 최소화하여 색상 재현성을 높인다.",
+          "formula": null,
+          "evidenceQuote": "이로 인해 각 픽셀에 들어온 빛이 주변 픽셀에 영향을 주는 간섭현상을 최소화하여 이미지의 색상 재현성을 높이게 된다. 또한 아이소셀을 적용한 이미지센서는 어두운 환경에서도 보다 선명한 이미지를 구현하고 깨끗한 이미지를 얻을 수 있다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "purposeEvidenceQuote": "이로 인해 각 픽셀에 들어온 빛이 주변 픽셀에 영향을 주는 간섭현상을 최소화하여 이미지의 색상 재현성을 높이게 된다. 또한 아이소셀을 적용한 이미지센서는 어두운 환경에서도 보다 선명한 이미지를 구현하고 깨끗한 이미지를 얻을 수 있다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "이미지센서 화소 구조",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "index": 30,
+  "filePath": "samsung/glossary/반도체-용어-사전-pci-express.md",
+  "sourceHash": "7212ccbf8d9ddf05ae9a919a59c33fc34604e30d2c08b882b8d7bc1bad612727",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1457,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. 600MB/s와 3GB/s는 2013년 문맥으로 보존했다. PATA→SATA→PCIe의 역사적 서술을 제조공정 선후 관계로 만들지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "pcie",
+      "title": "PCI Express",
+      "engName": "Peripheral Component Interconnect-Express",
+      "aliases": [
+        "PCIe"
+      ],
+      "domainFacet": "materials_infra",
+      "category": "컴퓨팅 인터페이스",
+      "scaleLevel": 4,
+      "classificationNote": "여러 기능을 통합한 시스템 또는 패키지를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "PCI SIG가 2002년 규정한 직렬 전송 방식의 인터페이스 규격이다.",
+      "purpose": "원문이 비교한 SATA 데이터 전송속도 한계를 넘는 고속 전송을 제공한다.",
+      "summaryEvidenceQuote": "2002년 PCI SIG가 규정한 직렬 전송 방식의 인터페이스로 PATA, SATA에 이은 차세대 인터페이스이다.",
+      "evidenceQuote": "2002년 PCI SIG가 규정한 직렬 전송 방식의 인터페이스로 PATA, SATA에 이은 차세대 인터페이스이다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "2013년 기사에서의 SATA와 PCIe 비교",
+          "perspectiveBadge": "2013.12.20 사전",
+          "narrative": "2013년 기사는 SATA 600MB/s와 PCIe 3GB/s를 비교한다. PCIe 세대나 링크 폭은 제시하지 않는다.",
+          "caution": "발행 시점의 설명이다. PCIe 세대·레인 수가 명시되지 않았다.",
+          "evidenceQuote": "현재까지 SATA 인터페이스의 데이터 전송 속도 한계는 600MB/s이지만, PCIe 인터페이스는 현재까지 초당 3GB/s의 데이터 고속 전송이 가능하다.",
+          "specifications": [
+            {
+              "parameter": "원문 SATA 전송속도 한계",
+              "value": "600",
+              "unit": "MB/s",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "현재까지 SATA 인터페이스의 데이터 전송 속도 한계는 600MB/s이지만, PCIe 인터페이스는 현재까지 초당 3GB/s의 데이터 고속 전송이 가능하다."
+            },
+            {
+              "parameter": "원문 PCIe 전송속도",
+              "value": "3",
+              "unit": "GB/s",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "현재까지 SATA 인터페이스의 데이터 전송 속도 한계는 600MB/s이지만, PCIe 인터페이스는 현재까지 초당 3GB/s의 데이터 고속 전송이 가능하다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "당시 글에 적힌 속도 비교이며 PCIe 전체 세대의 최대 성능을 나타내는 값으로 적용하지 않는다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "sata",
+          "name": "SATA",
+          "reason": "데이터 전송 용도에서 성능을 비교하는 인터페이스이다.",
+          "evidenceQuote": "현재까지 SATA 인터페이스의 데이터 전송 속도 한계는 600MB/s이지만, PCIe 인터페이스는 현재까지 초당 3GB/s의 데이터 고속 전송이 가능하다."
+        }
+      ],
+      "partOf": [],
+      "isA": [],
+      "purposeEvidenceQuote": "기존 SATA 인터페이스의 초당 데이터 전송 속도의 성능 한계를 극복한 인터페이스 규격.",
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "통신·인터페이스",
+          "scaleLevel": 4
+        }
+      ]
+    }
+  ]
+}

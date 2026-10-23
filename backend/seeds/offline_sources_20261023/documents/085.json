@@ -1,0 +1,89 @@
+{
+  "index": 85,
+  "filePath": "samsung/glossary/반도체-용어-사전led편-추출효율.md",
+  "sourceHash": "e5d78f0ccbd005afed1e5b6e9f1f20a231ac60bd2af9a99d80b7ede59db8e186",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1440,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 빈 파서 후보를 대조해 실제 개념명·정의·명시된 적용 상황을 보완했다. 설명 예시를 실측 사양으로 바꾸지 않고 수치 없는 사례도 보존했다. 주입 전자 대비 방출 광자라는 첫 정의와 생성 빛 대비 방출 빛이라는 70% 예시의 기준 차이를 보류 사항으로 명시했다. 외부 지식으로 분모나 공식을 바꾸지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "light-extraction-efficiency",
+      "title": "추출효율",
+      "engName": "Extraction Efficiency",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "LED 광학 효율",
+      "scaleLevel": 1,
+      "classificationNote": "추출효율의 원문 정의에 따라 LED 광학 효율에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "LED에서 빛이 외부로 방출되는 정도를 나타내는 효율이다. 원문 첫 문장은 주입된 전자와 밖으로 방출되는 광자의 비로 정의하고 뒤의 예시는 생성된 빛 중 외부로 나가는 비율로 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "LED에 주입된 전자와 LED 밖으로 방출되는 광자의 비.\n추출효율이 높을수록 밝은 LED를 의미한다. 즉, 추출효율이 70%라면, 생성된 빛 중 70%가 밖으로 나가고, 30%의 빛은 LED 내부에 남아 소멸된다는 뜻이다. LED의 추출효율은 칩의 모양이나 표면 형태, 칩의 구조, 패키징 형태에 의하여 많은 영향을 받기 때문에 LED를 설계할 때 세심한 주의가 필요하다.",
+      "evidenceQuote": "LED에 주입된 전자와 LED 밖으로 방출되는 광자의 비.\n추출효율이 높을수록 밝은 LED를 의미한다. 즉, 추출효율이 70%라면, 생성된 빛 중 70%가 밖으로 나가고, 30%의 빛은 LED 내부에 남아 소멸된다는 뜻이다. LED의 추출효율은 칩의 모양이나 표면 형태, 칩의 구조, 패키징 형태에 의하여 많은 영향을 받기 때문에 LED를 설계할 때 세심한 주의가 필요하다.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "정의와 예시의 기준 차이",
+          "description": "원문의 첫 정의는 주입 전자와 방출 광자를 비교하지만 70% 예시는 생성된 빛을 기준으로 설명한다. 두 기준을 하나의 정량식으로 통합할 근거가 없어 원문 표현을 구별해 보존한다.",
+          "evidenceQuote": "LED에 주입된 전자와 LED 밖으로 방출되는 광자의 비.\n추출효율이 높을수록 밝은 LED를 의미한다. 즉, 추출효율이 70%라면, 생성된 빛 중 70%가 밖으로 나가고, 30%의 빛은 LED 내부에 남아 소멸된다는 뜻이다. LED의 추출효율은 칩의 모양이나 표면 형태, 칩의 구조, 패키징 형태에 의하여 많은 영향을 받기 때문에 LED를 설계할 때 세심한 주의가 필요하다."
+        },
+        {
+          "title": "구조·표면·패키징 의존성",
+          "description": "LED 추출효율은 칩 모양, 표면 형태, 칩 구조 및 패키징 형태에 영향을 받으므로 설계 시 주의가 필요하다.",
+          "evidenceQuote": "LED에 주입된 전자와 LED 밖으로 방출되는 광자의 비.\n추출효율이 높을수록 밝은 LED를 의미한다. 즉, 추출효율이 70%라면, 생성된 빛 중 70%가 밖으로 나가고, 30%의 빛은 LED 내부에 남아 소멸된다는 뜻이다. LED의 추출효율은 칩의 모양이나 표면 형태, 칩의 구조, 패키징 형태에 의하여 많은 영향을 받기 때문에 LED를 설계할 때 세심한 주의가 필요하다."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "추출효율 70%의 설명 예",
+          "perspectiveBadge": "LED 설명 예",
+          "narrative": "원문은 추출효율이 70%이면 생성된 빛의 70%가 외부로 나가고 30%는 LED 내부에 남아 소멸한다고 설명한다.",
+          "caution": "특정 제품의 실측값이 아니며 원문의 첫 문장 정의와 예시가 서로 다른 기준을 사용한다.",
+          "evidenceQuote": "LED에 주입된 전자와 LED 밖으로 방출되는 광자의 비.\n추출효율이 높을수록 밝은 LED를 의미한다. 즉, 추출효율이 70%라면, 생성된 빛 중 70%가 밖으로 나가고, 30%의 빛은 LED 내부에 남아 소멸된다는 뜻이다. LED의 추출효율은 칩의 모양이나 표면 형태, 칩의 구조, 패키징 형태에 의하여 많은 영향을 받기 때문에 LED를 설계할 때 세심한 주의가 필요하다.",
+          "specifications": [
+            {
+              "parameter": "외부로 나가는 생성 빛의 비율",
+              "value": "70",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "LED에 주입된 전자와 LED 밖으로 방출되는 광자의 비.\n추출효율이 높을수록 밝은 LED를 의미한다. 즉, 추출효율이 70%라면, 생성된 빛 중 70%가 밖으로 나가고, 30%의 빛은 LED 내부에 남아 소멸된다는 뜻이다. LED의 추출효율은 칩의 모양이나 표면 형태, 칩의 구조, 패키징 형태에 의하여 많은 영향을 받기 때문에 LED를 설계할 때 세심한 주의가 필요하다."
+            },
+            {
+              "parameter": "내부에 남아 소멸하는 빛의 비율",
+              "value": "30",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "LED에 주입된 전자와 LED 밖으로 방출되는 광자의 비.\n추출효율이 높을수록 밝은 LED를 의미한다. 즉, 추출효율이 70%라면, 생성된 빛 중 70%가 밖으로 나가고, 30%의 빛은 LED 내부에 남아 소멸된다는 뜻이다. LED의 추출효율은 칩의 모양이나 표면 형태, 칩의 구조, 패키징 형태에 의하여 많은 영향을 받기 때문에 LED를 설계할 때 세심한 주의가 필요하다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "생성된 빛의 일부는 밖으로 나오고 나머지는 내부에서 사라진다는 설명용 예시이다. 이 예의 비율은 생성된 빛을 기준으로 한다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "LED 광학 효율",
+          "scaleLevel": 1
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,597 @@
+{
+  "index": 114,
+  "filePath": "skhynix/skhynix_ai_06_neuromorphic.md",
+  "sourceHash": "887b133003c672577ac73c26dcda420915efea4f61a071ecde298241d0361eb8",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 8951,
+    "method": "codex-offline-source-review",
+    "notes": "text/114.txt 전체 8951자와 초안을 대조했다. 뉴로모픽 일반 범위·메모리 기반 아날로그 연산·SNN을 구별하고 연산용 메모리만 뉴로모픽 및 PIM의 한 구현으로 연결했다. y=wx, 전류 논리값의 부등호와 빠진 구간, D램 규모를 보존했다. 원문의 S램 6T1C 설명은 기술 오류 가능성 때문에 별도 채택 보류했다. GEMM 정의도 엄밀하지 않은 교육적 표현이므로 원문 범위로 제한했다. GPT-4 수백 GB 설명은 전언이고 저가 스피커 탑재는 미래 가능성이다. Loihi는 원문 소개 범위만 기록했으며 원 칩 자료·회로 그림·상용화 실적은 외부 확인하지 않았다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "neuromorphic-computing",
+      "title": "뉴로모픽 컴퓨팅",
+      "engName": "Neuromorphic",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "뇌 모방 연산 구조",
+      "scaleLevel": 4,
+      "classificationNote": "뇌 모방 연산 구조 범주이며 뇌 모방 방식으로 저장과 연산 체계를 구성하는 접근이므로 시스템 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "인간 뇌 구조나 정보 처리 방식을 모방하는 반도체 및 컴퓨팅 방식이다. 원문은 폰 노이만 구조에 가까운 구현부터 크게 벗어나는 구현까지 다양하며, 그중 메모리에 가까운 구조를 집중적으로 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "인간의 뇌 구조를 모방해 만든 반도체, 바로 뉴로모픽(Neuromorphic) 반도체다.",
+      "evidenceQuote": "인간의 뇌 구조를 모방해 만든 반도체, 바로 뉴로모픽(Neuromorphic) 반도체다.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "구현 범위와 상용화",
+          "description": "원문 시점에 대부분 아직 상용화되지 않았으며 이 글의 연산용 메모리 방식은 여러 미래 대안 중 하나다.",
+          "evidenceQuote": "뉴로모픽 반도체는 아직 상용화되지 않은 경우가 대부분이라 정의하는 데 많은 혼란을 일으킨다."
+        },
+        {
+          "title": "무작위성의 진단 문제",
+          "description": "매번 결과가 달라지면 학습·칩 신뢰성·입력 중 어디에 문제가 있는지 구분하기 어렵다.",
+          "evidenceQuote": "매번 구동할 때마다 결과가 달라지면 문제가 생겼을 때 이것이 신경망 학습 문제인지, 칩 신뢰성 문제인지, 입력값 문제인지 등을 구분하기 힘들어진다."
+        },
+        {
+          "title": "이론 효율과 사용 편의성의 절충",
+          "description": "기존 컴퓨터 구조에서 멀어질수록 이론 최대 효율은 올라갈 수 있지만 사용하기 번거로울 수 있다.",
+          "evidenceQuote": "칩이 기존 컴퓨터 구조와 멀어질수록 이론상의 최대 효율은 올라가지만, 사용하기는 번거롭다."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "GPT-4급 신경망의 소형 기기 탑재 가능성",
+          "perspectiveBadge": "필자의 미래 가정",
+          "narrative": "원문은 GPT-4가 수백 GB 이상 메모리를 사용한다고 알려졌다는 설명과, 뉴로모픽 상용화 시 수만 원대 스피커에도 유사급 신경망을 넣을지 모른다는 전망을 제시한다.",
+          "caution": "메모리 값은 원문의 전언이며 스피커 탑재와 가격은 상용화 이후 가능성에 대한 필자 가정이다.",
+          "evidenceQuote": "뉴로모픽 반도체가 상용화된다면, 수만 원짜리 인공지능 스피커 수준에도 GPT-4급의 신경망을 탑재할 수 있을지도 모른다.",
+          "specifications": [
+            {
+              "parameter": "당시 GPT-4 메모리 설명",
+              "value": "수백 GB 이상으로 알려짐",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "GPT-4의 경우, 수백 기가바이트(GB) 이상 메모리 공간을 사용하는 것으로 알려져 있다."
+            },
+            {
+              "parameter": "미래 기기 가격 표현",
+              "value": "수만 원짜리 스피커 수준이라는 가능성",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "수만 원짜리 인공지능 스피커 수준"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "계산과 저장 구조를 바꾸면 큰 신경망을 더 작은 기기에 넣을 가능성이 있다는 미래 구상이다. 실제로 그런 제품이 만들어졌다는 뜻은 아니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "뇌 모방 연산 구조",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "computational-memory",
+      "title": "연산용 메모리",
+      "engName": "Computational Memory",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "아날로그 메모리 연산 구조",
+      "scaleLevel": 4,
+      "classificationNote": "아날로그 메모리 연산 구조 범주이며 저장 상태와 전류 기반 연산을 결합하는 구조이므로 통합 연산 시스템 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "메모리의 저장 상태에 대응하는 전도 특성과 입력 신호를 이용해 연산까지 수행하는 방식이다. 원문은 디지털 회로의 엄밀한 정확도를 일부 포기하고 신경망의 노이즈 내성을 이용하는 뉴로모픽·PIM 구현의 하나로 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "단순히 저장만 하는 메모리가 아닌 연산용 메모리(Computational Memory)이다.",
+      "evidenceQuote": "단순히 저장만 하는 메모리가 아닌 연산용 메모리(Computational Memory)이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "전류를 이용한 곱셈",
+          "content": "원문 예에서 x는 입력 전압, w는 저장된 전도 특성에 대응하며 전류로 y를 얻는다. 디지털 CPU의 값 읽기·ALU 계산·쓰기 단계를 단순 회로로 대체하는 아이디어다.",
+          "formula": "y=wx",
+          "evidenceQuote": "x값은 입력 전압 값에 대응하고, w값은 전도도 등으로 대응시키면"
+        },
+        {
+          "step": 2,
+          "title": "저장과 연산의 결합",
+          "content": "w에 해당하는 전도 특성을 회로에 유지하여 별도 메모리에서 연산 장치로 가져오는 이동을 줄인다.",
+          "formula": null,
+          "evidenceQuote": "이제는 메모리 자체에서 w값을 통해 연산까지 할 수 있는 것이다."
+        },
+        {
+          "step": 3,
+          "title": "단순 반복 구조와 면적 활용",
+          "content": "원문은 ALU 등 복잡한 디지털 연산 설계를 줄이고 절약한 면적을 인공 뉴런 연결 수 증가에 활용할 수 있다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "다른 용도를 위해 사용된 면적을 절약해서 전부 인공 뉴런과의 연결 개수를 늘리는 데 사용할 수 있다."
+        },
+        {
+          "step": 4,
+          "title": "대규모 연산의 노이즈 설명",
+          "content": "원문은 노이즈가 증가하기도 감소하기도 하므로 큰 규모로 수행하면 전체 노이즈가 줄어들 수 있다고 설명한다. 정량적 오차 보장이나 독립성 조건은 제시하지 않는다.",
+          "formula": null,
+          "evidenceQuote": "노이즈는 늘어나기도 하고, 줄어들기도 하므로 위와 같은 연산을 대규모로 수행한다면 전체적인 노이즈는 줄어들게 되는 것이다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "누설전류와 노이즈",
+          "description": "전류가 매번 정확한 wx를 나타내지 않을 수 있으므로 원문은 개별 연산 오차를 견디는 신경망의 성질을 전제로 한다.",
+          "evidenceQuote": "누설전류 및 외부 노이즈로 인해 매번 정확하게 wx라는 값이 흐르지는 않을 것이다."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "y=wx의 반복 계산과 동시 회로 계산",
+          "perspectiveBadge": "원리 설명용 회로 예",
+          "narrative": "원문은 y=wx를 네 번 수행하는 CPU 알고리즘과 전류 기반 뉴로모픽 회로를 비교해 한 곳에서 동시에 계산하는 원리를 설명한다.",
+          "caution": "실제 칩 측정이 아닌 원리 예이며 회로 도면 원본이나 정밀도·전력·오차 수치는 제공되지 않는다.",
+          "evidenceQuote": "y=wx를 4번 수행하는 CPU 알고리즘(왼쪽)과 뉴로모픽(오른쪽)",
+          "specifications": [
+            {
+              "parameter": "설명용 반복 횟수",
+              "value": "y=wx 4번",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "y=wx를 4번 수행"
+            },
+            {
+              "parameter": "동시 곱셈의 원문 설명",
+              "value": "8개 숫자를 동시에 곱함",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "8개의 숫자를 동시에 곱한 것"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "숫자를 메모리에서 꺼내 하나씩 곱하는 대신, 회로의 성질에 값을 담고 전압을 넣어 여러 계산을 동시에 하자는 설명이다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "neuromorphic-computing",
+          "name": "뉴로모픽 컴퓨팅",
+          "reason": "원문은 연산용 메모리를 뉴로모픽의 한 종류로 한정한다.",
+          "evidenceQuote": "뉴로모픽 반도체 중 하나의 종류이자"
+        },
+        {
+          "id": "pim",
+          "name": "PIM",
+          "reason": "원문은 이 연산용 메모리를 PIM의 최종적인 형태 중 하나로 표현한다.",
+          "evidenceQuote": "PIM(Processing In Memory)의 최종적인 형태 중 하나"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "아날로그 메모리 연산 구조",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "npu",
+      "title": "신경망 처리 장치",
+      "engName": "NPU",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "인공지능 연산 소자",
+      "scaleLevel": 2,
+      "classificationNote": "인공지능 연산 소자 범주이며 독립 칩 또는 칩 일부로 구현되는 연산 장치이므로 소자·구조 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "GPU보다 인공지능 연산에 더 특화된 반도체로 독립 칩 또는 다른 칩 내부 일부로 설계될 수 있다. 원문은 GEMM 등 AI 연산에 특화하는 성격을 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "NPU는 대중적으로 알려진 GPU보다 인공지능을 위한 연산에 더욱 특화된 반도체로, 독립적인 반도체 칩으로 설계되기도 하고 혹은 반도체 칩 내부의 일부분으로 설계되기도 한다.",
+      "evidenceQuote": "NPU는 대중적으로 알려진 GPU보다 인공지능을 위한 연산에 더욱 특화된 반도체로, 독립적인 반도체 칩으로 설계되기도 하고 혹은 반도체 칩 내부의 일부분으로 설계되기도 한다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "system-semiconductor",
+          "name": "시스템 반도체",
+          "reason": "114의 NPU는 인공지능 연산에 특화된 칩 또는 칩의 연산 부분이다. 이는 논리·연산·제어를 수행하는 등록 시스템 반도체의 기능적 정의에 대응한다. 재료를 뜻하는 등록 semiconductor와는 구별했다.",
+          "evidenceQuote": "이 NPU는 대중적으로 알려진 GPU보다 인공지능을 위한 연산에 더욱 특화된 반도체로, 독립적인 반도체 칩으로 설계되기도 하고 혹은 반도체 칩 내부의 일부분으로 설계되기도 한다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "인공지능 연산 소자",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "gemm",
+      "title": "일반 행렬 곱셈",
+      "engName": "GEMM",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "신경망 연산",
+      "scaleLevel": 4,
+      "classificationNote": "신경망 연산 범주이며 신경망에서 수행하는 연산 유형이므로 통합 연산 체계 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "원문이 신경망의 추론·예측 등에 쓰이는 다중 입력 연산으로 소개하는 계산 유형이다. 내적과 이미지 인식 신경망을 예로 들며, 연산용 메모리에서 다수 곱셈을 동시에 수행하는 원리와 연결한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "GEMM(GEneral Matrix Multiplication)",
+      "evidenceQuote": "GEMM(GEneral Matrix Multiplication)",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "신경망 연산",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "spiking-neural-network",
+      "title": "스파이킹 신경망",
+      "engName": "SNN",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "신경망 정보 전달 구조",
+      "scaleLevel": 4,
+      "classificationNote": "신경망 정보 전달 구조 범주이며 뉴런 사이 정보 전달 방식을 구성하는 신경망이므로 시스템 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "인공 뇌세포 사이 신호 전달을 인간의 정보 전달 방식에 더 가깝게 만든 신경망이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "SNN(Spiking Neural network) : 인공 뇌세포 간 신호 전달을 인간에 좀 더 가깝게 만든 방식의 신경망",
+      "evidenceQuote": "SNN(Spiking Neural network) : 인공 뇌세포 간 신호 전달을 인간에 좀 더 가깝게 만든 방식의 신경망",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "인텔 Loihi의 SNN 접목",
+          "perspectiveBadge": "Intel Loihi",
+          "narrative": "원문은 인텔 Loihi가 폰 노이만 컴퓨터 구조에 인간 뇌세포의 정보 전달 메커니즘인 SNN을 접목하려는 사례라고 설명한다.",
+          "caution": "원문 설명의 구현 방향만 보존했으며 Loihi의 상세 구조·성능·상용화 상태를 외부 확인하지 않았다.",
+          "evidenceQuote": "인텔의 뉴로모픽 칩 로이히(Loihi)[관련기사]의 경우, 폰 노이만 구조의 컴퓨터 구조에 SNN*이라고 부르는 인간 뇌세포의 정보 전달 메커니즘을 접목하고자 하고 있다.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "뇌를 모방하는 방법은 아날로그 메모리 계산만 있는 것이 아니라 신호 전달 방식을 바꾸는 접근도 있다는 사례다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "artificial-neural-network",
+          "name": "인공신경망",
+          "reason": "114는 SNN을 인공 뇌세포 사이 정보 전달을 인간에 가깝게 하는 방식의 신경망으로 정의한다. 인공 뉴런으로 구성되는 등록 인공신경망의 한 방식이므로 하위→상위 분류 방향이다.",
+          "evidenceQuote": "SNN(Spiking Neural network) : 인공 뇌세포 간 신호 전달을 인간에 좀 더 가깝게 만든 방식의 신경망"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "신경망 정보 전달 구조",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "alu",
+      "title": "산술 논리 연산 장치",
+      "engName": "ALU",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "디지털 연산 회로",
+      "scaleLevel": 2,
+      "classificationNote": "디지털 연산 회로 범주이며 CPU 내부의 산술·논리 회로이므로 소자·구조 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "CPU 내부에서 산술·논리 연산을 수행하고 레지스터와 조합해 데이터를 처리하는 회로다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "ALU(Arithmetic Logic Unit) : 산술연산, 논리연산 등을 수행하는 중앙처리장치 내부의 회로 장치.",
+      "evidenceQuote": "ALU(Arithmetic Logic Unit) : 산술연산, 논리연산 등을 수행하는 중앙처리장치 내부의 회로 장치.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "독립 처리 불가",
+          "description": "ALU는 독립적으로 데이터를 처리하지 못하고 레지스터와 함께 동작해야 한다.",
+          "evidenceQuote": "독립적으로는 데이터 처리를 못 하며 반드시 레지스터들과 조합해 처리함"
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "cpu",
+          "name": "중앙처리장치",
+          "reason": "원문은 ALU를 CPU 내부 회로 장치로 정의한다.",
+          "evidenceQuote": "중앙처리장치 내부의 회로 장치."
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "디지털 연산 회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "data-augmentation",
+      "title": "데이터 증강",
+      "engName": "Augmentation",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "인공지능 학습 기법",
+      "scaleLevel": 4,
+      "classificationNote": "인공지능 학습 기법 범주이며 모델 전체 학습에 적용하는 데이터 변형 기법이므로 시스템 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "학습 데이터의 회전·크기 변경·노이즈 추가 등 변형을 통해 신경망의 추론 안정성을 높이는 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "데이터 증강(Augmentation) : 학습에 사용하는 데이터에 각종 변화를 줌으로써 신경망의 추론 안정성을 높이는 기술.",
+      "evidenceQuote": "데이터 증강(Augmentation) : 학습에 사용하는 데이터에 각종 변화를 줌으로써 신경망의 추론 안정성을 높이는 기술.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "인공지능 학습 기법",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "dropout",
+      "title": "드롭아웃",
+      "engName": "Dropout",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "인공지능 학습 기법",
+      "scaleLevel": 4,
+      "classificationNote": "인공지능 학습 기법 범주이며 신경망 변수 생략을 통한 학습 기법이므로 시스템 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "과적합을 줄이기 위해 주어진 확률로 네트워크의 변수를 생략하는 학습 방법이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "주어진 확률로 네트워크에 있는 변수들을 생략하는 방법",
+      "evidenceQuote": "주어진 확률로 네트워크에 있는 변수들을 생략하는 방법",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "인공지능 학습 기법",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "noise-regularization",
+      "title": "노이즈 정규화",
+      "engName": "Noise Regularization",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "인공지능 학습 기법",
+      "scaleLevel": 4,
+      "classificationNote": "인공지능 학습 기법 범주이며 신경망 내부 노이즈를 다루는 학습 방법이므로 시스템 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "신경망 내부 일부에서 작은 노이즈가 발생하는 상황을 이용하는 학습 방법이다. 원문은 개별 뉴런의 작은 연산 오류에도 전체 추론 결과를 유지하는 성질과 연결해 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "이는 노이즈 정규화(Noise Regularization)라는 방법으로 신경망 학습에서 때때로 사용되는 방법이다.",
+      "evidenceQuote": "이는 노이즈 정규화(Noise Regularization)라는 방법으로 신경망 학습에서 때때로 사용되는 방법이다.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "조건 없는 오차 허용으로 확장 금지",
+          "description": "원문은 잘 학습된 신경망과 작은 문제의 상황을 설명하며 임의 크기의 오차를 항상 허용한다고 말하지 않는다.",
+          "evidenceQuote": "인공 뉴런은 개별적으로 연산 과정에서 작은 문제가 발생해도 전체에 영향을 미치지 않는다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "인공지능 학습 기법",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "dram",
+      "title": "D램",
+      "engName": "DRAM",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "휘발성 메모리 소자 범주이며 트랜지스터와 저장소로 구성되는 메모리이므로 소자 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "원문은 일반 D램을 트랜지스터 한 개와 저장소 한 개가 결합한 1T1C 구조로 설명하며 반복적 미세 소자 제작 역량의 예로 사용한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "트랜지스터(T) 1개에 저장소(C) 1개가 붙는 1T1C 구조.",
+      "evidenceQuote": "트랜지스터(T) 1개에 저장소(C) 1개가 붙는 1T1C 구조.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "12Gb D램의 반복 구조 집적",
+          "perspectiveBadge": "일반 D램 설명",
+          "narrative": "성인 엄지손톱 두 배 수준 면적에 120억 개 이상의 트랜지스터·저장소 쌍을 형성한 12Gb D램을 예로 든다.",
+          "caution": "제품 모델이나 정확한 면적이 없는 규모 설명이다. 원문의 S램 6T1C 표기는 별도 기술 확인이 필요해 채택하지 않았다.",
+          "evidenceQuote": "12Gb D램은 성인 엄지손톱 2배 수준 면적에 120억 개 이상의 쌍(트랜지스터+저장소)*이 형성돼 있다.",
+          "specifications": [
+            {
+              "parameter": "D램 용량",
+              "value": "12",
+              "unit": "Gb",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "12Gb D램"
+            },
+            {
+              "parameter": "소자 쌍 수",
+              "value": "120억 개 이상",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "120억 개 이상의 쌍(트랜지스터+저장소)"
+            },
+            {
+              "parameter": "면적의 원문 표현",
+              "value": "성인 엄지손톱 2배 수준",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "성인 엄지손톱 2배 수준 면적"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "같은 작은 저장 구조를 매우 많이 반복해 만드는 메모리 제조 경험을 뉴로모픽 구현 가능성과 연결한 설명이다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "휘발성 메모리 소자",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "digital-circuit",
+      "title": "디지털 회로",
+      "engName": "Digital Circuit",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "논리 회로",
+      "scaleLevel": 2,
+      "classificationNote": "논리 회로 범주이며 전압·전류의 논리값 구분을 구현하는 회로이므로 소자·구조 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전압·전류 등의 범위를 0과 1로 구분하여 노이즈가 있는 회로에서도 논리값을 명확히 다루는 회로다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "디지털 회로는 특정 범위의 전압과 전류 등을 0과 1로 전환하여 값을 정확히 구분한다.",
+      "evidenceQuote": "디지털 회로는 특정 범위의 전압과 전류 등을 0과 1로 전환하여 값을 정확히 구분한다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "전류 범위로 논리값을 나누는 설명",
+          "perspectiveBadge": "가정 예시",
+          "narrative": "원문은 1.0mA를 기준으로 잡은 가정에서 0.0~0.9mA를 0, 1.0mA 초과를 1로 취급하는 예를 든다.",
+          "caution": "실제 회로 규격·안전 마진이 아닌 가정이다. 원문에 없는 0.9~1.0mA 구간이나 정확히 1.0mA일 때의 논리값을 보충하지 않는다.",
+          "evidenceQuote": "0.0~0.9mA의 전류가 흐른다면 값을 0으로 취급하면 되고, 1.0mA가 넘게 흐르면 1로 취급하면 된다.",
+          "specifications": [
+            {
+              "parameter": "논리 0의 가정 범위",
+              "value": "0.0~0.9",
+              "unit": "mA",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "0.0~0.9mA의 전류가 흐른다면 값을 0"
+            },
+            {
+              "parameter": "논리 1의 가정 조건",
+              "value": "1.0 초과",
+              "unit": "mA",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "1.0mA가 넘게 흐르면 1"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "작은 전류 차이를 모두 다른 숫자로 취급하기보다 범위를 나누어 논리값을 구분하면 노이즈를 견딜 수 있다는 원리 설명이다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "논리 회로",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

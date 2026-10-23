@@ -1,0 +1,53 @@
+{
+  "index": 45,
+  "filePath": "samsung/glossary/반도체-용어-사전-리드-프레임.md",
+  "sourceHash": "3fcfa6db2cd8fd820f654fcdff11227705d751458811dca722a2e6dd962d5825",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1387,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. 구체적 패키지 구조가 없는 일반 정의이므로 모든 집적회로의 필수 소속 관계로 만들지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "lead-frame",
+      "title": "리드 프레임",
+      "engName": "lead frame",
+      "aliases": [
+        "리드프레임"
+      ],
+      "domainFacet": "materials_infra",
+      "category": "웨이퍼·패키지 구성",
+      "scaleLevel": 2,
+      "classificationNote": "여러 기능을 통합한 시스템 또는 패키지를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "반도체 칩과 외부 회로의 전기적 연결을 맡고 패키지를 기판에 고정·지지하는 금속기판이다.",
+      "purpose": "칩과 기판 사이에 전기신호를 전달하고 외부 습기·충격으로부터 칩을 보호하고 지지한다.",
+      "summaryEvidenceQuote": "반도체 칩과 외부 회로를 연결하는 전선(lead)과 반도체 패키지를 기판에 고정시키는 버팀대(frame) 역할을 하는 금속기판.",
+      "evidenceQuote": "반도체 칩과 외부 회로를 연결하는 전선(lead)과 반도체 패키지를 기판에 고정시키는 버팀대(frame) 역할을 하는 금속기판.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "연결과 골격 역할",
+          "content": "가는 전선으로 칩에 연결되어 전기신호를 전달하며 패키지의 지지 골격으로 작용한다.",
+          "formula": null,
+          "evidenceQuote": "반도체 집적회로를 구성하는 핵심부품으로, 가는 전선(lead)으로 칩과 연결되어 반도체 칩과 기판 사이에 전기신호를 전달하고, 외부의 습기나 충격 등으로부터 칩을 보호 및 지지하는 골격 역할을 한다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "purposeEvidenceQuote": "반도체 집적회로를 구성하는 핵심부품으로, 가는 전선(lead)으로 칩과 연결되어 반도체 칩과 기판 사이에 전기신호를 전달하고, 외부의 습기나 충격 등으로부터 칩을 보호 및 지지하는 골격 역할을 한다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "패키지 부품",
+          "scaleLevel": 4
+        }
+      ]
+    }
+  ]
+}

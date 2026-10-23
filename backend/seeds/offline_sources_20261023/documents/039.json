@@ -1,0 +1,89 @@
+{
+  "index": 39,
+  "filePath": "samsung/glossary/반도체-용어-사전-노광.md",
+  "sourceHash": "e75011028a690ba5758249057412c0ef9b7bc20f0f10d5790e7097ae5d9b246c",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1564,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. 노광을 포토공정 전체와 혼동하지 않고 별도 단계 개념으로 분리했다. 원문은 투과형 마스크와 스태퍼를 설명하므로 다른 노광 방식까지 일반화하지 않았다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "lithography-exposure",
+      "title": "노광",
+      "engName": "Stepper Exposure",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "노광",
+      "scaleLevel": 3,
+      "classificationNote": "제조·검사 공정 또는 관련 장비 기술을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "회로 패턴이 담긴 마스크에 빛을 통과시켜 감광액 막이 형성된 웨이퍼 표면에 패턴을 옮기는 공정이다.",
+      "purpose": "빛을 선택적으로 조사하여 웨이퍼에 회로 패턴을 전사한다.",
+      "summaryEvidenceQuote": "반도체 노광 공정은 회로 패턴이 담긴 마스크에 빛을 통과시켜, 감광액 막이 형성된 웨이퍼 표면에 회로 패턴을 그리는 작업이다.",
+      "evidenceQuote": "반도체 노광 공정은 회로 패턴이 담긴 마스크에 빛을 통과시켜, 감광액 막이 형성된 웨이퍼 표면에 회로 패턴을 그리는 작업이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "마스크 패턴의 광학 전사",
+          "content": "마스크를 통과한 빛이 감광액으로 덮인 웨이퍼에 회로 패턴을 형성한다.",
+          "formula": null,
+          "evidenceQuote": "웨이퍼 위에 마스크를 놓고 빛을 쪼아 주면 회로 패턴을 통과한 빛이 웨이퍼에 회로 패턴을 그대로 옮긴다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "purposeEvidenceQuote": "반도체 공정에서의 노광은 빛을 선택적으로 조사하는 과정을 일컫는 용어이다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "반도체 공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "stepper",
+      "title": "스태퍼",
+      "engName": "Stepper",
+      "aliases": [
+        "스테퍼"
+      ],
+      "domainFacet": "unit_process",
+      "category": "반도체 공정",
+      "scaleLevel": 3,
+      "classificationNote": "제조·검사 공정 또는 관련 장비 기술을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "마스크에 빛을 투과시켜 감광액이 도포된 웨이퍼에 회로 패턴을 만드는 노광장비이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "이 과정은 노광장비로 불리는 스태퍼(Stepper)를 통해 진행되는데, 스태퍼에 마스크를 넣고 빛을 투과해, 감광액이 칠해진 웨이퍼 위에 미세한 전자회로 그림이 만들어지도록 하는 것이다.",
+      "evidenceQuote": "이 과정은 노광장비로 불리는 스태퍼(Stepper)를 통해 진행되는데, 스태퍼에 마스크를 넣고 빛을 투과해, 감광액이 칠해진 웨이퍼 위에 미세한 전자회로 그림이 만들어지도록 하는 것이다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "photolithography-equipment",
+          "name": "노광 장비",
+          "reason": "노광 과정이 노광장비인 스태퍼를 통해 진행된다고 명시한다. 장비→상위 장비 종류의 관계이다.",
+          "evidenceQuote": "이 과정은 노광장비로 불리는 스태퍼(Stepper)를 통해 진행되는데, 스태퍼에 마스크를 넣고 빛을 투과해, 감광액이 칠해진 웨이퍼 위에 미세한 전자회로 그림이 만들어지도록 하는 것이다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "반도체 공정",
+          "scaleLevel": 3
+        }
+      ]
+    }
+  ]
+}

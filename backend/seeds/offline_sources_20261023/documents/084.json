@@ -1,0 +1,50 @@
+{
+  "index": 84,
+  "filePath": "samsung/glossary/반도체-용어-사전led편-조도.md",
+  "sourceHash": "2e1c0332da66fafefb936238b3c0809b506b6e013df798d3a31a3d41cb1c6e53",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1340,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 빈 파서 후보를 대조해 실제 개념명·정의·명시된 적용 상황을 보완했다. 설명 예시를 실측 사양으로 바꾸지 않고 수치 없는 사례도 보존했다. "
+  },
+  "concepts": [
+    {
+      "conceptId": "illuminance",
+      "title": "조도",
+      "engName": "Illumination",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "광학 물리량",
+      "scaleLevel": 1,
+      "classificationNote": "조도의 원문 정의에 따라 광학 물리량에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "물체의 단위 면적에 들어오는 빛의 양, 즉 비추어진 면의 단위 면적당 광속이다. 단위는 lux(룩스)이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "빛의 단위 중 하나. 단위는 lux(룩스).\n물체의 단위 면적에 들어오는 빛의 양을 말한다. 즉, 빛에 비추어진 면 위의 단위 면적당 광속(Luminous Flux)를 가리키며 1lux는 1lm(루멘)의 광속이 1m2의 면적에 입사할 때의 조도다.",
+      "evidenceQuote": "빛의 단위 중 하나. 단위는 lux(룩스).\n물체의 단위 면적에 들어오는 빛의 양을 말한다. 즉, 빛에 비추어진 면 위의 단위 면적당 광속(Luminous Flux)를 가리키며 1lux는 1lm(루멘)의 광속이 1m2의 면적에 입사할 때의 조도다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "룩스의 정의",
+          "content": "1lux는 1lm의 광속이 1m2 면적에 입사할 때의 조도이다.",
+          "formula": null,
+          "evidenceQuote": "빛의 단위 중 하나. 단위는 lux(룩스).\n물체의 단위 면적에 들어오는 빛의 양을 말한다. 즉, 빛에 비추어진 면 위의 단위 면적당 광속(Luminous Flux)를 가리키며 1lux는 1lm(루멘)의 광속이 1m2의 면적에 입사할 때의 조도다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "광학 물리량",
+          "scaleLevel": 1
+        }
+      ]
+    }
+  ]
+}

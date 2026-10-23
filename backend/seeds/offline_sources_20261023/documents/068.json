@@ -1,0 +1,166 @@
+{
+  "index": 68,
+  "filePath": "samsung/glossary/반도체-용어-사전-트랜지스터.md",
+  "sourceHash": "8835c7bf81d0fe5231b17f65003435a713bc6ea5b56ef3eb5be2471847baf98e",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1624,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 빈 파서 후보를 대조하여 실제 개념명·정의·명시된 종류·선후 관계를 보완했다. 발행사나 관련기사를 도입 사례로 추정하지 않았다. 원문의 1948년 발명 기록은 원문 주장으로 한정했다. 세 겹 접합 설명을 전계효과형 전체의 구조로 일반화하지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "transistor",
+      "title": "트랜지스터",
+      "engName": "Transistor",
+      "aliases": [
+        "TR"
+      ],
+      "domainFacet": "device",
+      "category": "트랜지스터·게이트 구조",
+      "scaleLevel": 2,
+      "classificationNote": "트랜지스터의 원문 정의에 따라 능동 전자소자에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전자회로에서 전류 흐름을 제어하여 증폭 작용과 스위칭 역할을 하는 반도체 소자이다. 원문은 접합형과 전계효과형으로 구분한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "증폭 작용과 스위칭 역할을 하는 반도체소자.",
+      "evidenceQuote": "증폭 작용과 스위칭 역할을 하는 반도체소자.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "입력에 따른 전도도 제어",
+          "content": "보통 입력단·공통단·출력단으로 구성되며 입력단과 공통단 사이에 전압 또는 전류를 인가하면 공통단과 출력단 사이의 전기전도도가 증가하여 전류 흐름을 제어한다.",
+          "formula": null,
+          "evidenceQuote": "트랜지스터는 보통 입력단, 공통단, 출력단으로 구성되는데, 입력단과 공통단 사이에 전압 또는 전류를 인가하면 공통단과 출력단 사이의 전기전도도가 증가하게 되고 이를 통해 전류 흐름을 제어하게 된다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "벨 연구소 트랜지스터 발명 기록",
+          "perspectiveBadge": "벨 연구소",
+          "narrative": "원문은 1948년 미국 벨 연구소의 윌리엄 쇼클리, 존 바딘, 월터 브래튼 3명이 트랜지스터를 처음 만들었다고 기술한다.",
+          "caution": "원문에 적힌 역사 기록을 보존했으며 외부 자료로 연도를 검증하지 않았다.",
+          "evidenceQuote": "1948년 미국의 벨 연구소에서 “윌리엄 쇼클리, 존 바딘, 월터 브래튼” 과학자 3명이 처음 만들었다. 트랜지스터는 크게 접합형 트랜지스터(Bipolar Junction Transistors, BJTs)와 전계효과 트랜지스터(Field Effect Transistors, FETs)로 구분된다.",
+          "specifications": [
+            {
+              "parameter": "원문 발명 연도",
+              "value": "1948",
+              "unit": "년",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "1948년 미국의 벨 연구소에서 “윌리엄 쇼클리, 존 바딘, 월터 브래튼” 과학자 3명이 처음 만들었다. 트랜지스터는 크게 접합형 트랜지스터(Bipolar Junction Transistors, BJTs)와 전계효과 트랜지스터(Field Effect Transistors, FETs)로 구분된다."
+            },
+            {
+              "parameter": "과학자 수",
+              "value": "3",
+              "unit": "명",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "1948년 미국의 벨 연구소에서 “윌리엄 쇼클리, 존 바딘, 월터 브래튼” 과학자 3명이 처음 만들었다. 트랜지스터는 크게 접합형 트랜지스터(Bipolar Junction Transistors, BJTs)와 전계효과 트랜지스터(Field Effect Transistors, FETs)로 구분된다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "원문에 적힌 발명 연도와 연구자 기록을 보존한 역사 사례이다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "능동 전자소자",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "bjt",
+      "title": "접합형 트랜지스터",
+      "engName": "Bipolar Junction Transistors",
+      "aliases": [
+        "BJT",
+        "BJTs"
+      ],
+      "domainFacet": "device",
+      "category": "트랜지스터·게이트 구조",
+      "scaleLevel": 2,
+      "classificationNote": "접합형 트랜지스터의 원문 정의에 따라 트랜지스터 종류에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "원문에서 트랜지스터의 한 종류로 분류하는 접합형 트랜지스터이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "1948년 미국의 벨 연구소에서 “윌리엄 쇼클리, 존 바딘, 월터 브래튼” 과학자 3명이 처음 만들었다. 트랜지스터는 크게 접합형 트랜지스터(Bipolar Junction Transistors, BJTs)와 전계효과 트랜지스터(Field Effect Transistors, FETs)로 구분된다.",
+      "evidenceQuote": "1948년 미국의 벨 연구소에서 “윌리엄 쇼클리, 존 바딘, 월터 브래튼” 과학자 3명이 처음 만들었다. 트랜지스터는 크게 접합형 트랜지스터(Bipolar Junction Transistors, BJTs)와 전계효과 트랜지스터(Field Effect Transistors, FETs)로 구분된다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "transistor",
+          "name": "트랜지스터",
+          "reason": "원문이 트랜지스터를 접합형과 전계효과형으로 구분한다.",
+          "evidenceQuote": "1948년 미국의 벨 연구소에서 “윌리엄 쇼클리, 존 바딘, 월터 브래튼” 과학자 3명이 처음 만들었다. 트랜지스터는 크게 접합형 트랜지스터(Bipolar Junction Transistors, BJTs)와 전계효과 트랜지스터(Field Effect Transistors, FETs)로 구분된다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "트랜지스터 종류",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "fet",
+      "title": "전계효과 트랜지스터",
+      "engName": "Field Effect Transistors",
+      "aliases": [
+        "FET",
+        "FETs"
+      ],
+      "domainFacet": "device",
+      "category": "트랜지스터·게이트 구조",
+      "scaleLevel": 2,
+      "classificationNote": "전계효과 트랜지스터의 원문 정의에 따라 트랜지스터 종류에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "원문에서 트랜지스터의 한 종류로 분류하는 전계효과 트랜지스터이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "1948년 미국의 벨 연구소에서 “윌리엄 쇼클리, 존 바딘, 월터 브래튼” 과학자 3명이 처음 만들었다. 트랜지스터는 크게 접합형 트랜지스터(Bipolar Junction Transistors, BJTs)와 전계효과 트랜지스터(Field Effect Transistors, FETs)로 구분된다.",
+      "evidenceQuote": "1948년 미국의 벨 연구소에서 “윌리엄 쇼클리, 존 바딘, 월터 브래튼” 과학자 3명이 처음 만들었다. 트랜지스터는 크게 접합형 트랜지스터(Bipolar Junction Transistors, BJTs)와 전계효과 트랜지스터(Field Effect Transistors, FETs)로 구분된다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "transistor",
+          "name": "트랜지스터",
+          "reason": "원문이 트랜지스터를 접합형과 전계효과형으로 구분한다.",
+          "evidenceQuote": "1948년 미국의 벨 연구소에서 “윌리엄 쇼클리, 존 바딘, 월터 브래튼” 과학자 3명이 처음 만들었다. 트랜지스터는 크게 접합형 트랜지스터(Bipolar Junction Transistors, BJTs)와 전계효과 트랜지스터(Field Effect Transistors, FETs)로 구분된다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "트랜지스터 종류",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

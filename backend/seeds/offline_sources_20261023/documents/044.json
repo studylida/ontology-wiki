@@ -1,0 +1,211 @@
+{
+  "index": 44,
+  "filePath": "samsung/glossary/반도체-용어-사전-롬rom.md",
+  "sourceHash": "6b2365ce9bb98b0b8d256f6a1bacff5048bbf720939d0fbb1290c3c21bede006",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1750,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. 읽기전용 총괄과 재기록형 하위 종류 설명이 함께 있는 원문이다. 모든 ROM이 수정 불가하다고 일반화하지 않고 MASK ROM·PROM·EPROM의 차이를 각각 보존했다. EPROM의 자외선 삭제를 전기적 삭제로 바꾸지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "rom",
+      "title": "롬",
+      "engName": "Read Only Memory",
+      "aliases": [
+        "ROM"
+      ],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전원이 없어도 정보를 보존하는 비휘발성 메모리로, 기록된 정보를 읽는 용도와 기록·삭제 방식에 따라 나뉜다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "롬은 전원이 공급되지 않아도 기록된 정보가 지워지지 않으므로 비휘발성 메모리(Non-Volatile Memory)라고도 한다.",
+      "evidenceQuote": "롬은 전원이 공급되지 않아도 기록된 정보가 지워지지 않으므로 비휘발성 메모리(Non-Volatile Memory)라고도 한다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "읽기 중심 정의와 기록 방식 구분",
+          "content": "앞부분은 한 번 기록한 정보를 수정할 수 없다고 정의하지만 뒤에서는 MASK ROM·PROM·EPROM·Flash Memory를 기록·삭제 방식에 따라 구분한다. 각 하위 종류의 기록 가능 여부를 구별해야 한다.",
+          "formula": null,
+          "evidenceQuote": "롬은 정보를 다시 쓰고 지울 수 있는 방식에 따라 MASK ROM, PROM, EPROM, Flash Memory 등으로 구분되는데"
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "memory-semiconductor",
+          "name": "메모리 반도체",
+          "reason": "원문이 메모리 반도체를 램과 롬으로 구분한다.",
+          "evidenceQuote": "정보를 저장하는 용도로 사용되는 메모리 반도체는 크게 램(RAM)과 롬(ROM)으로 나뉜다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "mask-rom",
+      "title": "마스크 롬",
+      "engName": "MASK ROM",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "제조 과정에서 미리 내용을 기록하여 사용자가 내용을 수정할 수 없는 롬이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "MASK ROM은 제조과정에서 미리 내용을 기록해 놓은 메모리로, 사용자가 내용을 수정할 수 없는 롬이다.",
+      "evidenceQuote": "MASK ROM은 제조과정에서 미리 내용을 기록해 놓은 메모리로, 사용자가 내용을 수정할 수 없는 롬이다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "rom",
+          "name": "롬",
+          "reason": "본문이 기록·삭제 방식에 따른 종류로 구분한다.",
+          "evidenceQuote": "롬은 정보를 다시 쓰고 지울 수 있는 방식에 따라 MASK ROM, PROM, EPROM, Flash Memory 등으로 구분되는데"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "prom",
+      "title": "PROM",
+      "engName": "PROM",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "사용자가 한 번 기록할 수 있는 롬이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "PROM은 사용자가 한 번 기록할 수 있는 롬이고",
+      "evidenceQuote": "PROM은 사용자가 한 번 기록할 수 있는 롬이고",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "rom",
+          "name": "롬",
+          "reason": "본문이 기록·삭제 방식에 따른 종류로 구분한다.",
+          "evidenceQuote": "롬은 정보를 다시 쓰고 지울 수 있는 방식에 따라 MASK ROM, PROM, EPROM, Flash Memory 등으로 구분되는데"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "eprom",
+      "title": "EPROM",
+      "engName": "EPROM",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "필요할 때 기록 내용을 지우고 다른 내용을 다시 기록할 수 있는 롬이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "EPROM은 필요 시 기억된 내용을 지우고 다른 내용을 기록할 수 있는 롬이다.",
+      "evidenceQuote": "EPROM은 필요 시 기억된 내용을 지우고 다른 내용을 기록할 수 있는 롬이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "전기 기록과 자외선 소거",
+          "content": "전기적으로 정보를 기록하고 소자에 강한 자외선을 비추어 지우므로 여러 번 반복 기록할 수 있다.",
+          "formula": null,
+          "evidenceQuote": "특히 EPROM은 전기적으로 정보를 기록하고 소자에 강한 자외선을 비추어 정보를 지울 수 있기 때문에 반복해서 여러 번 정보를 기록할 수 있는 것이 장점이다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "rom",
+          "name": "롬",
+          "reason": "본문이 기록·삭제 방식에 따른 종류로 구분한다.",
+          "evidenceQuote": "롬은 정보를 다시 쓰고 지울 수 있는 방식에 따라 MASK ROM, PROM, EPROM, Flash Memory 등으로 구분되는데"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "flash-memory",
+      "title": "플래시 메모리",
+      "engName": "Flash Memory",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "본문에서 정보의 기록·삭제 방식에 따라 구분한 롬의 한 종류이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "롬은 정보를 다시 쓰고 지울 수 있는 방식에 따라 MASK ROM, PROM, EPROM, Flash Memory 등으로 구분되는데",
+      "evidenceQuote": "롬은 정보를 다시 쓰고 지울 수 있는 방식에 따라 MASK ROM, PROM, EPROM, Flash Memory 등으로 구분되는데",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "rom",
+          "name": "롬",
+          "reason": "본문이 기록·삭제 방식에 따른 종류로 구분한다.",
+          "evidenceQuote": "롬은 정보를 다시 쓰고 지울 수 있는 방식에 따라 MASK ROM, PROM, EPROM, Flash Memory 등으로 구분되는데"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

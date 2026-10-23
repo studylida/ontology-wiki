@@ -1,0 +1,400 @@
+{
+  "index": 9,
+  "filePath": "research_institutes/tier1_landmark_01_transistors_cfet_bspdn.md",
+  "sourceHash": "a6c08f3ee60ef0ff80fdb0294bae076519c83694189362519fcc86adbe73825c",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 4011,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체를 끝까지 읽고 빈 파서 후보를 정정·보완했다. 원리·관계의 의미 및 사례·조건별 수치 귀속을 검토했다. 등록된 로컬 아카이브 요약만 검토했으며 인용된 원 논문의 전문·DOI 실재·최신 표준 판본은 외부 확인하지 않았다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "finfet",
+      "title": "핀펫",
+      "engName": "FinFET",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "트랜지스터·게이트 구조",
+      "scaleLevel": 2,
+      "classificationNote": "핀펫의 기술적 대상을 트랜지스터 구조에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "수직 핀 채널을 양쪽 게이트로 제어해 단채널 누설을 줄이는 트랜지스터 구조이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 게이트 길이가 20nm 이하로 줄어들 때 평면 벌크 실리콘에서 발생하는 드레인 유도 장벽 감소(DIBL, Drain-Induced Barrier Lowering) 및 단채널 누설 전류를 채널의 좌우 양면을 감싸는 수직 핀(Fin) 구조로 억제.",
+      "evidenceQuote": "- 게이트 길이가 20nm 이하로 줄어들 때 평면 벌크 실리콘에서 발생하는 드레인 유도 장벽 감소(DIBL, Drain-Induced Barrier Lowering) 및 단채널 누설 전류를 채널의 좌우 양면을 감싸는 수직 핀(Fin) 구조로 억제.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "1999 FinFET 논문 아카이브의 소자 실증",
+          "perspectiveBadge": "UC Berkeley / 등록 논문 요약",
+          "narrative": "등록 요약은 20nm 이하 게이트 길이의 DIBL 문제와 수직 핀 구조의 스위칭·누설 개선을 연결한다.",
+          "caution": "로컬 논문 아카이브 요약만 검토했으며 원 논문 전문은 확인하지 않았다.",
+          "evidenceQuote": "- 서브스레숄드 스윙(Subthreshold Swing, SS) $70\\text{ mV/dec}$에 근접한 이상적 스위칭 특성 실증, 오프 전류(Off-state leakage) 3자릿수 이상 감소.",
+          "specifications": [
+            {
+              "parameter": "서브스레숄드 스윙",
+              "value": "70에 근접",
+              "unit": "mV/dec",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 서브스레숄드 스윙(Subthreshold Swing, SS) $70\\text{ mV/dec}$에 근접한 이상적 스위칭 특성 실증, 오프 전류(Off-state leakage) 3자릿수 이상 감소."
+            },
+            {
+              "parameter": "오프 전류 감소",
+              "value": "3자릿수 이상",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 서브스레숄드 스윙(Subthreshold Swing, SS) $70\\text{ mV/dec}$에 근접한 이상적 스위칭 특성 실증, 오프 전류(Off-state leakage) 3자릿수 이상 감소."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "핀 모양 채널의 옆면까지 게이트가 잡아 주어 꺼져 있을 때 새는 전류를 줄이려는 연구입니다. 스윙 값은 스위치를 얼마나 급하게 전환할 수 있는지와 관련된 지표이고, 오프 전류 감소는 꺼진 상태의 누설에 대한 비교입니다. 등록된 논문 요약에 나온 연구 조건의 결과로 읽어야 합니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "트랜지스터 구조",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "hkmg",
+      "title": "고유전율 금속 게이트",
+      "engName": "High-k Metal Gate",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "트랜지스터·게이트 구조",
+      "scaleLevel": 2,
+      "classificationNote": "고유전율 금속 게이트의 기술적 대상을 게이트 구조에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "고유전율 절연체와 금속 게이트를 조합해 게이트 누설과 폴리실리콘 고갈 문제를 줄이는 게이트 구조이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 하프늄 기반 고유전율 유전체($\\text{HfO}_2$, $\\kappa \\approx 20\\sim 25$)를 도입하여 물리적 두께는 두껍게 유지하면서 등가 산화막 두께(EOT)를 1nm 이하로 축소.",
+      "evidenceQuote": "- 하프늄 기반 고유전율 유전체($\\text{HfO}_2$, $\\kappa \\approx 20\\sim 25$)를 도입하여 물리적 두께는 두껍게 유지하면서 등가 산화막 두께(EOT)를 1nm 이하로 축소.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "SiO2 초박막 터널링",
+          "description": "아카이브는 SiO2가 1.2nm 이하로 얇아질 때 직접 터널링 누설과 발열 문제가 커진다고 설명한다.",
+          "evidenceQuote": "- $SiO_2$ 게이트 절연막 두께가 1.2nm(원자 5개 층) 이하로 얇아지면서 양자역학적 직접 터널링 누설 전류가 폭발하여 칩 전력 소모와 발열이 급증하던 문제."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "2007 Intel HKMG 아카이브의 비교 결과",
+          "perspectiveBadge": "Intel / 등록 논문 요약",
+          "narrative": "HfO2 고유전체로 물리 두께를 확보하며 EOT를 줄이고 금속 전극으로 고갈을 제거하는 연구 요약이다.",
+          "caution": "원 논문을 외부 검증하지 않은 아카이브의 비교값이다.",
+          "evidenceQuote": "- **정량 실측 데이터**: 게이트 누설 전류 25배 이상 감소, 드라이브 전류(Drive current) 20% 이상 향상.",
+          "specifications": [
+            {
+              "parameter": "HfO2 유전율",
+              "value": "약 20~25",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 하프늄 기반 고유전율 유전체($\\text{HfO}_2$, $\\kappa \\approx 20\\sim 25$)를 도입하여 물리적 두께는 두껍게 유지하면서 등가 산화막 두께(EOT)를 1nm 이하로 축소."
+            },
+            {
+              "parameter": "등가 산화막 두께",
+              "value": "1 이하",
+              "unit": "nm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 하프늄 기반 고유전율 유전체($\\text{HfO}_2$, $\\kappa \\approx 20\\sim 25$)를 도입하여 물리적 두께는 두껍게 유지하면서 등가 산화막 두께(EOT)를 1nm 이하로 축소."
+            },
+            {
+              "parameter": "게이트 누설 감소",
+              "value": "25배 이상",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **정량 실측 데이터**: 게이트 누설 전류 25배 이상 감소, 드라이브 전류(Drive current) 20% 이상 향상."
+            },
+            {
+              "parameter": "드라이브 전류 향상",
+              "value": "20 이상",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **정량 실측 데이터**: 게이트 누설 전류 25배 이상 감소, 드라이브 전류(Drive current) 20% 이상 향상."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "절연막을 무작정 얇게 만들면 전자가 새기 쉬워집니다. 전기를 잘 붙잡는 다른 절연재를 쓰면 실제 막은 두껍게 유지하면서 전기적으로는 얇은 막처럼 동작하게 할 수 있습니다. EOT는 그 전기적 두께를 뜻하며 실제 막 두께와 구분합니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "게이트 구조",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "gaa",
+      "title": "게이트 올 어라운드 나노시트",
+      "engName": "Gate-All-Around Nanosheet",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "트랜지스터·게이트 구조",
+      "scaleLevel": 2,
+      "classificationNote": "게이트 올 어라운드 나노시트의 기술적 대상을 트랜지스터 구조에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "수직으로 분리된 실리콘 나노시트의 사면을 게이트로 감싸는 소자 구조이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- $Si / Si_{0.7}Ge_{0.3}$ 초격자(Superlattice)를 에피택시 성장시킨 후, 고선택비 등방성 식각(Selective Isotropic Etch)으로 SiGe만 제거하여 수직으로 분리된 3장의 실리콘 나노시트를 형성하고 게이트가 4면을 완전히 포위.",
+      "evidenceQuote": "- $Si / Si_{0.7}Ge_{0.3}$ 초격자(Superlattice)를 에피택시 성장시킨 후, 고선택비 등방성 식각(Selective Isotropic Etch)으로 SiGe만 제거하여 수직으로 분리된 3장의 실리콘 나노시트를 형성하고 게이트가 4면을 완전히 포위.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "SiGe 선택 제거",
+          "content": "Si/Si0.7Ge0.3 초격자를 성장시키고 SiGe를 선택적으로 제거해 실리콘 시트를 분리한다.",
+          "formula": null,
+          "evidenceQuote": "- $Si / Si_{0.7}Ge_{0.3}$ 초격자(Superlattice)를 에피택시 성장시킨 후, 고선택비 등방성 식각(Selective Isotropic Etch)으로 SiGe만 제거하여 수직으로 분리된 3장의 실리콘 나노시트를 형성하고 게이트가 4면을 완전히 포위."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "2017 IBM 연합 GAA 아카이브의 동작 비교",
+          "perspectiveBadge": "IBM·Samsung·GlobalFoundries / 등록 논문 요약",
+          "narrative": "동일 풋프린트에서 구동 전류와 작동 전압을 FinFET과 비교한 등록 연구 요약이다.",
+          "caution": "등록 아카이브의 요약 조건이며 원 논문 전문은 미확인이다.",
+          "evidenceQuote": "- **정량 실측 데이터**: 핀펫 대비 채널 폭 조절 자유도 확보, 동일 풋프린트에서 구동 전류 30% 증가, 작동 전압(Vdd) 75mV 감소.",
+          "specifications": [
+            {
+              "parameter": "실리콘 나노시트",
+              "value": "3",
+              "unit": "장",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- $Si / Si_{0.7}Ge_{0.3}$ 초격자(Superlattice)를 에피택시 성장시킨 후, 고선택비 등방성 식각(Selective Isotropic Etch)으로 SiGe만 제거하여 수직으로 분리된 3장의 실리콘 나노시트를 형성하고 게이트가 4면을 완전히 포위."
+            },
+            {
+              "parameter": "동일 풋프린트 구동 전류 증가",
+              "value": "30",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **정량 실측 데이터**: 핀펫 대비 채널 폭 조절 자유도 확보, 동일 풋프린트에서 구동 전류 30% 증가, 작동 전압(Vdd) 75mV 감소."
+            },
+            {
+              "parameter": "작동 전압 감소",
+              "value": "75",
+              "unit": "mV",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **정량 실측 데이터**: 핀펫 대비 채널 폭 조절 자유도 확보, 동일 풋프린트에서 구동 전류 30% 증가, 작동 전압(Vdd) 75mV 감소."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "여러 장의 얇은 통로를 쌓고 게이트가 통로를 둘러싸게 만드는 연구입니다. 같은 바닥 면적이라는 비교 조건에서 전류와 전압의 변화를 제시합니다. 전류 증가율을 칩 전체 처리 속도의 증가율과 같다고 해석하지 않도록 주의해야 합니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "트랜지스터 구조",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "cfet",
+      "title": "상보형 전계효과 트랜지스터",
+      "engName": "Complementary FET",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "트랜지스터·게이트 구조",
+      "scaleLevel": 2,
+      "classificationNote": "상보형 전계효과 트랜지스터의 기술적 대상을 트랜지스터 구조에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "nMOS와 pMOS를 수직으로 적층해 수평 격리 공간을 줄이는 소자 구조이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- nMOS 위에 pMOS(또는 반대)를 수직으로 포개어 올려 n-to-p 수평 이격 공간을 0으로 제거.",
+      "evidenceQuote": "- nMOS 위에 pMOS(또는 반대)를 수직으로 포개어 올려 n-to-p 수평 이격 공간을 0으로 제거.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "imec CFET 아카이브의 셀 면적 비교",
+          "perspectiveBadge": "imec / 등록 논문 요약",
+          "narrative": "수평 n-p 격리 공간을 줄인 인버터·SRAM 셀의 면적과 트랙 높이 비교를 기록한다.",
+          "caution": "2018/2020 연구를 묶은 로컬 아카이브 요약으로 한정한다.",
+          "evidenceQuote": "- **정량 실측 데이터**: 인버터(INV) 및 SRAM 셀 면적 **50% 절감**, 표준 셀 높이 **4T 및 3.5T 달성**, Sub-1nm(A7/A5) 핵심 아키텍처로 채택.",
+          "specifications": [
+            {
+              "parameter": "셀 면적 절감",
+              "value": "50",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **정량 실측 데이터**: 인버터(INV) 및 SRAM 셀 면적 **50% 절감**, 표준 셀 높이 **4T 및 3.5T 달성**, Sub-1nm(A7/A5) 핵심 아키텍처로 채택."
+            },
+            {
+              "parameter": "표준 셀 높이",
+              "value": "4T 및 3.5T",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **정량 실측 데이터**: 인버터(INV) 및 SRAM 셀 면적 **50% 절감**, 표준 셀 높이 **4T 및 3.5T 달성**, Sub-1nm(A7/A5) 핵심 아키텍처로 채택."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "서로 짝을 이루는 두 트랜지스터를 위아래로 배치해 셀의 바닥 면적을 줄이는 접근입니다. 표의 값은 셀 단위 구조 비교이며 칩 전체의 모든 면적이나 실제 양산 수율을 뜻하지 않습니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "fet",
+          "name": "전계효과 트랜지스터",
+          "reason": "CFET를 Complementary Field Effect Transistors로 명시하고 nMOS·pMOS의 수직 적층을 설명하므로 전계효과 트랜지스터의 구체적 구조이다.",
+          "evidenceQuote": "First Demonstration of 3D Complementary Field Effect Transistors (CFET) for Sub-3nm Technology Node"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "트랜지스터 구조",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "bspdn",
+      "title": "후면 전력 공급망",
+      "engName": "Backside Power Delivery Network",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "전력 배선 통합",
+      "scaleLevel": 4,
+      "classificationNote": "후면 전력 공급망의 기술적 대상을 전력 배선 통합에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전력 공급선을 웨이퍼 뒤쪽에서 매몰 전력 레일로 연결해 전면 배선 혼잡을 줄이는 구조이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 전면 공정 완료 후 캐리어 웨이퍼에 본딩, 웨이퍼 후면을 수 마이크로미터 두께로 극박 연마(Grinding/CMP)한 뒤, 후면에서 마이크로/나노 TSV(nTSV)를 뚫어 트랜지스터 하부의 매몰 전력 레일(BPR, Buried Power Rail)로 직접 전원 연결.",
+      "evidenceQuote": "- 전면 공정 완료 후 캐리어 웨이퍼에 본딩, 웨이퍼 후면을 수 마이크로미터 두께로 극박 연마(Grinding/CMP)한 뒤, 후면에서 마이크로/나노 TSV(nTSV)를 뚫어 트랜지스터 하부의 매몰 전력 레일(BPR, Buried Power Rail)로 직접 전원 연결.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "후면 연결 공정",
+          "content": "전면 공정 후 캐리어에 본딩하고 후면을 얇게 연마한 뒤 nTSV로 BPR에 연결한다.",
+          "formula": null,
+          "evidenceQuote": "- 전면 공정 완료 후 캐리어 웨이퍼에 본딩, 웨이퍼 후면을 수 마이크로미터 두께로 극박 연마(Grinding/CMP)한 뒤, 후면에서 마이크로/나노 TSV(nTSV)를 뚫어 트랜지스터 하부의 매몰 전력 레일(BPR, Buried Power Rail)로 직접 전원 연결."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "2021 imec BSPDN 아카이브의 개선 결과",
+          "perspectiveBadge": "imec / 등록 논문 요약",
+          "narrative": "후면 전력 배선으로 IR Drop과 표준 셀 면적을 비교한 등록 요약이다.",
+          "caution": "원 논문과 비교 기준을 추가 확인하지 않은 아카이브 요약이다.",
+          "evidenceQuote": "- **정량 실측 데이터**: 전압 강하(IR Drop) **30% 이상 감소**, 표준 셀 면적 **16~20% 축소**, 배선 저항 및 기생 커패시턴스 대폭 감소.",
+          "specifications": [
+            {
+              "parameter": "IR Drop 감소",
+              "value": "30 이상",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **정량 실측 데이터**: 전압 강하(IR Drop) **30% 이상 감소**, 표준 셀 면적 **16~20% 축소**, 배선 저항 및 기생 커패시턴스 대폭 감소."
+            },
+            {
+              "parameter": "표준 셀 면적 축소",
+              "value": "16~20",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **정량 실측 데이터**: 전압 강하(IR Drop) **30% 이상 감소**, 표준 셀 면적 **16~20% 축소**, 배선 저항 및 기생 커패시턴스 대폭 감소."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "전력을 칩 뒷면에서 공급하면 앞면에서 신호선과 전원선이 공간을 나눠 쓰는 부담을 줄일 수 있습니다. 이 표의 두 개선율은 전압 강하와 셀 면적이라는 서로 다른 비교 대상의 결과입니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전력 배선 통합",
+          "scaleLevel": 4
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,203 @@
+{
+  "index": 19,
+  "filePath": "samsung/glossary/반도체-용어-사전-ddi.md",
+  "sourceHash": "0e401edf511001b56e6c4dbb66cdedf978983265e0830cdab4e6e38a9f7242ff",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1511,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. "
+  },
+  "concepts": [
+    {
+      "conceptId": "ddi",
+      "title": "디스플레이 구동칩",
+      "engName": "Display Driver IC",
+      "aliases": [
+        "DDI"
+      ],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "TFT LCD와 PDP 등의 디스플레이를 구동하며 부화소 트랜지스터를 제어하는 집적회로이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "TFT LCD(초박막 액정표시 장치), PDP(플라즈마 디스플레이 패널) 등 디스플레이를 구동하는 IC 칩.",
+      "evidenceQuote": "TFT LCD(초박막 액정표시 장치), PDP(플라즈마 디스플레이 패널) 등 디스플레이를 구동하는 IC 칩.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "RGB 부화소 제어",
+          "content": "화소마다 RGB 부화소가 3개 있고 각 부화소에 트랜지스터 하나가 있으며 DDI가 이를 제어한다.",
+          "formula": null,
+          "evidenceQuote": "디스플레이 하나의 화소에는 빛의 삼원색인 적녹청(RGB)를 표시하는 부화소가 3개씩 있다. 이 부화소마다 하나의 트랜지스터가 설계되어 있는데 DDI는 바로 이 트랜지스터를 조종하는 역할을 한다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "integrated-circuit",
+          "name": "집적회로",
+          "reason": "원문이 디스플레이 구동 IC 칩으로 정의한다.",
+          "evidenceQuote": "TFT LCD(초박막 액정표시 장치), PDP(플라즈마 디스플레이 패널) 등 디스플레이를 구동하는 IC 칩."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "gate-driver-ic",
+      "title": "게이트 IC",
+      "engName": "Gate IC",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "온오프 기능으로 디스플레이 RGB 부화소의 게이트를 제어하는 DDI 구성 회로이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "DDI는 온오프(On&Off) 기능을 갖고 부화소(RGB)의 게이트를 제어하는 게이트IC와 부화소(RGB)의 영상신호를 조절하여 색상의 차이를 만드는 소스IC로 구성되어 있다.",
+      "evidenceQuote": "DDI는 온오프(On&Off) 기능을 갖고 부화소(RGB)의 게이트를 제어하는 게이트IC와 부화소(RGB)의 영상신호를 조절하여 색상의 차이를 만드는 소스IC로 구성되어 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "ddi",
+          "name": "디스플레이 구동칩",
+          "reason": "원문에 DDI 구성 요소라고 명시되어 있다.",
+          "evidenceQuote": "DDI는 온오프(On&Off) 기능을 갖고 부화소(RGB)의 게이트를 제어하는 게이트IC와 부화소(RGB)의 영상신호를 조절하여 색상의 차이를 만드는 소스IC로 구성되어 있다."
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "source-driver-ic",
+      "title": "소스 IC",
+      "engName": "Source IC",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "RGB 부화소 영상신호를 조절하여 색상의 차이를 만드는 DDI 구성 회로이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "DDI는 온오프(On&Off) 기능을 갖고 부화소(RGB)의 게이트를 제어하는 게이트IC와 부화소(RGB)의 영상신호를 조절하여 색상의 차이를 만드는 소스IC로 구성되어 있다.",
+      "evidenceQuote": "DDI는 온오프(On&Off) 기능을 갖고 부화소(RGB)의 게이트를 제어하는 게이트IC와 부화소(RGB)의 영상신호를 조절하여 색상의 차이를 만드는 소스IC로 구성되어 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "ddi",
+          "name": "디스플레이 구동칩",
+          "reason": "원문에 DDI 구성 요소라고 명시되어 있다.",
+          "evidenceQuote": "DDI는 온오프(On&Off) 기능을 갖고 부화소(RGB)의 게이트를 제어하는 게이트IC와 부화소(RGB)의 영상신호를 조절하여 색상의 차이를 만드는 소스IC로 구성되어 있다."
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "panel-ddi",
+      "title": "패널 DDI",
+      "engName": "Panel DDI",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "크기와 용도에 따른 디스플레이 구동칩의 한 종류이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "이러한 DDI는 크기와 용도에 따라 Panel DDI와 Mobile DDI로 나눌 수 있다.",
+      "evidenceQuote": "이러한 DDI는 크기와 용도에 따라 Panel DDI와 Mobile DDI로 나눌 수 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "ddi",
+          "name": "디스플레이 구동칩",
+          "reason": "원문이 크기와 용도에 따른 종류로 구분한다.",
+          "evidenceQuote": "이러한 DDI는 크기와 용도에 따라 Panel DDI와 Mobile DDI로 나눌 수 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "mobile-ddi",
+      "title": "모바일 DDI",
+      "engName": "Mobile DDI",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "크기와 용도에 따라 패널 DDI와 구별되는 디스플레이 구동칩이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "이러한 DDI는 크기와 용도에 따라 Panel DDI와 Mobile DDI로 나눌 수 있다.",
+      "evidenceQuote": "이러한 DDI는 크기와 용도에 따라 Panel DDI와 Mobile DDI로 나눌 수 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "ddi",
+          "name": "디스플레이 구동칩",
+          "reason": "원문이 크기와 용도에 따른 종류로 구분한다.",
+          "evidenceQuote": "이러한 DDI는 크기와 용도에 따라 Panel DDI와 Mobile DDI로 나눌 수 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

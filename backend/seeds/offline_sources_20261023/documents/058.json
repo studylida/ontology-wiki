@@ -1,0 +1,224 @@
+{
+  "index": 58,
+  "filePath": "samsung/glossary/반도체-용어-사전-웨이퍼.md",
+  "sourceHash": "50a94ed618c73530d244b243645862595231f43bad019690eb6a082e414cd2cf",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1592,
+    "method": "codex-offline-source-review",
+    "notes": "텍스트 원문 전체와 초안을 대조했다. 빈 파서 후보를 실제 개념명과 정의로 보완했으며 웹 메뉴·관련기사·발행사를 사례로 만들지 않았다. 원문에 없는 조리법·안전마진은 추가하지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "wafer",
+      "title": "웨이퍼",
+      "engName": "Wafer",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "반도체 기초 재료",
+      "scaleLevel": 1,
+      "classificationNote": "웨이퍼의 원문 정의에 따라 반도체 기판에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "실리콘이나 갈륨 아세나이드 등을 성장시킨 단결정 기둥인 잉곳을 얇게 썬 원판으로, 반도체 집적회로 제조의 주요 재료이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "반도체 집적회로를 만드는데 사용하는 주요 재료로, 주로 실리콘(규소, Si), 갈륨 아세나이드(GaAs) 등을 성장시켜 얻은 단결정 기둥(Ingot)을 적당한 지름으로 얇게 썬 얇은 원판모양의 판.",
+      "evidenceQuote": "반도체 집적회로를 만드는데 사용하는 주요 재료로, 주로 실리콘(규소, Si), 갈륨 아세나이드(GaAs) 등을 성장시켜 얻은 단결정 기둥(Ingot)을 적당한 지름으로 얇게 썬 얇은 원판모양의 판.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "반도체 기판",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "die",
+      "title": "칩",
+      "engName": "Chip",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "반도체 칩",
+      "scaleLevel": 2,
+      "classificationNote": "칩의 원문 정의에 따라 웨이퍼 구성 영역에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "웨이퍼 위에 전자회로가 새겨진 얇고 작은 조각으로 IC칩이 되는 부분이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "① Chip: 웨이퍼 위 전자회로가 새겨진 얇고 작은 조각으로, IC칩이 되는 부분.\n② Scribe Line: Chip 사이의 경계로, 아무 전자회로가 없는 부분이며, 웨이퍼를 개개의 칩으로 나누기 위한 분리 선.\n③ TEG(Test Element Group): 칩의 동작 여부를 판단하기 위한 테스트용 칩.\n④ Edge Die: 손실 부분. 직경이 작은 웨이퍼보다 큰 웨이퍼의 손실 부분이 적고, 손실률도 줄어든다.\n⑤ Flat Zone: 둥근 웨이퍼의 구조를 판별하기 위해 만든 평평한 부분.",
+      "evidenceQuote": "① Chip: 웨이퍼 위 전자회로가 새겨진 얇고 작은 조각으로, IC칩이 되는 부분.\n② Scribe Line: Chip 사이의 경계로, 아무 전자회로가 없는 부분이며, 웨이퍼를 개개의 칩으로 나누기 위한 분리 선.\n③ TEG(Test Element Group): 칩의 동작 여부를 판단하기 위한 테스트용 칩.\n④ Edge Die: 손실 부분. 직경이 작은 웨이퍼보다 큰 웨이퍼의 손실 부분이 적고, 손실률도 줄어든다.\n⑤ Flat Zone: 둥근 웨이퍼의 구조를 판별하기 위해 만든 평평한 부분.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "wafer",
+          "name": "웨이퍼",
+          "reason": "원문이 웨이퍼 부위별 명칭으로 명시한다.",
+          "evidenceQuote": "① Chip: 웨이퍼 위 전자회로가 새겨진 얇고 작은 조각으로, IC칩이 되는 부분.\n② Scribe Line: Chip 사이의 경계로, 아무 전자회로가 없는 부분이며, 웨이퍼를 개개의 칩으로 나누기 위한 분리 선.\n③ TEG(Test Element Group): 칩의 동작 여부를 판단하기 위한 테스트용 칩.\n④ Edge Die: 손실 부분. 직경이 작은 웨이퍼보다 큰 웨이퍼의 손실 부분이 적고, 손실률도 줄어든다.\n⑤ Flat Zone: 둥근 웨이퍼의 구조를 판별하기 위해 만든 평평한 부분."
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "웨이퍼 구성 영역",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "scribe-line",
+      "title": "스크라이브 라인",
+      "engName": "Scribe Line",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "웨이퍼·패키지 구성",
+      "scaleLevel": 2,
+      "classificationNote": "스크라이브 라인의 원문 정의에 따라 웨이퍼 구성 영역에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "칩 사이의 전자회로가 없는 경계로 웨이퍼를 개별 칩으로 나누기 위한 분리선이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "① Chip: 웨이퍼 위 전자회로가 새겨진 얇고 작은 조각으로, IC칩이 되는 부분.\n② Scribe Line: Chip 사이의 경계로, 아무 전자회로가 없는 부분이며, 웨이퍼를 개개의 칩으로 나누기 위한 분리 선.\n③ TEG(Test Element Group): 칩의 동작 여부를 판단하기 위한 테스트용 칩.\n④ Edge Die: 손실 부분. 직경이 작은 웨이퍼보다 큰 웨이퍼의 손실 부분이 적고, 손실률도 줄어든다.\n⑤ Flat Zone: 둥근 웨이퍼의 구조를 판별하기 위해 만든 평평한 부분.",
+      "evidenceQuote": "① Chip: 웨이퍼 위 전자회로가 새겨진 얇고 작은 조각으로, IC칩이 되는 부분.\n② Scribe Line: Chip 사이의 경계로, 아무 전자회로가 없는 부분이며, 웨이퍼를 개개의 칩으로 나누기 위한 분리 선.\n③ TEG(Test Element Group): 칩의 동작 여부를 판단하기 위한 테스트용 칩.\n④ Edge Die: 손실 부분. 직경이 작은 웨이퍼보다 큰 웨이퍼의 손실 부분이 적고, 손실률도 줄어든다.\n⑤ Flat Zone: 둥근 웨이퍼의 구조를 판별하기 위해 만든 평평한 부분.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "wafer",
+          "name": "웨이퍼",
+          "reason": "원문이 웨이퍼 부위별 명칭으로 명시한다.",
+          "evidenceQuote": "① Chip: 웨이퍼 위 전자회로가 새겨진 얇고 작은 조각으로, IC칩이 되는 부분.\n② Scribe Line: Chip 사이의 경계로, 아무 전자회로가 없는 부분이며, 웨이퍼를 개개의 칩으로 나누기 위한 분리 선.\n③ TEG(Test Element Group): 칩의 동작 여부를 판단하기 위한 테스트용 칩.\n④ Edge Die: 손실 부분. 직경이 작은 웨이퍼보다 큰 웨이퍼의 손실 부분이 적고, 손실률도 줄어든다.\n⑤ Flat Zone: 둥근 웨이퍼의 구조를 판별하기 위해 만든 평평한 부분."
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "웨이퍼 구성 영역",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "test-element-group",
+      "title": "테스트 엘리먼트 그룹",
+      "engName": "Test Element Group",
+      "aliases": [
+        "TEG"
+      ],
+      "domainFacet": "device",
+      "category": "웨이퍼 구성 영역",
+      "scaleLevel": 2,
+      "classificationNote": "테스트 엘리먼트 그룹의 원문 정의에 따라 웨이퍼 구성 영역에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "칩의 동작 여부를 판단하기 위한 테스트용 칩이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "① Chip: 웨이퍼 위 전자회로가 새겨진 얇고 작은 조각으로, IC칩이 되는 부분.\n② Scribe Line: Chip 사이의 경계로, 아무 전자회로가 없는 부분이며, 웨이퍼를 개개의 칩으로 나누기 위한 분리 선.\n③ TEG(Test Element Group): 칩의 동작 여부를 판단하기 위한 테스트용 칩.\n④ Edge Die: 손실 부분. 직경이 작은 웨이퍼보다 큰 웨이퍼의 손실 부분이 적고, 손실률도 줄어든다.\n⑤ Flat Zone: 둥근 웨이퍼의 구조를 판별하기 위해 만든 평평한 부분.",
+      "evidenceQuote": "① Chip: 웨이퍼 위 전자회로가 새겨진 얇고 작은 조각으로, IC칩이 되는 부분.\n② Scribe Line: Chip 사이의 경계로, 아무 전자회로가 없는 부분이며, 웨이퍼를 개개의 칩으로 나누기 위한 분리 선.\n③ TEG(Test Element Group): 칩의 동작 여부를 판단하기 위한 테스트용 칩.\n④ Edge Die: 손실 부분. 직경이 작은 웨이퍼보다 큰 웨이퍼의 손실 부분이 적고, 손실률도 줄어든다.\n⑤ Flat Zone: 둥근 웨이퍼의 구조를 판별하기 위해 만든 평평한 부분.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "wafer",
+          "name": "웨이퍼",
+          "reason": "원문이 웨이퍼 부위별 명칭으로 명시한다.",
+          "evidenceQuote": "① Chip: 웨이퍼 위 전자회로가 새겨진 얇고 작은 조각으로, IC칩이 되는 부분.\n② Scribe Line: Chip 사이의 경계로, 아무 전자회로가 없는 부분이며, 웨이퍼를 개개의 칩으로 나누기 위한 분리 선.\n③ TEG(Test Element Group): 칩의 동작 여부를 판단하기 위한 테스트용 칩.\n④ Edge Die: 손실 부분. 직경이 작은 웨이퍼보다 큰 웨이퍼의 손실 부분이 적고, 손실률도 줄어든다.\n⑤ Flat Zone: 둥근 웨이퍼의 구조를 판별하기 위해 만든 평평한 부분."
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "웨이퍼 구성 영역",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "edge-die",
+      "title": "에지 다이",
+      "engName": "Edge Die",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "웨이퍼 구성 영역",
+      "scaleLevel": 1,
+      "classificationNote": "에지 다이의 원문 정의에 따라 웨이퍼 구성 영역에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "웨이퍼의 칩 손실 부분을 뜻한다. 원문에서는 직경이 큰 웨이퍼에서 손실 부분과 손실률이 줄어든다고 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "① Chip: 웨이퍼 위 전자회로가 새겨진 얇고 작은 조각으로, IC칩이 되는 부분.\n② Scribe Line: Chip 사이의 경계로, 아무 전자회로가 없는 부분이며, 웨이퍼를 개개의 칩으로 나누기 위한 분리 선.\n③ TEG(Test Element Group): 칩의 동작 여부를 판단하기 위한 테스트용 칩.\n④ Edge Die: 손실 부분. 직경이 작은 웨이퍼보다 큰 웨이퍼의 손실 부분이 적고, 손실률도 줄어든다.\n⑤ Flat Zone: 둥근 웨이퍼의 구조를 판별하기 위해 만든 평평한 부분.",
+      "evidenceQuote": "① Chip: 웨이퍼 위 전자회로가 새겨진 얇고 작은 조각으로, IC칩이 되는 부분.\n② Scribe Line: Chip 사이의 경계로, 아무 전자회로가 없는 부분이며, 웨이퍼를 개개의 칩으로 나누기 위한 분리 선.\n③ TEG(Test Element Group): 칩의 동작 여부를 판단하기 위한 테스트용 칩.\n④ Edge Die: 손실 부분. 직경이 작은 웨이퍼보다 큰 웨이퍼의 손실 부분이 적고, 손실률도 줄어든다.\n⑤ Flat Zone: 둥근 웨이퍼의 구조를 판별하기 위해 만든 평평한 부분.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "wafer",
+          "name": "웨이퍼",
+          "reason": "원문이 웨이퍼 부위별 명칭으로 명시한다.",
+          "evidenceQuote": "① Chip: 웨이퍼 위 전자회로가 새겨진 얇고 작은 조각으로, IC칩이 되는 부분.\n② Scribe Line: Chip 사이의 경계로, 아무 전자회로가 없는 부분이며, 웨이퍼를 개개의 칩으로 나누기 위한 분리 선.\n③ TEG(Test Element Group): 칩의 동작 여부를 판단하기 위한 테스트용 칩.\n④ Edge Die: 손실 부분. 직경이 작은 웨이퍼보다 큰 웨이퍼의 손실 부분이 적고, 손실률도 줄어든다.\n⑤ Flat Zone: 둥근 웨이퍼의 구조를 판별하기 위해 만든 평평한 부분."
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "웨이퍼 구성 영역",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "flat-zone",
+      "title": "플랫 존",
+      "engName": "Flat Zone",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "웨이퍼·패키지 구성",
+      "scaleLevel": 2,
+      "classificationNote": "플랫 존의 원문 정의에 따라 웨이퍼 구성 영역에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "둥근 웨이퍼의 구조를 판별하기 위해 만든 평평한 부분이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "① Chip: 웨이퍼 위 전자회로가 새겨진 얇고 작은 조각으로, IC칩이 되는 부분.\n② Scribe Line: Chip 사이의 경계로, 아무 전자회로가 없는 부분이며, 웨이퍼를 개개의 칩으로 나누기 위한 분리 선.\n③ TEG(Test Element Group): 칩의 동작 여부를 판단하기 위한 테스트용 칩.\n④ Edge Die: 손실 부분. 직경이 작은 웨이퍼보다 큰 웨이퍼의 손실 부분이 적고, 손실률도 줄어든다.\n⑤ Flat Zone: 둥근 웨이퍼의 구조를 판별하기 위해 만든 평평한 부분.",
+      "evidenceQuote": "① Chip: 웨이퍼 위 전자회로가 새겨진 얇고 작은 조각으로, IC칩이 되는 부분.\n② Scribe Line: Chip 사이의 경계로, 아무 전자회로가 없는 부분이며, 웨이퍼를 개개의 칩으로 나누기 위한 분리 선.\n③ TEG(Test Element Group): 칩의 동작 여부를 판단하기 위한 테스트용 칩.\n④ Edge Die: 손실 부분. 직경이 작은 웨이퍼보다 큰 웨이퍼의 손실 부분이 적고, 손실률도 줄어든다.\n⑤ Flat Zone: 둥근 웨이퍼의 구조를 판별하기 위해 만든 평평한 부분.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "wafer",
+          "name": "웨이퍼",
+          "reason": "원문이 웨이퍼 부위별 명칭으로 명시한다.",
+          "evidenceQuote": "① Chip: 웨이퍼 위 전자회로가 새겨진 얇고 작은 조각으로, IC칩이 되는 부분.\n② Scribe Line: Chip 사이의 경계로, 아무 전자회로가 없는 부분이며, 웨이퍼를 개개의 칩으로 나누기 위한 분리 선.\n③ TEG(Test Element Group): 칩의 동작 여부를 판단하기 위한 테스트용 칩.\n④ Edge Die: 손실 부분. 직경이 작은 웨이퍼보다 큰 웨이퍼의 손실 부분이 적고, 손실률도 줄어든다.\n⑤ Flat Zone: 둥근 웨이퍼의 구조를 판별하기 위해 만든 평평한 부분."
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "웨이퍼 구성 영역",
+          "scaleLevel": 1
+        }
+      ]
+    }
+  ]
+}

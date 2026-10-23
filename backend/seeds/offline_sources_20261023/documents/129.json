@@ -1,0 +1,70 @@
+{
+  "index": 129,
+  "filePath": "skhynix/skhynix_tech_tsv_mr_muf.md",
+  "sourceHash": "fa947e79c613920825ed498615af995e0636e94b88e1a9907fd121474bd0c18b",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1110,
+    "method": "codex-offline-source-review",
+    "notes": "제공된 짧은 원문 전체를 읽었다. 본문은 강의 도입과 HBM 정의까지만 제공되며 제목의 TSV와 MR-MUF 메커니즘 설명은 없다. 다른 문헌 지식을 채워 넣지 않고 HBM 정의·강의 발언만 보존했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "hbm",
+      "title": "고대역폭 메모리",
+      "engName": "High Bandwidth Memory",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "적층 메모리",
+      "scaleLevel": 4,
+      "classificationNote": "메모리 반도체 분야이며, 여러 칩·기능·회로를 묶는 패키지 또는 시스템 구조이므로 규모 4로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "D램을 수직으로 쌓아 초당 전송 가능한 데이터양을 늘린 고대역폭 메모리 제품이다.",
+      "purpose": "AI 산업에서 대량 데이터 전송을 지원한다.",
+      "summaryEvidenceQuote": "이날 특강은 HBM을 정의하는 것으로 문을 열었다. 신 교수는 “D램을 수직으로 쌓아 초당 전송 가능한 데이터양을 범용 D램보다 수백 배 늘린 제품”이라고 표현하며, “대한민국 반도체 산업의 최전선에서 이익을 창출하고 있다”고 설명했다.",
+      "evidenceQuote": "이날 특강은 HBM을 정의하는 것으로 문을 열었다. 신 교수는 “D램을 수직으로 쌓아 초당 전송 가능한 데이터양을 범용 D램보다 수백 배 늘린 제품”이라고 표현하며, “대한민국 반도체 산업의 최전선에서 이익을 창출하고 있다”고 설명했다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "신창환 교수의 HBM 강의 설명",
+          "perspectiveBadge": "고려대학교 신창환 교수",
+          "narrative": "강의에서 HBM을 D램의 파생 제품으로 소개하고, D램 수직 적층으로 초당 전송 데이터양이 범용 D램보다 수백 배 늘어난다고 설명했다.",
+          "caution": "교육 강의의 정성적 범위 표현이며 제품 세대·비교 대상·측정 조건은 없다.",
+          "evidenceQuote": "이날 특강은 HBM을 정의하는 것으로 문을 열었다. 신 교수는 “D램을 수직으로 쌓아 초당 전송 가능한 데이터양을 범용 D램보다 수백 배 늘린 제품”이라고 표현하며, “대한민국 반도체 산업의 최전선에서 이익을 창출하고 있다”고 설명했다.",
+          "specifications": [
+            {
+              "parameter": "범용 D램 대비 초당 전송 데이터양",
+              "value": "수백 배",
+              "unit": "배",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "이날 특강은 HBM을 정의하는 것으로 문을 열었다. 신 교수는 “D램을 수직으로 쌓아 초당 전송 가능한 데이터양을 범용 D램보다 수백 배 늘린 제품”이라고 표현하며, “대한민국 반도체 산업의 최전선에서 이익을 창출하고 있다”고 설명했다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "여러 D램을 위로 쌓아 한 번에 오갈 수 있는 데이터양을 늘린 메모리라는 설명이다. 수백 배는 이 강의가 제시한 범위이며 특정 제품의 보장 성능을 뜻하지 않는다.",
+            "background": null
+          }
+        }
+      ],
+      "isA": [
+        {
+          "id": "dram",
+          "name": "D램",
+          "reason": "원문은 HBM을 D램의 파생 제품으로 명시한다.",
+          "evidenceQuote": "**“대한민국 반도체 산업의 첨병으로서 AI 시대에 가장 많은 이익을 가져다 주는 D램의 파생 제품이 바로 HBM입니다.”**"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "메모리 반도체",
+          "scaleLevel": 4
+        }
+      ]
+    }
+  ]
+}

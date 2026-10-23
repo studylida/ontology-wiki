@@ -1,0 +1,50 @@
+{
+  "index": 105,
+  "filePath": "samsung/samsung_glossary_system_lsi.md",
+  "sourceHash": "8dc0f5fb9df0f841e51b22963983d93f28280ec7267bafad5517d8890297a01a",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1940,
+    "method": "codex-offline-source-review",
+    "notes": "전체 원문을 끝까지 대조했다. 영상 소개 중 본문에 실제로 있는 시스템 반도체의 연산·신호 변환·센싱 정의와 응용 분야만 보존했다. 시장 규모 홍보와 뇌·오감 비유를 기술 정의로 쓰지 않았다. 구체 제품명이나 영상 내 기술 종류를 추정하지 않았으며 영상을 시청하지 않고 가용 텍스트만 검토했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "system-semiconductor",
+      "title": "시스템 반도체",
+      "engName": "시스템 반도체",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "집적회로·시스템 칩",
+      "scaleLevel": 4,
+      "classificationNote": "시스템 반도체의 소자 또는 회로 구조를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "디지털 전기 정보를 읽고 연산하거나 아날로그·디지털 신호를 상호 변환하고 센싱을 통해 데이터를 수집하는 반도체이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "시스템 반도체는 디지털화된 전기적 정보를 읽고 연산해 인간의 두뇌와 같은 역할을 하기도 하고, 아날로그 신호와 디지털 신호를 상호 변경해주기도 하며, 사람의 오감처럼 센싱을 통해 데이터를 수집하기도 합니다.",
+      "evidenceQuote": "시스템 반도체는 디지털화된 전기적 정보를 읽고 연산해 인간의 두뇌와 같은 역할을 하기도 하고, 아날로그 신호와 디지털 신호를 상호 변경해주기도 하며, 사람의 오감처럼 센싱을 통해 데이터를 수집하기도 합니다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "응용 분야",
+          "content": "원문은 스마트 기기·인공지능·자율주행 자동차·스마트홈 시스템·5G 네트워크를 응용 분야로 열거한다.",
+          "formula": null,
+          "evidenceQuote": "그 응용 분야 역시 스마트 기기와 인공지능, 자율주행 자동차부터 스마트홈 시스템과 5G 네트워크까지 무궁무진한데요."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "시스템 반도체",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "index": 66,
+  "filePath": "samsung/glossary/반도체-용어-사전-커패시터.md",
+  "sourceHash": "37a1273b170a7574a68f2ec4546546a4b36505c53da083fb3294e6a2a5f89297",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1566,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 빈 파서 후보를 대조하여 실제 개념명·정의·명시된 종류·선후 관계를 보완했다. 발행사나 관련기사를 도입 사례로 추정하지 않았다. "
+  },
+  "concepts": [
+    {
+      "conceptId": "capacitor",
+      "title": "커패시터",
+      "engName": "Capacitor",
+      "aliases": [
+        "콘덴서",
+        "Condenser",
+        "축전기"
+      ],
+      "domainFacet": "device",
+      "category": "소자·회로 구조",
+      "scaleLevel": 2,
+      "classificationNote": "커패시터의 원문 정의에 따라 수동 전자소자에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전자회로에서 전기를 일시적으로 저장하는 장치이다. 보통 두 도체판 사이에 전기가 흐르지 않는 절연체가 있는 구조이다.",
+      "purpose": "충전과 방전으로 급격한 전압 상승이나 하락을 억제한다.",
+      "summaryEvidenceQuote": "전자회로에서 전기를 일시적으로 저장하는 장치로, 콘덴서(Condenser) 혹은 축전기라고도 부른다.",
+      "evidenceQuote": "전자회로에서 전기를 일시적으로 저장하는 장치로, 콘덴서(Condenser) 혹은 축전기라고도 부른다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "전하 분리와 에너지 저장",
+          "content": "두 도체판 사이에 전압을 걸면 음극에 음전하, 양극에 양전하가 같은 크기로 유도된다. 전기적 인력에 의해 전하가 모여 에너지가 저장된다.",
+          "formula": null,
+          "evidenceQuote": "보통 커패시터는 2개의 도체판 사이 전기가 흐르지 않는 절연체가 들어간 구조로 되어있다. 두 도체판 사이에 전압을 걸면 음극에는 (-)전하가 양극에는 (+)전하가 같은 크기로 유도되는데, 이로 인해 전기적 인력이 발생하게 된다. 이 인력에 의해 전하들이 모여있게 되므로 에너지가 저장되는 것이다."
+        },
+        {
+          "step": 2,
+          "title": "충전과 방전",
+          "content": "전하량은 전압에 비례한다. 커패시터는 전하를 충전·방전하며 급격한 전압 상승·하락을 억제한다. 충전 능력을 정전용량 또는 커패시턴스라고 한다.",
+          "formula": null,
+          "evidenceQuote": "이 때 모이는 전하량은 전압에 비례하는데, 커패시터는 이런 원리를 이용하여 전자회로에서 전하를 충전하거나 방전하며 급격한 전압 상승이나 하락을 억제한다. 커패시터가 전하를 충전할 수 있는 능력을 정전용량 혹은 커패시턴스(Capacitance)라고 한다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "purposeEvidenceQuote": "이 때 모이는 전하량은 전압에 비례하는데, 커패시터는 이런 원리를 이용하여 전자회로에서 전하를 충전하거나 방전하며 급격한 전압 상승이나 하락을 억제한다. 커패시터가 전하를 충전할 수 있는 능력을 정전용량 혹은 커패시턴스(Capacitance)라고 한다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "수동 전자소자",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "capacitance",
+      "title": "커패시턴스",
+      "engName": "Capacitance",
+      "aliases": [
+        "정전용량"
+      ],
+      "domainFacet": "materials_infra",
+      "category": "전기적 물성",
+      "scaleLevel": 1,
+      "classificationNote": "커패시턴스의 원문 정의에 따라 전기적 물성에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "커패시터가 전하를 충전할 수 있는 능력이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "이 때 모이는 전하량은 전압에 비례하는데, 커패시터는 이런 원리를 이용하여 전자회로에서 전하를 충전하거나 방전하며 급격한 전압 상승이나 하락을 억제한다. 커패시터가 전하를 충전할 수 있는 능력을 정전용량 혹은 커패시턴스(Capacitance)라고 한다.",
+      "evidenceQuote": "이 때 모이는 전하량은 전압에 비례하는데, 커패시터는 이런 원리를 이용하여 전자회로에서 전하를 충전하거나 방전하며 급격한 전압 상승이나 하락을 억제한다. 커패시터가 전하를 충전할 수 있는 능력을 정전용량 혹은 커패시턴스(Capacitance)라고 한다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "전기적 물성",
+          "scaleLevel": 1
+        }
+      ]
+    }
+  ]
+}

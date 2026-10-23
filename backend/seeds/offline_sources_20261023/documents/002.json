@@ -1,0 +1,732 @@
+{
+  "index": 2,
+  "filePath": "asml/asml_core_technologies.md",
+  "sourceHash": "b54b22b5d28b436d17269be4af6ff5513753c51a8c8e2bce0a72534e37d5646c",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 3576,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체를 끝까지 읽고 파서 제안을 대조했다. 문서 맥락의 정의·원리·조건·사례와 관계를 구분했다. 원문 요약의 주장은 제공 자료의 범위로 한정했으며 장비 최신 성능·표준 판본을 외부 확인하지 않았다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "rayleigh-criterion",
+      "title": "레일리 한계식",
+      "engName": "Rayleigh Criterion",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "노광 물리",
+      "scaleLevel": 1,
+      "classificationNote": "레일리 한계식의 기술적 대상을 노광 물리에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "노광에서 인쇄 가능한 최소 패턴 크기 CD를 광원 파장 λ, 개구수 NA, 공정 상수 k1의 관계로 나타내는 해상도 식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "반도체 회로에서 인쇄 가능한 최소 선폭(CD, Critical Dimension)은 레일리 수식에 의해 절대적으로 지배된다:",
+      "evidenceQuote": "반도체 회로에서 인쇄 가능한 최소 선폭(CD, Critical Dimension)은 레일리 수식에 의해 절대적으로 지배된다:",
+      "principles": [
+        {
+          "step": 1,
+          "title": "해상도와 변수",
+          "content": "CD는 최소 패턴 크기, λ는 광원 파장이다. NA = n sinθ는 빛을 모으는 각도 범위를 나타내며, k1은 레지스트·마스크·조명 최적화 수준을 반영한다. 원문이 제시한 k1 이론 한계는 0.25이다.",
+          "formula": "\\mathrm{CD}=k_1\\lambda/\\mathrm{NA}",
+          "evidenceQuote": "- $k_1$ (Process Factor): 레지스트 특성, 마스크 기술, 조명계 최적화 수준을 반영하는 공정 상수 (물리적 이론 한계 $0.25$)."
+        },
+        {
+          "step": 2,
+          "title": "파장·개구수·공정 최적화",
+          "content": "DUV ArF 액침의 193nm에서 EUV 13.5nm로 파장을 줄이고, NA를 0.33에서 0.55로 높이며, 계산 리소그래피로 k1을 0.28 수준까지 근접시키는 축을 설명한다.",
+          "formula": null,
+          "evidenceQuote": "- DUV(ArF 액침, 193nm)에서 극자외선 EUV(13.5nm)로 전환 (파장 1/14로 급감)."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "이론 한계와 접근 수준 구분",
+          "description": "원문에 제시된 k1의 이론 한계 0.25와 최적화로 근접하는 0.28 수준은 서로 다른 값이다.",
+          "evidenceQuote": "- $k_1$ (Process Factor): 레지스트 특성, 마스크 기술, 조명계 최적화 수준을 반영하는 공정 상수 (물리적 이론 한계 $0.25$)."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "ASML의 레일리 스케일링 축",
+          "perspectiveBadge": "ASML",
+          "narrative": "파장 단축·개구수 확대·공정 상수 개선을 조합한 ASML 광학·계산 기술의 스케일링 설명이다.",
+          "caution": "",
+          "evidenceQuote": "### 1.1 ASML의 세 가지 스케일링 축",
+          "specifications": [
+            {
+              "parameter": "ArF 액침 DUV 파장",
+              "value": "193",
+              "unit": "nm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- DUV(ArF 액침, 193nm)에서 극자외선 EUV(13.5nm)로 전환 (파장 1/14로 급감)."
+            },
+            {
+              "parameter": "EUV 파장",
+              "value": "13.5",
+              "unit": "nm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- DUV(ArF 액침, 193nm)에서 극자외선 EUV(13.5nm)로 전환 (파장 1/14로 급감)."
+            },
+            {
+              "parameter": "k1 물리적 이론 한계",
+              "value": "0.25",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- $k_1$ (Process Factor): 레지스트 특성, 마스크 기술, 조명계 최적화 수준을 반영하는 공정 상수 (물리적 이론 한계 $0.25$)."
+            },
+            {
+              "parameter": "계산 리소그래피로 근접하는 k1",
+              "value": "0.28 수준",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 계산 리소그래피(OPC, SMO) 및 다층막 위상 제어를 통해 $k_1$을 물리적 한계점인 0.28 수준까지 근접."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "더 작은 회로를 그리려면 빛의 파장을 줄이거나 빛을 모으는 능력인 개구수를 키우고, 마스크와 조명을 정교하게 조절할 수 있습니다. 193nm와 13.5nm는 빛의 파장이며 회로 선폭 자체가 아닙니다. k1의 0.25는 원문이 설명한 이론 한계이고 0.28은 최적화로 가까이 가는 수준입니다. 두 수치를 같은 달성 실적으로 읽으면 안 됩니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "노광 물리",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "euv-lithography",
+      "title": "EUV 노광",
+      "engName": "Extreme Ultraviolet Lithography",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "노광",
+      "scaleLevel": 3,
+      "classificationNote": "EUV 노광의 기술적 대상을 노광에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "13.5nm 극자외선을 사용하며 진공 광로와 반사 광학계가 필요한 노광 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "13.5nm 파장의 EUV 광선은 대기(질소, 산소) 및 기존 굴절 유리 렌즈에 100% 흡수되므로, 완전히 새로운 물리적 아키텍처가 요구된다.",
+      "evidenceQuote": "13.5nm 파장의 EUV 광선은 대기(질소, 산소) 및 기존 굴절 유리 렌즈에 100% 흡수되므로, 완전히 새로운 물리적 아키텍처가 요구된다.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "흡수와 광량 손실",
+          "description": "EUV는 대기와 기존 유리 렌즈에 흡수되어 진공·다층막 반사 광학계가 필요하며 여러 거울을 통과하면서 광량 손실이 누적된다.",
+          "evidenceQuote": "13.5nm 파장의 EUV 광선은 대기(질소, 산소) 및 기존 굴절 유리 렌즈에 100% 흡수되므로, 완전히 새로운 물리적 아키텍처가 요구된다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "노광",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "lpp-euv-source",
+      "title": "레이저 생성 플라즈마 EUV 광원",
+      "engName": "Laser-Produced Plasma EUV Source",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "노광 광원",
+      "scaleLevel": 3,
+      "classificationNote": "레이저 생성 플라즈마 EUV 광원의 기술적 대상을 노광 광원에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "주석 액적을 레이저로 팽창·플라즈마화하여 EUV를 방출시키고 집광 거울로 모으는 광원이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 진공 챔버 내에서 초당 50,000개의 고순도 주석(Sn) 액적(Droplet, 직경 약 25㎛)을 고속 분사.",
+      "evidenceQuote": "- 진공 챔버 내에서 초당 50,000개의 고순도 주석(Sn) 액적(Droplet, 직경 약 25㎛)을 고속 분사.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "사전·주 펄스와 집광",
+          "content": "사전 펄스로 주석 액적을 팽창시킨 뒤 주 펄스로 고온 플라즈마를 만들고, 집광 거울이 방출광을 중간 초점으로 모은다.",
+          "formula": null,
+          "evidenceQuote": "1. `Prepulse (사전 펄스)`: 주석 방울을 납작한 팬케이크 모양으로 팽창시킴."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "ASML LPP 주석 액적과 CO2 레이저",
+          "perspectiveBadge": "ASML",
+          "narrative": "진공에서 주석 액적을 분사하고 액적당 사전·주 펄스를 가해 13.5nm EUV를 생성한다.",
+          "caution": "",
+          "evidenceQuote": "- 진공 챔버 내에서 초당 50,000개의 고순도 주석(Sn) 액적(Droplet, 직경 약 25㎛)을 고속 분사.",
+          "specifications": [
+            {
+              "parameter": "주석 액적 분사율",
+              "value": "50,000",
+              "unit": "개/초",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 진공 챔버 내에서 초당 50,000개의 고순도 주석(Sn) 액적(Droplet, 직경 약 25㎛)을 고속 분사."
+            },
+            {
+              "parameter": "주석 액적 직경",
+              "value": "약 25",
+              "unit": "㎛",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 진공 챔버 내에서 초당 50,000개의 고순도 주석(Sn) 액적(Droplet, 직경 약 25㎛)을 고속 분사."
+            },
+            {
+              "parameter": "CO2 레이저 출력",
+              "value": "20~30",
+              "unit": "kW",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 20~30kW급 고출력 $CO_2$ 레이저를 액적당 2회 타격:"
+            },
+            {
+              "parameter": "액적당 타격",
+              "value": "2",
+              "unit": "회",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 20~30kW급 고출력 $CO_2$ 레이저를 액적당 2회 타격:"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "이 광원은 아주 작은 주석 방울을 연속해서 쏘고 레이저로 가열해 빛을 얻습니다. 첫 타격은 방울 모양을 바꾸고 두 번째 타격은 플라즈마를 만드는 역할입니다. 액적 크기·분사율·레이저 출력은 이 광원 동작을 설명하는 서로 다른 항목이며 다른 공정의 설정값으로 옮겨 쓰는 수치가 아닙니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "노광 광원",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "bragg-multilayer-optics",
+      "title": "브래그 다층막 반사 광학계",
+      "engName": "Bragg Multilayer Optics",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "노광 광학계",
+      "scaleLevel": 3,
+      "classificationNote": "브래그 다층막 반사 광학계의 기술적 대상을 노광 광학계에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "Mo와 Si를 정밀 교차 증착한 다층막 거울로 EUV를 반사·투영하는 광학계이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 몰리브덴(Mo, 굴절률 낮음)과 실리콘(Si, 굴절률 높음)을 원자층 단위로 40~50쌍 정밀 교차 증착.",
+      "evidenceQuote": "- 몰리브덴(Mo, 굴절률 낮음)과 실리콘(Si, 굴절률 높음)을 원자층 단위로 40~50쌍 정밀 교차 증착.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "다중 반사의 광량 손실",
+          "description": "원문은 거울 한 장의 약 70% 반사율과 10여 개 거울 통과 후 약 1~2%의 광량 도달을 설명한다.",
+          "evidenceQuote": "- 거울 단일 매수당 반사율은 약 70% 수준이며, 스캐너 내부의 10여 개 반사경을 거치면 웨이퍼에 도달하는 광량은 초기 광원의 약 1~2%로 급감하므로 고출력 광원(300W~500W 이상) 기술이 필수적임."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "ASML·Zeiss Mo/Si 반사경의 광량 예산",
+          "perspectiveBadge": "ASML / Carl Zeiss",
+          "narrative": "40~50쌍의 Mo/Si 다층막과 고출력 광원으로 다중 반사의 손실에 대응한다.",
+          "caution": "",
+          "evidenceQuote": "- 빛이 유리를 투과할 수 없으므로, 독일 자이스(Carl Zeiss)와 공동 개발한 **다층막 반사 거울**만을 사용.",
+          "specifications": [
+            {
+              "parameter": "Mo/Si 교차 증착",
+              "value": "40~50",
+              "unit": "쌍",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 몰리브덴(Mo, 굴절률 낮음)과 실리콘(Si, 굴절률 높음)을 원자층 단위로 40~50쌍 정밀 교차 증착."
+            },
+            {
+              "parameter": "거울 한 장 반사율",
+              "value": "약 70",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 거울 단일 매수당 반사율은 약 70% 수준이며, 스캐너 내부의 10여 개 반사경을 거치면 웨이퍼에 도달하는 광량은 초기 광원의 약 1~2%로 급감하므로 고출력 광원(300W~500W 이상) 기술이 필수적임."
+            },
+            {
+              "parameter": "웨이퍼 도달 광량",
+              "value": "초기 광원의 약 1~2",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 거울 단일 매수당 반사율은 약 70% 수준이며, 스캐너 내부의 10여 개 반사경을 거치면 웨이퍼에 도달하는 광량은 초기 광원의 약 1~2%로 급감하므로 고출력 광원(300W~500W 이상) 기술이 필수적임."
+            },
+            {
+              "parameter": "원문 제시 고출력 광원",
+              "value": "300~500 이상",
+              "unit": "W",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 거울 단일 매수당 반사율은 약 70% 수준이며, 스캐너 내부의 10여 개 반사경을 거치면 웨이퍼에 도달하는 광량은 초기 광원의 약 1~2%로 급감하므로 고출력 광원(300W~500W 이상) 기술이 필수적임."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "거울 한 장에서 빛을 모두 반사하지 못하므로 여러 거울을 지날 때 손실이 쌓입니다. 약 70%는 거울 한 장의 값이고 약 1~2%는 전체 경로를 지난 뒤 처음 광원과 비교한 값입니다. 높은 광원 출력이 필요한 이유를 이 두 기준을 나누어 보면 이해할 수 있습니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "노광 광학계",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "euv-pellicle",
+      "title": "EUV 펠리클",
+      "engName": "EUV Pellicle",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "노광 부품",
+      "scaleLevel": 3,
+      "classificationNote": "EUV 펠리클의 기술적 대상을 노광 부품에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "마스크의 파티클 오염을 막으면서 EUV를 통과시켜야 하는 얇은 보호막이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 마스크 표면에 먼지/파티클이 앉는 것을 방지하는 투과성 보호막.",
+      "evidenceQuote": "- 마스크 표면에 먼지/파티클이 앉는 것을 방지하는 투과성 보호막.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "투과와 내열성",
+          "content": "13.5nm 빛의 90% 이상 투과와 수백 도 복사열 내성을 함께 확보하도록 CNT 또는 초박막 금속 실리사이드 소재를 사용한다.",
+          "formula": null,
+          "evidenceQuote": "- 13.5nm 빛을 90% 이상 투과시키면서 고열(수백 도) 플라즈마 복사열을 견디기 위해 탄소나노튜브(CNT) 또는 초박막 금속 실리사이드 소재 채택."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "pellicle",
+          "name": "마스크 보호막",
+          "reason": "마스크의 파티클 오염을 방지하는 보호막이라는 일반 펠리클 정의에 EUV 투과·열 내성 조건이 붙은 하위 종류이다.",
+          "evidenceQuote": "마스크 표면에 먼지/파티클이 앉는 것을 방지하는 투과성 보호막."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "노광 부품",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "high-na-euv",
+      "title": "High-NA EUV",
+      "engName": "High Numerical Aperture EUV",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "노광",
+      "scaleLevel": 3,
+      "classificationNote": "High-NA EUV의 기술적 대상을 노광에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "개구수를 0.55로 확대한 EXE 플랫폼의 EUV 노광 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "## 3. 차세대 High-NA EUV (0.55 NA, EXE 플랫폼) 기술 혁신",
+      "evidenceQuote": "## 3. 차세대 High-NA EUV (0.55 NA, EXE 플랫폼) 기술 혁신",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "euv-lithography",
+          "name": "EUV 노광",
+          "reason": "High-NA EUV는 EUV 광학계의 개구수를 확대한 방식이다.",
+          "evidenceQuote": "## 3. 차세대 High-NA EUV (0.55 NA, EXE 플랫폼) 기술 혁신"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "노광",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "mask-shadowing",
+      "title": "마스크 섀도잉",
+      "engName": "Mask Shadowing",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "노광 결함",
+      "scaleLevel": 1,
+      "classificationNote": "마스크 섀도잉의 기술적 대상을 노광 결함에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "입사각이 커질 때 마스크의 입체 흡수체 패턴이 인접 패턴에 그림자를 만드는 현상이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 개구수를 0.33에서 0.55로 키우면 광학계로 들어가는 빛의 입사각이 커져, 마스크 위의 3차원 흡수체 패턴(Cr/Ta/Ru)에 의해 인접 패턴에 그림자가 생기는 **마스크 섀도잉 현상** 발생.",
+      "evidenceQuote": "- 개구수를 0.33에서 0.55로 키우면 광학계로 들어가는 빛의 입사각이 커져, 마스크 위의 3차원 흡수체 패턴(Cr/Ta/Ru)에 의해 인접 패턴에 그림자가 생기는 **마스크 섀도잉 현상** 발생.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "노광 결함",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "anamorphic-optics",
+      "title": "아나모픽 투영 광학계",
+      "engName": "Anamorphic Optics",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "노광 광학계",
+      "scaleLevel": 3,
+      "classificationNote": "아나모픽 투영 광학계의 기술적 대상을 노광 광학계에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "수평·수직 투영 축소 배율을 다르게 설계하여 High-NA의 마스크 그림자 효과를 줄이는 비대칭 광학계이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 그림자 효과를 극복하기 위해 축소 투영 배율을 수평과 수직으로 비대칭 설계:",
+      "evidenceQuote": "- 그림자 효과를 극복하기 위해 축소 투영 배율을 수평과 수직으로 비대칭 설계:",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "High-NA 비대칭 배율과 생산성 보상",
+          "perspectiveBadge": "ASML EXE",
+          "narrative": "X축 4배·Y축 8배 축소로 노광 필드가 절반으로 줄어드는 조건에서 스테이지 가속도를 높여 생산성을 보상한다.",
+          "caution": "",
+          "evidenceQuote": "- 배율 비대칭으로 인해 노광 필드 크기가 절반(Half Field, 26mm × 16.5mm)으로 줄어들며, 이를 보상하기 위해 스캔 스테이지의 가속도를 극대화(과거 대비 4배 가속)하여 웨이퍼 시간당 생산성(Throughput, 150~220wph)을 유지.",
+          "specifications": [
+            {
+              "parameter": "X축 축소",
+              "value": "4",
+              "unit": "배",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **X축 (수평)**: 4배 축소"
+            },
+            {
+              "parameter": "Y축 축소",
+              "value": "8",
+              "unit": "배",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **Y축 (수직)**: 8배 축소"
+            },
+            {
+              "parameter": "Half Field",
+              "value": "26 × 16.5",
+              "unit": "mm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 배율 비대칭으로 인해 노광 필드 크기가 절반(Half Field, 26mm × 16.5mm)으로 줄어들며, 이를 보상하기 위해 스캔 스테이지의 가속도를 극대화(과거 대비 4배 가속)하여 웨이퍼 시간당 생산성(Throughput, 150~220wph)을 유지."
+            },
+            {
+              "parameter": "스테이지 가속도",
+              "value": "과거 대비 4배",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 배율 비대칭으로 인해 노광 필드 크기가 절반(Half Field, 26mm × 16.5mm)으로 줄어들며, 이를 보상하기 위해 스캔 스테이지의 가속도를 극대화(과거 대비 4배 가속)하여 웨이퍼 시간당 생산성(Throughput, 150~220wph)을 유지."
+            },
+            {
+              "parameter": "원문 제시 생산성",
+              "value": "150~220",
+              "unit": "wph",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 배율 비대칭으로 인해 노광 필드 크기가 절반(Half Field, 26mm × 16.5mm)으로 줄어들며, 이를 보상하기 위해 스캔 스테이지의 가속도를 극대화(과거 대비 4배 가속)하여 웨이퍼 시간당 생산성(Throughput, 150~220wph)을 유지."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "가로와 세로를 서로 다른 비율로 줄여 마스크의 그림자 문제에 대응한 설계입니다. 한 번에 그리는 면적이 줄어드는 대신 웨이퍼를 움직이는 속도를 높여 생산성을 보완합니다. 표의 배율·노광 면적·시간당 처리량은 이 설계의 서로 다른 측면을 나타냅니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "노광 광학계",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "computational-lithography",
+      "title": "계산 리소그래피",
+      "engName": "Computational Lithography",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "노광 소프트웨어",
+      "scaleLevel": 3,
+      "classificationNote": "계산 리소그래피의 기술적 대상을 노광 소프트웨어에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "빛의 회절·간섭으로 발생하는 전사 왜곡을 계산해 마스크와 조명을 최적화하는 기술군이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "빛의 회절 한계에 도달한 극미세 패턴은 원래 마스크 형태대로 웨이퍼에 인쇄되지 않고 왜곡(모서리 라운딩, 선폭 축소)된다.",
+      "evidenceQuote": "빛의 회절 한계에 도달한 극미세 패턴은 원래 마스크 형태대로 웨이퍼에 인쇄되지 않고 왜곡(모서리 라운딩, 선폭 축소)된다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "노광 소프트웨어",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "opc",
+      "title": "광학 근접 효과 보정",
+      "engName": "Optical Proximity Correction",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "노광 소프트웨어",
+      "scaleLevel": 3,
+      "classificationNote": "광학 근접 효과 보정의 기술적 대상을 노광 소프트웨어에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "예상되는 광학 왜곡을 역산해 마스크 모서리와 보조 패턴을 사전 보정하는 계산 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 빛의 간섭/회절 방정식을 역산하여, 마스크 패턴의 모서리에 세리프(Serif)를 붙이거나 보조 피처(SBAR, Sub-Resolution Assist Features)를 추가하여 웨이퍼 표면에는 완벽한 사각형이 전사되도록 사전 왜곡 설계.",
+      "evidenceQuote": "- 빛의 간섭/회절 방정식을 역산하여, 마스크 패턴의 모서리에 세리프(Serif)를 붙이거나 보조 피처(SBAR, Sub-Resolution Assist Features)를 추가하여 웨이퍼 표면에는 완벽한 사각형이 전사되도록 사전 왜곡 설계.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "computational-lithography",
+          "name": "계산 리소그래피",
+          "reason": "회절을 계산해 마스크를 사전 보정하는 방식이다.",
+          "evidenceQuote": "- 빛의 간섭/회절 방정식을 역산하여, 마스크 패턴의 모서리에 세리프(Serif)를 붙이거나 보조 피처(SBAR, Sub-Resolution Assist Features)를 추가하여 웨이퍼 표면에는 완벽한 사각형이 전사되도록 사전 왜곡 설계."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "노광 소프트웨어",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "smo",
+      "title": "조명·마스크 최적화",
+      "engName": "Source-Mask Optimization",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "노광 소프트웨어",
+      "scaleLevel": 3,
+      "classificationNote": "조명·마스크 최적화의 기술적 대상을 노광 소프트웨어에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "특정 회로 패턴에 맞는 조명 동공과 마스크 형상을 함께 합성하는 계산 최적화 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 특정 회로 패턴에 최적화된 맞춤형 조명 동공(Pupil) 형태(다이폴, 쿼드러폴 등)와 마스크 형상을 수학적 알고리즘으로 동시 합성.",
+      "evidenceQuote": "- 특정 회로 패턴에 최적화된 맞춤형 조명 동공(Pupil) 형태(다이폴, 쿼드러폴 등)와 마스크 형상을 수학적 알고리즘으로 동시 합성.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "computational-lithography",
+          "name": "계산 리소그래피",
+          "reason": "광학 조건과 마스크 형상을 알고리즘으로 함께 최적화한다.",
+          "evidenceQuote": "- 특정 회로 패턴에 최적화된 맞춤형 조명 동공(Pupil) 형태(다이폴, 쿼드러폴 등)와 마스크 형상을 수학적 알고리즘으로 동시 합성."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "노광 소프트웨어",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "holistic-lithography",
+      "title": "홀리스틱 리소그래피",
+      "engName": "Holistic Lithography",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "공정 통합",
+      "scaleLevel": 4,
+      "classificationNote": "홀리스틱 리소그래피의 기술적 대상을 공정 통합에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "노광 스캐너·계측·계산 소프트웨어를 폐루프로 연결해 노광 조건을 보정하는 통합 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "ASML의 경쟁력은 단순 스캐너 하드웨어에 머무르지 않고, **스캐너 + 계측(Metrology) + 소프트웨어(Computational)**가 폐루프(Closed-Loop)로 연동되는 데 있다.",
+      "evidenceQuote": "ASML의 경쟁력은 단순 스캐너 하드웨어에 머무르지 않고, **스캐너 + 계측(Metrology) + 소프트웨어(Computational)**가 폐루프(Closed-Loop)로 연동되는 데 있다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "TWINSCAN 사전 계측",
+          "content": "한 웨이퍼를 노광하는 동안 다른 스테이지의 웨이퍼 높낮이와 정렬 마크를 서브 나노미터 정밀도로 사전 스캔한다.",
+          "formula": null,
+          "evidenceQuote": "- 웨이퍼 A가 노광되는 동안, 웨이퍼 B는 인접 스테이지에서 서브 나노미터 정밀도로 웨이퍼 표면 높낮이 맵(Topography)과 정렬 마크(Alignment Marks)를 사전 스캔."
+        },
+        {
+          "step": 2,
+          "title": "YieldStar 피드백",
+          "content": "회절 기반 오버레이 계측으로 층간 정렬 오차를 수 초 만에 측정해 스테이지 보정값으로 피드백한다.",
+          "formula": null,
+          "evidenceQuote": "- 인라인 상에서 웨이퍼 상하 층간 정렬 오차(Overlay Error)를 수 초 만에 측정하여, 스캐너 스테이지로 실시간 보정 파라미터(Offset Correction)를 피드백(R2R Loop)."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "공정 통합",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "diffraction-based-overlay",
+      "title": "회절 기반 오버레이 계측",
+      "engName": "Diffraction-Based Overlay",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "검사·계측",
+      "scaleLevel": 3,
+      "classificationNote": "회절 기반 오버레이 계측의 기술적 대상을 검사·계측에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "회절 정보를 이용해 웨이퍼 상하 층간 정렬 오차를 측정하는 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- **YieldStar 회절 기반 오버레이 (DBO, Diffraction-Based Overlay)**:",
+      "evidenceQuote": "- **YieldStar 회절 기반 오버레이 (DBO, Diffraction-Based Overlay)**:",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "overlay-metrology",
+          "name": "오버레이 측정",
+          "reason": "YieldStar DBO는 층간 정렬 오차를 회절 기반으로 측정하는 방식으로 명시되므로 오버레이 측정의 구체적 방식이다.",
+          "evidenceQuote": "**YieldStar 회절 기반 오버레이 (DBO, Diffraction-Based Overlay)**:"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "검사·계측",
+          "scaleLevel": 3
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,159 @@
+{
+  "index": 86,
+  "filePath": "samsung/glossary/반도체-용어-사전led편-컬러빈.md",
+  "sourceHash": "f3d5e9186021e87dba3318656dfc642381bcbbe159a1c298795edb01f4589f4e",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1480,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 빈 파서 후보를 대조해 실제 개념명·정의·명시된 적용 상황을 보완했다. 설명 예시를 실측 사양으로 바꾸지 않고 수치 없는 사례도 보존했다. "
+  },
+  "concepts": [
+    {
+      "conceptId": "color-bin",
+      "title": "컬러빈",
+      "engName": "Color Bin",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "LED 특성 분류",
+      "scaleLevel": 5,
+      "classificationNote": "컬러빈의 원문 정의에 따라 LED 특성 분류에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "LED 패키지를 빛의 색상에 따라 구분하는 분류이다. 같은 색 범위도 더 세부적으로 나눌 수 있다.",
+      "purpose": "고객이 요구하는 보다 정확한 색상의 빛을 제공하기 위해 색 범위를 세분화한다.",
+      "summaryEvidenceQuote": "빈(Bin)이란 LED 패키지를 특성에 따라 나누는 것을 의미하는 것으로 컬러빈은 빛의 색상에 따라 패키지를 구분하는 것이다.",
+      "evidenceQuote": "빈(Bin)이란 LED 패키지를 특성에 따라 나누는 것을 의미하는 것으로 컬러빈은 빛의 색상에 따라 패키지를 구분하는 것이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "색 범위 세분화",
+          "content": "같은 색 범위라도 더 세부적으로 구분하며 4개로 나누면 쿼터빈, 2개로 나누면 하프빈이라고 한다.",
+          "formula": null,
+          "evidenceQuote": "겉으로 보기에는 같은 색 범위라도 이를 더욱 세부적으로 나눌 수 있다. 4개로 구분한 것을 쿼터빈(Quarter Bin), 2개로 구분한 것을 하프빈(Half Bin)이라고 한다. LED 제조사는 자신의 제품에 맞는 보다 정확한 색상의 빛을 요구하므로, 컬러의 범위를 더욱 세분화 할 수록 고객의 니즈를 충족시킬 수 있다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "led-bin",
+          "name": "LED 빈",
+          "reason": "원문은 특성별 빈 중 색상에 따라 구분한 것을 컬러빈이라고 설명한다.",
+          "evidenceQuote": "빈(Bin)이란 LED 패키지를 특성에 따라 나누는 것을 의미하는 것으로 컬러빈은 빛의 색상에 따라 패키지를 구분하는 것이다."
+        }
+      ],
+      "purposeEvidenceQuote": "겉으로 보기에는 같은 색 범위라도 이를 더욱 세부적으로 나눌 수 있다. 4개로 구분한 것을 쿼터빈(Quarter Bin), 2개로 구분한 것을 하프빈(Half Bin)이라고 한다. LED 제조사는 자신의 제품에 맞는 보다 정확한 색상의 빛을 요구하므로, 컬러의 범위를 더욱 세분화 할 수록 고객의 니즈를 충족시킬 수 있다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "LED 특성 분류",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "led-bin",
+      "title": "LED 빈",
+      "engName": "Bin",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "LED 특성 분류",
+      "scaleLevel": 5,
+      "classificationNote": "LED 빈의 원문 정의에 따라 LED 특성 분류에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "LED 패키지를 특성에 따라 나누는 분류이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "빈(Bin)이란 LED 패키지를 특성에 따라 나누는 것을 의미하는 것으로 컬러빈은 빛의 색상에 따라 패키지를 구분하는 것이다.",
+      "evidenceQuote": "빈(Bin)이란 LED 패키지를 특성에 따라 나누는 것을 의미하는 것으로 컬러빈은 빛의 색상에 따라 패키지를 구분하는 것이다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "LED 특성 분류",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "quarter-bin",
+      "title": "쿼터빈",
+      "engName": "Quarter Bin",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "LED 특성 분류",
+      "scaleLevel": 5,
+      "classificationNote": "쿼터빈의 원문 정의에 따라 LED 특성 분류에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "LED의 같은 색 범위를 4개로 세분화한 분류이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "겉으로 보기에는 같은 색 범위라도 이를 더욱 세부적으로 나눌 수 있다. 4개로 구분한 것을 쿼터빈(Quarter Bin), 2개로 구분한 것을 하프빈(Half Bin)이라고 한다. LED 제조사는 자신의 제품에 맞는 보다 정확한 색상의 빛을 요구하므로, 컬러의 범위를 더욱 세분화 할 수록 고객의 니즈를 충족시킬 수 있다.",
+      "evidenceQuote": "겉으로 보기에는 같은 색 범위라도 이를 더욱 세부적으로 나눌 수 있다. 4개로 구분한 것을 쿼터빈(Quarter Bin), 2개로 구분한 것을 하프빈(Half Bin)이라고 한다. LED 제조사는 자신의 제품에 맞는 보다 정확한 색상의 빛을 요구하므로, 컬러의 범위를 더욱 세분화 할 수록 고객의 니즈를 충족시킬 수 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "color-bin",
+          "name": "컬러빈",
+          "reason": "원문이 색 범위를 세분화하는 방식으로 구분한다.",
+          "evidenceQuote": "겉으로 보기에는 같은 색 범위라도 이를 더욱 세부적으로 나눌 수 있다. 4개로 구분한 것을 쿼터빈(Quarter Bin), 2개로 구분한 것을 하프빈(Half Bin)이라고 한다. LED 제조사는 자신의 제품에 맞는 보다 정확한 색상의 빛을 요구하므로, 컬러의 범위를 더욱 세분화 할 수록 고객의 니즈를 충족시킬 수 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "LED 특성 분류",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "half-bin",
+      "title": "하프빈",
+      "engName": "Half Bin",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "LED 특성 분류",
+      "scaleLevel": 5,
+      "classificationNote": "하프빈의 원문 정의에 따라 LED 특성 분류에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "LED의 같은 색 범위를 2개로 세분화한 분류이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "겉으로 보기에는 같은 색 범위라도 이를 더욱 세부적으로 나눌 수 있다. 4개로 구분한 것을 쿼터빈(Quarter Bin), 2개로 구분한 것을 하프빈(Half Bin)이라고 한다. LED 제조사는 자신의 제품에 맞는 보다 정확한 색상의 빛을 요구하므로, 컬러의 범위를 더욱 세분화 할 수록 고객의 니즈를 충족시킬 수 있다.",
+      "evidenceQuote": "겉으로 보기에는 같은 색 범위라도 이를 더욱 세부적으로 나눌 수 있다. 4개로 구분한 것을 쿼터빈(Quarter Bin), 2개로 구분한 것을 하프빈(Half Bin)이라고 한다. LED 제조사는 자신의 제품에 맞는 보다 정확한 색상의 빛을 요구하므로, 컬러의 범위를 더욱 세분화 할 수록 고객의 니즈를 충족시킬 수 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "color-bin",
+          "name": "컬러빈",
+          "reason": "원문이 색 범위를 세분화하는 방식으로 구분한다.",
+          "evidenceQuote": "겉으로 보기에는 같은 색 범위라도 이를 더욱 세부적으로 나눌 수 있다. 4개로 구분한 것을 쿼터빈(Quarter Bin), 2개로 구분한 것을 하프빈(Half Bin)이라고 한다. LED 제조사는 자신의 제품에 맞는 보다 정확한 색상의 빛을 요구하므로, 컬러의 범위를 더욱 세분화 할 수록 고객의 니즈를 충족시킬 수 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "LED 특성 분류",
+          "scaleLevel": 5
+        }
+      ]
+    }
+  ]
+}

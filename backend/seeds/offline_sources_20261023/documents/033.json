@@ -1,0 +1,53 @@
+{
+  "index": 33,
+  "filePath": "samsung/glossary/반도체-용어-사전-soc.md",
+  "sourceHash": "abb3ad241d3f255c582aca46e5397cad82f62079f7d8e1f12be75956f41e593f",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1557,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. 대표 구성 예시를 모든 SoC의 필수 구성이나 모든 DRAM/DSP의 SoC 소속 관계로 만들지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "soc",
+      "title": "시스템 온 칩",
+      "engName": "System on Chip",
+      "aliases": [
+        "SoC"
+      ],
+      "domainFacet": "device",
+      "category": "집적회로·시스템 칩",
+      "scaleLevel": 4,
+      "classificationNote": "여러 기능을 통합한 시스템 또는 패키지를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "CPU·메모리·DSP 등 주요 반도체 기능을 하나의 칩에 구현하여 칩 자체가 하나의 시스템으로 동작하도록 한 통합 반도체이다.",
+      "purpose": "여러 칩이 차지하던 공간과 제조비용을 줄여 제품 소형화를 가능하게 한다.",
+      "summaryEvidenceQuote": "연산 소자(CPU), 메모리 소자(D램, 플래시 등), 디지털신호처리 소자(DSP) 등 주요 반도체 소자를 하나의 칩에 구현해 칩 자체가 하나의 시스템이 되도록 하는 것이다.",
+      "evidenceQuote": "연산 소자(CPU), 메모리 소자(D램, 플래시 등), 디지털신호처리 소자(DSP) 등 주요 반도체 소자를 하나의 칩에 구현해 칩 자체가 하나의 시스템이 되도록 하는 것이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "기판 수준 시스템의 단일 칩 집적",
+          "content": "PCB 위 여러 칩으로 구성하던 시스템을 한 칩으로 집적한다. CPU·D램·플래시·DSP는 본문이 제시한 대표 구성 기능이다.",
+          "formula": null,
+          "evidenceQuote": "즉, PCB(Printed Circuit Board) 상에서 여러 개의 반도체 칩이 모여 구현되던 시스템이 한 개의 칩으로 집적되는 기술을 의미한다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "purposeEvidenceQuote": "이렇게 여러 기능을 가진 반도체가 하나의 칩으로 통합되면 칩을 탑재하는 공간이 크게 줄어들어 제품 소형화가 가능하고, 여러 개의 반도체를 별도로 만드는 것 대비 제조비용이 감소하는 등 여러 장점들이 있다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 4
+        }
+      ]
+    }
+  ]
+}

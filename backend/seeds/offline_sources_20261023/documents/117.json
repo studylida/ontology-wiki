@@ -1,0 +1,708 @@
+{
+  "index": 117,
+  "filePath": "skhynix/skhynix_frontend_03_photo.md",
+  "sourceHash": "344b25fee986850cec121432b8512244418a72feef55e803c7caafb37a2dd06e",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 8817,
+    "method": "codex-offline-source-review",
+    "notes": "raw 117.txt 전체와 비어 있는 파서 후보를 독립 대조했다. 일반 장비의 파장·가격·처리량·투자비는 발행사 실측 사례로 전환하지 않았다. 실제 회사 언급인 SK하이닉스 드라이 포토 개발만 사례화했다. 액침의 파장 감소라는 표현은 본문 개구수 설명과 구분했고, EUV 오염 설명은 원문 이상으로 원인을 확장하지 않았다. 외부 전문가 칼럼으로 공식 입장과 다를 수 있으며 그림은 본문·캡션만 검토했다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "photolithography",
+      "title": "포토 공정",
+      "engName": "Photolithography",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "노광",
+      "scaleLevel": 3,
+      "classificationNote": "포토 공정의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "웨이퍼에 포토레지스트를 도포하고 마스크 패턴을 빛으로 전사한 뒤 현상해 후속 가공을 위한 패턴을 만드는 공정이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "즉, 포토 공정은 포토레지스트가 도포된 웨이퍼 위에 포토마스크를 통과한 광원을 쬐어줌으로써 원하는 패턴을 만들어 내는 작업이라 할 수 있다.",
+      "evidenceQuote": "즉, 포토 공정은 포토레지스트가 도포된 웨이퍼 위에 포토마스크를 통과한 광원을 쬐어줌으로써 원하는 패턴을 만들어 내는 작업이라 할 수 있다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "도포·노광·현상",
+          "content": "레지스트 도포 후 마스크로 선택 영역을 노광하고 현상해 가공용 틀을 만든다. 여러 마스크를 사용해 노광 뒤 식각·증착·산화를 수행하고 반복해 층을 쌓는다.",
+          "formula": null,
+          "evidenceQuote": "마스크를 써서 노광한 후, 그 뒤에 식각, 증착, 산화 등 다양한 처리를 하는 것이다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [
+        {
+          "id": "etching",
+          "name": "식각",
+          "reason": "패턴 틈의 물질을 제거하는 후속 작업이다.",
+          "evidenceQuote": "이제 만들어진 포토레지스트의 틈 사이에 물질을 발라주거나, 원하는 부분을 깎아내는 등의 작업을 거쳐 트랜지스터와 배선을 새기는 것이다."
+        },
+        {
+          "id": "deposition",
+          "name": "증착",
+          "reason": "패턴 틈에 물질을 더하는 후속 작업이다.",
+          "evidenceQuote": "이제 만들어진 포토레지스트의 틈 사이에 물질을 발라주거나, 원하는 부분을 깎아내는 등의 작업을 거쳐 트랜지스터와 배선을 새기는 것이다."
+        }
+      ],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "photoresist",
+      "title": "포토레지스트",
+      "engName": "Photoresist",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "반도체 공정 재료",
+      "scaleLevel": 1,
+      "classificationNote": "포토레지스트의 원문 역할에 따라 materials_infra, 규모 1로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "빛을 받으면 현상액에 대한 용해도가 변하는 감광 재료이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "정확하게는 현상액에 대한 용해도가 변화하는데, 빛을 받았을 때 용해도가 올라가는 물질을 포지티브 포토레지스트, 그 반대의 물질을 네거티브 포토레지스트라고 부른다.",
+      "evidenceQuote": "정확하게는 현상액에 대한 용해도가 변화하는데, 빛을 받았을 때 용해도가 올라가는 물질을 포지티브 포토레지스트, 그 반대의 물질을 네거티브 포토레지스트라고 부른다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "회전 도포와 용매 제거",
+          "content": "코터가 웨이퍼를 고속 회전시켜 레지스트를 균일하게 펼친다. 뒷면·경계의 불필요한 레지스트를 제거하고 가열해 용매를 증발시킨다.",
+          "formula": null,
+          "evidenceQuote": "웨이퍼 위에 포토레지스트 방울을 떨어뜨리면 코터가 고속으로 회전하며 포토레지스트를 균일하게 덮어준다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "노광 재료",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "positive-photoresist",
+      "title": "포지티브 포토레지스트",
+      "engName": "Positive Photoresist",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "노광 재료",
+      "scaleLevel": 1,
+      "classificationNote": "포지티브 포토레지스트의 원문 역할에 따라 materials_infra, 규모 1로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "노광된 부분의 현상액 용해도가 높아져 현상 후 그 부분이 제거되는 레지스트이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "포지티브 포토레지스트는 현상 과정을 거치고 나면 빛을 받은 장소가 제거된다.",
+      "evidenceQuote": "포지티브 포토레지스트는 현상 과정을 거치고 나면 빛을 받은 장소가 제거된다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "후속 가공의 선택 영역",
+          "content": "노광된 영역이 제거되어 식각·증착 영향을 받고 노광되지 않은 곳은 레지스트로 보호한다. 미세한 패턴에는 포지티브 방식을 사용하는 경향이 있다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "빛을 받지 않은 부분은 포토레지스트에 막혀 뒤 단계 공정에 영향을 받지 않는다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "negative-photoresist",
+          "name": "네거티브 포토레지스트",
+          "reason": "미세 패턴과 비용·식각 저항성을 비교해 선택한다.",
+          "evidenceQuote": "따라서 미세한 패턴을 만들 때는 포지티브 방식을 사용하는 경향이 있다."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "photoresist",
+          "name": "포토레지스트",
+          "reason": "용해도 증가형 레지스트이다.",
+          "evidenceQuote": "빛을 받았을 때 용해도가 올라가는 물질을 포지티브 포토레지스트"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "노광 재료",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "negative-photoresist",
+      "title": "네거티브 포토레지스트",
+      "engName": "Negative Photoresist",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "노광 재료",
+      "scaleLevel": 1,
+      "classificationNote": "네거티브 포토레지스트의 원문 역할에 따라 materials_infra, 규모 1로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "빛을 받으면 현상액에 대한 용해도가 낮아지는 레지스트이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "빛을 받았을 때 용해도가 올라가는 물질을 포지티브 포토레지스트, 그 반대의 물질을 네거티브 포토레지스트라고 부른다.",
+      "evidenceQuote": "빛을 받았을 때 용해도가 올라가는 물질을 포지티브 포토레지스트, 그 반대의 물질을 네거티브 포토레지스트라고 부른다.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "팽윤과 비용·저항성",
+          "description": "빛으로 경화된 영역이 현상액을 일부 흡수해 부풀므로 미세 패턴에 불리하지만 비용이 저렴하고 식각 저항성이 높다.",
+          "evidenceQuote": "대신 네거티브 방식의 경우 비용이 저렴하고, 이후 배우게 될 식각(에칭, Etching) 등의 공정에 저항성이 더 높다는 장점을 가지고 있다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "positive-photoresist",
+          "name": "포지티브 포토레지스트",
+          "reason": "서로 다른 공정 목적에 맞춰 선택한다.",
+          "evidenceQuote": "반도체 회사들은 현재 진행 중인 공정의 목적에 맞춰 포토레지스트를 선택하게 된다."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "photoresist",
+          "name": "포토레지스트",
+          "reason": "용해도 감소형 레지스트이다.",
+          "evidenceQuote": "그 반대의 물질을 네거티브 포토레지스트라고 부른다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "노광 재료",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "barc",
+      "title": "하부 반사 방지 코팅",
+      "engName": "Bottom Anti-Reflective Coating",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "노광 보조 재료",
+      "scaleLevel": 1,
+      "classificationNote": "하부 반사 방지 코팅의 원문 역할에 따라 materials_infra, 규모 1로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "레지스트 도포 전에 웨이퍼 표면에 발라 반사광이 패턴 형성에 미치는 영향을 막는 물질이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "포토레지스트를 도포하기 전, 미리 웨이퍼 표면에 발라서 빛의 반사를 막아주는 물질이다",
+      "evidenceQuote": "포토레지스트를 도포하기 전, 미리 웨이퍼 표면에 발라서 빛의 반사를 막아주는 물질이다",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "anti-reflective-layer",
+          "name": "반사 방지층",
+          "reason": "117은 BARC를 레지스트 도포 전 웨이퍼 표면에 바르는 하부 반사 방지 코팅으로 정의한다. 등록 반사 방지층의 반사 억제 역할을 구체화한 하부 방식이다.",
+          "evidenceQuote": "포토레지스트를 도포하기 전, 미리 웨이퍼 표면에 발라서 빛의 반사를 막아주는 물질이다"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "노광 보조 재료",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "immersion-topcoat",
+      "title": "액침 노광용 상부 코팅",
+      "engName": "Top Anti-Reflective Coat",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "노광 보조 재료",
+      "scaleLevel": 1,
+      "classificationNote": "액침 노광용 상부 코팅의 원문 역할에 따라 materials_infra, 규모 1로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "액침 노광에서 물방울을 튕겨내고 쉽게 손상되지 않게 하는 방수 코팅이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "물방울을 튕겨내면서도 쉽게 손상되지 않는 방수 코팅(Top Anti-Reflective Coat)이 등장하기도 했다.",
+      "evidenceQuote": "물방울을 튕겨내면서도 쉽게 손상되지 않는 방수 코팅(Top Anti-Reflective Coat)이 등장하기도 했다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "노광 보조 재료",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "photomask",
+      "title": "포토마스크",
+      "engName": "Photomask",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "패터닝 재료·부품",
+      "scaleLevel": 3,
+      "classificationNote": "포토마스크의 원문 역할에 따라 materials_infra, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "빛의 통과 영역과 차단 영역을 나누어 웨이퍼에 전사할 패턴을 정의하는 판이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "마스크에는 빛이 통과해야 하는 영역과 통과해서는 안 되는 영역이 나뉘어 있다.",
+      "evidenceQuote": "마스크에는 빛이 통과해야 하는 영역과 통과해서는 안 되는 영역이 나뉘어 있다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "광학 효과와 설계",
+          "content": "간섭 효과 등을 고려해 실제 목표 패턴과 마스크 패턴은 차이가 날 수 있다. 메모리 마스크는 규칙적 반복 패턴이 많고 CPU·GPU 로직용은 복잡한 패턴을 갖는다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "마스크에 새겨진 패턴은 빛의 간섭 효과 등을 고려해 만들기 때문에 실제 우리가 만들고자 하는 패턴과는 다소 차이가 있다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "노광 도구",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "lithography-alignment",
+      "title": "노광 정렬",
+      "engName": "Alignment",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "전공정",
+      "scaleLevel": 3,
+      "classificationNote": "노광 정렬의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "노광 전에 이전 공정에서 만든 정렬 마크를 찾아 정확한 노광 시작 위치를 맞추는 작업이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "이는 노광을 시행하기에 앞서, 전 단계 공정에서 미리 생성해 놓은 표시(Alignment Mark)를 찾음으로써 이뤄진다.",
+      "evidenceQuote": "이는 노광을 시행하기에 앞서, 전 단계 공정에서 미리 생성해 놓은 표시(Alignment Mark)를 찾음으로써 이뤄진다.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "반복 공정의 누적 오차",
+          "description": "수십 나노미터 수준의 패턴 간격에서 노광을 수십 차례 수행하므로 오차가 누적되면 큰 불량이 발생할 수 있다.",
+          "evidenceQuote": "반도체 내의 미세 패턴들의 간격은 수십 나노미터 수준에 불과하기 때문에, 오차가 수십 번 누적될 경우 큰 불량이 일어날 수 있다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [
+        {
+          "id": "lithography-exposure",
+          "name": "노광",
+          "reason": "117은 정렬이 노광을 시행하기에 앞서 이루어진다고 명시하고 그 다음 노출 절에서 실제 빛을 비춘다. 정렬→빛 노출의 실제 선후 방향이다.",
+          "evidenceQuote": "이는 노광을 시행하기에 앞서, 전 단계 공정에서 미리 생성해 놓은 표시(Alignment Mark)를 찾음으로써 이뤄진다."
+        }
+      ],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "photolithography",
+          "name": "리소그래피",
+          "reason": "117의 포토 공정 설명 안에서 이전 단계의 정렬 마크를 찾아 시작 위치를 정하는 작업으로 정의되므로 전체 포토 공정의 한 단계다.",
+          "evidenceQuote": "마스크는 사전에 준비돼 있으므로, 그다음 할 일은 노광 시작 위치를 정확히 찾는 작업이다. 이러한 작업을 정렬(Alignment)이라 한다."
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "lithography-exposure",
+      "title": "노광",
+      "engName": "Exposure",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "노광",
+      "scaleLevel": 3,
+      "classificationNote": "노광의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "웨이퍼의 좁은 영역에 필요한 시간 동안 빛을 비추고 위치를 옮기며 패턴 전사를 반복하는 공정이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "빛(레이저)을 웨이퍼 위의 칩 하나 크기의 좁은 영역에 비춰준다.",
+      "evidenceQuote": "빛(레이저)을 웨이퍼 위의 칩 하나 크기의 좁은 영역에 비춰준다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "분해능",
+          "content": "서로 떨어진 두 물체를 구분할 수 있는 한계 d를 줄이려면 빛의 파장 λ를 줄이거나 개구수 NA를 높인다. NA는 렌즈 크기 또는 매질 굴절률을 높여 증가시킬 수 있다고 설명한다.",
+          "formula": "d=λ/(2NA)",
+          "evidenceQuote": "d=λ/(2NA) (λ : 빛의 파장, NA : 개구값)"
+        },
+        {
+          "step": 2,
+          "title": "상업적 처리량 확보",
+          "content": "광원 생성만이 아니라 상업적 처리량 확보가 어려우며 더 적은 빛에 민감하게 반응하는 레지스트 개발도 필요하다.",
+          "formula": null,
+          "evidenceQuote": "더 적은 빛으로도 민감하게 반응하는 포토레지스트 물질을 찾는 등 큰 노력을 해야 했다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "처리량과 투자비",
+          "description": "본문 일반 장비 설명은 300mm 웨이퍼 전체용 균일 광원이 어려워 칩 1~4개 면적씩 노광한다고 기술한다. 최신 장비를 대당 1,000억 원 이상, 시간당 약 100장 수준, 노광 투자비를 산화의 12배로 제시한다. 이는 특정 회사·모델 실측값으로 귀속하지 않는다.",
+          "evidenceQuote": "최신 노광기는 대당 가격이 1,000억 원 이상으로 매우 비싸지만, 시간당 웨이퍼 처리량은 100장 수준이다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "euv-lithography",
+      "title": "극자외선 노광",
+      "engName": "EUV Lithography",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "노광",
+      "scaleLevel": 3,
+      "classificationNote": "극자외선 노광의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "극자외선의 짧은 파장을 이용해 초미세 패턴을 그리는 노광 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "EUV 노광기 : 극자외선을 사용하는 초미세 패턴에 사용되는 노광기",
+      "evidenceQuote": "EUV 노광기 : 극자외선을 사용하는 초미세 패턴에 사용되는 노광기",
+      "principles": [
+        {
+          "step": 1,
+          "title": "파장과 광원 개발",
+          "content": "ArF 193nm에 비해 EUV 13.5nm는 약 14분의 1 파장이다. 짧은 파장은 굴절이 어렵고 물질에 흡수되는 경향이 커 상용화에 10년 넘게 걸렸다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "ArF(불화아르곤)의 193nm 레이저를 얻은 뒤 EUV의 13.5nm 광원을 상용화하는데 10년이 넘는 시간이 필요했다."
+        },
+        {
+          "step": 2,
+          "title": "마스크 오염 문제",
+          "content": "EUV 사용 뒤 레지스트와 관련한 마스크 오염 문제가 생겨 레지스트 물질 연구와 펠리클 도입으로 대응했다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "이를 해결하기 위해 포토레지스트 물질 연구뿐만 아니라, 펠리클이라고 부르는 마스크 보호막을 도입하며 문제를 해결했다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "duv-lithography",
+          "name": "심자외선 노광",
+          "reason": "짧은 파장에 따른 미세 패턴 성능으로 비교된다.",
+          "evidenceQuote": "EUV 노광기는 DUV 대비 사용하는 파장을 14분의 1로 줄임(=빛의 에너지를 높임)으로써 더 미세한 패턴을 그릴 수 있게 해 주는 기계다."
+        }
+      ],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "high-na-euv",
+      "title": "고개구수 EUV 노광",
+      "engName": "High NA EUV",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "노광",
+      "scaleLevel": 3,
+      "classificationNote": "고개구수 EUV 노광의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "렌즈 크기를 키워 개구수를 높이는 방법의 EUV 노광 예이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "전자의 예가 High NA EUV이며, 후자의 예가 지금도 자주 사용되는 DUV(ArF immersion) 장비이다.",
+      "evidenceQuote": "전자의 예가 High NA EUV이며, 후자의 예가 지금도 자주 사용되는 DUV(ArF immersion) 장비이다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "euv-lithography",
+          "name": "극자외선 노광",
+          "reason": "개구수를 높이는 EUV 예로 명시되어 있다.",
+          "evidenceQuote": "전자의 예가 High NA EUV이며"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "immersion-lithography",
+      "title": "ArF 액침 노광",
+      "engName": "ArF Immersion",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "전공정",
+      "scaleLevel": 3,
+      "classificationNote": "ArF 액침 노광의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "광 경로에서 공기 대신 물을 사용해 개구수를 높이는 노광 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "노광기 내 빛의 매질을 공기 대신 물을 사용해 성능을 높인 기기",
+      "evidenceQuote": "노광기 내 빛의 매질을 공기 대신 물을 사용해 성능을 높인 기기",
+      "principles": [
+        {
+          "step": 1,
+          "title": "굴절률을 통한 성능 향상",
+          "content": "193nm ArF 광원 한계에서 액침 장비를 개발해 100nm 아래 공정에 접근했다고 설명한다. 매질의 높은 굴절률을 통한 개구수 증가를 보존하고 진공 광원 파장 자체가 바뀐 것으로 단정하지 않았다.",
+          "formula": null,
+          "evidenceQuote": "개구수는 광원의 렌즈 크기를 키우거나, 굴절률이 높은 매질을 사용해 높일 수 있다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "물과 레지스트의 상호작용",
+          "description": "액체 불순물 결함과 레지스트 용출 문제 때문에 고순도 물, 제거가 쉬운 방수 코팅, 현상 변경이 함께 필요했다.",
+          "evidenceQuote": "액체 내 불순물로 인해 반도체에 결함이 생길 수 있을 뿐만 아니라, 포토레지스트가 조금씩 물에 녹아 나오는 등 다양한 문제가 생겼다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "photolithography",
+          "name": "리소그래피",
+          "reason": "117의 ArF 액침은 광 매질을 물로 바꾸어 웨이퍼에 패턴을 전사하는 노광 방식이다. 포토마스크 패턴을 전사하는 등록 리소그래피의 한 방식에 해당한다.",
+          "evidenceQuote": "ArF 액침 노광기. 노광기 내 빛의 매질을 공기 대신 물을 사용해 성능을 높인 기기"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "pellicle",
+      "title": "마스크 보호막",
+      "engName": "Pellicle",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "노광 도구",
+      "scaleLevel": 3,
+      "classificationNote": "마스크 보호막의 원문 역할에 따라 materials_infra, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "노광 과정에서 마스크 오염을 줄이기 위해 도입하는 보호막이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "펠리클이라고 부르는 마스크 보호막을 도입하며 문제를 해결했다.",
+      "evidenceQuote": "펠리클이라고 부르는 마스크 보호막을 도입하며 문제를 해결했다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "노광 도구",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "overlay-metrology",
+      "title": "오버레이 측정",
+      "engName": "Overlay",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "전공정",
+      "scaleLevel": 3,
+      "classificationNote": "오버레이 측정의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "노광마다 중심을 공유하고 크기를 달리한 마크를 이용해 위치 오차와 웨이퍼 회전을 측정하는 작업이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "노광이 얼마나 어긋났는지, 혹은 웨이퍼가 살짝 돌아갔는지 등을 측정할 수 있다.",
+      "evidenceQuote": "노광이 얼마나 어긋났는지, 혹은 웨이퍼가 살짝 돌아갔는지 등을 측정할 수 있다.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "선택적 측정",
+          "description": "노광 전 정렬과는 달리 모든 웨이퍼에서 수행하지는 않는다고 설명한다.",
+          "evidenceQuote": "다만 오버레이 측정은 정렬 과정과는 달리 모든 웨이퍼에 대해 수행하지는 않는다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [
+        {
+          "id": "lithography-exposure",
+          "name": "노광",
+          "reason": "노광이 끝난 뒤 수행할 수 있다고 명시하므로 이 측정의 선행 작업은 빛 노출이다. 원문은 정렬과 달리 모든 웨이퍼를 측정하지는 않는다고 한정한다.",
+          "evidenceQuote": "노광이 끝난 뒤에는 오버레이(Overlay)를 함께 수행할 수 있다."
+        }
+      ],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "photolithography",
+          "name": "리소그래피",
+          "reason": "117은 포토 공정에서 매 노광 시 새긴 마크의 오차와 회전을 측정하는 절차를 설명한다. 공정 중 선택적으로 수행하는 측정 단계라는 범위다.",
+          "evidenceQuote": "노광이 끝난 뒤에는 오버레이(Overlay)를 함께 수행할 수 있다."
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "photoresist-development",
+      "title": "포토레지스트 현상",
+      "engName": "Develop",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "노광",
+      "scaleLevel": 3,
+      "classificationNote": "포토레지스트 현상의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "노광 후 현상액으로 레지스트의 선택 영역을 제거하고 패턴을 남기는 공정이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "이 과정을 현상(Develop)이라고 부른다.",
+      "evidenceQuote": "이 과정을 현상(Develop)이라고 부른다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "PEB·현상·린스",
+          "content": "현상 전에 PEB 가열로 노광된 영역의 특성 변화를 강화한다. 현상액을 도포한 뒤 필요시 린스하며 용액은 레지스트 물질에 따라 정한다.",
+          "formula": null,
+          "evidenceQuote": "이를 PEB(Post Exposure Bake)라고 하는데, 이를 통해 포토레지스트의 빛을 받은 부분의 특성 변화를 더욱 강화할 수 있다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "속도와 불량",
+          "description": "세척 장비에는 처리 속도와 불량 발생 비율 사이의 상충이 있다.",
+          "evidenceQuote": "역시 처리 속도와 불량 발생 비율 사이에 상충관계가 있다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "dry-photolithography",
+      "title": "드라이 포토 공정",
+      "engName": "Dry Photo Process",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "전공정",
+      "scaleLevel": 3,
+      "classificationNote": "드라이 포토 공정의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "레지스트를 증착에 가까운 방식으로 붙이고 헹구지 않는 현상 방식을 사용하는 포토 공정이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "포토레지스트를 증착에 가깝게 붙이고 현상도 헹궈내지 않는 새로운 방식을 쓰겠다는 의미이다.",
+      "evidenceQuote": "포토레지스트를 증착에 가깝게 붙이고 현상도 헹궈내지 않는 새로운 방식을 쓰겠다는 의미이다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "소재 회사와 협력한 드라이 포토 공정 개발",
+          "perspectiveBadge": "SK하이닉스",
+          "narrative": "기사에서 SK하이닉스가 소재 회사와 드라이 포토 공정을 개발했다고 설명한다. 미세화에 따라 레지스트 도포·세정 중 패턴이 망가지는 문제에 대응한다.",
+          "caution": "소재 회사명, 절대 개발 시점, 조건과 정량 성능은 원문에 없다.",
+          "evidenceQuote": "SK하이닉스는 최근 소재 회사와 협력해 드라이 포토 공정을 개발했다.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "빛으로 작은 무늬를 그려도 액체를 바르고 씻는 동안 망가질 수 있다. 이 사례에서는 막을 붙이는 방법과 현상하는 방법을 함께 바꿔 그 문제에 대응한다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "photolithography",
+          "name": "포토 공정",
+          "reason": "도포와 현상을 바꾸는 포토 공정 방식이다.",
+          "evidenceQuote": "드라이 포토 공정을 개발했다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    }
+  ]
+}

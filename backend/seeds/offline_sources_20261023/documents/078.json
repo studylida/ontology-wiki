@@ -1,0 +1,109 @@
+{
+  "index": 78,
+  "filePath": "samsung/glossary/반도체-용어-사전led편-미들하이파워-led-패키지.md",
+  "sourceHash": "0e58e6c332083b56f509061410d13c0475d9043d81884ebbb41644440f61d2d0",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1465,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체를 대조해 실제 개념명과 정의를 보존했다. 일반 적용 상황과 설명용 수치를 실제 제품 실측으로 바꾸지 않았다. 1W 초과와 1W 미만을 그대로 보존했다. 정확히 1W의 분류는 원문 미정의이다."
+  },
+  "concepts": [
+    {
+      "conceptId": "high-power-led-package",
+      "title": "하이파워 LED 패키지",
+      "engName": "High-Power LED Package",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "LED 패키지",
+      "scaleLevel": 4,
+      "classificationNote": "하이파워 LED 패키지의 원문 정의에 따라 LED 패키지에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "원문에서 일반적으로 소비전력이 1W를 넘는 LED 패키지를 뜻한다. 많은 광량이 필요한 가로등이나 차량 부품에 사용한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "일반적으로 소비전력이 1W(와트)를 넘는 제품을 하이파워, 그 미만을 미들파워 LED 패키지라고 부른다.",
+      "evidenceQuote": "일반적으로 소비전력이 1W(와트)를 넘는 제품을 하이파워, 그 미만을 미들파워 LED 패키지라고 부른다.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "분류 경계 미정의",
+          "description": "원문은 하이파워를 1W 초과, 미들파워를 그 미만으로 설명하며 정확히 1W인 경우를 정의하지 않는다.",
+          "evidenceQuote": "일반적으로 소비전력이 1W(와트)를 넘는 제품을 하이파워, 그 미만을 미들파워 LED 패키지라고 부른다."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "가로등·차량 부품용 하이파워 LED 패키지",
+          "perspectiveBadge": "하이파워 LED 패키지",
+          "narrative": "소비전력이 높을수록 더욱 강한 빛을 낼 수 있다는 설명과 함께 많은 광량이 필요한 가로등과 차량 부품에 하이파워를 사용한다고 한다.",
+          "caution": "",
+          "evidenceQuote": "조명은 소비전력(W)이 높을 수록 더욱 강한 빛을 낼 수 있는데, 하이파워는 많은 광량이 필요한 가로등, 차량 부품에 사용되고 미들파워는 일반 실내 조명에 주로 사용된다.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "많은 빛이 필요한 용도에 하이파워 패키지를 쓰는 일반 적용 설명이다. 개별 제품 전력이나 밝기는 제시되지 않았다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "LED 패키지",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "mid-power-led-package",
+      "title": "미들파워 LED 패키지",
+      "engName": "Mid-Power LED Package",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "LED 패키지",
+      "scaleLevel": 4,
+      "classificationNote": "미들파워 LED 패키지의 원문 정의에 따라 LED 패키지에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "원문에서 일반적으로 소비전력이 1W 미만인 LED 패키지를 뜻한다. 주로 일반 실내 조명에 사용한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "일반적으로 소비전력이 1W(와트)를 넘는 제품을 하이파워, 그 미만을 미들파워 LED 패키지라고 부른다.",
+      "evidenceQuote": "일반적으로 소비전력이 1W(와트)를 넘는 제품을 하이파워, 그 미만을 미들파워 LED 패키지라고 부른다.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "분류 경계 미정의",
+          "description": "원문은 1W 미만을 미들파워로 설명하며 정확히 1W인 경우를 정의하지 않는다.",
+          "evidenceQuote": "일반적으로 소비전력이 1W(와트)를 넘는 제품을 하이파워, 그 미만을 미들파워 LED 패키지라고 부른다."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "일반 실내 조명용 미들파워 LED 패키지",
+          "perspectiveBadge": "미들파워 LED 패키지",
+          "narrative": "원문은 미들파워 LED 패키지를 주로 일반 실내 조명에 사용하는 것으로 설명한다.",
+          "caution": "",
+          "evidenceQuote": "조명은 소비전력(W)이 높을 수록 더욱 강한 빛을 낼 수 있는데, 하이파워는 많은 광량이 필요한 가로등, 차량 부품에 사용되고 미들파워는 일반 실내 조명에 주로 사용된다.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "실내 조명에 사용하는 패키지 종류를 설명한 사례로 제품 모델이나 세부 사양은 없다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "LED 패키지",
+          "scaleLevel": 4
+        }
+      ]
+    }
+  ]
+}

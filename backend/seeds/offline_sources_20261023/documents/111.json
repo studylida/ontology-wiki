@@ -1,0 +1,432 @@
+{
+  "index": 111,
+  "filePath": "skhynix/skhynix_ai_03_nand_ssd.md",
+  "sourceHash": "550d1d885c66a0d67567a71b8c9a3ae5fc651329c68010abf19dd392985d57a0",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 6700,
+    "method": "codex-offline-source-review",
+    "notes": "text/111.txt 전체 6700자와 초안을 대조했다. 낸드 기반 제품·SSD/eMMC/UFS 정의와 취득→가공→학습 데이터 흐름, 공유 저장소 및 과적합을 보존했다. GPT-3 총계산량의 FLOPS 단위 혼동은 임의 교정하지 않고 보류했다. GPT-3.5/4 데이터셋은 미공개 범위를 유지했다. 구리선 10Gbps·광섬유 광속 2/3는 조건 없는 칼럼 설명이며 현재 규격의 보편 성능으로 일반화하지 않았다. 원문 링크·그림·모델 원자료는 외부 확인하지 않았다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "nand-flash",
+      "title": "낸드플래시",
+      "engName": "NAND Flash Memory",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "비휘발성 메모리 범주이며 데이터를 저장하는 비휘발성 메모리 소자이므로 소자 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전원이 없는 상태에서도 데이터를 계속 저장하는 플래시 메모리의 일종이다. 빠른 반응과 여러 칩의 병렬 사용이 고속 저장소 및 AI 학습 데이터 공급에 기여한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "낸드플래시(NAND Flash Memory) : 전원이 꺼지면 저장된 자료가 사라지는 D램과 달리 전원이 없는 상태에서도 메모리에 데이터가 계속 저장되는 플래시 메모리의 일종",
+      "evidenceQuote": "낸드플래시(NAND Flash Memory) : 전원이 꺼지면 저장된 자료가 사라지는 D램과 달리 전원이 없는 상태에서도 메모리에 데이터가 계속 저장되는 플래시 메모리의 일종",
+      "principles": [
+        {
+          "step": 1,
+          "title": "여러 칩을 이용한 성능 확장",
+          "content": "기계 장치인 HDD와 달리 낸드플래시는 칩의 반응이 빠르고 여러 칩 사용 시 개수에 비례해 성능을 높일 수 있다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "개별 칩의 반응 속도가 빨랐을 뿐만 아니라, 칩 여러 개를 사용하면 개수에 비례해 성능을 높일 수 있었다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "SK하이닉스의 낸드 기반 저장 제품",
+          "perspectiveBadge": "SK하이닉스",
+          "narrative": "그림 설명에 SSD·eMMC·UFS 등 SK하이닉스 제품이 제시된다.",
+          "caution": "구체적인 제품 모델이나 성능은 제시되지 않는다.",
+          "evidenceQuote": "낸드플래시가 적용된 SSD*, eMMC*, UFS* 등 SK하이닉스의 제품들",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "같은 저장용 반도체를 바탕으로 컴퓨터용 장치와 모바일 내장 장치를 만들 수 있음을 보여준다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "flash-memory",
+          "name": "플래시 메모리",
+          "reason": "원문이 플래시 메모리의 일종으로 정의한다.",
+          "evidenceQuote": "플래시 메모리의 일종"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "비휘발성 메모리",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "ssd",
+      "title": "솔리드 스테이트 드라이브",
+      "engName": "SSD",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "반도체 저장 장치",
+      "scaleLevel": 4,
+      "classificationNote": "반도체 저장 장치 범주이며 저장용 반도체를 이용하는 장치이므로 통합 저장 시스템 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "반도체로 정보를 저장하고 순수 전자식으로 동작하는 장치다. 원문은 HDD의 기계적 지연·오류율·소음 등을 줄이는 특성으로 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "SSD(Solid State Drive) : 반도체를 이용해 정보를 저장하는 장치.",
+      "evidenceQuote": "SSD(Solid State Drive) : 반도체를 이용해 정보를 저장하는 장치.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 저장 장치",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "emmc",
+      "title": "임베디드 멀티미디어 카드",
+      "engName": "eMMC",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "반도체 저장 장치",
+      "scaleLevel": 4,
+      "classificationNote": "모바일 내장 저장 장치 범주이며 컨트롤러와 낸드플래시를 통합한 장치이므로 패키지 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "컨트롤러와 낸드플래시 메모리를 패키지로 통합하여 모바일 기기에 내장하는 저장 장치다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "eMMC는 컨트롤러와 낸드플래시 메모리가 패키지로 통합돼 모바일 기기에 내장된다.",
+      "evidenceQuote": "eMMC는 컨트롤러와 낸드플래시 메모리가 패키지로 통합돼 모바일 기기에 내장된다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "모바일 내장 저장 장치",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "ufs",
+      "title": "유니버설 플래시 스토리지",
+      "engName": "UFS",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "모바일 내장 저장 장치",
+      "scaleLevel": 4,
+      "classificationNote": "모바일 내장 저장 장치 범주이며 플래시 저장 기능과 입출력을 제공하는 장치이므로 통합 저장 시스템 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "eMMC의 뒤를 이어 등장한, 읽기와 쓰기를 동시에 할 수 있는 고속 플래시 저장 장치다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "UFS(Universal Flash Storage) : eMMC의 뒤를 이어 탄생한 저장 장치로 읽기와 쓰기가 동시에 가능한 초고속 플래시 메모리",
+      "evidenceQuote": "UFS(Universal Flash Storage) : eMMC의 뒤를 이어 탄생한 저장 장치로 읽기와 쓰기가 동시에 가능한 초고속 플래시 메모리",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "emmc",
+          "name": "eMMC",
+          "reason": "111은 eMMC를 모바일 내장 저장 장치로 설명하고 UFS를 그 뒤를 이은 읽기·쓰기 동시 가능 저장 장치로 정의한다. 같은 저장 역할의 후속 선택지라는 범위에서 UFS→eMMC 대안 관계를 제안한다.",
+          "evidenceQuote": "UFS(Universal Flash Storage) : eMMC의 뒤를 이어 탄생한 저장 장치로 읽기와 쓰기가 동시에 가능한 초고속 플래시 메모리"
+        }
+      ],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "모바일 내장 저장 장치",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "ai-training-storage",
+      "title": "인공지능 학습용 저장소",
+      "engName": "Storage",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "인공지능 저장 시스템",
+      "scaleLevel": 4,
+      "classificationNote": "인공지능 저장 시스템 범주이며 취득·가공·학습 데이터를 공급하는 저장 체계이므로 시스템 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "원본과 가공된 학습 데이터를 보관하고 학습 서버에 공급하는 저장 시스템이다. 용량뿐 아니라 취득·가공·학습 단계의 읽기·쓰기와 전송 속도가 중요하다.",
+      "purpose": "학습 데이터 접근 병목과 GPU 처리 속도보다 느린 저장소 전송 문제 완화",
+      "summaryEvidenceQuote": "인공신경망 데이터의 저장과 이동을 책임지는 낸드플래시",
+      "evidenceQuote": "인공신경망 데이터의 저장과 이동을 책임지는 낸드플래시",
+      "principles": [
+        {
+          "step": 1,
+          "title": "취득·가공·학습 단계의 데이터 보관",
+          "content": "원본을 저장하고 작업자가 가공한 데이터를 다시 저장한 다음 학습 서버로 전송한다.",
+          "formula": null,
+          "evidenceQuote": "데이터 작업자는 데이터를 가공해 다시 저장소(Storage)에 저장한다."
+        },
+        {
+          "step": 2,
+          "title": "외부 저장소의 공급 병목",
+          "content": "외부 저장소에서 서버로 보내는 전송이 서버 내부에서 GPU로 보내는 속도보다 느리면 학습 데이터가 부족해질 수 있다.",
+          "formula": null,
+          "evidenceQuote": "외부 저장소(Storage)와 학습 서버 내 저장소(Storage) 간의 데이터 전송 속도가 느려 GPU가 학습할 데이터가 부족해지는 문제가 생길 수 있다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "데이터 재사용만으로 해결할 수 없는 문제",
+          "description": "같은 데이터를 오랫동안 반복 학습하면 과적합 등 문제가 생길 수 있어 다양한 데이터를 교체해 공급해야 한다.",
+          "evidenceQuote": "이럴 경우 과적합(Overfitting)* 등 학습 결과에 문제가 발생할 수 있다."
+        },
+        {
+          "title": "전송 경로의 제약",
+          "description": "고성능 저장소 외에도 연결 케이블의 성능이 중요하다.",
+          "evidenceQuote": "데이터가 이동하는 케이블 역시 중요한 역할을 한다."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "2020년 GPT-3 학습 규모",
+          "perspectiveBadge": "GPT-3",
+          "narrative": "원문은 GPT-3 데이터셋 크기와 총계산량으로 여러 GPU와 서버 연결의 필요성을 설명한다.",
+          "caution": "총계산량에 초당 연산 단위 FLOPS를 쓴 원문 표기를 보존하고 단위 의미를 보류했다. GPT-3.5/4의 데이터셋 크기는 미공개라고 명시한다.",
+          "evidenceQuote": "데이터셋(Dataset)*의 크기는 약 680GB이고, 데이터를 학습하기 위한 총계산량은 3.114E23 FLOPS",
+          "specifications": [
+            {
+              "parameter": "데이터셋 크기",
+              "value": "약 680",
+              "unit": "GB",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "데이터셋(Dataset)*의 크기는 약 680GB"
+            },
+            {
+              "parameter": "원문 표기 총계산량",
+              "value": "3.114E23",
+              "unit": "FLOPS",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "총계산량은 3.114E23 FLOPS"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "자료 보관 공간과 반복 처리 계산량은 서로 다른 요구사항이다. 이 수치는 당시 GPT-3 사례에만 해당한다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "다중 형태 데이터를 학습하는 Pathway",
+          "perspectiveBadge": "구글 Pathway",
+          "narrative": "칼럼은 2021년 구글의 Pathway가 음성·언어·이미지 등을 함께 학습하는 모델이라고 설명한다.",
+          "caution": "데이터셋 크기나 저장 성능은 제시되지 않는다.",
+          "evidenceQuote": "2021년 구글은 인공신경망에 음성, 언어, 이미지 등을 한 번에 학습시킨 패스웨이(Pathway)*라는 차세대 인공지능 모델을 공개했다.",
+          "specifications": [
+            {
+              "parameter": "원문 공개 연도",
+              "value": "2021",
+              "unit": "년",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "2021년 구글"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "텍스트뿐 아니라 소리와 영상도 다루면 더 크고 다양한 자료를 보관하고 옮겨야 한다는 사례다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "고성능 저장소 연결에 대한 원문 비교",
+          "perspectiveBadge": "일반 연결 경로 설명",
+          "narrative": "고성능 낸드 저장소에 광섬유를 사용하는 이유를 구리선 전송 속도와 비교한다.",
+          "caution": "케이블 규격·길이·실험 조건이 없는 칼럼의 일반 비교다. 구리선의 보편적 한계나 현재 규격으로 확장하지 않는다.",
+          "evidenceQuote": "구리선의 경우 최대 10Gbps 정도의 전송이 가능하지만",
+          "specifications": [
+            {
+              "parameter": "원문 구리선 전송 속도",
+              "value": "최대 10 정도",
+              "unit": "Gbps",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "구리선의 경우 최대 10Gbps 정도의 전송이 가능하지만"
+            },
+            {
+              "parameter": "원문 광섬유 신호 속도",
+              "value": "광속의 2/3",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "광(光)속의 2/3 속도를 자랑하는 광(光)섬유"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "저장 장치가 빨라도 연결 통로가 좁으면 학습 서버에 자료를 충분히 보내지 못한다는 설명이다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "인공지능 저장 시스템",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "all-flash-storage",
+      "title": "올 플래시 저장소",
+      "engName": "All-Flash",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "공유 저장 시스템",
+      "scaleLevel": 4,
+      "classificationNote": "공유 저장 시스템 범주이며 다수의 낸드플래시나 SSD를 결합하므로 통합 저장 시스템 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "여러 낸드플래시나 SSD를 엮어 만든 고속·대용량 저장소다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "올 플래시(All-Flash): 수많은 낸드플래시나 SSD를 엮어서 만든 초고속, 초고용량 저장소(Storage)",
+      "evidenceQuote": "올 플래시(All-Flash): 수많은 낸드플래시나 SSD를 엮어서 만든 초고속, 초고용량 저장소(Storage)",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "여러 학습 서버의 공유 저장소 구성",
+          "perspectiveBadge": "구성 예시",
+          "narrative": "원문은 고성능 저장소를 수십 개 학습 서버가 공유하는 방식을 생각할 수 있다며 올 플래시와 SSD NAS를 예로 든다.",
+          "caution": "특정 기업 설치 실적이 아니라 원문의 구성 제안이다.",
+          "evidenceQuote": "고성능 저장소(Storage)를 수십 개의 학습 서버들이 공유하는 형태도 생각해 볼 수 있다.",
+          "specifications": [
+            {
+              "parameter": "공유 서버 수 표현",
+              "value": "수십 개",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "수십 개의 학습 서버들이 공유"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "서버마다 자료를 따로 두는 대신 빠른 저장소에서 여러 학습 서버에 공급하는 구성 아이디어다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "공유 저장 시스템",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "nas",
+      "title": "네트워크 연결 저장소",
+      "engName": "NAS",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "네트워크 저장 시스템",
+      "scaleLevel": 4,
+      "classificationNote": "네트워크 저장 시스템 범주이며 저장 장치와 네트워크 접근을 결합하므로 통합 저장 시스템 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "네트워크로 연결할 수 있는 디스크 드라이브를 뜻한다. 원문은 여러 SSD를 넣은 NAS를 학습용 고성능 공유 저장소 예로 든다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "NAS(Network Attached Storage): 네트워크로 연결 가능한 디스크 드라이브의 총칭",
+      "evidenceQuote": "NAS(Network Attached Storage): 네트워크로 연결 가능한 디스크 드라이브의 총칭",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "네트워크 저장 시스템",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "overfitting",
+      "title": "과적합",
+      "engName": "Overfitting",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "인공지능 학습 한계",
+      "scaleLevel": 4,
+      "classificationNote": "인공지능 학습 한계 범주이며 소자 물성이 아니라 학습 모델 전체의 일반화 현상이므로 시스템 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "특정 학습 데이터에 지나치게 맞춰 학습되어 처음 보는 입력에 대한 정확도가 낮아지는 현상이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "과적합(過適合, Overfitting): 인공지능이 특정 데이터를 지나치게 학습해 일어나는 현상.",
+      "evidenceQuote": "과적합(過適合, Overfitting): 인공지능이 특정 데이터를 지나치게 학습해 일어나는 현상.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "일반화 저하",
+          "description": "학습 데이터의 답을 외우듯 행동하여 처음 보는 입력에서 정확도가 낮아진다.",
+          "evidenceQuote": "실전에서 한 번도 보지 못한 입력값을 접할 경우 정확도가 낮아지게 된다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "인공지능 학습 한계",
+          "scaleLevel": 4
+        }
+      ]
+    }
+  ]
+}

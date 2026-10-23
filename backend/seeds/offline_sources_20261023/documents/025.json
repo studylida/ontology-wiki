@@ -1,0 +1,63 @@
+{
+  "index": 25,
+  "filePath": "samsung/glossary/반도체-용어-사전-led편-광속.md",
+  "sourceHash": "3dbfd03d43fef6b10c389fcca378d2eb62f21c159b7b79acd1dc677ff0ab26b1",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1491,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. 광속을 빛의 이동 속도와 구별했다. 단위 정의와 4π 관계를 보존하며 별도 측정값은 만들지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "luminous-flux",
+      "title": "광속",
+      "engName": "Luminous Flux",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "광학 물리량",
+      "scaleLevel": 1,
+      "classificationNote": "재료의 성질 또는 기초 물리량을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "광원에서 나오는 가시광의 총량을 나타내며 단위는 lm(루멘)이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "광원으로부터 나오는 가시광의 총량을 뜻한다.",
+      "evidenceQuote": "광원으로부터 나오는 가시광의 총량을 뜻한다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "광도·입체각과 광속",
+          "content": "균일한 1cd 광원이 단위 입체각에 방출하는 광속은 1lm이다. 전구면 입체각 4π에 대해 1cd 점광원의 전광속은 4πlm이다.",
+          "formula": "1cd 점광원의 전광속 = 4πlm",
+          "evidenceQuote": "1lm은 1칸델라(cd)의 균일한 광도를 갖는 광원으로부터 단위 입체각의 부분에 방출되는 광속이다. 즉, 전구면(全球面)의 중심에 대한 입체각은 4π이므로, 1cd의 점광원(點光源)에서 방출되는 전광속(全光束)은 4πlm이 된다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "조명용 광원 평가",
+          "perspectiveBadge": "조명용 광원",
+          "narrative": "입사면의 밝기·광량·광의 질을 살피며 주요 고려 특성은 광속(lm), 광효율(lm/w), 연색지수(CRI)이다.",
+          "caution": "",
+          "evidenceQuote": "주요 고려 특성: 광속(lm), 광효율(lm/w), 연색지수(CRI)",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "조명은 비추는 면이 얼마나 밝고 빛의 질이 어떤지를 평가한다. 광속은 그중 빛의 총량을 나타내는 항목이다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "재료·물성·인프라",
+          "scaleLevel": 1
+        }
+      ]
+    }
+  ]
+}

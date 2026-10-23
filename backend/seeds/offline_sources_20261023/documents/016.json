@@ -1,0 +1,166 @@
+{
+  "index": 16,
+  "filePath": "samsung/glossary/반도체-용어-사전-asic-주문형-반도체.md",
+  "sourceHash": "30841b31e64d1b72eefecd230004efe8142c640322b182cdb967a7cf648457b0",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1846,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. "
+  },
+  "concepts": [
+    {
+      "conceptId": "asic",
+      "title": "주문형 반도체",
+      "engName": "Application Specific Integrated Circuit",
+      "aliases": [
+        "ASIC"
+      ],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "특정 응용 분야나 기기에 필요한 기능에 맞춰 설계·제작하는 집적회로이다.",
+      "purpose": "가전·휴대폰·자동차 등 기기별로 필요한 기능을 수행한다.",
+      "summaryEvidenceQuote": "특정 응용 분야 및 기기의 특수한 기능 하나하나에 맞춰 만들어진 집적회로",
+      "evidenceQuote": "특정 응용 분야 및 기기의 특수한 기능 하나하나에 맞춰 만들어진 집적회로",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "설계 역량 요구",
+          "description": "다품종 소량생산이며 개별 주문을 충족할 설계 능력이 필요하다.",
+          "evidenceQuote": "주문형 반도체는 다품종 소량생산 방식의 상품으로 요구되는 주문 사항을 만족 시키기 위해서 뛰어난 반도체 설계 능력이 요구된다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "standard-ic",
+          "name": "표준형 반도체",
+          "reason": "범용 규격 제품과 특정 주문 제품으로 대비한다.",
+          "evidenceQuote": "반도체를 간단하게 분류하면 표준형 반도체(Standard)와 주문형 반도체(ASIC)로 나눌 수 있는데"
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "integrated-circuit",
+          "name": "집적회로",
+          "reason": "정의가 특정 기능용 집적회로이다.",
+          "evidenceQuote": "특정 응용 분야 및 기기의 특수한 기능 하나하나에 맞춰 만들어진 집적회로"
+        }
+      ],
+      "purposeEvidenceQuote": "즉 주문형 반도체는 특정 기기를 위해 필요한 기능만 수행하도록 설계 및 제작되는데",
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "full-custom-ic",
+      "title": "완전 주문형 IC",
+      "engName": "Full custom IC",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "사용자 요구에 맞춰 처음부터 회로를 설계하고 제조하는 주문형 집적회로이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "주문형 반도체는 크게 설계방식에 따라 사용자의 요구에 맞춰 처음부터 회로를 설계 및 제조하는 완전 주문형 IC(Full custom IC)과 표준화된 설계를 일부 사용하여 회로를 설계 및 제조하는 반 주문형 IC(semicustom IC)으로 나뉜다.",
+      "evidenceQuote": "주문형 반도체는 크게 설계방식에 따라 사용자의 요구에 맞춰 처음부터 회로를 설계 및 제조하는 완전 주문형 IC(Full custom IC)과 표준화된 설계를 일부 사용하여 회로를 설계 및 제조하는 반 주문형 IC(semicustom IC)으로 나뉜다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "asic",
+          "name": "주문형 반도체",
+          "reason": "원문이 주문형 반도체의 설계 방식으로 구분한다.",
+          "evidenceQuote": "주문형 반도체는 크게 설계방식에 따라 사용자의 요구에 맞춰 처음부터 회로를 설계 및 제조하는 완전 주문형 IC(Full custom IC)과 표준화된 설계를 일부 사용하여 회로를 설계 및 제조하는 반 주문형 IC(semicustom IC)으로 나뉜다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "semi-custom-ic",
+      "title": "반 주문형 IC",
+      "engName": "semicustom IC",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "표준화된 설계를 일부 사용하여 회로를 설계하고 제조하는 주문형 집적회로이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "주문형 반도체는 크게 설계방식에 따라 사용자의 요구에 맞춰 처음부터 회로를 설계 및 제조하는 완전 주문형 IC(Full custom IC)과 표준화된 설계를 일부 사용하여 회로를 설계 및 제조하는 반 주문형 IC(semicustom IC)으로 나뉜다.",
+      "evidenceQuote": "주문형 반도체는 크게 설계방식에 따라 사용자의 요구에 맞춰 처음부터 회로를 설계 및 제조하는 완전 주문형 IC(Full custom IC)과 표준화된 설계를 일부 사용하여 회로를 설계 및 제조하는 반 주문형 IC(semicustom IC)으로 나뉜다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "asic",
+          "name": "주문형 반도체",
+          "reason": "원문이 주문형 반도체의 설계 방식으로 구분한다.",
+          "evidenceQuote": "주문형 반도체는 크게 설계방식에 따라 사용자의 요구에 맞춰 처음부터 회로를 설계 및 제조하는 완전 주문형 IC(Full custom IC)과 표준화된 설계를 일부 사용하여 회로를 설계 및 제조하는 반 주문형 IC(semicustom IC)으로 나뉜다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "standard-ic",
+      "title": "표준형 반도체",
+      "engName": "Standard",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "규격이 정해져 있어 일정 요건을 충족하는 다양한 전자제품에 사용할 수 있는 반도체이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "표준형 반도체는 규격이 정해져 있어 일정 요건만 갖추면 어떤 전자제품에도 쓸 수 있는 제품이다.",
+      "evidenceQuote": "표준형 반도체는 규격이 정해져 있어 일정 요건만 갖추면 어떤 전자제품에도 쓸 수 있는 제품이다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,315 @@
+{
+  "index": 94,
+  "filePath": "samsung/samsung_fab_02_oxidation.md",
+  "sourceHash": "5aa7b4e7a784416bad796cd816b7f60ba9aab99a01323e29dd383540c7cbab37",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 3038,
+    "method": "codex-offline-source-review",
+    "notes": "전체 원문을 끝까지 대조했다. 제목형 임시 후보를 산화막·열산화·건식/습식 산화로 분리했다. PECVD와 양극 처리는 원문이 산화막 형성 방식으로 열거한 범위만 보존했다. 원문의 웨이퍼를 부도체로 단정한 서술은 일반 정의로 확대하지 않았다. 고온 범위와 동일 온도·시간의 두께비를 보존했다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "oxide-film",
+      "title": "실리콘 산화막",
+      "engName": "SiO₂",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "반도체 공정 재료",
+      "scaleLevel": 1,
+      "classificationNote": "실리콘 산화막의 재료·물성·막 또는 기판을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "웨이퍼에 형성되어 회로 사이 누설전류를 차단하고, 이온주입에서 확산 방지막과 식각에서 보호막 역할을 하는 막이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "산화공정을 거치는 이유는 웨이퍼에 절연막 역할을 하는 산화막(SiO₂)을 형성해 회로와 회로사이에 누설전류가 흐르는 것을 차단하기 위해서 입니다.",
+      "evidenceQuote": "산화공정을 거치는 이유는 웨이퍼에 절연막 역할을 하는 산화막(SiO₂)을 형성해 회로와 회로사이에 누설전류가 흐르는 것을 차단하기 위해서 입니다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "공정 보호 기능",
+          "content": "이온주입 시 확산을 막고 식각 시 필요한 부분이 잘못 깎이지 않도록 보호한다.",
+          "formula": null,
+          "evidenceQuote": "산화막은 또한 이온주입공정에서 확산 방지막 역할을 하고, 식각공정에서는 필요한 부분이 잘못 식각되는 것을 막는 식각 방지막 역할도 합니다."
+        },
+        {
+          "step": 2,
+          "title": "산소 노출에 의한 형성",
+          "content": "웨이퍼가 대기 중이나 화학물질 안에서 산소에 노출되면 산화막이 형성된다.",
+          "formula": null,
+          "evidenceQuote": "웨이퍼는 대기 중 혹은 화학물질 내에서 산소에 노출되면 산화막을 형성하게 되는데요."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "절연막",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "thermal-oxidation",
+      "title": "열산화",
+      "engName": "Thermal Oxidation",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "산화",
+      "scaleLevel": 3,
+      "classificationNote": "열산화의 단위 공정·장비 또는 공정 품질 지표를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "고온에서 웨이퍼에 얇고 균일한 실리콘 산화막을 형성하는 방법이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "그 중 가장 보편적인 방법은 800~1,200℃의 고온에서 얇고 균일한 실리콘 산화막을 형성시키는 열산화 방법입니다.",
+      "evidenceQuote": "그 중 가장 보편적인 방법은 800~1,200℃의 고온에서 얇고 균일한 실리콘 산화막을 형성시키는 열산화 방법입니다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "반응 기체에 따른 구분",
+          "content": "산화반응에 사용하는 기체에 따라 건식산화와 습식산화로 나눈다.",
+          "formula": null,
+          "evidenceQuote": "열산화 방법은 산화반응에 사용되는 기체에 따라 건식산화(Dry Oxidation)와 습식산화(Wet Oxidation)로 나뉘는데요."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "열산화의 교육 문헌 온도 범위",
+          "perspectiveBadge": "일반 공정 조건",
+          "narrative": "원문은 열산화를 800~1,200℃ 고온에서 산화막을 형성하는 방법으로 설명한다.",
+          "caution": "",
+          "evidenceQuote": "그 중 가장 보편적인 방법은 800~1,200℃의 고온에서 얇고 균일한 실리콘 산화막을 형성시키는 열산화 방법입니다.",
+          "specifications": [
+            {
+              "parameter": "산화 온도",
+              "value": "800~1,200",
+              "unit": "℃",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "800~1,200℃"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "이 온도 범위는 교육 문헌의 일반 설명이며 특정 장비나 제품의 실행 조건을 뜻하지 않는다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "산화 공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "dry-oxidation",
+      "title": "건식산화",
+      "engName": "Dry Oxidation",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "산화",
+      "scaleLevel": 3,
+      "classificationNote": "건식산화의 단위 공정·장비 또는 공정 품질 지표를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "순수한 산소만을 사용해 산화막을 성장시키는 열산화 방식으로, 성장속도가 느려 주로 얇은 막 형성에 사용한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "건식산화는 순수한 산소(O₂)만을 이용하기 때문에 산화막 성장속도가 느려 주로 얇은 막을 형성할 때 쓰이며, 전기적 특성이 좋은 산화물을 만들 수 있습니다.",
+      "evidenceQuote": "건식산화는 순수한 산소(O₂)만을 이용하기 때문에 산화막 성장속도가 느려 주로 얇은 막을 형성할 때 쓰이며, 전기적 특성이 좋은 산화물을 만들 수 있습니다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "산화물 특성",
+          "content": "전기적 특성이 좋은 산화물을 얻을 수 있다.",
+          "formula": null,
+          "evidenceQuote": "전기적 특성이 좋은 산화물을 만들 수 있습니다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "wet-oxidation",
+          "name": "습식산화",
+          "reason": "열산화에서 반응 기체·성장속도·막 특성이 다른 방식이다.",
+          "evidenceQuote": "열산화 방법은 산화반응에 사용되는 기체에 따라 건식산화(Dry Oxidation)와 습식산화(Wet Oxidation)로 나뉘는데요."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "thermal-oxidation",
+          "name": "열산화",
+          "reason": "산화 기체에 따라 구분한 열산화 방식이다.",
+          "evidenceQuote": "열산화 방법은 산화반응에 사용되는 기체에 따라 건식산화(Dry Oxidation)와 습식산화(Wet Oxidation)로 나뉘는데요."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "산화 공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "wet-oxidation",
+      "title": "습식산화",
+      "engName": "Wet Oxidation",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "산화",
+      "scaleLevel": 3,
+      "classificationNote": "습식산화의 단위 공정·장비 또는 공정 품질 지표를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "산소와 용해도가 큰 수증기를 함께 사용해 빠르게 더 두꺼운 산화막을 형성하는 열산화 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "습식 산화는 산소(O₂)와 함께 용해도가 큰 수증기(H₂O)를 함께 사용하기 때문에 산화막 성장속도가 빠르고 보다 두꺼운 막을 형성할 수 있지만, 건식 산화에 비해 산화층의 밀도가 낮습니다.",
+      "evidenceQuote": "습식 산화는 산소(O₂)와 함께 용해도가 큰 수증기(H₂O)를 함께 사용하기 때문에 산화막 성장속도가 빠르고 보다 두꺼운 막을 형성할 수 있지만, 건식 산화에 비해 산화층의 밀도가 낮습니다.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "밀도와 성장속도의 차이",
+          "description": "빠른 성장과 두꺼운 막 형성이 가능하지만 건식산화보다 산화층 밀도가 낮다.",
+          "evidenceQuote": "산화막 성장속도가 빠르고 보다 두꺼운 막을 형성할 수 있지만, 건식 산화에 비해 산화층의 밀도가 낮습니다."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "동일 온도·시간에서 건식 대비 두께 비교",
+          "perspectiveBadge": "일반 비교 조건",
+          "narrative": "원문은 보통 동일한 온도와 시간에서 습식산화막이 건식산화막보다 약 5~10배 두껍다고 설명한다.",
+          "caution": "동일 온도·시간이라는 조건과 약이라는 한정어를 유지한다.",
+          "evidenceQuote": "보통 동일한 온도와 시간에서 습식산화를 통해 얻어진 산화막은 건식산화를 사용한 것보다 약 5~10배 정도 더 두껍습니다.",
+          "specifications": [
+            {
+              "parameter": "건식산화 대비 막 두께",
+              "value": "약 5~10배",
+              "unit": "배",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "약 5~10배 정도 더 두껍습니다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "서로 같은 온도와 시간일 때의 상대 두께 비교이다. 절대 막 두께나 개별 레시피는 제시되지 않았다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "dry-oxidation",
+          "name": "건식산화",
+          "reason": "동일 온도와 시간에서 두께가 다른 대안이다.",
+          "evidenceQuote": "보통 동일한 온도와 시간에서 습식산화를 통해 얻어진 산화막은 건식산화를 사용한 것보다 약 5~10배 정도 더 두껍습니다."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "thermal-oxidation",
+          "name": "열산화",
+          "reason": "산화 기체에 따라 구분한 열산화 방식이다.",
+          "evidenceQuote": "열산화 방법은 산화반응에 사용되는 기체에 따라 건식산화(Dry Oxidation)와 습식산화(Wet Oxidation)로 나뉘는데요."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "산화 공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "pecvd",
+      "title": "플라즈마 보강 화학적 기상 증착",
+      "engName": "PECVD",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "증착",
+      "scaleLevel": 3,
+      "classificationNote": "플라즈마 보강 화학적 기상 증착의 단위 공정·장비 또는 공정 품질 지표를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "원문에서 웨이퍼에 산화막을 형성하는 방법 중 하나로 열거한 플라즈마 보강 화학적 기상 증착이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "웨이퍼에 막을 입히는 산화공정의 방법에는 열을 통한 열산화(Thermal Oxidation), 플라즈마 보강 화학적 기상 증착(PECVD), 전기 화학적 양극 처리 등 여러 종류가 있습니다.",
+      "evidenceQuote": "웨이퍼에 막을 입히는 산화공정의 방법에는 열을 통한 열산화(Thermal Oxidation), 플라즈마 보강 화학적 기상 증착(PECVD), 전기 화학적 양극 처리 등 여러 종류가 있습니다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "박막 증착 공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "electrochemical-anodization",
+      "title": "전기 화학적 양극 처리",
+      "engName": "전기 화학적 양극 처리",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "산화막 형성",
+      "scaleLevel": 3,
+      "classificationNote": "전기 화학적 양극 처리의 단위 공정·장비 또는 공정 품질 지표를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "원문에서 웨이퍼에 산화막을 형성하는 방법 중 하나로 열거한 전기 화학적 처리이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "웨이퍼에 막을 입히는 산화공정의 방법에는 열을 통한 열산화(Thermal Oxidation), 플라즈마 보강 화학적 기상 증착(PECVD), 전기 화학적 양극 처리 등 여러 종류가 있습니다.",
+      "evidenceQuote": "웨이퍼에 막을 입히는 산화공정의 방법에는 열을 통한 열산화(Thermal Oxidation), 플라즈마 보강 화학적 기상 증착(PECVD), 전기 화학적 양극 처리 등 여러 종류가 있습니다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "thermal-oxidation",
+          "name": "열산화 공정",
+          "reason": "웨이퍼에 산화막을 형성하는 방법으로 세 방식을 함께 열거한다. 전기 화학적 양극 처리와 열산화 공정는 이 문헌의 산화막 형성 목적에서 대안이며 필수 선후 단계나 하위 방식 관계가 아니다.",
+          "evidenceQuote": "웨이퍼에 막을 입히는 산화공정의 방법에는 열을 통한 열산화(Thermal Oxidation), 플라즈마 보강 화학적 기상 증착(PECVD), 전기 화학적 양극 처리 등 여러 종류가 있습니다. 그 중 가장 보편적인 방법은 800~1,200℃의 고온에서 얇고 균일한 실리콘 산화막을 형성시키는 열산화 방법입니다."
+        },
+        {
+          "id": "pecvd",
+          "name": "플라즈마 CVD",
+          "reason": "웨이퍼에 산화막을 형성하는 방법으로 세 방식을 함께 열거한다. 전기 화학적 양극 처리와 플라즈마 CVD는 이 문헌의 산화막 형성 목적에서 대안이며 필수 선후 단계나 하위 방식 관계가 아니다.",
+          "evidenceQuote": "웨이퍼에 막을 입히는 산화공정의 방법에는 열을 통한 열산화(Thermal Oxidation), 플라즈마 보강 화학적 기상 증착(PECVD), 전기 화학적 양극 처리 등 여러 종류가 있습니다. 그 중 가장 보편적인 방법은 800~1,200℃의 고온에서 얇고 균일한 실리콘 산화막을 형성시키는 열산화 방법입니다."
+        }
+      ],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "산화막 형성",
+          "scaleLevel": 3
+        }
+      ]
+    }
+  ]
+}

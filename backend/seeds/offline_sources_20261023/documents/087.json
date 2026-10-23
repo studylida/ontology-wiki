@@ -1,0 +1,86 @@
+{
+  "index": 87,
+  "filePath": "samsung/glossary/반도체-용어-사전led편-파장.md",
+  "sourceHash": "1ac99fee86f2b3c33e27b0c48a55ecc0cf6311863cbaf4bed4b9b1b412b6a05f",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1450,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 빈 파서 후보를 대조해 실제 개념명·정의·명시된 적용 상황을 보완했다. 설명 예시를 실측 사양으로 바꾸지 않고 수치 없는 사례도 보존했다. "
+  },
+  "concepts": [
+    {
+      "conceptId": "wavelength",
+      "title": "파장",
+      "engName": "Wavelength",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "파동 물리량",
+      "scaleLevel": 1,
+      "classificationNote": "파장의 원문 정의에 따라 파동 물리량에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "음파나 전자파 같은 주기적 진동이 한 주기 동안 진행하는 길이이다. LED에서는 화합물 재료에 따라 구현 가능한 파장과 색상이 정해진다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "음파나 전자파 같은 주기적인 진동(Wave)이 1주기 동안 진행되는 길이를 말함.\nLED에서는 화합물 재료에 따라 구현 가능한 최적의 파장이 결정되고, 이에 따라 각기 다른 색을 발한다. 일반적으로 밴드 갭(에너지 준위 차이)이 존재하는 III족, V족 물질이 서로 화합해, 그 차이에 따라 빛의 파장과 색상이 정해진다.",
+      "evidenceQuote": "음파나 전자파 같은 주기적인 진동(Wave)이 1주기 동안 진행되는 길이를 말함.\nLED에서는 화합물 재료에 따라 구현 가능한 최적의 파장이 결정되고, 이에 따라 각기 다른 색을 발한다. 일반적으로 밴드 갭(에너지 준위 차이)이 존재하는 III족, V족 물질이 서로 화합해, 그 차이에 따라 빛의 파장과 색상이 정해진다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "재료와 발광색",
+          "content": "일반적으로 III족·V족 물질이 화합하여 에너지 준위 차이에 따라 빛의 파장과 색상이 정해진다.",
+          "formula": null,
+          "evidenceQuote": "음파나 전자파 같은 주기적인 진동(Wave)이 1주기 동안 진행되는 길이를 말함.\nLED에서는 화합물 재료에 따라 구현 가능한 최적의 파장이 결정되고, 이에 따라 각기 다른 색을 발한다. 일반적으로 밴드 갭(에너지 준위 차이)이 존재하는 III족, V족 물질이 서로 화합해, 그 차이에 따라 빛의 파장과 색상이 정해진다."
+        },
+        {
+          "step": 2,
+          "title": "에너지 차이와 파장",
+          "content": "에너지 차이가 크면 단파장인 보라색 계통의 빛, 작으면 장파장인 붉은색 계통의 빛이 나온다.",
+          "formula": null,
+          "evidenceQuote": "에너지 차이가 크면 단파장의 보라색 계통의 빛을 나타내고, 에너지 차이가 작으면 장파장인 붉은색 계통의 빛이 나온다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "파동 물리량",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "band-gap",
+      "title": "밴드 갭",
+      "engName": "밴드 갭",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "전자 에너지 물성",
+      "scaleLevel": 1,
+      "classificationNote": "밴드 갭의 원문 정의에 따라 전자 에너지 물성에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "원문이 LED 화합물 재료의 에너지 준위 차이라고 설명하는 값으로 빛의 파장과 색상에 관계한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "음파나 전자파 같은 주기적인 진동(Wave)이 1주기 동안 진행되는 길이를 말함.\nLED에서는 화합물 재료에 따라 구현 가능한 최적의 파장이 결정되고, 이에 따라 각기 다른 색을 발한다. 일반적으로 밴드 갭(에너지 준위 차이)이 존재하는 III족, V족 물질이 서로 화합해, 그 차이에 따라 빛의 파장과 색상이 정해진다.",
+      "evidenceQuote": "음파나 전자파 같은 주기적인 진동(Wave)이 1주기 동안 진행되는 길이를 말함.\nLED에서는 화합물 재료에 따라 구현 가능한 최적의 파장이 결정되고, 이에 따라 각기 다른 색을 발한다. 일반적으로 밴드 갭(에너지 준위 차이)이 존재하는 III족, V족 물질이 서로 화합해, 그 차이에 따라 빛의 파장과 색상이 정해진다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "전자 에너지 물성",
+          "scaleLevel": 1
+        }
+      ]
+    }
+  ]
+}

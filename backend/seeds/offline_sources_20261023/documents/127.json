@@ -1,0 +1,302 @@
+{
+  "index": 127,
+  "filePath": "skhynix/skhynix_research_cti_nand.md",
+  "sourceHash": "ddb41f7ae7914bb8eb197d780efa8e4936f0d79cda09ec9efdaa0ee74b4613cb",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 5324,
+    "method": "codex-offline-source-review",
+    "notes": "전체 뉴스룸 기사를 실제 대조했다. 원 논문 전체는 읽지 않았다. CTN 정의, CTI의 기존 식각 방식과 신규 증착 방식, 3D 낸드 셀 형성 순서 및 간섭 원인을 분리했다. 176단/10단 수준/30% 이상/45% 이상/10% 이상은 각각 원문의 연구 비교 맥락과 한정어로 보존했다. 양산형 176단 적용과 양산성·상용화라는 원문의 주장을 기록하되 실제 출하 제품이나 전사 양산 적용을 별도로 확정하지 않았다. 통합 검토에서 SK하이닉스 일반 3D NAND의 기여를 삼성 V-NAND와 분리했다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "charge-trap-isolation",
+      "title": "전하 포획 질화막 격리",
+      "engName": "Charge Trap Nitride Isolation",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "낸드 셀 격리",
+      "scaleLevel": 3,
+      "classificationNote": "낸드 셀 격리 분야이며, 특정 연결·접합·전사·제어·냉각 공정이나 장비 기술이므로 규모 3으로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "연속된 전하 포획 질화막을 셀 사이의 산화물 장벽으로 물리적으로 분리해 셀 간 간섭과 전자 이동을 줄이는 기술이다.",
+      "purpose": "셀 간격을 줄이면서도 동작 신뢰성과 데이터 보존력을 유지한다.",
+      "summaryEvidenceQuote": "이 한계를 해결하기 위해 등장한 기술이 CTI(Charge Trap Nitride Isolation)다. CTI는 [그림2]처럼 CTN(Charge Trap Nitride)에 전자를 저장할 때, 실리콘 질화막을 식각하고, 실리콘 산화막을 칸막이(Isolation)로 활용한다. 기존에는 CTN을 연속적으로 제작했으나, 칸막이를 활용해 위아래 CTN을 물리적으로 분리시킨 것이다. CTI를 적용하면 셀 간격이 좁아져도 동작 신뢰성을 유지하고 전자 보존력을 높일 수 있다. 이러한 장점 덕분에 CTI 기술에 대한 논의는 10여 년 전부터 꾸준히 이어져 왔다.",
+      "evidenceQuote": "이 한계를 해결하기 위해 등장한 기술이 CTI(Charge Trap Nitride Isolation)다. CTI는 [그림2]처럼 CTN(Charge Trap Nitride)에 전자를 저장할 때, 실리콘 질화막을 식각하고, 실리콘 산화막을 칸막이(Isolation)로 활용한다. 기존에는 CTN을 연속적으로 제작했으나, 칸막이를 활용해 위아래 CTN을 물리적으로 분리시킨 것이다. CTI를 적용하면 셀 간격이 좁아져도 동작 신뢰성을 유지하고 전자 보존력을 높일 수 있다. 이러한 장점 덕분에 CTI 기술에 대한 논의는 10여 년 전부터 꾸준히 이어져 왔다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "기존 식각 포켓 방식",
+          "content": "실리콘 질화막을 식각해 포켓을 만들고 CTN 물질을 채우며 산화막 칸막이로 위아래 CTN을 나눈다.",
+          "formula": null,
+          "evidenceQuote": "수년 전부터 CTI 연구가 진행되었음에도 아직 양산에 적용하지 못한 이유는 이 기술이 가진 한계 때문이었다. 실리콘 질화막을 식각해 포켓(Pocket, 빈 공간)을 만든 뒤 CTN 물질을 안에 가두는 기존 CTI 기술의 경우, 식각 과정에서 채널 홀이 넓어지는 문제를 야기했다."
+        },
+        {
+          "step": 2,
+          "title": "신규 증착 장벽 방식",
+          "content": "산화물 절연체 장벽을 증착해 포켓을 형성한 뒤 CTN을 채운다. 질화막을 식각하지 않아 채널 홀 크기 증가를 피한다.",
+          "formula": null,
+          "evidenceQuote": "신규 CTI는 산화물 절연체 장벽(Oxide Barrier)을 ‘증착’해 포켓을 형성하고, 그 공간에 CTN 물질을 채우는 방식이다. 실리콘 질화막을 식각하지 않으므로 채널 홀 크기가 늘어나지 않는다. 낸드 집적도를 해치지 않으면서 CTI 구조를 구현할 수 있게 된 것이다. 또한 증착 공정은 식각 대비 채널 홀 상하부 크기의 균일도 확보에 유리하다. 연구에서는 176단 전체에서 균일한 특성 분포를 달성했는데, 이로써 기존의 들쭉날쭉한 공정 문제를 해결하고 양산성을 입증했다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "기존 방식의 집적도 손실",
+          "description": "질화막을 식각할 때 채널 홀이 넓어져 같은 면적의 채널 홀 수가 줄어들고 집적도를 잃을 수 있다.",
+          "evidenceQuote": "수직으로 길게 뚫은 채널 홀 하나에 수백 개의 셀이 존재하는 낸드 구조 특성상, 채널 홀이 넓어지면 같은 면적에 넣을 수 있는 채널 홀 수가 줄고 집적도 손실로 이어진다. 식각량이 웨이퍼 전체에서 균일하게 제어되지 않아 포켓 크기가 제각각 달라지는 문제도 CTI 기술이 풀어야 할 과제였다. 그 결과, 기존 CTI는 실제 제품에 적용하는 데 어려움이 있었고, CTI 효과를 기술적으로 증명하는 수준에 그쳐왔다."
+        },
+        {
+          "title": "기존 포켓 균일도",
+          "description": "웨이퍼 전체의 식각량이 균일하지 않으면 포켓 크기가 달라져 실제 제품 적용이 어려웠다.",
+          "evidenceQuote": "수직으로 길게 뚫은 채널 홀 하나에 수백 개의 셀이 존재하는 낸드 구조 특성상, 채널 홀이 넓어지면 같은 면적에 넣을 수 있는 채널 홀 수가 줄고 집적도 손실로 이어진다. 식각량이 웨이퍼 전체에서 균일하게 제어되지 않아 포켓 크기가 제각각 달라지는 문제도 CTI 기술이 풀어야 할 과제였다. 그 결과, 기존 CTI는 실제 제품에 적용하는 데 어려움이 있었고, CTI 효과를 기술적으로 증명하는 수준에 그쳐왔다."
+        },
+        {
+          "title": "고단 적용 및 비용",
+          "description": "셀 크기와 모양의 균일도 유지 및 공정 비용 절감이 중요한 과제로 제시된다.",
+          "evidenceQuote": "CTI의 효과는 이미 업계에서 충분히 검증됐다. 지금 업계의 관심은 ‘어떻게 고단 적층에 실제로 적용하느냐’로 옮겨 가고 있다. 공정 비용 절감도 핵심 과제 중 하나다. 특히 CTN을 분리하는 과정에서 셀 크기와 모양을 균일하게 유지하기 위해 많은 기업이 새로운 증착 기술과 소재 개발에 집중하고 있다."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "양산형 176단 낸드에 구현한 증착형 CTI",
+          "perspectiveBadge": "SK하이닉스·IEDM 2025",
+          "narrative": "진상완 TL의 2025 IEDM 논문 A Highly Scalable Isolated Charge Trap Nitride Layer Implemented in a 176-layer 3D NAND Flash with Superior Threshold Voltage Distribution and Charge Retention를 소개한다. 원문은 기존 CTI의 10단 수준 테스트와 달리 양산형 176단 낸드에 신규 구조를 적용하고 전체 적층에서 균일한 특성 분포를 달성했다고 설명한다.",
+          "caution": "양산형 구조에 적용한 연구이며 본문은 상용화·양산성을 주장한다. 실제 판매 제품의 적용 범위나 출하 여부, 보존 시험 조건은 제시하지 않는다.",
+          "evidenceQuote": "이번 연구의 성과는 ‘CTI 기술 상용화’를 현실적으로 이뤄냈다는 데 있다. 기존 CTI는 10단 수준에서 테스트하는 정도에 그쳤다. 반면, SK하이닉스는 세계 최초로 양산형 176단 낸드에 CTI 구조를 성공적으로 적용해, 셀 간섭을 30% 이상 줄였고 데이터 보존 능력을 45% 이상 끌어올렸다.",
+          "specifications": [
+            {
+              "parameter": "신규 CTI 적용 낸드",
+              "value": "176",
+              "unit": "단",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "이번 연구의 성과는 ‘CTI 기술 상용화’를 현실적으로 이뤄냈다는 데 있다. 기존 CTI는 10단 수준에서 테스트하는 정도에 그쳤다. 반면, SK하이닉스는 세계 최초로 양산형 176단 낸드에 CTI 구조를 성공적으로 적용해, 셀 간섭을 30% 이상 줄였고 데이터 보존 능력을 45% 이상 끌어올렸다."
+            },
+            {
+              "parameter": "기존 CTI 테스트 규모",
+              "value": "10단 수준",
+              "unit": "단",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "이번 연구의 성과는 ‘CTI 기술 상용화’를 현실적으로 이뤄냈다는 데 있다. 기존 CTI는 10단 수준에서 테스트하는 정도에 그쳤다. 반면, SK하이닉스는 세계 최초로 양산형 176단 낸드에 CTI 구조를 성공적으로 적용해, 셀 간섭을 30% 이상 줄였고 데이터 보존 능력을 45% 이상 끌어올렸다."
+            },
+            {
+              "parameter": "셀 간섭 감소",
+              "value": "30% 이상",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "이번 연구의 성과는 ‘CTI 기술 상용화’를 현실적으로 이뤄냈다는 데 있다. 기존 CTI는 10단 수준에서 테스트하는 정도에 그쳤다. 반면, SK하이닉스는 세계 최초로 양산형 176단 낸드에 CTI 구조를 성공적으로 적용해, 셀 간섭을 30% 이상 줄였고 데이터 보존 능력을 45% 이상 끌어올렸다."
+            },
+            {
+              "parameter": "데이터 보존 능력 향상",
+              "value": "45% 이상",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "이번 연구의 성과는 ‘CTI 기술 상용화’를 현실적으로 이뤄냈다는 데 있다. 기존 CTI는 10단 수준에서 테스트하는 정도에 그쳤다. 반면, SK하이닉스는 세계 최초로 양산형 176단 낸드에 CTI 구조를 성공적으로 적용해, 셀 간섭을 30% 이상 줄였고 데이터 보존 능력을 45% 이상 끌어올렸다."
+            },
+            {
+              "parameter": "가능해진 단위 셀 크기 감소",
+              "value": "10% 이상",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "그 결과 Vth 분포가 균일해져 데이터 판독 신뢰도가 향상됐고, 전자의 이동이 줄어들며 장기 내구성이 획기적으로 강화됐다. 이로써 문턱전압 왜곡, 전자 이동 오류에 대한 걱정 없이 단위 셀 크기를 10% 이상 줄여 낸드 집적도를 올릴 수 있게 됐다. 회사는 이 기술이 수직 적층 미세화의 한계를 극복할 ‘핵심 기술’이 될 것으로 평가하고 있다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "각 셀의 전하 저장 공간을 칸막이로 나누되 구멍을 더 넓히지 않는 방식이다. 실제 고단 구조에 적용한 연구 결과를 보여 주지만 이 기사만으로 모든 판매 제품에 적용되었다고 판단할 수는 없다.",
+            "background": null
+          }
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "낸드 셀 격리",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "charge-trap-nitride",
+      "title": "질화막 전하 포획",
+      "engName": "Charge Trap Nitride",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "비휘발성 메모리 구조",
+      "scaleLevel": 2,
+      "classificationNote": "비휘발성 메모리 구조 분야이며, 개별 소자·기억 셀·배선 구조 또는 그 동작을 다루므로 규모 2로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전자 데이터를 부도체 질화막에 저장하는 기술이다.",
+      "purpose": "플로팅 게이트 대비 단위 셀 면적을 줄이면서 읽기·쓰기 성능을 높인다.",
+      "summaryEvidenceQuote": "* CTN(Charge Trap Nitride): 전자(데이터)를 부도체인 질화막(Nitride)에 저장하는 기술. 도체에 저장하는 플로팅 게이트(Floating Gate) 기술 대비 단위당 셀 면적을 줄이면서도 읽기 · 쓰기 성능을 높일 수 있는 것이 특징",
+      "evidenceQuote": "* CTN(Charge Trap Nitride): 전자(데이터)를 부도체인 질화막(Nitride)에 저장하는 기술. 도체에 저장하는 플로팅 게이트(Floating Gate) 기술 대비 단위당 셀 면적을 줄이면서도 읽기 · 쓰기 성능을 높일 수 있는 것이 특징",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "alternatives": [
+        {
+          "id": "floating-gate",
+          "name": "플로팅 게이트",
+          "reason": "원문은 부도체 질화막 저장 CTN을 도체 저장 플로팅 게이트와 비교한다.",
+          "evidenceQuote": "* CTN(Charge Trap Nitride): 전자(데이터)를 부도체인 질화막(Nitride)에 저장하는 기술. 도체에 저장하는 플로팅 게이트(Floating Gate) 기술 대비 단위당 셀 면적을 줄이면서도 읽기 · 쓰기 성능을 높일 수 있는 것이 특징"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "비휘발성 메모리 구조",
+          "scaleLevel": 2
+        }
+      ],
+      "partOf": [
+        {
+          "id": "3d-nand",
+          "name": "3D NAND",
+          "reason": "3D NAND 셀을 형성할 때 채널 홀 안쪽 벽면에 전자를 저장하는 CTN을 차단·터널 산화막 등과 함께 코팅한다고 설명한다. 이 실제 전하 저장층 구성에 한정한다.",
+          "evidenceQuote": "[그림 1]과 같이 웨이퍼 위에 실리콘 질화막(Silicon Nitride)과 실리콘 산화막(Silicon Oxide) 소재의 얇은 막을 여러 겹 쌓는다. 수십 나노미터(㎚) 두께의 초미세 종이를 정밀하게 포개는 것과 같다. 그 다음 수직의 채널 홀을 깊게 뚫고, 구멍 안쪽 벽면에 차단 산화막, 전자*를 저장하는 CTN, 터널 산화막, 폴리실리콘을 코팅한다. 이 과정을 거치면 셀이 형성된다. 이 셀을 100단, 200단, 300단 등으로 층층이 쌓은 것이 3D 낸드다."
+        }
+      ]
+    },
+    {
+      "conceptId": "3d-nand",
+      "title": "3D 낸드 플래시",
+      "engName": "3D NAND Flash",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "소자·전기 구조",
+      "scaleLevel": 2,
+      "classificationNote": "비휘발성 메모리 구조 분야이며, 개별 소자·기억 셀·배선 구조 또는 그 동작을 다루므로 규모 2로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "데이터 저장 셀을 수직 방향으로 여러 층 쌓아 용량을 늘리는 낸드플래시 구조다.",
+      "purpose": "같은 높이에서 셀 간격을 줄이고 층수를 늘려 고용량을 구현한다.",
+      "summaryEvidenceQuote": "3D 낸드플래시(NAND Flash, 이하 낸드)의 용량을 늘리는 전통적인 방법은 셀*을 높게 쌓는 것이었다. 그러나 층고가 높아질수록 공정 난도가 올라가고 비용 부담이 커지면서, 업계는 셀 크기를 줄여 같은 높이에 더 많은 셀을 구현하는 방향으로 전환하기 시작했다. 전체 높이는 그대로 두되, 층간 간격을 좁히고 층수를 늘려 고용량을 구현하는 것이다. 그런데 셀 크기가 작아질수록 위아래 셀 간의 간격도 좁아져 전기적 간섭이 심화되는 문제가 불거졌다. CTI 기술은 이러한 배경에서 등장했다.",
+      "evidenceQuote": "3D 낸드플래시(NAND Flash, 이하 낸드)의 용량을 늘리는 전통적인 방법은 셀*을 높게 쌓는 것이었다. 그러나 층고가 높아질수록 공정 난도가 올라가고 비용 부담이 커지면서, 업계는 셀 크기를 줄여 같은 높이에 더 많은 셀을 구현하는 방향으로 전환하기 시작했다. 전체 높이는 그대로 두되, 층간 간격을 좁히고 층수를 늘려 고용량을 구현하는 것이다. 그런데 셀 크기가 작아질수록 위아래 셀 간의 간격도 좁아져 전기적 간섭이 심화되는 문제가 불거졌다. CTI 기술은 이러한 배경에서 등장했다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "적층막 형성",
+          "content": "웨이퍼 위에 실리콘 질화막과 산화막의 얇은 막을 여러 겹 쌓는다.",
+          "formula": null,
+          "evidenceQuote": "[그림 1]과 같이 웨이퍼 위에 실리콘 질화막(Silicon Nitride)과 실리콘 산화막(Silicon Oxide) 소재의 얇은 막을 여러 겹 쌓는다. 수십 나노미터(㎚) 두께의 초미세 종이를 정밀하게 포개는 것과 같다. 그 다음 수직의 채널 홀을 깊게 뚫고, 구멍 안쪽 벽면에 차단 산화막, 전자*를 저장하는 CTN, 터널 산화막, 폴리실리콘을 코팅한다. 이 과정을 거치면 셀이 형성된다. 이 셀을 100단, 200단, 300단 등으로 층층이 쌓은 것이 3D 낸드다."
+        },
+        {
+          "step": 2,
+          "title": "채널 홀과 셀 형성",
+          "content": "수직 채널 홀을 뚫고 내벽에 차단 산화막, CTN, 터널 산화막, 폴리실리콘을 코팅해 셀을 형성한다.",
+          "formula": null,
+          "evidenceQuote": "[그림 1]과 같이 웨이퍼 위에 실리콘 질화막(Silicon Nitride)과 실리콘 산화막(Silicon Oxide) 소재의 얇은 막을 여러 겹 쌓는다. 수십 나노미터(㎚) 두께의 초미세 종이를 정밀하게 포개는 것과 같다. 그 다음 수직의 채널 홀을 깊게 뚫고, 구멍 안쪽 벽면에 차단 산화막, 전자*를 저장하는 CTN, 터널 산화막, 폴리실리콘을 코팅한다. 이 과정을 거치면 셀이 형성된다. 이 셀을 100단, 200단, 300단 등으로 층층이 쌓은 것이 3D 낸드다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "층수와 미세화의 부담",
+          "description": "층수가 높아지면 공정 난도·비용이 증가하고, 같은 높이에서 셀을 작게 하면 인접 셀 간섭이 커진다.",
+          "evidenceQuote": "3D 낸드플래시(NAND Flash, 이하 낸드)의 용량을 늘리는 전통적인 방법은 셀*을 높게 쌓는 것이었다. 그러나 층고가 높아질수록 공정 난도가 올라가고 비용 부담이 커지면서, 업계는 셀 크기를 줄여 같은 높이에 더 많은 셀을 구현하는 방향으로 전환하기 시작했다. 전체 높이는 그대로 두되, 층간 간격을 좁히고 층수를 늘려 고용량을 구현하는 것이다. 그런데 셀 크기가 작아질수록 위아래 셀 간의 간격도 좁아져 전기적 간섭이 심화되는 문제가 불거졌다. CTI 기술은 이러한 배경에서 등장했다."
+        }
+      ],
+      "perspectiveCases": [],
+      "isA": [
+        {
+          "id": "nand-flash",
+          "name": "낸드플래시",
+          "reason": "원문은 낸드 셀을 수직 적층한 구조를 3D 낸드로 설명한다.",
+          "evidenceQuote": "[그림 1]과 같이 웨이퍼 위에 실리콘 질화막(Silicon Nitride)과 실리콘 산화막(Silicon Oxide) 소재의 얇은 막을 여러 겹 쌓는다. 수십 나노미터(㎚) 두께의 초미세 종이를 정밀하게 포개는 것과 같다. 그 다음 수직의 채널 홀을 깊게 뚫고, 구멍 안쪽 벽면에 차단 산화막, 전자*를 저장하는 CTN, 터널 산화막, 폴리실리콘을 코팅한다. 이 과정을 거치면 셀이 형성된다. 이 셀을 100단, 200단, 300단 등으로 층층이 쌓은 것이 3D 낸드다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "비휘발성 메모리 구조",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "cell-to-cell-interference",
+      "title": "셀 간 간섭",
+      "engName": "Cell to Cell Interference",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 소자 간섭",
+      "scaleLevel": 2,
+      "classificationNote": "메모리 소자 간섭 분야이며, 개별 소자·기억 셀·배선 구조 또는 그 동작을 다루므로 규모 2로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "셀에 저장된 전자가 만드는 전기장이 이웃 셀에 영향을 주는 현상이다. 셀 간격이 좁아지면 문턱전압 왜곡과 전자 이동 오류가 심해질 수 있다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "셀 크기를 줄이고, 위아래 셀 간 거리를 좁혀 밀도를 높일수록 더 많은 용량을 구현할 수 있지만, 셀 간 간섭(Cell to Cell Interference)이 심해진다. 셀 속 전자가 형성하는 전기장이 인접한 셀에 영향을 주는 것인데, 이에 따라 ▲문턱전압 왜곡 ▲전자 이동의 오류가 발생한다.",
+      "evidenceQuote": "셀 크기를 줄이고, 위아래 셀 간 거리를 좁혀 밀도를 높일수록 더 많은 용량을 구현할 수 있지만, 셀 간 간섭(Cell to Cell Interference)이 심해진다. 셀 속 전자가 형성하는 전기장이 인접한 셀에 영향을 주는 것인데, 이에 따라 ▲문턱전압 왜곡 ▲전자 이동의 오류가 발생한다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "메모리 소자 간섭",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "threshold-voltage",
+      "title": "문턱전압",
+      "engName": "Threshold Voltage",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "소자 전기 특성",
+      "scaleLevel": 1,
+      "classificationNote": "소자 전기 특성 분야이며, 소재 자체 또는 소자의 물성을 다루는 규모 1로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "셀에 전류를 통하게 만드는 최소 전압이다. 이 문헌의 낸드에서는 저장 전자 수가 많으면 높아지고 적으면 낮아지며, 그 차이로 데이터를 판독한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "문턱전압(Vth)은 셀에 ‘전류를 통하게 만드는 최소한의 전압’으로, 저장된 전자 수가 많을수록 높아지고 적을수록 낮아진다. 낸드는 데이터 읽기 시, 이 문턱전압의 높낮이를 파악해 어떤 데이터가 저장되어 있는지 판단한다. 때문에 Vth가 왜곡되면 데이터 판독 오류가 발생할 수 있다. 셀 간 거리가 좁아질수록 셀 간섭이 심해질 뿐만 아니라 저장된 전자가 이웃한 셀로 새어 나가기도 하는데, 이 경우 저장된 데이터가 변질되는 문제도 발생한다.",
+      "evidenceQuote": "문턱전압(Vth)은 셀에 ‘전류를 통하게 만드는 최소한의 전압’으로, 저장된 전자 수가 많을수록 높아지고 적을수록 낮아진다. 낸드는 데이터 읽기 시, 이 문턱전압의 높낮이를 파악해 어떤 데이터가 저장되어 있는지 판단한다. 때문에 Vth가 왜곡되면 데이터 판독 오류가 발생할 수 있다. 셀 간 거리가 좁아질수록 셀 간섭이 심해질 뿐만 아니라 저장된 전자가 이웃한 셀로 새어 나가기도 하는데, 이 경우 저장된 데이터가 변질되는 문제도 발생한다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "소자 전기 특성",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "tcad",
+      "title": "소자 동작 시뮬레이션",
+      "engName": "Technology Computer-Aided Design",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "소자 설계·분석",
+      "scaleLevel": 5,
+      "classificationNote": "소자 설계·분석 분야이며, 단일 소자·공정이 아니라 생산 운영·평가 체계·설계 자산·표준 또는 생태계를 다루므로 규모 5로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "반도체 소자 구조와 동작을 컴퓨터로 모사·예측하는 시뮬레이션 기법이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* TCAD(Technology Computer-Aided Design)/Modeling: 반도체 소자의 구조와 동작을 컴퓨터로 모사 · 예측하는 시뮬레이션 기법",
+      "evidenceQuote": "* TCAD(Technology Computer-Aided Design)/Modeling: 반도체 소자의 구조와 동작을 컴퓨터로 모사 · 예측하는 시뮬레이션 기법",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "소자 설계·분석",
+          "scaleLevel": 5
+        }
+      ]
+    }
+  ]
+}

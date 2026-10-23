@@ -1,0 +1,540 @@
+{
+  "index": 116,
+  "filePath": "skhynix/skhynix_frontend_02_oxidation.md",
+  "sourceHash": "6a9cab90133fa3c79c7c6a1fb0bdc1b57bb3cef5a2515a0ea79a1090b215f4f3",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 6764,
+    "method": "codex-offline-source-review",
+    "notes": "raw 116.txt 전체와 비어 있는 파서 후보를 독립 대조했다. 일반 원리·장비 배치 설명을 발행사 적용 사례로 바꾸지 않았다. 본문 물 분자량18과 각주16의 상충 및 분자량에 의한 속도 인과는 보류했다. 외부 전문가 칼럼이며 SK하이닉스 공식 입장과 다를 수 있다는 출처 한계를 보존한다. 그림 원화는 텍스트에 포함되지 않아 캡션과 본문만 검토했다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "feol",
+      "title": "소자 형성 공정",
+      "engName": "Front End Of the Line",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "공정 통합",
+      "scaleLevel": 4,
+      "classificationNote": "소자 형성 공정의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "실리콘 웨이퍼에 각종 처리를 하여 필요한 단위 소자들을 형성하는 전공정의 앞부분이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "이 과정을 FEOL(Front End Of the Line: 공장 내에서 하는 앞단계)이라 부른다.",
+      "evidenceQuote": "이 과정을 FEOL(Front End Of the Line: 공장 내에서 하는 앞단계)이라 부른다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [
+        {
+          "id": "beol",
+          "name": "배선 형성 공정",
+          "reason": "단위 소자를 형성한 다음 미세 배선으로 연결한다.",
+          "evidenceQuote": "그 이후에는 납땜에 해당하는 일을 해야 한다."
+        }
+      ],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "front-end",
+          "name": "웨이퍼 가공 전공정",
+          "reason": "FEOL과 BEOL을 합쳐 전공정이라고 한다.",
+          "evidenceQuote": "그리고 이 두 과정을 합쳐 웨이퍼 가공 과정인 ‘전공정’이라 부른다."
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "공정 통합",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "beol",
+      "title": "배선 형성 공정",
+      "engName": "Back End Of the Line",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "공정 통합",
+      "scaleLevel": 4,
+      "classificationNote": "배선 형성 공정의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "FEOL의 단위 소자들을 매우 미세한 배선으로 연결하는 전공정의 뒷부분이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "이 과정을 BEOL(Back End Of the Line)이라 부른다.",
+      "evidenceQuote": "이 과정을 BEOL(Back End Of the Line)이라 부른다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [
+        {
+          "id": "feol",
+          "name": "소자 형성 공정",
+          "reason": "소자들을 먼저 만든 뒤 연결한다.",
+          "evidenceQuote": "대신 FEOL에서 사용한 것과 비슷한 기술들을 이용해 매우 미세한 배선을 만들어 수십억 개의 단위 소자들을 서로 연결한다."
+        }
+      ],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "front-end",
+          "name": "웨이퍼 가공 전공정",
+          "reason": "FEOL과 BEOL을 합친 범주이다.",
+          "evidenceQuote": "그리고 이 두 과정을 합쳐 웨이퍼 가공 과정인 ‘전공정’이라 부른다."
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "공정 통합",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "front-end",
+      "title": "웨이퍼 가공 전공정",
+      "engName": "Wafer Fabrication",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "제조 운영·공정 통합",
+      "scaleLevel": 5,
+      "classificationNote": "웨이퍼 가공 전공정의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "웨이퍼에 소자를 만드는 FEOL과 소자들을 연결하는 BEOL을 합친 제조 범주이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "그리고 이 두 과정을 합쳐 웨이퍼 가공 과정인 ‘전공정’이라 부른다.",
+      "evidenceQuote": "그리고 이 두 과정을 합쳐 웨이퍼 가공 과정인 ‘전공정’이라 부른다.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "단일 공정과 제조 범주의 구별",
+          "description": "8대 공정이라는 관용적 분류에서 웨이퍼 제조는 엄밀히 반도체 공장 안의 일이 아니며 금속 배선·패키징·테스트는 포토·식각·증착 같은 단일 공정과 다른 목적 중심의 작업 범주이다.",
+          "evidenceQuote": "또한 금속 배선, 패키징, 테스트의 경우 포토, 식각, 증착 등과 같은 단일 공정이 아닌 목적을 가진 특정 작업 전체를 아우르는 범주임을 알 수 있다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "공정 통합",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "thermal-oxidation",
+      "title": "산화 공정",
+      "engName": "Oxidation",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "산화",
+      "scaleLevel": 3,
+      "classificationNote": "산화 공정의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "실리콘을 산소계 반응물과 반응시켜 안정적인 산화막을 형성하는 공정이다.",
+      "purpose": "화학 물질의 원치 않는 침투와 직접 접촉에 의한 합선을 막는 차단막을 만든다.",
+      "summaryEvidenceQuote": "산화 공정은 실리콘 웨이퍼 위에 보호막을 씌우는 과정이다.",
+      "evidenceQuote": "산화 공정은 실리콘 웨이퍼 위에 보호막을 씌우는 과정이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "실리콘 소비",
+          "content": "실리콘이 산소와 반응하면 SiO₂가 되며 웨이퍼 자체의 실리콘 원자를 소모한다. 이는 외부에서 물질을 추가하는 증착과 다른 점이다.",
+          "formula": null,
+          "evidenceQuote": "산화 공정 과정에서 웨이퍼를 이루는 실리콘 원자가 상당량 소모된다."
+        },
+        {
+          "step": 2,
+          "title": "배치형 장비",
+          "content": "주입한 기체를 내부에서 가열해 웨이퍼와 반응시킨다. 수십 개 웨이퍼를 일제히 반응시키며 양 끝의 반응속도 차이를 메우기 위해 더미 웨이퍼를 끼운다.",
+          "formula": null,
+          "evidenceQuote": "더미 웨이퍼는 기기 구조상 발생할 수밖에 없는 기기 양 끝 웨이퍼들의 반응속도 차이를 메워줄 목적으로 투입된다."
+        },
+        {
+          "step": 3,
+          "title": "공정 분류",
+          "content": "원문은 산화를 확산 공정의 한 분야이자 온도 기준 고온 공정으로 설명한다.",
+          "formula": null,
+          "evidenceQuote": "실제로는 확산(Diffusion) 공정의 한 분야이기도 하며, 온도를 기준으로는 고온 공정으로 분류된다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "deposition",
+          "name": "증착",
+          "reason": "보호막은 산화 외에 증착으로도 형성한다.",
+          "evidenceQuote": "필요한 경우 증착의 형태로도 보호막을 씌우거나, 이미 형성된 회로 일부분을 제조 과정에서 활용하기도 한다."
+        }
+      ],
+      "partOf": [],
+      "isA": [],
+      "purposeEvidenceQuote": "따라서 일종의 차단막을 만드는 방법이 있어야만 한다. 여기 사용하는 공정이 산화 공정이다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "oxide-film",
+      "title": "실리콘 산화막",
+      "engName": "Silicon Dioxide Film",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "반도체 공정 재료",
+      "scaleLevel": 1,
+      "classificationNote": "실리콘 산화막의 원문 역할에 따라 materials_infra, 규모 1로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "실리콘 산화로 만들어지는 안정적인 SiO₂ 막이며 물질 침투 차단과 전기 절연에 사용된다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "산화 공정을 통해 생성된 산화막은 튼튼할 뿐만 아니라 매우 안정적이다.",
+      "evidenceQuote": "산화 공정을 통해 생성된 산화막은 튼튼할 뿐만 아니라 매우 안정적이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "이온 주입 차단",
+          "content": "산화막은 다른 물질의 진입을 막는 성질로 이온 주입 등의 공정에서 차단막 역할을 한다.",
+          "formula": null,
+          "evidenceQuote": "산화막은 다른 물질의 진입을 차단하므로 이온 주입 공정1 등에서 요긴하게 사용된다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "절연 재료",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "gate-oxide",
+      "title": "게이트 산화막",
+      "engName": "Gate Oxide",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "트랜지스터 구조",
+      "scaleLevel": 2,
+      "classificationNote": "게이트 산화막의 원문 역할에 따라 device, 규모 2로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "MOSFET의 게이트와 S-D 사이 전류 통로를 절연하는 산화막이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "이를 특별히 게이트 옥사이드(Gate Oxide)라고 부른다.",
+      "evidenceQuote": "이를 특별히 게이트 옥사이드(Gate Oxide)라고 부른다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "간접적인 전류 통로 제어",
+          "content": "게이트는 전류 통로에 직접 닿지 않고 영향을 행사하며 산화막이 둘을 가로막는다.",
+          "formula": null,
+          "evidenceQuote": "모스펫은 게이트가 전류 통로(S-D사이 영역)에 직접 맞닿지 않고 ‘간접적’으로 영향력만을 행사한다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "hkmg",
+          "name": "고유전율 금속 게이트",
+          "reason": "첨단 반도체 미세화에서 대체 물질 도입이 설명된다.",
+          "evidenceQuote": "게이트 절연막으로 HKMG2등 다양한 대체 물질이 사용되고 있다."
+        }
+      ],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "트랜지스터 구조",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "hkmg",
+      "title": "고유전율 금속 게이트",
+      "engName": "High-K Metal Gate",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "트랜지스터·게이트 구조",
+      "scaleLevel": 2,
+      "classificationNote": "고유전율 금속 게이트의 원문 역할에 따라 device, 규모 2로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "다결정 실리콘 게이트를 금속으로, 산화규소 절연막을 고유전체로 대체해 누설전류를 줄이는 MOSFET 게이트 구조이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "기존에 다결정 실리콘(Polysilicon)이던 게이트는 금속으로 대체하고, 산화규소였던 절연막은 고유전체(High-K)로 대체한 트랜지스터.",
+      "evidenceQuote": "기존에 다결정 실리콘(Polysilicon)이던 게이트는 금속으로 대체하고, 산화규소였던 절연막은 고유전체(High-K)로 대체한 트랜지스터.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "트랜지스터 구조",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "wet-oxidation",
+      "title": "습식 산화",
+      "engName": "Wet Oxidation",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "산화",
+      "scaleLevel": 3,
+      "classificationNote": "습식 산화의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "고온 수증기를 이용해 실리콘 산화막을 성장시키는 산화 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "습식 공정의 경우 매우 빠른 속도로 실리콘 산화막을 성장시킬 수 있는 반면 산화막의 전체적 균일성, 밀도 등의 특성이 떨어진다.",
+      "evidenceQuote": "습식 공정의 경우 매우 빠른 속도로 실리콘 산화막을 성장시킬 수 있는 반면 산화막의 전체적 균일성, 밀도 등의 특성이 떨어진다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "수증기와 실리콘의 반응",
+          "content": "수증기와 실리콘이 반응하여 산화막과 수소 부산물을 만든다.",
+          "formula": "Si (고체) + 2H₂O (기체) → SiO₂ (고체) + 2H₂ (기체)",
+          "evidenceQuote": "Si (고체) + 2H₂O (기체) → SiO₂ (고체) + 2H₂ (기체)"
+        }
+      ],
+      "limitations": [
+        {
+          "title": "속도와 품질",
+          "description": "성장 속도는 빠르지만 균일성·밀도가 떨어지고 특성 조절이 어려워 성능에 큰 영향을 끼치는 핵심 영역에서는 쓰기 어렵다고 설명한다.",
+          "evidenceQuote": "특성의 조절이 쉽지 않기 때문에, 성능에 큰 영향을 끼치는 핵심 영역에서 사용하기는 힘들다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "dry-oxidation",
+          "name": "건식 산화",
+          "reason": "성장 속도와 막 품질을 비교한다.",
+          "evidenceQuote": "따라서 이 방식은 생성 속도가 습식 산화에 비해 느리다."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "thermal-oxidation",
+          "name": "산화 공정",
+          "reason": "원문이 명시한 산화 방식이다.",
+          "evidenceQuote": "산화 공정은 습식(Wet), 건식(Dry), 라디칼(Radical) 크게 3종류로 나눌 수 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "dry-oxidation",
+      "title": "건식 산화",
+      "engName": "Dry Oxidation",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "산화",
+      "scaleLevel": 3,
+      "classificationNote": "건식 산화의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "고온 산소 기체를 실리콘 웨이퍼에 직접 공급해 산화막을 형성하는 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "건식 산화의 경우 고온의 산소 기체를 직접 실리콘 웨이퍼에 보내주는 방식이다.",
+      "evidenceQuote": "건식 산화의 경우 고온의 산소 기체를 직접 실리콘 웨이퍼에 보내주는 방식이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "밀도와 균일성",
+          "content": "습식보다 성장 속도는 느리지만 수소 부산물이 없고 밀도가 높으며 균일해 성능에 중요한 게이트 산화막에 사용된다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "대신 습식 산화와는 달리 부산물 기체(H₂)가 생기지 않을 뿐만 아니라, 밀도가 높고 균일한 산화막을 생성시킨다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "원문 분자량 상충",
+          "description": "본문은 산소와 물 분자량을 32 vs 18로 비교하나 각주는 물을 16으로 적었다. 상충 수치를 확정값으로 쓰거나 분자량만으로 침투속도 인과를 확정하지 않았다.",
+          "evidenceQuote": "산소 분자는 물 분자보다 무겁기 때문(32 vs 18)*에 실리콘 웨이퍼 내부로 침투하는 속도가 상대적으로 좀 더 느리다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "wet-oxidation",
+          "name": "습식 산화",
+          "reason": "성장 속도와 막 품질을 비교한다.",
+          "evidenceQuote": "따라서 이 방식은 생성 속도가 습식 산화에 비해 느리다."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "thermal-oxidation",
+          "name": "산화 공정",
+          "reason": "원문이 명시한 산화 방식이다.",
+          "evidenceQuote": "산화 공정은 습식(Wet), 건식(Dry), 라디칼(Radical) 크게 3종류로 나눌 수 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "radical-oxidation",
+      "title": "라디칼 산화",
+      "engName": "Radical Oxidation",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "전공정",
+      "scaleLevel": 3,
+      "classificationNote": "라디칼 산화의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "산소와 수소를 고온에서 이용해 반응성이 높은 라디칼을 만들고 실리콘 웨이퍼와 반응시키는 산화 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "산소 원자를 고온에서 수소 분자와 섞어주면 라디칼이라는 반응성이 높은 기체로 바뀌는데, 이들을 실리콘 웨이퍼와 반응시키는 방식으로 이뤄진다.",
+      "evidenceQuote": "산소 원자를 고온에서 수소 분자와 섞어주면 라디칼이라는 반응성이 높은 기체로 바뀌는데, 이들을 실리콘 웨이퍼와 반응시키는 방식으로 이뤄진다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "반응성 향상",
+          "content": "반응성이 높아 불완전 반응이 적고 건식보다 높은 품질의 산화막을 형성한다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "라디칼은 반응성이 높아 건식 산화보다도 훨씬 높은 품질의 산화막을 형성할 수 있다."
+        },
+        {
+          "step": 2,
+          "title": "결정 방향 의존성 완화",
+          "content": "습식·건식의 (100) 방향은 느리고 (110)은 빠르다고 설명한다. 라디칼은 이 차이에서 더 자유로워 입체 구조와 모서리에도 균일한 막을 형성한다. 질화규소에서 실리콘을 이용해 산화하기도 한다.",
+          "formula": null,
+          "evidenceQuote": "습식과 건식 산화의 경우 웨이퍼 위 방향(100)의 산화막 형성 속도는 느리고, 옆(110) 방향의 산화 속도는 빠르다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "dry-oxidation",
+          "name": "건식 산화",
+          "reason": "높은 품질과 입체 균일성의 대안으로 비교한다.",
+          "evidenceQuote": "라디칼은 반응성이 높아 건식 산화보다도 훨씬 높은 품질의 산화막을 형성할 수 있다."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "thermal-oxidation",
+          "name": "산화 공정",
+          "reason": "원문이 명시한 산화 방식이다.",
+          "evidenceQuote": "산화 공정은 습식(Wet), 건식(Dry), 라디칼(Radical) 크게 3종류로 나눌 수 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "ion-implantation",
+      "title": "이온 주입",
+      "engName": "Ion Implant",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "도핑",
+      "scaleLevel": 3,
+      "classificationNote": "이온 주입의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "순수 실리콘 웨이퍼에 3족 또는 5족 이온을 주입하는 반도체 제조 공정이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "반도체 제조 과정에서 순수한 실리콘 웨이퍼를 반도체로 바꾸기 위해 3족이나 5족 이온을 주입하는 과정.",
+      "evidenceQuote": "반도체 제조 과정에서 순수한 실리콘 웨이퍼를 반도체로 바꾸기 위해 3족이나 5족 이온을 주입하는 과정.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "semiconductor-manufacturing",
+          "name": "반도체 제조",
+          "reason": "각주는 순수 실리콘 웨이퍼에 이온을 주입하는 일을 반도체 제조 과정의 처리 단계로 정의한다. 공정 단계→전체 제조 활동 방향이며 산출물인 n형/p형 반도체에 대한 소속이 아니다.",
+          "evidenceQuote": "1 이온 주입 공정(Ion Implant) : 반도체 제조 과정에서 순수한 실리콘 웨이퍼를 반도체로 바꾸기 위해 3족이나 5족 이온을 주입하는 과정."
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "silicon-nitride",
+      "title": "질화규소",
+      "engName": "Silicon Nitride",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "보호막 재료",
+      "scaleLevel": 1,
+      "classificationNote": "질화규소의 원문 역할에 따라 materials_infra, 규모 1로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "반도체 소자 제조에서 증착 방식으로 씌우는 보호막 재료이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "질화규소는 보호막 역할을 하는 소재 중 하나로 반도체 소자 제조 과정에서 증착 방식으로 씌워진다.",
+      "evidenceQuote": "질화규소는 보호막 역할을 하는 소재 중 하나로 반도체 소자 제조 과정에서 증착 방식으로 씌워진다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "보호막 재료",
+          "scaleLevel": 1
+        }
+      ]
+    }
+  ]
+}

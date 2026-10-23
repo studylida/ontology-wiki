@@ -1,0 +1,407 @@
+{
+  "index": 113,
+  "filePath": "skhynix/skhynix_ai_05_pim_pnm.md",
+  "sourceHash": "c4269b449cd3cb92400850c02c34688b952a576a952c4242077c20213b80df41",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 7311,
+    "method": "codex-offline-source-review",
+    "notes": "text/113.txt 전체 7311자와 초안을 대조했다. PIM과 PNM의 칩 내부/별도 근접 칩 차이, 면적 절충 및 소프트웨어 변경 조건을 보존했다. GDDR6-AiM 제품 언급과 1만→5,000개 반례의 가정, 일반 캐시 수치와 노광기 가격 추정을 구분했다. CPU/GPU의 캐시·분기 역할 설명을 모든 제품의 절대적 구조로 일반화하지 않았다. 전성비 10% 저하·가격 10% 상승 발언은 고객 효용에 관한 가정이지 제품 실측이므로 기술 사양으로 만들지 않았다. PNM의 특정 제품명이나 정량 성능은 원문에 없다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "pim",
+      "title": "프로세싱 인 메모리",
+      "engName": "PIM",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 내 연산 구조",
+      "scaleLevel": 4,
+      "classificationNote": "메모리 내 연산 구조 범주이며 메모리와 연산의 역할을 결합하는 접근이므로 통합 연산 구조 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "메모리 쪽에서 일부 연산을 수행해 연산 칩과 메모리 사이 데이터 이동을 줄이는 구조다. 엄밀한 구분에서 PIM은 D램 칩 내부에 연산기를 탑재하는 방식이며 별도 칩을 가까이 두는 PNM과 구별된다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "PIM(Processing-In-Memory)",
+      "evidenceQuote": "PIM(Processing-In-Memory)",
+      "principles": [
+        {
+          "step": 1,
+          "title": "중간 결과 이동 감소",
+          "content": "연산 단계마다 메모리에 적고 다시 가져오는 이동을 줄이기 위해 일부 연산을 메모리에서 처리한다.",
+          "formula": null,
+          "evidenceQuote": "PIM을 사용하면, 메모리 반도체의 데이터 전송 과정이 줄어들고"
+        },
+        {
+          "step": 2,
+          "title": "D램 내부 연산기",
+          "content": "기존 D램 내부에 연산기를 넣으면 면적은 증가하지만 메모리 용량 증가에 따라 연산 속도도 증가할 수 있다.",
+          "formula": null,
+          "evidenceQuote": "전자는 D램 칩의 면적이 넓어지지만, 용량에 비례해 자동으로 연산 속도가 올라가는 장점이 있고"
+        },
+        {
+          "step": 3,
+          "title": "소프트웨어 실행 경로 변경",
+          "content": "기존 읽기→연산 칩 처리→쓰기 대신 PIM에 연산 명령을 보내고 결과를 확인하도록 프로그램을 바꿔야 한다.",
+          "formula": null,
+          "evidenceQuote": "PIM을 통한 장점을 활용하기 위해서는 다음의 형태로 프로그램을 고쳐야만 한다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "기존 소프트웨어의 변경 필요",
+          "description": "PIM의 존재를 활용하지 않는 기존 소프트웨어는 장점을 얻지 못하므로 수정이 필요하다.",
+          "evidenceQuote": "PIM을 사용하기 위해서는 기존의 소프트웨어를 고쳐야 한다는 장애물이 있다."
+        },
+        {
+          "title": "데이터 저장 필요량 유지",
+          "description": "연산 효율이 개선되어도 문제에 필요한 데이터 개수 자체를 줄이지는 않는다.",
+          "evidenceQuote": "PIM은 연산의 효율을 높여주는 것이지, 1만 개의 이미지 필요량을 5,000개로 줄이지는 않기 때문이다."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "SK하이닉스 GDDR6-AiM",
+          "perspectiveBadge": "SK하이닉스",
+          "narrative": "원문 사진은 SK하이닉스가 개발한 PIM 적용 GDDR6-AiM을 제시한다.",
+          "caution": "이 문헌에는 연산량·전력·처리시간 등 제품별 성능 수치가 없다.",
+          "evidenceQuote": "SK하이닉스가 개발한 차세대 메모리반도체 PIM이 적용된 ‘GDDR6-AiM’",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "메모리가 데이터를 보관하는 역할에 더해 계산 일부도 맡도록 한 실제 제품 언급이다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "이미지 저장량과 연산 효율의 구별",
+          "perspectiveBadge": "가정 예시",
+          "narrative": "1만 개 이미지를 처리해야 하는 AI에서는 PIM이 있어도 해당 이미지가 들어갈 용량이 필요하다고 설명한다.",
+          "caution": "제품 실험이 아니라 필요 저장량을 설명하는 가정이다.",
+          "evidenceQuote": "특정 인공지능이 1만 개 이미지를 처리해야 한다고 해도 메모리는 여전히 1만 개의 이미지가 들어갈 용량이 확보돼야 한다.",
+          "specifications": [
+            {
+              "parameter": "필요한 이미지",
+              "value": "1만 개, PIM으로 5,000개로 감소하는 것이 아님",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "1만 개의 이미지 필요량을 5,000개로 줄이지는 않기 때문이다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "계산을 가까이서 하는 것과 필요한 자료 수를 줄이는 것은 별개다. PIM이 효율적이어도 자료를 보관할 공간은 필요하다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "pnm",
+          "name": "PNM",
+          "reason": "메모리 내부 연산기와 별도 근접 로직 칩이라는 두 구현을 원문이 비교한다.",
+          "evidenceQuote": "둘째는 D램과 매우 가까운 곳에 별도의 논리연산을 수행하는 칩을 배치하는 것이다."
+        }
+      ],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "메모리 내 연산 구조",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "pnm",
+      "title": "프로세싱 니어 메모리",
+      "engName": "PNM",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 근접 연산 구조",
+      "scaleLevel": 4,
+      "classificationNote": "메모리 근접 연산 구조 범주이며 별도 로직 다이와 메모리를 근접 결합하므로 통합 구조 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "D램과 매우 가까운 별도 칩에 논리 연산 장치를 배치하는 구조다. 연산 장치가 메모리 칩 내부에 있지 않으므로 엄밀하게 PIM과 구별한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "엄밀하게는 후자는 PNM(Processing-Near-Memory)이라 부른다. 연산 장치가 메모리 반도체에 가까이 있을 뿐, 별도의 칩에 있기 때문이다.",
+      "evidenceQuote": "엄밀하게는 후자는 PNM(Processing-Near-Memory)이라 부른다. 연산 장치가 메모리 반도체에 가까이 있을 뿐, 별도의 칩에 있기 때문이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "별도 로직 다이",
+          "content": "D램 가까이 별도 논리 연산 칩을 배치하며 그림은 D램 다이 하단에 로직 다이가 있는 구성을 보인다.",
+          "formula": null,
+          "evidenceQuote": "D램 다이 하단에 별도로 로직 다이가 적용되는 PNM"
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "pim",
+          "name": "PIM",
+          "reason": "원문은 칩 내부 연산기와 별도 근접 로직 칩의 차이를 비교한다.",
+          "evidenceQuote": "첫째는 기존 D램 칩 내부에 연산기를 탑재하는 방식이고"
+        }
+      ],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "메모리 근접 연산 구조",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "cache-memory",
+      "title": "캐시메모리",
+      "engName": "Cache Memory",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "고속 임시 메모리",
+      "scaleLevel": 2,
+      "classificationNote": "고속 임시 메모리 범주이며 CPU 등에 내장되는 고속 저장 구조이므로 소자·구조 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "연산 장치가 필요로 할 데이터에 빠르게 응답하기 위해 CPU 내부 등에 탑재하는 고속 메모리다. 원문은 충분한 용량과 다음에 사용할 데이터의 예측이 필요하다고 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "CPU 내부에 초고속 메모리를 직접 탑재하기 시작했다. 이것이 캐시메모리(Cache Memory)다.",
+      "evidenceQuote": "CPU 내부에 초고속 메모리를 직접 탑재하기 시작했다. 이것이 캐시메모리(Cache Memory)다.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "면적과 예측 자원",
+          "description": "캐시의 충분한 용량과 데이터 예측에 트랜지스터가 필요하고 동일 용량의 D램보다 큰 면적을 차지한다.",
+          "evidenceQuote": "지금도 캐시메모리는 동일 용량의 D램보다 10배 이상 많은 면적을 차지하기 때문에 매우 비효율적이다."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "CPU와 D램 성능 격차 및 캐시의 절충",
+          "perspectiveBadge": "원문 일반 기술 비교",
+          "narrative": "1980년대 후반부터 2000년대 중반 CPU와 D램의 속도 개선 격차를 설명하고 캐시의 응답 속도와 면적을 비교한다.",
+          "caution": "출처가 구체적 모델·제조공정·측정 조건을 제공하지 않은 일반 비교다.",
+          "evidenceQuote": "CPU의 동작 속도는 매년 약 60%씩 상승하고 있었으나, D램의 반응 속도는 10% 정도 상승하는 데 그쳤기 때문이다.",
+          "specifications": [
+            {
+              "parameter": "CPU 연간 동작 속도 개선",
+              "value": "1980년대 후반~2000년대 중반 매년 약 60",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "CPU의 동작 속도는 매년 약 60%씩 상승"
+            },
+            {
+              "parameter": "D램 반응 속도 개선",
+              "value": "같은 기간 약 10",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "D램의 반응 속도는 10% 정도 상승"
+            },
+            {
+              "parameter": "캐시 반응 속도 비교",
+              "value": "일반 D램 대비 10배 이상 빠름",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "캐시메모리는 일반 D램 대비 반응 속도가 10배 이상 빠르기 때문에"
+            },
+            {
+              "parameter": "캐시 면적 비교",
+              "value": "동일 용량 D램 대비 10배 이상",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "캐시메모리는 동일 용량의 D램보다 10배 이상 많은 면적"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "계산 장치가 빨라지는 만큼 메모리가 빨라지지 않아 가까운 고속 메모리를 넣었지만, 그 메모리는 같은 용량을 만드는 데 큰 면적이 필요하다는 절충이다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "cpu",
+          "name": "중앙처리장치",
+          "reason": "113은 CPU 내부에 초고속 메모리를 직접 탑재한 것이 캐시라고 정의하므로 캐시→CPU의 실제 구성 방향이다. 원문의 CPU 캐시 맥락에 한정한다.",
+          "evidenceQuote": "CPU 내부에 초고속 메모리를 직접 탑재하기 시작했다. 이것이 캐시메모리(Cache Memory)다."
+        }
+      ],
+      "isA": [
+        {
+          "id": "memory-semiconductor",
+          "name": "메모리 반도체",
+          "reason": "캐시는 CPU가 쓸 데이터를 저장하고 읽기·쓰기에 빠르게 응답하는 물리적 메모리이며, 등록된 메모리 반도체의 데이터 저장 기능과 의미가 대응한다. CPU 전체가 아니라 그 내부 저장용 메모리의 분류다.",
+          "evidenceQuote": "캐시메모리는 일반 D램 대비 반응 속도가 10배 이상 빠르기 때문에, CPU가 데이터를 필요로 할 때 빠르게 읽기·쓰기 요청에 응할 수 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "고속 임시 메모리",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "branch-predictor",
+      "title": "분기 예측기",
+      "engName": "Branch Predictor",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "CPU 제어 회로",
+      "scaleLevel": 2,
+      "classificationNote": "CPU 제어 회로 범주이며 CPU 내부에서 분기를 예측하는 회로이므로 소자·구조 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "CPU에서 조건 분기의 다음 명령을 예측하고 실행하여 계산 대기 시간을 줄이는 디지털 회로다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "분기 예측기 : CPU 내에서 분기 예측을 수행하는 디지털 회로. 조건 분기의 다음 명령을 예측하고 실행해 계산 대기 시간을 낭비하지 않아 CPU의 성능을 높여준다.",
+      "evidenceQuote": "분기 예측기 : CPU 내에서 분기 예측을 수행하는 디지털 회로. 조건 분기의 다음 명령을 예측하고 실행해 계산 대기 시간을 낭비하지 않아 CPU의 성능을 높여준다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "cpu",
+          "name": "CPU",
+          "reason": "원문이 CPU 내부 회로라고 정의한다.",
+          "evidenceQuote": "CPU 내에서 분기 예측을 수행하는 디지털 회로."
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "CPU 제어 회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "floating-point",
+      "title": "부동소수점",
+      "engName": "Floating Point",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "수치 표현",
+      "scaleLevel": 2,
+      "classificationNote": "수치 표현 범주이며 연산 장치가 다루는 숫자 표현이므로 연산 구조의 특성 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "소수점의 위치를 고정하지 않고 지수 등을 사용해 실수를 표현하는 방법이다. 원문은 GPU의 대규모 실수 연산을 설명하며 이 표현법을 정의한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "소수점의 위치를 바꿔 정수와 소수를 구분 표기해 연산에 용이하게 하는 것.",
+      "evidenceQuote": "소수점의 위치를 바꿔 정수와 소수를 구분 표기해 연산에 용이하게 하는 것.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "수치 표현",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "photolithography-equipment",
+      "title": "노광 장비",
+      "engName": "Stepper / EUV Scanner",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "노광 장비",
+      "scaleLevel": 3,
+      "classificationNote": "노광 장비 범주이며 빛을 노출하는 포토 공정 장비이므로 단위 공정·장비 기술 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "반도체 포토 공정에서 빛을 노출해 미세 회로를 그리는 장비다. 원문은 Stepper와 EUV Scanner를 예로 든다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "노광기 : 반도체 제조 Photo공정에서 미세한 회로를 그리기 위해 빛을 직접 노출(Exposure)시키는 장비로 Stepper, EUV Scanner 등이 있다.",
+      "evidenceQuote": "노광기 : 반도체 제조 Photo공정에서 미세한 회로를 그리기 위해 빛을 직접 노출(Exposure)시키는 장비로 Stepper, EUV Scanner 등이 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "미세화 비용 상승을 설명하는 장비 가격",
+          "perspectiveBadge": "원문 시점 비용 설명",
+          "narrative": "원문은 노광기 한 대 가격이 1,000억 원을 넘고 다음 세대는 4,000억 원 이상으로 추정된다고 설명한다.",
+          "caution": "장비 모델·계약 조건·시점별 실제 거래가격이 없는 칼럼 설명이며 다음 세대 값은 추정이다.",
+          "evidenceQuote": "노광기*의 가격은 한 대당 1,000억 원을 넘어서고 있고, 다음 세대 장비는 4,000억 원 이상으로 추정하고 있다.",
+          "specifications": [
+            {
+              "parameter": "당시 노광기 가격 표현",
+              "value": "한 대당 1,000억 원 초과",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "한 대당 1,000억 원을 넘어서고"
+            },
+            {
+              "parameter": "다음 세대 가격 추정",
+              "value": "4,000억 원 이상 추정",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "다음 세대 장비는 4,000억 원 이상으로 추정"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "미세 회로를 만드는 장비가 비싸질수록 반도체 성능을 제조 공정 개선만으로 높이기 어려워진다는 배경 설명이다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "wafer-fabrication-equipment",
+          "name": "웨이퍼 제조 장비",
+          "reason": "113의 노광기는 반도체 포토 공정에서 미세 회로를 그리는 장비로 정의되어, 집적회로를 제조하는 도구·기계라는 등록 상위 개념과 직접 대응한다.",
+          "evidenceQuote": "노광기 : 반도체 제조 Photo공정에서 미세한 회로를 그리기 위해 빛을 직접 노출(Exposure)시키는 장비로 Stepper, EUV Scanner 등이 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "노광 장비",
+          "scaleLevel": 3
+        }
+      ]
+    }
+  ]
+}

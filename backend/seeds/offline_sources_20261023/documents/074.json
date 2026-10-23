@@ -1,0 +1,241 @@
+{
+  "index": 74,
+  "filePath": "samsung/glossary/반도체-용어-사전led편-blu.md",
+  "sourceHash": "ea0dec962c5a6a9573b56f62dbe9df6bbd5d23cc180c33cf1f978957668f8e56",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1550,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체를 대조해 실제 개념명과 정의를 보존했다. 일반 적용 상황과 설명용 수치를 실제 제품 실측으로 바꾸지 않았다. LED BLU의 환경성 설명 중 수은 미사용과 이산화탄소 미발생을 인과로 연결한 원문 표현은 일반 배출량 사실로 확대하지 않았다. 발행사를 적용 회사로 추정하지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "blu",
+      "title": "백라이트 유닛",
+      "engName": "Back Light Unit",
+      "aliases": [
+        "BLU"
+      ],
+      "domainFacet": "device",
+      "category": "디스플레이 광원 모듈",
+      "scaleLevel": 4,
+      "classificationNote": "백라이트 유닛의 원문 정의에 따라 디스플레이 광원 모듈에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "스스로 빛을 내지 못하는 액정 디스플레이의 광원으로 쓰이며 LCD 뒷면에서 영상을 볼 수 있도록 고르게 빛을 비추는 부품이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "스스로 빛을 내지 못하는 액정 디스플레이(LCD)의 광원으로 사용되는 부품.",
+      "evidenceQuote": "스스로 빛을 내지 못하는 액정 디스플레이(LCD)의 광원으로 사용되는 부품.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "균일한 후면 조명",
+          "content": "LCD 뒷면에서 화면을 고르게 비춘다. 광원 종류로 CCFL BLU와 LED BLU가 있다.",
+          "formula": null,
+          "evidenceQuote": "LCD 뒷면에서 디스플레이의 영상이 눈에 보일 수 있도록 고르게 비춰주는 역할을 하며, 종류에는 CCFL(냉음극형광램프) BLU와 LED(발광다이오드) BLU가 있다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "디스플레이 광원 모듈",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "led-blu",
+      "title": "LED 백라이트 유닛",
+      "engName": "LED BLU",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "디스플레이 광원 모듈",
+      "scaleLevel": 4,
+      "classificationNote": "LED 백라이트 유닛의 원문 정의에 따라 디스플레이 광원 모듈에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "발광다이오드를 광원으로 사용하는 백라이트 유닛이다. 원문은 CCFL BLU보다 전력소모량이 낮고 수은을 사용하지 않는다고 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "LED BLU는  CCFL BLU에 비해 전력소모량이 낮아 에너지 절감 효과가 있으며, 수은을 사용하지 않아 이산화탄소가 발생되지 않는 친환경적인 장점이 있다.",
+      "evidenceQuote": "LED BLU는  CCFL BLU에 비해 전력소모량이 낮아 에너지 절감 효과가 있으며, 수은을 사용하지 않아 이산화탄소가 발생되지 않는 친환경적인 장점이 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "ccfl-blu",
+          "name": "CCFL 백라이트 유닛",
+          "reason": "원문이 두 광원 종류의 전력소모량 등을 비교한다.",
+          "evidenceQuote": "LED BLU는  CCFL BLU에 비해 전력소모량이 낮아 에너지 절감 효과가 있으며, 수은을 사용하지 않아 이산화탄소가 발생되지 않는 친환경적인 장점이 있다."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "blu",
+          "name": "백라이트 유닛",
+          "reason": "원문이 BLU의 광원 종류로 LED 방식을 명시한다.",
+          "evidenceQuote": "LCD 뒷면에서 디스플레이의 영상이 눈에 보일 수 있도록 고르게 비춰주는 역할을 하며, 종류에는 CCFL(냉음극형광램프) BLU와 LED(발광다이오드) BLU가 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "디스플레이 광원 모듈",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "ccfl-blu",
+      "title": "CCFL 백라이트 유닛",
+      "engName": "CCFL BLU",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "디스플레이 광원 모듈",
+      "scaleLevel": 4,
+      "classificationNote": "CCFL 백라이트 유닛의 원문 정의에 따라 디스플레이 광원 모듈에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "냉음극형광램프를 광원으로 사용하는 백라이트 유닛이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "LCD 뒷면에서 디스플레이의 영상이 눈에 보일 수 있도록 고르게 비춰주는 역할을 하며, 종류에는 CCFL(냉음극형광램프) BLU와 LED(발광다이오드) BLU가 있다.",
+      "evidenceQuote": "LCD 뒷면에서 디스플레이의 영상이 눈에 보일 수 있도록 고르게 비춰주는 역할을 하며, 종류에는 CCFL(냉음극형광램프) BLU와 LED(발광다이오드) BLU가 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "blu",
+          "name": "백라이트 유닛",
+          "reason": "원문이 BLU의 광원 종류로 CCFL 방식을 명시한다.",
+          "evidenceQuote": "LCD 뒷면에서 디스플레이의 영상이 눈에 보일 수 있도록 고르게 비춰주는 역할을 하며, 종류에는 CCFL(냉음극형광램프) BLU와 LED(발광다이오드) BLU가 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "디스플레이 광원 모듈",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "edge-blu",
+      "title": "측면형 백라이트 유닛",
+      "engName": "Edge형",
+      "aliases": [
+        "측면형 BLU"
+      ],
+      "domainFacet": "device",
+      "category": "디스플레이 광원 모듈",
+      "scaleLevel": 4,
+      "classificationNote": "측면형 백라이트 유닛의 원문 정의에 따라 디스플레이 광원 모듈에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "BLU의 측면형 방식으로, 원문에서 주로 휴대전화나 노트북 등에 사용한다고 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "BLU는 방식에 따라 크게 측면형(Edge형)과 직하형(Direct형)으로 구분한다. 측면형은 주로 휴대전화나 노트북 등에 사용되며, 직하방식은 TV 등의 대형 디스플레이에 사용된다. 특히 직하형 방식은 블럭별로 LED를 껐다가 켜주기 때문에 높은 명암비를 구현할 수 있다.",
+      "evidenceQuote": "BLU는 방식에 따라 크게 측면형(Edge형)과 직하형(Direct형)으로 구분한다. 측면형은 주로 휴대전화나 노트북 등에 사용되며, 직하방식은 TV 등의 대형 디스플레이에 사용된다. 특히 직하형 방식은 블럭별로 LED를 껐다가 켜주기 때문에 높은 명암비를 구현할 수 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "휴대전화·노트북의 측면형 BLU",
+          "perspectiveBadge": "측면형 BLU",
+          "narrative": "측면형 BLU는 주로 휴대전화나 노트북 등에 사용된다.",
+          "caution": "",
+          "evidenceQuote": "BLU는 방식에 따라 크게 측면형(Edge형)과 직하형(Direct형)으로 구분한다. 측면형은 주로 휴대전화나 노트북 등에 사용되며, 직하방식은 TV 등의 대형 디스플레이에 사용된다. 특히 직하형 방식은 블럭별로 LED를 껐다가 켜주기 때문에 높은 명암비를 구현할 수 있다.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "원문이 설명하는 측면형 방식의 적용 분야이다. 개별 제조사나 제품 모델은 제시되지 않았다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "blu",
+          "name": "백라이트 유닛",
+          "reason": "원문이 BLU의 방식으로 측면형을 구분한다.",
+          "evidenceQuote": "BLU는 방식에 따라 크게 측면형(Edge형)과 직하형(Direct형)으로 구분한다. 측면형은 주로 휴대전화나 노트북 등에 사용되며, 직하방식은 TV 등의 대형 디스플레이에 사용된다. 특히 직하형 방식은 블럭별로 LED를 껐다가 켜주기 때문에 높은 명암비를 구현할 수 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "디스플레이 광원 모듈",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "direct-blu",
+      "title": "직하형 백라이트 유닛",
+      "engName": "Direct형",
+      "aliases": [
+        "직하형 BLU"
+      ],
+      "domainFacet": "device",
+      "category": "디스플레이 광원 모듈",
+      "scaleLevel": 4,
+      "classificationNote": "직하형 백라이트 유닛의 원문 정의에 따라 디스플레이 광원 모듈에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "TV 등 대형 디스플레이에 쓰이는 BLU 방식으로 블록별 LED 점멸을 통해 높은 명암비를 구현할 수 있다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "BLU는 방식에 따라 크게 측면형(Edge형)과 직하형(Direct형)으로 구분한다. 측면형은 주로 휴대전화나 노트북 등에 사용되며, 직하방식은 TV 등의 대형 디스플레이에 사용된다. 특히 직하형 방식은 블럭별로 LED를 껐다가 켜주기 때문에 높은 명암비를 구현할 수 있다.",
+      "evidenceQuote": "BLU는 방식에 따라 크게 측면형(Edge형)과 직하형(Direct형)으로 구분한다. 측면형은 주로 휴대전화나 노트북 등에 사용되며, 직하방식은 TV 등의 대형 디스플레이에 사용된다. 특히 직하형 방식은 블럭별로 LED를 껐다가 켜주기 때문에 높은 명암비를 구현할 수 있다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "블록별 LED 제어",
+          "content": "블록별로 LED를 껐다 켜서 높은 명암비를 구현한다.",
+          "formula": null,
+          "evidenceQuote": "BLU는 방식에 따라 크게 측면형(Edge형)과 직하형(Direct형)으로 구분한다. 측면형은 주로 휴대전화나 노트북 등에 사용되며, 직하방식은 TV 등의 대형 디스플레이에 사용된다. 특히 직하형 방식은 블럭별로 LED를 껐다가 켜주기 때문에 높은 명암비를 구현할 수 있다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "TV 등 대형 디스플레이의 직하형 BLU",
+          "perspectiveBadge": "직하형 BLU",
+          "narrative": "원문은 직하형 방식을 TV 등 대형 디스플레이에 사용하는 것으로 설명한다.",
+          "caution": "",
+          "evidenceQuote": "BLU는 방식에 따라 크게 측면형(Edge형)과 직하형(Direct형)으로 구분한다. 측면형은 주로 휴대전화나 노트북 등에 사용되며, 직하방식은 TV 등의 대형 디스플레이에 사용된다. 특히 직하형 방식은 블럭별로 LED를 껐다가 켜주기 때문에 높은 명암비를 구현할 수 있다.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "대형 화면에서 블록별 조명 제어를 하는 적용 상황이며 실제 모델이나 명암비 값은 제시되지 않았다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "blu",
+          "name": "백라이트 유닛",
+          "reason": "원문이 BLU의 방식으로 직하형을 구분한다.",
+          "evidenceQuote": "BLU는 방식에 따라 크게 측면형(Edge형)과 직하형(Direct형)으로 구분한다. 측면형은 주로 휴대전화나 노트북 등에 사용되며, 직하방식은 TV 등의 대형 디스플레이에 사용된다. 특히 직하형 방식은 블럭별로 LED를 껐다가 켜주기 때문에 높은 명암비를 구현할 수 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "디스플레이 광원 모듈",
+          "scaleLevel": 4
+        }
+      ]
+    }
+  ]
+}

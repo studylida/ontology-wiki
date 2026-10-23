@@ -1,0 +1,853 @@
+{
+  "index": 125,
+  "filePath": "skhynix/skhynix_pkg_02_3d_heterogeneous.md",
+  "sourceHash": "5e3f531d077891a284f05c1fad2714fd93332ee27ed53cffea507809b5c6b33a",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 10846,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체를 읽고 외부 전문가 칼럼의 본문과 FAQ를 함께 대조했다. 2.5D 일반 치수와 TSMC CoWoS 소속을 분리하고, AMD 라이젠·SK하이닉스 HBM 사례를 각각 보존했다. 하이브리드 본딩 1μm는 개발 목표다. 유리 스마트 인터포저·저온 소자층·3진법 집적은 가능성/연구로 구분했다. CPU-SRAM의 2.5D 연결 불가능 주장과 초기 3D 평가를 보편 법칙으로 확대하지 않았다. 냉각 방법은 제안된 요소기술이지 실제 양산 냉각 도입 사례가 아니다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "heterogeneous-integration",
+      "title": "이종집적",
+      "engName": "Heterogeneous Integration",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "패키징 통합",
+      "scaleLevel": 4,
+      "classificationNote": "시스템 집적 기술 분야이며, 여러 칩·기능·회로를 묶는 패키지 또는 시스템 구조이므로 규모 4로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "서로 다른 기능과 공정을 가진 칩이나 소자층을 연결해 하나의 시스템처럼 동작하도록 만드는 집적 기술이다. 2.5D 배치와 3D 적층을 혼용할 수 있다.",
+      "purpose": "평면 미세화와 배선 혼잡, 소모 전력 증가의 한계를 완화한다.",
+      "summaryEvidenceQuote": "3차원 이종집적기술은 기존처럼 웨이퍼 표면(2D 평면)에만 회로를 배치하는 것이 아니라, 서로 다른 기능과 공정을 가진 칩이나 소자층을 수직으로 쌓아 올려 하나의 시스템처럼 동작하도록 만드는 기술이다. 이는 미세화 한계와 배선 혼잡, 전력 증가 등 평면 집적의 한계를 넘어서기 위한 패러다임 전환으로, 반도체 생태계의 ‘대항해시대’를 여는 핵심 기술로 평가된다. 누가 이 기술의 주도권을 확보하느냐에 따라 향후 반도체 산업 지형과 글로벌 분업 구조가 크게 달라질 수 있다.",
+      "evidenceQuote": "3차원 이종집적기술은 기존처럼 웨이퍼 표면(2D 평면)에만 회로를 배치하는 것이 아니라, 서로 다른 기능과 공정을 가진 칩이나 소자층을 수직으로 쌓아 올려 하나의 시스템처럼 동작하도록 만드는 기술이다. 이는 미세화 한계와 배선 혼잡, 전력 증가 등 평면 집적의 한계를 넘어서기 위한 패러다임 전환으로, 반도체 생태계의 ‘대항해시대’를 여는 핵심 기술로 평가된다. 누가 이 기술의 주도권을 확보하느냐에 따라 향후 반도체 산업 지형과 글로벌 분업 구조가 크게 달라질 수 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "시스템 집적 기술",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "heterogeneous-3d-integration",
+      "title": "3차원 이종집적",
+      "engName": "Heterogeneous 3D Integration",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "3D 시스템 집적",
+      "scaleLevel": 4,
+      "classificationNote": "3D 시스템 집적 분야이며, 여러 칩·기능·회로를 묶는 패키지 또는 시스템 구조이므로 규모 4로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "서로 다른 기능과 공정을 가진 칩이나 소자층을 수직으로 쌓아 하나의 시스템처럼 동작시키는 집적 방식이다.",
+      "purpose": "신호 전송 경로를 줄여 고속·저전력 시스템을 구성한다.",
+      "summaryEvidenceQuote": "3차원 이종집적기술은 기존처럼 웨이퍼 표면(2D 평면)에만 회로를 배치하는 것이 아니라, 서로 다른 기능과 공정을 가진 칩이나 소자층을 수직으로 쌓아 올려 하나의 시스템처럼 동작하도록 만드는 기술이다. 이는 미세화 한계와 배선 혼잡, 전력 증가 등 평면 집적의 한계를 넘어서기 위한 패러다임 전환으로, 반도체 생태계의 ‘대항해시대’를 여는 핵심 기술로 평가된다. 누가 이 기술의 주도권을 확보하느냐에 따라 향후 반도체 산업 지형과 글로벌 분업 구조가 크게 달라질 수 있다.",
+      "evidenceQuote": "3차원 이종집적기술은 기존처럼 웨이퍼 표면(2D 평면)에만 회로를 배치하는 것이 아니라, 서로 다른 기능과 공정을 가진 칩이나 소자층을 수직으로 쌓아 올려 하나의 시스템처럼 동작하도록 만드는 기술이다. 이는 미세화 한계와 배선 혼잡, 전력 증가 등 평면 집적의 한계를 넘어서기 위한 패러다임 전환으로, 반도체 생태계의 ‘대항해시대’를 여는 핵심 기술로 평가된다. 누가 이 기술의 주도권을 확보하느냐에 따라 향후 반도체 산업 지형과 글로벌 분업 구조가 크게 달라질 수 있다.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "적층 내부의 열",
+          "description": "내부 칩의 열 방출이 어려워 발열 밀도가 커지므로 새로운 냉각 기술이 필요하다.",
+          "evidenceQuote": "위에서 예시로 든 요소기술 이외에도 2.5D와 3D 이종집적기술이 발전함에 따라 새로운 소재, 공정, 소자 기술이 적용될 가능성이 열려 있다. 물론, 기회가 큰 만큼 위험 요소도 많다, 가장 큰 문제는 열 관리다. 적층 구조 내부의 칩은 외부로 열을 방출하기가 어렵기 때문에 발열 밀도가 급격히 높아진다. 기존의 공랭이나 수랭 방식으로는 충분하지 않으며, 마이크로 채널 냉각*이나 유체 냉각*, 다이렉트 액침*, 이방성 냉각 소재* 또는 능동 냉각 소자*와 같은 새로운 열 관리 설루션이 필요하다."
+        },
+        {
+          "title": "연결 신뢰성",
+          "description": "작은 결함도 전체 패키지를 불량으로 만들 수 있어 TSV 피로, 마이크로 범프 내구성, 접합 강도, 열사이클 내구성을 검증해야 한다.",
+          "evidenceQuote": "신뢰성도 중요한 문제다. 작은 결함 하나가 전체 패키지를 불량으로 만들 수 있으며, TSV의 피로 수명, 마이크로 범프*의 내구성, 계면 접합 강도, 열사이클 내구성 등 다양한 요소가 꼼꼼히 검증돼야 한다. 마이크로미터 이하의 간격에서 TSV나 배선을 구현하려면 기존 장비보다 훨씬 높은 수준의 가공과 계측 능력이 필요하다."
+        },
+        {
+          "title": "복합 설계",
+          "description": "전기적·열적·기계적 특성을 함께 고려하고 칩 간 인터페이스와 신뢰성 평가 체계를 마련해야 한다.",
+          "evidenceQuote": "특히, 단순히 칩을 쌓고 연결하는 것이 아니라 전기적·열적·기계적 특성을 동시에 고려해야 하는 새로운 수준의 설계 체계가 필요하다. 칩렛, 이종집적, 2.5D와 3D 패키징을 아우르는 종합적 집적 역량을 확보하기 위해, 파운드리, 패키징 전문 기업, 소재·장비 업체, 설계 기업 등 다양한 주체들이 함께 협력해야 하며, 국제 표준화도 중요하다. 특히 칩 간 인터페이스 규격과 신뢰성 평가 체계가 정립돼야 대규모 생태계가 구축될 수 있다."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "CPU 상부에 메모리를 접합한 라이젠",
+          "perspectiveBadge": "AMD Ryzen",
+          "narrative": "원문은 AMD 라이젠에서 CPU 위에 메모리칩을 직접 붙이는 기술을 3D 이종집적의 대표 사례로 소개한다.",
+          "caution": "본문은 구체적 라이젠 제품명과 성능 측정값을 제시하지 않는다.",
+          "evidenceQuote": "이 때문에 고속 신호 처리가 필요할 경우 3D 이종집적기술을 사용할 수밖에 없다. AMD社의 라이젠*과 같이 CPU 위에 메모리칩을 바로 붙이는 기술이나, 메모리칩을 얇게 갈아서 12장까지 수직으로 이어 붙이고, 칩과 칩 사이를 TSV 기술로 이어 붙이는 SK하이닉스의 HBM 기술이 3D 이종집적기술의 대표적인 사례다. 다만, 칩의 방열 문제와 적층 구조의 신뢰성 문제가 아직 완벽히 해결된 것은 아니기 때문에, 3D 이종집적기술은 여전히 개발 초기 단계로 볼 수 있다.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "연산 장치와 메모리를 위아래로 가깝게 붙여 신호가 오가는 거리를 줄이는 사례다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "TSV로 최대 12장 메모리를 연결한 HBM",
+          "perspectiveBadge": "SK하이닉스 HBM",
+          "narrative": "원문은 얇게 연마한 메모리칩을 12장까지 수직으로 쌓고 TSV로 연결하는 SK하이닉스 HBM을 대표 사례로 제시한다.",
+          "caution": "구체적인 HBM 세대는 명시하지 않는다.",
+          "evidenceQuote": "이 때문에 고속 신호 처리가 필요할 경우 3D 이종집적기술을 사용할 수밖에 없다. AMD社의 라이젠*과 같이 CPU 위에 메모리칩을 바로 붙이는 기술이나, 메모리칩을 얇게 갈아서 12장까지 수직으로 이어 붙이고, 칩과 칩 사이를 TSV 기술로 이어 붙이는 SK하이닉스의 HBM 기술이 3D 이종집적기술의 대표적인 사례다. 다만, 칩의 방열 문제와 적층 구조의 신뢰성 문제가 아직 완벽히 해결된 것은 아니기 때문에, 3D 이종집적기술은 여전히 개발 초기 단계로 볼 수 있다.",
+          "specifications": [
+            {
+              "parameter": "수직으로 연결하는 메모리칩 수",
+              "value": "12장까지",
+              "unit": "장",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "이 때문에 고속 신호 처리가 필요할 경우 3D 이종집적기술을 사용할 수밖에 없다. AMD社의 라이젠*과 같이 CPU 위에 메모리칩을 바로 붙이는 기술이나, 메모리칩을 얇게 갈아서 12장까지 수직으로 이어 붙이고, 칩과 칩 사이를 TSV 기술로 이어 붙이는 SK하이닉스의 HBM 기술이 3D 이종집적기술의 대표적인 사례다. 다만, 칩의 방열 문제와 적층 구조의 신뢰성 문제가 아직 완벽히 해결된 것은 아니기 때문에, 3D 이종집적기술은 여전히 개발 초기 단계로 볼 수 있다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "여러 메모리를 위로 쌓고 칩 안의 수직 통로로 연결한다. 많은 데이터를 가까운 경로로 주고받는 데 유리하지만 쌓인 구조의 열과 연결 신뢰성도 관리해야 한다.",
+            "background": null
+          }
+        }
+      ],
+      "isA": [
+        {
+          "id": "heterogeneous-integration",
+          "name": "이종집적",
+          "reason": "3차원 이종집적은 서로 다른 기능과 공정의 칩·소자층을 수직 집적하는 방식으로 정의된다.",
+          "evidenceQuote": "3차원 이종집적기술은 기존처럼 웨이퍼 표면(2D 평면)에만 회로를 배치하는 것이 아니라, 서로 다른 기능과 공정을 가진 칩이나 소자층을 수직으로 쌓아 올려 하나의 시스템처럼 동작하도록 만드는 기술이다. 이는 미세화 한계와 배선 혼잡, 전력 증가 등 평면 집적의 한계를 넘어서기 위한 패러다임 전환으로, 반도체 생태계의 ‘대항해시대’를 여는 핵심 기술로 평가된다. 누가 이 기술의 주도권을 확보하느냐에 따라 향후 반도체 산업 지형과 글로벌 분업 구조가 크게 달라질 수 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "3D 시스템 집적",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "monolithic-3d-integration",
+      "title": "모놀리식 3D 집적",
+      "engName": "Monolithic 3D Integration",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "3D 시스템 집적",
+      "scaleLevel": 4,
+      "classificationNote": "3D 시스템 집적 분야이며, 여러 칩·기능·회로를 묶는 패키지 또는 시스템 구조이므로 규모 4로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "이미 형성된 기판 위에 새로운 반도체 소자층을 만들어 수직으로 집적하는 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "2차원(2D) 평면에서의 미세화 한계를 극복하기 위해 이미 형성된 기판 위에 새로운 반도체 소자층을 쌓는 모놀리식(Monolithic) 3D 이종집적기술에 대한 연구는 1980년대 후반부터 시작됐다. 새로운 반도체 소자층을 형성하는 방법으로는 ①기판에서 직접 단결정을 성장시키는 결정 성장법 ②다결정 또는 비정질 반도체층을 증착한 후 레이저 등을 이용해 결정화하는 방법 ③완성된 소자를 ‘Smart-Cut*’ 등의 공정을 통해 다른 기판 위로 전사하는 방법 등이 시도됐다. 그러나 결정 성장 온도의 제약, 높은 결함 밀도, 전사 기술의 한계 등으로 인해 상용화에는 이르지 못했다. 그럼에도 불구하고, 이러한 초기 시도들은 후에 수백 단의 소자층을 수직으로 연결하는 수직 구조(Vertical) 낸드플래시(NAND Flash)로 구현됐기 때문에 완전한 실패로 보기는 어렵다.",
+      "evidenceQuote": "2차원(2D) 평면에서의 미세화 한계를 극복하기 위해 이미 형성된 기판 위에 새로운 반도체 소자층을 쌓는 모놀리식(Monolithic) 3D 이종집적기술에 대한 연구는 1980년대 후반부터 시작됐다. 새로운 반도체 소자층을 형성하는 방법으로는 ①기판에서 직접 단결정을 성장시키는 결정 성장법 ②다결정 또는 비정질 반도체층을 증착한 후 레이저 등을 이용해 결정화하는 방법 ③완성된 소자를 ‘Smart-Cut*’ 등의 공정을 통해 다른 기판 위로 전사하는 방법 등이 시도됐다. 그러나 결정 성장 온도의 제약, 높은 결함 밀도, 전사 기술의 한계 등으로 인해 상용화에는 이르지 못했다. 그럼에도 불구하고, 이러한 초기 시도들은 후에 수백 단의 소자층을 수직으로 연결하는 수직 구조(Vertical) 낸드플래시(NAND Flash)로 구현됐기 때문에 완전한 실패로 보기는 어렵다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "상부 소자층 형성",
+          "content": "직접 단결정 성장, 비정질·다결정 증착 뒤 레이저 결정화, 완성 소자의 Smart-Cut 전사 등이 시도됐다.",
+          "formula": null,
+          "evidenceQuote": "2차원(2D) 평면에서의 미세화 한계를 극복하기 위해 이미 형성된 기판 위에 새로운 반도체 소자층을 쌓는 모놀리식(Monolithic) 3D 이종집적기술에 대한 연구는 1980년대 후반부터 시작됐다. 새로운 반도체 소자층을 형성하는 방법으로는 ①기판에서 직접 단결정을 성장시키는 결정 성장법 ②다결정 또는 비정질 반도체층을 증착한 후 레이저 등을 이용해 결정화하는 방법 ③완성된 소자를 ‘Smart-Cut*’ 등의 공정을 통해 다른 기판 위로 전사하는 방법 등이 시도됐다. 그러나 결정 성장 온도의 제약, 높은 결함 밀도, 전사 기술의 한계 등으로 인해 상용화에는 이르지 못했다. 그럼에도 불구하고, 이러한 초기 시도들은 후에 수백 단의 소자층을 수직으로 연결하는 수직 구조(Vertical) 낸드플래시(NAND Flash)로 구현됐기 때문에 완전한 실패로 보기는 어렵다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "초기 접근의 한계",
+          "description": "결정 성장 온도, 높은 결함 밀도, 전사 기술의 한계로 당시 시도는 상용화에 이르지 못했다.",
+          "evidenceQuote": "2차원(2D) 평면에서의 미세화 한계를 극복하기 위해 이미 형성된 기판 위에 새로운 반도체 소자층을 쌓는 모놀리식(Monolithic) 3D 이종집적기술에 대한 연구는 1980년대 후반부터 시작됐다. 새로운 반도체 소자층을 형성하는 방법으로는 ①기판에서 직접 단결정을 성장시키는 결정 성장법 ②다결정 또는 비정질 반도체층을 증착한 후 레이저 등을 이용해 결정화하는 방법 ③완성된 소자를 ‘Smart-Cut*’ 등의 공정을 통해 다른 기판 위로 전사하는 방법 등이 시도됐다. 그러나 결정 성장 온도의 제약, 높은 결함 밀도, 전사 기술의 한계 등으로 인해 상용화에는 이르지 못했다. 그럼에도 불구하고, 이러한 초기 시도들은 후에 수백 단의 소자층을 수직으로 연결하는 수직 구조(Vertical) 낸드플래시(NAND Flash)로 구현됐기 때문에 완전한 실패로 보기는 어렵다."
+        }
+      ],
+      "perspectiveCases": [],
+      "isA": [
+        {
+          "id": "heterogeneous-3d-integration",
+          "name": "3차원 이종집적",
+          "reason": "본문은 기판 위에 소자층을 형성하는 접근을 모놀리식 3D 이종집적기술로 소개한다.",
+          "evidenceQuote": "2차원(2D) 평면에서의 미세화 한계를 극복하기 위해 이미 형성된 기판 위에 새로운 반도체 소자층을 쌓는 모놀리식(Monolithic) 3D 이종집적기술에 대한 연구는 1980년대 후반부터 시작됐다. 새로운 반도체 소자층을 형성하는 방법으로는 ①기판에서 직접 단결정을 성장시키는 결정 성장법 ②다결정 또는 비정질 반도체층을 증착한 후 레이저 등을 이용해 결정화하는 방법 ③완성된 소자를 ‘Smart-Cut*’ 등의 공정을 통해 다른 기판 위로 전사하는 방법 등이 시도됐다. 그러나 결정 성장 온도의 제약, 높은 결함 밀도, 전사 기술의 한계 등으로 인해 상용화에는 이르지 못했다. 그럼에도 불구하고, 이러한 초기 시도들은 후에 수백 단의 소자층을 수직으로 연결하는 수직 구조(Vertical) 낸드플래시(NAND Flash)로 구현됐기 때문에 완전한 실패로 보기는 어렵다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "3D 시스템 집적",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "smart-cut",
+      "title": "스마트 컷 전사",
+      "engName": "Smart-Cut",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "소자층 전사",
+      "scaleLevel": 3,
+      "classificationNote": "소자층 전사 분야이며, 특정 연결·접합·전사·제어·냉각 공정이나 장비 기술이므로 규모 3으로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "실리콘 웨이퍼에 주로 수소 이온을 주입해 미세한 균열층을 만든 뒤 다른 기판과 접합·박리하여 얇은 단결정층을 옮기는 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* Smart-Cut: 실리콘 웨이퍼에 이온(주로 수소)을 주입해 미세한 균열층을 만든 뒤, 이를 다른 기판에 접합·박리해 얇은 단결정층을 전사하는 기술",
+      "evidenceQuote": "* Smart-Cut: 실리콘 웨이퍼에 이온(주로 수소)을 주입해 미세한 균열층을 만든 뒤, 이를 다른 기판에 접합·박리해 얇은 단결정층을 전사하는 기술",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "소자층 전사",
+          "scaleLevel": 3
+        }
+      ],
+      "partOf": [
+        {
+          "id": "monolithic-3d-integration",
+          "name": "모놀리식 3D 집적",
+          "reason": "모놀리식 3D 소자층 형성 방법의 하나로 Smart-Cut을 통한 완성 소자 전사 단계를 시도했다고 명시한다. 그 시도된 공정 구성에 한정한 단계-전체 관계다.",
+          "evidenceQuote": "2차원(2D) 평면에서의 미세화 한계를 극복하기 위해 이미 형성된 기판 위에 새로운 반도체 소자층을 쌓는 모놀리식(Monolithic) 3D 이종집적기술에 대한 연구는 1980년대 후반부터 시작됐다. 새로운 반도체 소자층을 형성하는 방법으로는 ①기판에서 직접 단결정을 성장시키는 결정 성장법 ②다결정 또는 비정질 반도체층을 증착한 후 레이저 등을 이용해 결정화하는 방법 ③완성된 소자를 ‘Smart-Cut*’ 등의 공정을 통해 다른 기판 위로 전사하는 방법 등이 시도됐다. 그러나 결정 성장 온도의 제약, 높은 결함 밀도, 전사 기술의 한계 등으로 인해 상용화에는 이르지 못했다. 그럼에도 불구하고, 이러한 초기 시도들은 후에 수백 단의 소자층을 수직으로 연결하는 수직 구조(Vertical) 낸드플래시(NAND Flash)로 구현됐기 때문에 완전한 실패로 보기는 어렵다."
+        }
+      ]
+    },
+    {
+      "conceptId": "2-5d-ic",
+      "title": "2.5D 집적",
+      "engName": "2.5D Integration",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "패키징·집적 시스템",
+      "scaleLevel": 4,
+      "classificationNote": "패키징 집적 구조 분야이며, 여러 칩·기능·회로를 묶는 패키지 또는 시스템 구조이므로 규모 4로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "인터포저 위에 여러 칩을 나란히 배치하고 TSV를 이용해 하부 배선을 형성하는 집적 구조다.",
+      "purpose": "HBM과 GPU·NPU 등을 고밀도로 연결한다.",
+      "summaryEvidenceQuote": "2.5D 기술에서는 인터포저 상면에는 여러 개의 칩을 배치하고, 하부에는 TSV를 통해 배선을 형성한다. 이를 통해, Fan-Out* / Fan-In* 구조와 같은 다양한 파생 기술이 개발됐으며, 인터포저 면적은 1,000mm² 이상, 배선 피치는 1μm 이하로 미세화됐다. 특히, TSMC社가 개발한 CoWoS* 방식은 Fan-Out 패키징과 수동소자 집적 기술을 웨이퍼 상에서 구현한 것으로, 7nm(나노미터) 노드 이후 최첨단 칩의 표준으로 자리 잡았다. 또한, 고대역폭 메모리와 GPU, NPU를 2.5D 방식으로 연결하는 AI 반도체 기술이 고성능 컴퓨팅과 AI 서버 시장의 선택을 받으며 2.5D 방식은 빠르게 주류 기술로 성장했다.",
+      "evidenceQuote": "2.5D 기술에서는 인터포저 상면에는 여러 개의 칩을 배치하고, 하부에는 TSV를 통해 배선을 형성한다. 이를 통해, Fan-Out* / Fan-In* 구조와 같은 다양한 파생 기술이 개발됐으며, 인터포저 면적은 1,000mm² 이상, 배선 피치는 1μm 이하로 미세화됐다. 특히, TSMC社가 개발한 CoWoS* 방식은 Fan-Out 패키징과 수동소자 집적 기술을 웨이퍼 상에서 구현한 것으로, 7nm(나노미터) 노드 이후 최첨단 칩의 표준으로 자리 잡았다. 또한, 고대역폭 메모리와 GPU, NPU를 2.5D 방식으로 연결하는 AI 반도체 기술이 고성능 컴퓨팅과 AI 서버 시장의 선택을 받으며 2.5D 방식은 빠르게 주류 기술로 성장했다.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "신호 지연",
+          "description": "칩 사이 신호 거리가 남으므로 원문은 지연을 허용할 수 있는 기능을 분할해 활용해야 한다고 설명한다. CPU와 SRAM의 2.5D 연결이 불가능하다는 서술은 이 칼럼의 판단 범위로 한정한다.",
+          "evidenceQuote": "2.5D 기술이 우수한 신호 전송 특성과 패키징 효율로 큰 성과를 거두었지만, 만능 해결사는 아니다. 모든 기능을 하나의 칩에 구현하는 궁극의 3D 이종집적기술에 비해 신호 전달 속도 측면에서 한계가 있다. 이 때문에 칩들을 분할해 집적하는 칩렛[관련기사]* 구조에서는 어느 정도의 신호 전달 지연이 허용되는 기능만을 분할해서 활용해야 하는 제약이 있다. 예를 들면, D램과 CPU를 다른 칩에 만들고, 하나의 인터포저로 연결하거나, 광센서와 구동칩을 연결하는 것은 가능하지만, CPU와 S램을 2.5D로 연결하는 것은 신호 지연 문제로 불가능하다."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "인터포저 면적 및 배선 피치의 발전",
+          "perspectiveBadge": "2.5D 기술 일반",
+          "narrative": "원문은 2.5D 인터포저의 면적이 1,000mm² 이상, 배선 피치가 1μm 이하로 미세화되었다고 서술한다. 특정 업체 제품의 실측 사양은 제시하지 않는다.",
+          "caution": "업체별 제품 사양과 측정 조건은 없다.",
+          "evidenceQuote": "2.5D 기술에서는 인터포저 상면에는 여러 개의 칩을 배치하고, 하부에는 TSV를 통해 배선을 형성한다. 이를 통해, Fan-Out* / Fan-In* 구조와 같은 다양한 파생 기술이 개발됐으며, 인터포저 면적은 1,000mm² 이상, 배선 피치는 1μm 이하로 미세화됐다. 특히, TSMC社가 개발한 CoWoS* 방식은 Fan-Out 패키징과 수동소자 집적 기술을 웨이퍼 상에서 구현한 것으로, 7nm(나노미터) 노드 이후 최첨단 칩의 표준으로 자리 잡았다. 또한, 고대역폭 메모리와 GPU, NPU를 2.5D 방식으로 연결하는 AI 반도체 기술이 고성능 컴퓨팅과 AI 서버 시장의 선택을 받으며 2.5D 방식은 빠르게 주류 기술로 성장했다.",
+          "specifications": [
+            {
+              "parameter": "인터포저 면적",
+              "value": "1,000 이상",
+              "unit": "mm²",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "2.5D 기술에서는 인터포저 상면에는 여러 개의 칩을 배치하고, 하부에는 TSV를 통해 배선을 형성한다. 이를 통해, Fan-Out* / Fan-In* 구조와 같은 다양한 파생 기술이 개발됐으며, 인터포저 면적은 1,000mm² 이상, 배선 피치는 1μm 이하로 미세화됐다. 특히, TSMC社가 개발한 CoWoS* 방식은 Fan-Out 패키징과 수동소자 집적 기술을 웨이퍼 상에서 구현한 것으로, 7nm(나노미터) 노드 이후 최첨단 칩의 표준으로 자리 잡았다. 또한, 고대역폭 메모리와 GPU, NPU를 2.5D 방식으로 연결하는 AI 반도체 기술이 고성능 컴퓨팅과 AI 서버 시장의 선택을 받으며 2.5D 방식은 빠르게 주류 기술로 성장했다."
+            },
+            {
+              "parameter": "배선 피치",
+              "value": "1 이하",
+              "unit": "μm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "2.5D 기술에서는 인터포저 상면에는 여러 개의 칩을 배치하고, 하부에는 TSV를 통해 배선을 형성한다. 이를 통해, Fan-Out* / Fan-In* 구조와 같은 다양한 파생 기술이 개발됐으며, 인터포저 면적은 1,000mm² 이상, 배선 피치는 1μm 이하로 미세화됐다. 특히, TSMC社가 개발한 CoWoS* 방식은 Fan-Out 패키징과 수동소자 집적 기술을 웨이퍼 상에서 구현한 것으로, 7nm(나노미터) 노드 이후 최첨단 칩의 표준으로 자리 잡았다. 또한, 고대역폭 메모리와 GPU, NPU를 2.5D 방식으로 연결하는 AI 반도체 기술이 고성능 컴퓨팅과 AI 서버 시장의 선택을 받으며 2.5D 방식은 빠르게 주류 기술로 성장했다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "넓은 중간판에 여러 칩을 배치하고 촘촘한 배선으로 이어 준다는 설명이다. 수치는 2.5D 기술 전반에 대한 칼럼 서술이며 같은 문단에 나오는 TSMC 제품의 확정 사양으로 옮기지 않았다.",
+            "background": null
+          }
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "패키징 집적 구조",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "tsv",
+      "title": "실리콘 관통 전극",
+      "engName": "Through-Silicon Via",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "접합·패키징",
+      "scaleLevel": 3,
+      "classificationNote": "패키징 인터커넥트 분야이며, 특정 연결·접합·전사·제어·냉각 공정이나 장비 기술이므로 규모 3으로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "칩 내부의 미세 구멍을 금속으로 채워 위아래 층의 칩을 전기적으로 연결하는 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* TSV(Through-Silicon Via): D램 칩에 수천 개의 미세 구멍을 뚫어 상하층 칩을 수직 관통하는 전극으로 연결하는 기술",
+      "evidenceQuote": "* TSV(Through-Silicon Via): D램 칩에 수천 개의 미세 구멍을 뚫어 상하층 칩을 수직 관통하는 전극으로 연결하는 기술",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "초기 깊이와 배선 밀도",
+          "description": "초기에는 얇게 연마한 웨이퍼에도 수십 μm 깊이의 구멍을 만들고 금속으로 채워야 해서 배선 밀도와 공정에 한계가 있었다.",
+          "evidenceQuote": "초기에는 소자 웨이퍼를 아주 얇게 연마한다고 해도, 수십 μm(마이크로미터) 깊이의 구멍을 뚫고 Via*를 배선 금속으로 채워야 했기 때문에 배선 밀도 향상에 한계가 있었고 공정 측면에서도 적지 않은 도전 과제가 뒤따랐다. 그럼에도 불구하고, TSV 기술은 칩을 위아래로 쌓아 올리고, 전류와 신호를 수직으로 전달하려는 시도가 본격화됐다는 점에서 3D 이종집적기술의 실질적인 시발점이 된 기술로 볼 수 있다."
+        }
+      ],
+      "perspectiveCases": [],
+      "partOf": [
+        {
+          "id": "hbm",
+          "name": "HBM",
+          "reason": "SK하이닉스 HBM의 메모리칩 사이를 TSV로 연결한다고 명시한다.",
+          "evidenceQuote": "이 때문에 고속 신호 처리가 필요할 경우 3D 이종집적기술을 사용할 수밖에 없다. AMD社의 라이젠*과 같이 CPU 위에 메모리칩을 바로 붙이는 기술이나, 메모리칩을 얇게 갈아서 12장까지 수직으로 이어 붙이고, 칩과 칩 사이를 TSV 기술로 이어 붙이는 SK하이닉스의 HBM 기술이 3D 이종집적기술의 대표적인 사례다. 다만, 칩의 방열 문제와 적층 구조의 신뢰성 문제가 아직 완벽히 해결된 것은 아니기 때문에, 3D 이종집적기술은 여전히 개발 초기 단계로 볼 수 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "패키징 인터커넥트",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "hybrid-bonding",
+      "title": "하이브리드 본딩",
+      "engName": "Hybrid Bonding",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "접합·패키징",
+      "scaleLevel": 3,
+      "classificationNote": "패키징 접합 분야이며, 특정 연결·접합·전사·제어·냉각 공정이나 장비 기술이므로 규모 3으로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "마주 보는 웨이퍼의 구리 배선을 직접 맞닿게 연결하는 접합 기술이다. 서로 따로 만든 소자층을 매우 조밀하게 연결하는 데 쓰인다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "첫 번째로 주목할 요소기술은 두 개의 소자 웨이퍼를 뒤집어서 직접 배선에 사용되는 구리선을 맞닿게 해 연결하는 **하이브리드 본딩**이다. 하이브리드 본딩은 1μm 간격(Pitch)의 구리 배선을 직접 연결하는 것을 목표로 개발되고 있는데, 이렇게 되면 따로 공정이 진행된 칩들을 마치 모놀리식 3D 이종집적공정을 진행한 것처럼 이어 붙일 수 있다.",
+      "evidenceQuote": "첫 번째로 주목할 요소기술은 두 개의 소자 웨이퍼를 뒤집어서 직접 배선에 사용되는 구리선을 맞닿게 해 연결하는 **하이브리드 본딩**이다. 하이브리드 본딩은 1μm 간격(Pitch)의 구리 배선을 직접 연결하는 것을 목표로 개발되고 있는데, 이렇게 되면 따로 공정이 진행된 칩들을 마치 모놀리식 3D 이종집적공정을 진행한 것처럼 이어 붙일 수 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "1μm 피치 구리 직접 연결 개발 목표",
+          "perspectiveBadge": "하이브리드 본딩 개발 방향",
+          "narrative": "원문은 1μm 간격의 구리 배선 직접 연결을 목표로 개발되고 있다고 설명한다. 다른 공정으로 만든 CPU·메모리와 Si·GaAs 소자를 집적하는 가능성을 제시한다.",
+          "caution": "유기기판 소자나 3진법 칩 결합은 가능성·상상으로 서술되어 도입 사례로 만들지 않았다.",
+          "evidenceQuote": "첫 번째로 주목할 요소기술은 두 개의 소자 웨이퍼를 뒤집어서 직접 배선에 사용되는 구리선을 맞닿게 해 연결하는 **하이브리드 본딩**이다. 하이브리드 본딩은 1μm 간격(Pitch)의 구리 배선을 직접 연결하는 것을 목표로 개발되고 있는데, 이렇게 되면 따로 공정이 진행된 칩들을 마치 모놀리식 3D 이종집적공정을 진행한 것처럼 이어 붙일 수 있다.",
+          "specifications": [
+            {
+              "parameter": "구리 배선 연결 피치 목표",
+              "value": "1",
+              "unit": "μm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "첫 번째로 주목할 요소기술은 두 개의 소자 웨이퍼를 뒤집어서 직접 배선에 사용되는 구리선을 맞닿게 해 연결하는 **하이브리드 본딩**이다. 하이브리드 본딩은 1μm 간격(Pitch)의 구리 배선을 직접 연결하는 것을 목표로 개발되고 있는데, 이렇게 되면 따로 공정이 진행된 칩들을 마치 모놀리식 3D 이종집적공정을 진행한 것처럼 이어 붙일 수 있다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "따로 만든 칩을 아주 촘촘하게 붙여 같은 칩처럼 가까이 연결하려는 목표다. 이 수치는 해당 칼럼의 개발 목표이며 양산 공정의 보장값으로 해석하지 않는다.",
+            "background": null
+          }
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "패키징 접합",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "glass-substrate",
+      "title": "유리기판",
+      "engName": "Glass Substrate",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "패키징 기판",
+      "scaleLevel": 1,
+      "classificationNote": "패키징 기판 분야이며, 소재 자체 또는 소자의 물성을 다루는 규모 1로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "대면적 공정과 일정 수준의 반도체 공정을 적용해 많은 칩렛을 연결하는 데 활용할 수 있는 유리 기반 기판이다.",
+      "purpose": "실리콘 인터포저의 면적·제조 비용 제약을 완화하고 대규모 칩렛 연결을 지원한다.",
+      "summaryEvidenceQuote": "두 번째는 **유리기판**이다. 1980년대에 활용됐던 멀티 칩 모듈* 기술이 시스템 성능 향상을 위해 모든 기능을 하나의 칩에서 구현하는 SoC* 기술로 발전했듯, 점점 더 많은 칩(칩렛)을 하나의 기판에서 연결하고자 하는 수요는 항상 존재했다. 최신 GPU는 100개 가까운 칩렛을 시스템 보드 상에서 연결하고 최적화해야 한다. 2.5D 구조로 실리콘 웨이퍼 위에 수백 개의 칩렛을 연결할 경우, 한 장의 웨이퍼 상에 구현할 수 있는 인터포저의 면적이 제한된다. 어느 정도의 반도체 공정 기술을 적용하면서, 대면적 공정이 가능해 대규모 칩렛 연결을 효율적으로 구현할 수 있는 기술이 유리기판이다.",
+      "evidenceQuote": "두 번째는 **유리기판**이다. 1980년대에 활용됐던 멀티 칩 모듈* 기술이 시스템 성능 향상을 위해 모든 기능을 하나의 칩에서 구현하는 SoC* 기술로 발전했듯, 점점 더 많은 칩(칩렛)을 하나의 기판에서 연결하고자 하는 수요는 항상 존재했다. 최신 GPU는 100개 가까운 칩렛을 시스템 보드 상에서 연결하고 최적화해야 한다. 2.5D 구조로 실리콘 웨이퍼 위에 수백 개의 칩렛을 연결할 경우, 한 장의 웨이퍼 상에 구현할 수 있는 인터포저의 면적이 제한된다. 어느 정도의 반도체 공정 기술을 적용하면서, 대면적 공정이 가능해 대규모 칩렛 연결을 효율적으로 구현할 수 있는 기술이 유리기판이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "스마트 인터포저 가능성",
+          "content": "유리기판 위에 반도체 소자층을 형성하고 기능을 부여해 스마트 인터포저를 구현할 수 있다는 전망을 제시한다.",
+          "formula": null,
+          "evidenceQuote": "지금까지의 인터포저가 단순한 배선 구조였다면, 유리기판 상에는 반도체 소자층을 형성하고, 기능을 부여할 수 있다. 때문에 점점 복잡해지고, 제조 비용이 증가하고 있는 인터포저의 효율성을 높이는 스마트 인터포저를 구현할 수 있다는 점에서 크게 기대되는 기술이다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "대규모 칩렛 연결을 위한 유리기판 제안",
+          "perspectiveBadge": "칼럼의 최신 GPU 시스템 설명",
+          "narrative": "원문은 최신 GPU가 100개 가까운 칩렛을 시스템 보드에서 연결·최적화해야 한다고 설명한다. 2.5D 실리콘 웨이퍼 위에 수백 개 칩렛을 연결할 때 인터포저 면적이 제한되는 문제를 유리기판 도입 배경으로 제시한다.",
+          "caution": "제품명·측정 조건은 제공하지 않는다. 유리 스마트 인터포저는 가능성으로 설명된다.",
+          "evidenceQuote": "두 번째는 **유리기판**이다. 1980년대에 활용됐던 멀티 칩 모듈* 기술이 시스템 성능 향상을 위해 모든 기능을 하나의 칩에서 구현하는 SoC* 기술로 발전했듯, 점점 더 많은 칩(칩렛)을 하나의 기판에서 연결하고자 하는 수요는 항상 존재했다. 최신 GPU는 100개 가까운 칩렛을 시스템 보드 상에서 연결하고 최적화해야 한다. 2.5D 구조로 실리콘 웨이퍼 위에 수백 개의 칩렛을 연결할 경우, 한 장의 웨이퍼 상에 구현할 수 있는 인터포저의 면적이 제한된다. 어느 정도의 반도체 공정 기술을 적용하면서, 대면적 공정이 가능해 대규모 칩렛 연결을 효율적으로 구현할 수 있는 기술이 유리기판이다.",
+          "specifications": [
+            {
+              "parameter": "시스템 보드에서 연결·최적화할 칩렛",
+              "value": "100개 가까운",
+              "unit": "개",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "두 번째는 **유리기판**이다. 1980년대에 활용됐던 멀티 칩 모듈* 기술이 시스템 성능 향상을 위해 모든 기능을 하나의 칩에서 구현하는 SoC* 기술로 발전했듯, 점점 더 많은 칩(칩렛)을 하나의 기판에서 연결하고자 하는 수요는 항상 존재했다. 최신 GPU는 100개 가까운 칩렛을 시스템 보드 상에서 연결하고 최적화해야 한다. 2.5D 구조로 실리콘 웨이퍼 위에 수백 개의 칩렛을 연결할 경우, 한 장의 웨이퍼 상에 구현할 수 있는 인터포저의 면적이 제한된다. 어느 정도의 반도체 공정 기술을 적용하면서, 대면적 공정이 가능해 대규모 칩렛 연결을 효율적으로 구현할 수 있는 기술이 유리기판이다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "많은 작은 칩을 연결할 때는 중간 기판도 넓게 만들 수 있어야 한다는 제안이다. 수치는 이름이 제시되지 않은 GPU 시스템의 배경 설명이며 유리기판을 이미 도입한 특정 제품의 사양은 아니다.",
+            "background": null
+          }
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "패키징 기판",
+          "scaleLevel": 1
+        }
+      ],
+      "isA": [
+        {
+          "id": "substrate",
+          "name": "기판",
+          "reason": "반도체 공정을 적용하며 대면적 칩렛 연결을 구현하는 유리 재료의 기판으로 설명한다. 등록 기판 개념의 구체적 재료 종류다.",
+          "evidenceQuote": "두 번째는 **유리기판**이다. 1980년대에 활용됐던 멀티 칩 모듈* 기술이 시스템 성능 향상을 위해 모든 기능을 하나의 칩에서 구현하는 SoC* 기술로 발전했듯, 점점 더 많은 칩(칩렛)을 하나의 기판에서 연결하고자 하는 수요는 항상 존재했다. 최신 GPU는 100개 가까운 칩렛을 시스템 보드 상에서 연결하고 최적화해야 한다. 2.5D 구조로 실리콘 웨이퍼 위에 수백 개의 칩렛을 연결할 경우, 한 장의 웨이퍼 상에 구현할 수 있는 인터포저의 면적이 제한된다. 어느 정도의 반도체 공정 기술을 적용하면서, 대면적 공정이 가능해 대규모 칩렛 연결을 효율적으로 구현할 수 있는 기술이 유리기판이다."
+        }
+      ]
+    },
+    {
+      "conceptId": "bspdn",
+      "title": "후면 전력 분배망",
+      "engName": "Backside Power Distribution Network",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "전력 배선 통합",
+      "scaleLevel": 4,
+      "classificationNote": "전력 배선 구조 분야이며, 특정 연결·접합·전사·제어·냉각 공정이나 장비 기술이므로 규모 3으로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "소자층에 전력을 공급하는 배선을 TSV를 이용해 웨이퍼 뒷면으로 옮겨 구현하는 기술이다.",
+      "purpose": "앞면의 배선 밀도와 기생 커패시턴스 부담을 줄이는 데 활용한다.",
+      "summaryEvidenceQuote": "세 번째는 **BSPDN(Backside Power Distribution Network)**이다. 이는 소자층에 필요한 전력 분배용 배선을 TSV로 웨이퍼 뒷면으로 옮겨서 만드는 기술이다. 웨이퍼 앞면뿐 아니라 뒷면에 배선 구조, 특히 전력 배선을 구현할 수 있게 되면, 발열 문제, 기생 캐패시턴스(Capacitance, 정전용량) 문제, 소자층의 배선 밀도 한계 문제를 극복하는 데 큰 도움이 된다. 한 걸음 더 나가보면, 이 기술은 웨이퍼 뒷면을 단순히 하이브리드 본딩용 패드가 아닌 새로운 소자층으로 활용할 가능성을 제공한다는 측면에서 스마트 인터포저와 유사한 잠재적 가능성을 갖고 있다.",
+      "evidenceQuote": "세 번째는 **BSPDN(Backside Power Distribution Network)**이다. 이는 소자층에 필요한 전력 분배용 배선을 TSV로 웨이퍼 뒷면으로 옮겨서 만드는 기술이다. 웨이퍼 앞면뿐 아니라 뒷면에 배선 구조, 특히 전력 배선을 구현할 수 있게 되면, 발열 문제, 기생 캐패시턴스(Capacitance, 정전용량) 문제, 소자층의 배선 밀도 한계 문제를 극복하는 데 큰 도움이 된다. 한 걸음 더 나가보면, 이 기술은 웨이퍼 뒷면을 단순히 하이브리드 본딩용 패드가 아닌 새로운 소자층으로 활용할 가능성을 제공한다는 측면에서 스마트 인터포저와 유사한 잠재적 가능성을 갖고 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전력 배선 구조",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "low-temperature-semiconductor-integration",
+      "title": "저온 반도체 집적 공정",
+      "engName": "Low-Temperature Semiconductor Integration",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "소자층 집적",
+      "scaleLevel": 3,
+      "classificationNote": "소자층 집적 분야이며, 특정 연결·접합·전사·제어·냉각 공정이나 장비 기술이므로 규모 3으로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "저온에서 직접 증착할 수 있는 반도체 소재로 BEOL 위, 웨이퍼 뒷면, 유리기판, 인터포저 등에 소자층을 구현하려는 공정 접근이다.",
+      "purpose": "주 로직과 성능 경쟁을 하기보다 전력 효율 개선·능동 방열·재구성형 인터커넥트 등 특화 기능을 부여한다.",
+      "summaryEvidenceQuote": "저온 반도체 집적 공정은 기존 실리콘, 갈륨비소 대신 저온에서 증착이 가능한 TMDC(MoS₂, WSe₂ 등), IGZO, ZnO, 텔루륨, 결정-비정질 복합 반도체 등 새로운 소재를 활용해, BEOL 배선 위나 웨이퍼 뒷면, 유리기판, 인터포저 등 다양한 환경에 직접 소자층을 형성하는 기술이다. 이들 소자는 메인 로직과 성능 경쟁을 하기보다는, 전력 효율 향상, 능동 방열 제어, 재구성형 인터커넥트 등 특화된 기능을 담당하는 보조 회로로 활용될 가능성이 크다. 이를 통해 미세화 한계와 소모 전력 증가 문제를 완화하며, 3D 이종집적기술의 활용 범위를 확장하는 핵심 기반이 된다.",
+      "evidenceQuote": "저온 반도체 집적 공정은 기존 실리콘, 갈륨비소 대신 저온에서 증착이 가능한 TMDC(MoS₂, WSe₂ 등), IGZO, ZnO, 텔루륨, 결정-비정질 복합 반도체 등 새로운 소재를 활용해, BEOL 배선 위나 웨이퍼 뒷면, 유리기판, 인터포저 등 다양한 환경에 직접 소자층을 형성하는 기술이다. 이들 소자는 메인 로직과 성능 경쟁을 하기보다는, 전력 효율 향상, 능동 방열 제어, 재구성형 인터커넥트 등 특화된 기능을 담당하는 보조 회로로 활용될 가능성이 크다. 이를 통해 미세화 한계와 소모 전력 증가 문제를 완화하며, 3D 이종집적기술의 활용 범위를 확장하는 핵심 기반이 된다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "연구 소재",
+          "content": "MoS2·WSe2 같은 TMDC, IGZO, ZnO, 텔루륨, 결정-비정질 복합 소재 등 저온 증착 가능한 n형·p형 소재를 연구한다.",
+          "formula": null,
+          "evidenceQuote": "최근에는 이황화몰리브덴(MoS2), 셀레늄화텅스텐(WSe2) 등의 TMDC* 소재뿐 아니라 산화인듐갈륨아연 (IGZO), 산화아연(ZnO), 텔루륨(Te), 결정-비정질 복합 소재(Phase Composite Semiconductor) 등 저온에서 직접 증착이 가능하면서도 어느 정도 성능이 보장되는 n, p형 반도체가 활발히 연구되고 있다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "연구와 전망",
+          "description": "다양한 위치의 직접 로직 회로 및 보조 기능 구현은 향후 활용 전망이며 원문에 양산 조건은 없다.",
+          "evidenceQuote": "향후, 해당 소재들을 활용해 BEOL* 구조, 웨이퍼 뒷면, 유리기판, 인터포저 등 다양한 환경에서 직접 로직 회로를 구현할 수 있을 것으로 전망된다. 이를 활용해 구현하는 회로는 실리콘 소자와 성능 경쟁을 하기보다는 특화된 기능을 수행하는 방식으로 적용된다. 예를 들어, 전체 시스템의 전력 효율을 개선하거나, 능동 방열 제어 등 새로운 기능을 부여하는 방식으로 활용하는 것이다. 결국 이러한 기술들은 재구성형 인터커넥트(Reconfigurable Interconnect) 등 소모 전력의 한계를 극복하는 데 크게 기여할 수 있을 것이다."
+        }
+      ],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "소자층 집적",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "tmdc",
+      "title": "전이금속 칼코겐 화합물",
+      "engName": "Transition Metal Dichalcogenide",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "2차원 반도체 소재",
+      "scaleLevel": 1,
+      "classificationNote": "2차원 반도체 소재 분야이며, 소재 자체 또는 소자의 물성을 다루는 규모 1로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전이 금속 원자와 칼코겐 원자가 MX₂ 형태로 결합하며 매우 얇은 층상 구조를 갖는 2차원 반도체 소재군이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* TMDC(Transition Metal Dichalcogenide): 전이 금속 원자(Mo, W 등)와 칼코겐 원자(S, Se, Te 등)가 결합한 화합물 (MX₂)로, 매우 얇은 층상 구조를 갖는 2차원 반도체 소재군",
+      "evidenceQuote": "* TMDC(Transition Metal Dichalcogenide): 전이 금속 원자(Mo, W 등)와 칼코겐 원자(S, Se, Te 등)가 결합한 화합물 (MX₂)로, 매우 얇은 층상 구조를 갖는 2차원 반도체 소재군",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "2차원 반도체 소재",
+          "scaleLevel": 1
+        }
+      ],
+      "isA": [
+        {
+          "id": "semiconductor",
+          "name": "반도체",
+          "reason": "원문이 TMDC를 매우 얇은 층상 구조를 갖는 2차원 반도체 소재군으로 직접 명시한다.",
+          "evidenceQuote": "* TMDC(Transition Metal Dichalcogenide): 전이 금속 원자(Mo, W 등)와 칼코겐 원자(S, Se, Te 등)가 결합한 화합물 (MX₂)로, 매우 얇은 층상 구조를 갖는 2차원 반도체 소재군"
+        }
+      ]
+    },
+    {
+      "conceptId": "interposer",
+      "title": "인터포저",
+      "engName": "Interposer",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "패키징 연결·집적 구조",
+      "scaleLevel": 4,
+      "classificationNote": "패키징 연결 구조 분야이며, 여러 칩·기능·회로를 묶는 패키지 또는 시스템 구조이므로 규모 4로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "CPU·GPU·메모리 등 여러 칩을 한 패키지 안에서 연결하기 위한 중간 기판이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* 인터포저(Interposer): 여러 개의 칩(예: CPU, GPU, 메모리)을 하나의 패키지 안에서 서로 연결하기 위한 중간 기판",
+      "evidenceQuote": "* 인터포저(Interposer): 여러 개의 칩(예: CPU, GPU, 메모리)을 하나의 패키지 안에서 서로 연결하기 위한 중간 기판",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "패키징 연결 구조",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "fan-out",
+      "title": "팬아웃 패키징",
+      "engName": "Fan-Out",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "패키징 배선",
+      "scaleLevel": 3,
+      "classificationNote": "패키징 배선 분야이며, 특정 연결·접합·전사·제어·냉각 공정이나 장비 기술이므로 규모 3으로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "칩 외곽에서 신호선을 바깥쪽으로 확장해 배선 밀도와 입출력 단자를 확보하는 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* Fan-Out: 칩 외곽에서 신호선을 바깥쪽으로 확장해 배선 밀도를 높이고, 더 많은 입출력(I/O) 단자를 확보하는 방식",
+      "evidenceQuote": "* Fan-Out: 칩 외곽에서 신호선을 바깥쪽으로 확장해 배선 밀도를 높이고, 더 많은 입출력(I/O) 단자를 확보하는 방식",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "패키징 배선",
+          "scaleLevel": 3
+        }
+      ],
+      "isA": [
+        {
+          "id": "packaging",
+          "name": "패키징",
+          "reason": "본문이 Fan-Out을 패키징으로 부르고 칩 외곽으로 신호선을 확장하는 집적 배선 방식을 설명한다.",
+          "evidenceQuote": "2.5D 기술에서는 인터포저 상면에는 여러 개의 칩을 배치하고, 하부에는 TSV를 통해 배선을 형성한다. 이를 통해, Fan-Out* / Fan-In* 구조와 같은 다양한 파생 기술이 개발됐으며, 인터포저 면적은 1,000mm² 이상, 배선 피치는 1μm 이하로 미세화됐다. 특히, TSMC社가 개발한 CoWoS* 방식은 Fan-Out 패키징과 수동소자 집적 기술을 웨이퍼 상에서 구현한 것으로, 7nm(나노미터) 노드 이후 최첨단 칩의 표준으로 자리 잡았다. 또한, 고대역폭 메모리와 GPU, NPU를 2.5D 방식으로 연결하는 AI 반도체 기술이 고성능 컴퓨팅과 AI 서버 시장의 선택을 받으며 2.5D 방식은 빠르게 주류 기술로 성장했다."
+        }
+      ],
+      "alternatives": [
+        {
+          "id": "fan-in",
+          "name": "팬인 패키징",
+          "reason": "연속된 용어 정의에서 바깥쪽 확장 Fan-Out과 반대로 내부 집약 Fan-In을 대조한다. 칩-패키지 배선 구성의 방향에 따른 대안으로 한정한다.",
+          "evidenceQuote": "* Fan-Out: 칩 외곽에서 신호선을 바깥쪽으로 확장해 배선 밀도를 높이고, 더 많은 입출력(I/O) 단자를 확보하는 방식"
+        }
+      ]
+    },
+    {
+      "conceptId": "fan-in",
+      "title": "팬인 패키징",
+      "engName": "Fan-In",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "패키징 배선",
+      "scaleLevel": 3,
+      "classificationNote": "패키징 배선 분야이며, 특정 연결·접합·전사·제어·냉각 공정이나 장비 기술이므로 규모 3으로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "신호선을 내부로 집약해 칩 면적이나 패키지 크기를 줄이는 구조다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* Fan-In: 반대로 신호선을 내부로 집약해 칩 면적을 줄이거나 패키지 크기를 최소화하는 구조",
+      "evidenceQuote": "* Fan-In: 반대로 신호선을 내부로 집약해 칩 면적을 줄이거나 패키지 크기를 최소화하는 구조",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "패키징 배선",
+          "scaleLevel": 3
+        }
+      ],
+      "isA": [
+        {
+          "id": "packaging",
+          "name": "패키징",
+          "reason": "여러 칩을 패키지 안에 연결하는 2.5D 파생 구조 문맥에서 Fan-In을 설명하고, 그 정의는 내부 배선 집약으로 패키지 크기를 줄이는 방식이다.",
+          "evidenceQuote": "2.5D 기술에서는 인터포저 상면에는 여러 개의 칩을 배치하고, 하부에는 TSV를 통해 배선을 형성한다. 이를 통해, Fan-Out* / Fan-In* 구조와 같은 다양한 파생 기술이 개발됐으며, 인터포저 면적은 1,000mm² 이상, 배선 피치는 1μm 이하로 미세화됐다. 특히, TSMC社가 개발한 CoWoS* 방식은 Fan-Out 패키징과 수동소자 집적 기술을 웨이퍼 상에서 구현한 것으로, 7nm(나노미터) 노드 이후 최첨단 칩의 표준으로 자리 잡았다. 또한, 고대역폭 메모리와 GPU, NPU를 2.5D 방식으로 연결하는 AI 반도체 기술이 고성능 컴퓨팅과 AI 서버 시장의 선택을 받으며 2.5D 방식은 빠르게 주류 기술로 성장했다."
+        }
+      ],
+      "alternatives": [
+        {
+          "id": "fan-out",
+          "name": "팬아웃 패키징",
+          "reason": "Fan-In 정의의 반대로라는 말은 직전 Fan-Out의 외곽 확장을 대비한다. 같은 패키지 배선 구성의 방향에 따른 대안이다.",
+          "evidenceQuote": "* Fan-In: 반대로 신호선을 내부로 집약해 칩 면적을 줄이거나 패키지 크기를 최소화하는 구조"
+        }
+      ]
+    },
+    {
+      "conceptId": "cowos",
+      "title": "CoWoS 패키징",
+      "engName": "Chip on Wafer on Substrate",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "패키징 통합",
+      "scaleLevel": 4,
+      "classificationNote": "첨단 패키징 플랫폼 분야이며, 여러 칩·기능·회로를 묶는 패키지 또는 시스템 구조이므로 규모 4로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "여러 칩을 실리콘 기반 인터포저 위에 올려 함께 패키징하는 TSMC 고유 기술이다. HBM과 GPU를 결합하는 방식 중 하나다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* CoWoS(Chip on Wafer on Substrate): 기존 패키징 방식은 메모리와 비메모리 등 서로 다른 칩들을 각각 패키징한 다음 기판 위에서 연결하는 방식이라면, CoWoS는 칩들을 실리콘 기반의 인터포저 위에 올려 한꺼번에 패키징하는 방식. 칩 간 거리가 가까워져 제품 면적이 줄고, 배선을 더 늘릴 수 있어 신호 전달 속도가 빨라진다는 특징이 있음. TSMC 고유의 패키징 기술이며, HBM과 GPU를 결합하는 방식 중 하나임",
+      "evidenceQuote": "* CoWoS(Chip on Wafer on Substrate): 기존 패키징 방식은 메모리와 비메모리 등 서로 다른 칩들을 각각 패키징한 다음 기판 위에서 연결하는 방식이라면, CoWoS는 칩들을 실리콘 기반의 인터포저 위에 올려 한꺼번에 패키징하는 방식. 칩 간 거리가 가까워져 제품 면적이 줄고, 배선을 더 늘릴 수 있어 신호 전달 속도가 빨라진다는 특징이 있음. TSMC 고유의 패키징 기술이며, HBM과 GPU를 결합하는 방식 중 하나임",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "HBM·GPU 연결을 위한 CoWoS",
+          "perspectiveBadge": "TSMC",
+          "narrative": "본문은 CoWoS를 TSMC 고유 패키징으로 소개하며 HBM과 GPU의 결합을 적용 예로 설명한다.",
+          "caution": "",
+          "evidenceQuote": "* CoWoS(Chip on Wafer on Substrate): 기존 패키징 방식은 메모리와 비메모리 등 서로 다른 칩들을 각각 패키징한 다음 기판 위에서 연결하는 방식이라면, CoWoS는 칩들을 실리콘 기반의 인터포저 위에 올려 한꺼번에 패키징하는 방식. 칩 간 거리가 가까워져 제품 면적이 줄고, 배선을 더 늘릴 수 있어 신호 전달 속도가 빨라진다는 특징이 있음. TSMC 고유의 패키징 기술이며, HBM과 GPU를 결합하는 방식 중 하나임",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "연산 칩과 메모리를 중간 기판 위에서 함께 연결하는 TSMC의 기술이다. 이 문단의 기술 귀속을 SK하이닉스로 바꾸지 않았다.",
+            "background": null
+          }
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "첨단 패키징 플랫폼",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "soc",
+      "title": "시스템 온 칩",
+      "engName": "System on Chip",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "집적회로·시스템 칩",
+      "scaleLevel": 4,
+      "classificationNote": "시스템 반도체 분야이며, 여러 칩·기능·회로를 묶는 패키지 또는 시스템 구조이므로 규모 4로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "CPU·GPU·메모리·통신·입출력 회로 등 여러 기능을 한 칩에 통합한 반도체다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* SoC(System on Chip): CPU, GPU, 메모리, 통신·입출력 회로 등 다양한 기능을 하나의 칩 위에 통합한 시스템형 반도체",
+      "evidenceQuote": "* SoC(System on Chip): CPU, GPU, 메모리, 통신·입출력 회로 등 다양한 기능을 하나의 칩 위에 통합한 시스템형 반도체",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "시스템 반도체",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "multi-chip-module",
+      "title": "멀티 칩 모듈",
+      "engName": "Multi-Chip Module",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "시스템 집적 구조",
+      "scaleLevel": 4,
+      "classificationNote": "시스템 집적 구조 분야이며, 여러 칩·기능·회로를 묶는 패키지 또는 시스템 구조이므로 규모 4로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "여러 반도체 칩을 한 패키지 안에 집적해 고속으로 신호를 주고받게 하는 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* 멀티 칩 모듈(Multi-Chip Module, MCM): 여러 개의 반도체 칩을 하나의 패키지 안에 집적해, 서로 고속으로 신호를 주고받도록 구성한 기술, 칩 간 배선 길이를 줄여 전력 소모와 지연을 낮추며, 초기 SoC 개념의 전신으로 평가된다.",
+      "evidenceQuote": "* 멀티 칩 모듈(Multi-Chip Module, MCM): 여러 개의 반도체 칩을 하나의 패키지 안에 집적해, 서로 고속으로 신호를 주고받도록 구성한 기술, 칩 간 배선 길이를 줄여 전력 소모와 지연을 낮추며, 초기 SoC 개념의 전신으로 평가된다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "시스템 집적 구조",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "micro-bump",
+      "title": "마이크로 범프",
+      "engName": "Micro Bump",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "패키징 접속 소재",
+      "scaleLevel": 1,
+      "classificationNote": "패키징 접속 소재 분야이며, 소재 자체 또는 소자의 물성을 다루는 규모 1로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "수직 적층된 칩과 회로를 연결하며 칩 사이의 가교 역할을 하는 접속 소재다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* 마이크로 범프(Micro Bump): 마이크로 범프(Micro Bump): 수직 적층된 칩과 회로를 연결할 때, 각 칩의 가교 역할을 하는 소재",
+      "evidenceQuote": "* 마이크로 범프(Micro Bump): 마이크로 범프(Micro Bump): 수직 적층된 칩과 회로를 연결할 때, 각 칩의 가교 역할을 하는 소재",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "패키징 접속 소재",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "microchannel-cooling",
+      "title": "마이크로 채널 냉각",
+      "engName": "Microchannel Cooling",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "열 관리",
+      "scaleLevel": 3,
+      "classificationNote": "열 관리 분야이며, 특정 연결·접합·전사·제어·냉각 공정이나 장비 기술이므로 규모 3으로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "보통 수 µm에서 수십 µm인 작은 채널로 유체를 통과시켜 칩이나 패키지의 발열원에서 열을 제거하는 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* 마이크로 채널 냉각: 반도체 칩이나 패키지 내부의 발열원을 직접적으로 접촉한 유체가 매우 작은 채널(보통 수 µm ~ 수십 µm)을 통과하면서 열을 효과적으로 제거하는 기술",
+      "evidenceQuote": "* 마이크로 채널 냉각: 반도체 칩이나 패키지 내부의 발열원을 직접적으로 접촉한 유체가 매우 작은 채널(보통 수 µm ~ 수십 µm)을 통과하면서 열을 효과적으로 제거하는 기술",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "열 관리",
+          "scaleLevel": 3
+        }
+      ],
+      "isA": [
+        {
+          "id": "fluid-cooling",
+          "name": "유체 냉각",
+          "reason": "유체가 미세 채널을 통과하면서 열을 제거하는 방식이므로 유체를 직접 순환시켜 열을 제거하는 유체 냉각의 구체적 구현에 해당한다.",
+          "evidenceQuote": "* 마이크로 채널 냉각: 반도체 칩이나 패키지 내부의 발열원을 직접적으로 접촉한 유체가 매우 작은 채널(보통 수 µm ~ 수십 µm)을 통과하면서 열을 효과적으로 제거하는 기술"
+        }
+      ]
+    },
+    {
+      "conceptId": "fluid-cooling",
+      "title": "유체 냉각",
+      "engName": "Fluid Cooling",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "열 관리",
+      "scaleLevel": 3,
+      "classificationNote": "열 관리 분야이며, 특정 연결·접합·전사·제어·냉각 공정이나 장비 기술이므로 규모 3으로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전기 비전도성 액체나 물 등의 유체를 순환시켜 칩·패키지에서 발생하는 열을 제거하는 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* 유체 냉각: 반도체 칩 또는 패키지에서 발생한 열을 전기비전도성 액체나 물 같은 유체를 직접 순환시켜 빠르게 제거하는 기술",
+      "evidenceQuote": "* 유체 냉각: 반도체 칩 또는 패키지에서 발생한 열을 전기비전도성 액체나 물 같은 유체를 직접 순환시켜 빠르게 제거하는 기술",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "열 관리",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "direct-immersion-cooling",
+      "title": "다이렉트 액침 냉각",
+      "engName": "Direct Immersion Cooling",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "열 관리",
+      "scaleLevel": 3,
+      "classificationNote": "열 관리 분야이며, 특정 연결·접합·전사·제어·냉각 공정이나 장비 기술이므로 규모 3으로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "칩이나 패키지 전체를 전기 절연성 액체 속에 담그거나 그 흐름에 두고 열을 직접 제거하는 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* 다이렉트 액침: 반도체 칩이나 패키지 전체를 전기 절연 특성을 가진 액체(Diel­ectric fluid) 속에 통째로 담그거나 혹은 그 흐름 속에 두어, 칩에서 발생한 열을 액체를 통해 직접 제거하는 냉각 방식",
+      "evidenceQuote": "* 다이렉트 액침: 반도체 칩이나 패키지 전체를 전기 절연 특성을 가진 액체(Diel­ectric fluid) 속에 통째로 담그거나 혹은 그 흐름 속에 두어, 칩에서 발생한 열을 액체를 통해 직접 제거하는 냉각 방식",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "열 관리",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "anisotropic-cooling-material",
+      "title": "이방성 냉각 소재",
+      "engName": "Anisotropic Cooling Material",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "열 관리 소재",
+      "scaleLevel": 1,
+      "classificationNote": "열 관리 소재 분야이며, 소재 자체 또는 소자의 물성을 다루는 규모 1로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "열이 전달되는 방향에 따라 열전도율이 다르게 설계된 소재다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* 이방성 냉각 소재: 열을 전달하는 방향에 따라 전도율이 다르게 설계된 소재",
+      "evidenceQuote": "* 이방성 냉각 소재: 열을 전달하는 방향에 따라 전도율이 다르게 설계된 소재",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "열 관리 소재",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "active-cooling-device",
+      "title": "능동 냉각 소자",
+      "engName": "Active Cooling Device",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "열 관리",
+      "scaleLevel": 3,
+      "classificationNote": "열 관리 분야이며, 특정 연결·접합·전사·제어·냉각 공정이나 장비 기술이므로 규모 3으로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전기적 또는 기계적 작용으로 칩·패키지의 열을 적극적으로 제거하는 장치다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "* 능동 냉각 소자: 반도체 칩이나 패키지에서 발생하는 열을 전기적 또는 기계적 작용을 통해 적극적으로 제거하는 장치",
+      "evidenceQuote": "* 능동 냉각 소자: 반도체 칩이나 패키지에서 발생하는 열을 전기적 또는 기계적 작용을 통해 적극적으로 제거하는 장치",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "열 관리",
+          "scaleLevel": 3
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "index": 24,
+  "filePath": "samsung/glossary/반도체-용어-사전-hdd-하드디스크드라이브-hard-disk-drive.md",
+  "sourceHash": "970d1fd121bd07b544292643e25cdbf506b755ccf5788d7258c04512ea322350",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1832,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. PC의 5가지 기능 구분과 플로피 역사 설명을 HDD 원리와 혼동하지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "hdd",
+      "title": "하드디스크드라이브",
+      "engName": "Hard Disk Drive",
+      "aliases": [
+        "HDD"
+      ],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 4,
+      "classificationNote": "여러 기능을 통합한 시스템 또는 패키지를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "자성체로 코팅한 원판형 기판의 자기 배열을 바꿔 데이터를 저장하는 대용량 보조기억장치이다.",
+      "purpose": "프로그램과 데이터를 영구 보관한다.",
+      "summaryEvidenceQuote": "자성체로 코팅된 원판형 기판에 데이터를 저장하는 대용량 저장장치.",
+      "evidenceQuote": "자성체로 코팅된 원판형 기판에 데이터를 저장하는 대용량 저장장치.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "회전 플래터와 헤드",
+          "content": "플래터를 회전시키고 헤드를 접근시켜 표면 자기 배열을 변경하며 읽고 쓴다. 중심의 스핀들 모터 회전 속도가 높을수록 읽기·쓰기가 빠르다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "HDD는 플래터를 회전시키고 그 위에 헤드를 접근시켜 플래터 표면의 자기 배열을 변경하는 방식으로 데이터를 읽거나 쓴다. 플래터의 중심에는 플래터를 회전시키기 위한 스핀들 모터가 있는데 이 모터의 회전 속도가 높을수록 데이터의 빠른 읽기/쓰기가 가능하다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "ssd",
+          "name": "SSD",
+          "reason": "동일한 PC 보조기억장치 용도로 제시된다.",
+          "evidenceQuote": "프로그램이나 데이터의 영구 보관이 가능한 보조기억장치에는 HDD(Hard Disk Drive)와 SSD(Solid State Drive)가 있다."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "secondary-storage",
+          "name": "보조기억장치",
+          "reason": "PC의 프로그램·데이터 영구 보관 장치로 명시한다.",
+          "evidenceQuote": "프로그램이나 데이터의 영구 보관이 가능한 보조기억장치에는 HDD(Hard Disk Drive)와 SSD(Solid State Drive)가 있다."
+        }
+      ],
+      "purposeEvidenceQuote": "프로그램이나 데이터의 영구 보관이 가능한 보조기억장치에는 HDD(Hard Disk Drive)와 SSD(Solid State Drive)가 있다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 4
+        }
+      ]
+    }
+  ]
+}

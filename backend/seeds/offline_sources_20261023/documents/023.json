@@ -1,0 +1,63 @@
+{
+  "index": 23,
+  "filePath": "samsung/glossary/반도체-용어-사전-emmc.md",
+  "sourceHash": "21e014a3c6aeb3e212f31dfbd125b88be97f8639909cb6fb63c47c4ed6fbd128",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1491,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다.  미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "emmc",
+      "title": "eMMC",
+      "engName": "embedded Multi Media Card",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "반도체 저장 장치",
+      "scaleLevel": 4,
+      "classificationNote": "여러 기능을 통합한 시스템 또는 패키지를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "컨트롤러와 낸드플래시를 하나의 패키지로 통합하여 모바일 기기에 내장하는 저장용 메모리이다.",
+      "purpose": "모바일 기기에서 데이터를 저장하고 고속 처리한다.",
+      "summaryEvidenceQuote": "휴대폰, 태블릿PC 등 전자기기의 데이터 저장용으로 사용하는 탈착형 외장형 메모리카드와 달리, eMMC(embedded Multi Media Card)는 컨트롤러와 낸드 플래시가 패키지로 통합되어 제품에 내장되어 사용되는 메모리카드다.",
+      "evidenceQuote": "휴대폰, 태블릿PC 등 전자기기의 데이터 저장용으로 사용하는 탈착형 외장형 메모리카드와 달리, eMMC(embedded Multi Media Card)는 컨트롤러와 낸드 플래시가 패키지로 통합되어 제품에 내장되어 사용되는 메모리카드다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "Full HD 콘텐츠 이용",
+          "perspectiveBadge": "모바일 전자기기",
+          "narrative": "고성능·고용량 eMMC가 탑재된 전자기기에서 Full HD 영상과 같은 고사양 콘텐츠 이용이 편리해진다고 설명한다.",
+          "caution": "",
+          "evidenceQuote": "전자기기에 고성능·고용량 eMMC가 탑재되면 Full HD 영상과 같은 고사양 컨텐츠를 보다 편리하게 즐길 수 있다.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "기기 안의 저장 메모리가 영상 데이터를 보관하고 처리하는 용도이며 원문은 구체적 전송속도를 제시하지 않는다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "memory-semiconductor",
+          "name": "메모리 반도체",
+          "reason": "모바일 기기에 내장하는 저장용 메모리 반도체라는 정의가 데이터 저장 반도체의 종류임을 지지한다.",
+          "evidenceQuote": "데이터 고속처리를 위해 모바일 기기에 내장하는 저장용 메모리 반도체."
+        }
+      ],
+      "purposeEvidenceQuote": "데이터 고속처리를 위해 모바일 기기에 내장하는 저장용 메모리 반도체.",
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 4
+        }
+      ]
+    }
+  ]
+}

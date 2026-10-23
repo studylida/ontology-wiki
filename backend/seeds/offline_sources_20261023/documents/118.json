@@ -1,0 +1,727 @@
+{
+  "index": 118,
+  "filePath": "skhynix/skhynix_frontend_04_etch.md",
+  "sourceHash": "d11d3f8744e8f78bad99b2fe9b80598a833b8550743461e010527773fe65e961",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 8988,
+    "method": "codex-offline-source-review",
+    "notes": "raw 118.txt 전체와 빈 파서 후보를 독립 검토했다. 식각의 방향성·선택비·속도·균일도, RIE 결합 약화, SiF4 표준기압 -90.3도, 구리 부산물 1,000℃ 초과, 가스 조합과 첨가 기체를 보존했다. 일반 반응 조건을 제조사 적용 사례로 꾸미지 않았고 SK하이닉스 등 메모리 회사의 DRAM/NAND 맥락만 사례화했다. 원문이 포토마스크/포토레지스트를 혼용하는 곳은 중립적인 마스크 표현을 사용했다. 외부 전문가 칼럼이며 그림은 텍스트·캡션 범위만 검토했다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "etching",
+      "title": "식각",
+      "engName": "Etching",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "식각의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "마스크 패턴을 이용해 웨이퍼의 필요한 부분을 선택적으로 제거하여 미세 형상을 만드는 공정이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "식각은 포토마스크를 동원해 내가 원하는 미세 패턴을 파내는 것에 집중하는 작업이라는 차이가 있다.",
+      "evidenceQuote": "식각은 포토마스크를 동원해 내가 원하는 미세 패턴을 파내는 것에 집중하는 작업이라는 차이가 있다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "반응과 형상 제어",
+          "content": "기체 조합·비율, 온도, 전기장 세기, 기압을 조절해 웨이퍼 전체의 소자 형상을 비슷하게 만든다. 세척이 원치 않는 불순물을 전체적으로 제거하는 작업이라면 식각은 패턴 형상에 집중한다.",
+          "formula": null,
+          "evidenceQuote": "기체의 비율, 온도, 전기장의 세기, 기압 등 다양한 요소를 조절함으로써"
+        }
+      ],
+      "limitations": [
+        {
+          "title": "속도와 방향성",
+          "description": "압력을 낮추면 비등방성이 높아지지만 반응 기체량이 줄어 식각 속도가 느려진다.",
+          "evidenceQuote": "식각의 비등방성을 높이기 위해선 식각 기체의 압력을 낮춰야 하는데, 압력이 낮아진다는 것은 반응 기체의 양을 줄인다는 의미이므로 식각 속도도 느려진다."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "DRAM 커패시터와 3차원 NAND의 깊은 구조 식각",
+          "perspectiveBadge": "SK하이닉스 등 메모리 회사",
+          "narrative": "원문은 SK하이닉스 같은 메모리 회사의 D램은 커패시터를 더 높여야 하고 NAND는 한 번에 100개 넘는 층을 관통해야 한다고 설명한다. 높은 종횡비에서 입구와 바닥 지름의 차이를 거의 없애 신뢰도를 확보해야 한다.",
+          "caution": "특정 제품 세대, 실제 종횡비 수치와 허용 지름 오차는 없다.",
+          "evidenceQuote": "특히 SK하이닉스와 같은 메모리 회사의 경우, 주력 제품인 D램과 낸드(NAND) 모두 식각에 매우 크게 의존한다.",
+          "specifications": [
+            {
+              "parameter": "NAND 1회 식각 관통 층수",
+              "value": "100개가 넘는",
+              "unit": "층",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "NAND의 경우 가장 먼저 3차원화가 진행돼 식각 한 번에 100개가 넘는 층을 뚫어야 한다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "폭이 좁고 깊은 구조를 파면서 위쪽과 아래쪽의 굵기를 비슷하게 유지해야 한다. DRAM에서는 높아지는 저장 구조가, NAND에서는 여러 층을 한 번에 뚫는 작업이 그 어려움을 보여준다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [
+        {
+          "id": "photolithography",
+          "name": "포토 공정",
+          "reason": "포토에서 만든 틀을 이용해 식각한다.",
+          "evidenceQuote": "이제부터는 노광 공정을 통해 만들어진 틀을 이용해 우리가 원하는 모양을, 우리가 원하는 방식으로 만들 수 있다."
+        }
+      ],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "etch-selectivity",
+      "title": "식각 선택비",
+      "engName": "Etch Selectivity",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "공정 품질 지표",
+      "scaleLevel": 3,
+      "classificationNote": "식각 선택비의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "제거할 물질은 잘 제거하면서 남겨야 하는 물질은 덜 제거하는 정도를 나타내는 식각 특성이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "선택비는 해당 공정에서 제거하고 싶은 물질만을 얼마나 잘 제거하는지를 나타내는 수치이다.",
+      "evidenceQuote": "선택비는 해당 공정에서 제거하고 싶은 물질만을 얼마나 잘 제거하는지를 나타내는 수치이다.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "완전한 선택 제거의 한계",
+          "description": "반응 중 포토레지스트 등도 서서히 깎이므로 원하는 물질만 100% 제거할 수는 없다.",
+          "evidenceQuote": "식각 공정을 통해 100% 내가 원하는 물질만을 제거하는 것은 불가능하다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "selectivity",
+          "name": "재료 제거 선택비",
+          "reason": "제거해서는 안 될 물질은 덜 제거되고 제거할 성분은 잘 제거된다는 정의이다. 등록 selectivity의 서로 다른 재료 제거 차이를 식각에 한정한 지표 분류이다.",
+          "evidenceQuote": "첫 번째 단어는 선택비이다. 선택비는 해당 공정에서 제거하고 싶은 물질만을 얼마나 잘 제거하는지를 나타내는 수치이다. 식각 공정을 통해 100% 내가 원하는 물질만을 제거하는 것은 불가능하다. 반응이 진행됨에 따라 씌워 놓은 포토레지스트 등도 느리지만 서서히 깎여 나가는 문제가 생기기 때문이다. 선택비가 높다는 것은 식각 과정에서 제거해서는 안 될 물질은 덜 제거되고, 제거해야 하는 성분만이 잘 제거된다는 의미이다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "공정 품질 지표",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "isotropic-etching",
+      "title": "등방성 식각",
+      "engName": "Isotropic Etching",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "전공정",
+      "scaleLevel": 3,
+      "classificationNote": "등방성 식각의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "레지스트 열린 부분을 기준으로 모든 방향에서 식각이 진행되는 특성의 식각이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "등방성은 포토레지스트의 열린 부분을 기준으로 모든 방향으로 식각이 발생한다는 의미이고",
+      "evidenceQuote": "등방성은 포토레지스트의 열린 부분을 기준으로 모든 방향으로 식각이 발생한다는 의미이고",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "anisotropic-etching",
+          "name": "비등방성 식각",
+          "reason": "식각 진행 방향 특성이 대조된다.",
+          "evidenceQuote": "비등방성은 특정 방향으로만 반응이 잘 일어난다는 것을 의미한다."
+        }
+      ],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "anisotropic-etching",
+      "title": "비등방성 식각",
+      "engName": "Anisotropic Etching",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "전공정",
+      "scaleLevel": 3,
+      "classificationNote": "비등방성 식각의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "특정 방향으로 식각 반응이 더 잘 진행되는 특성의 식각이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "비등방성은 특정 방향으로만 반응이 잘 일어난다는 것을 의미한다.",
+      "evidenceQuote": "비등방성은 특정 방향으로만 반응이 잘 일어난다는 것을 의미한다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "isotropic-etching",
+          "name": "등방성 식각",
+          "reason": "모든 방향으로 진행되는 방식과 비교된다.",
+          "evidenceQuote": "등방성은 포토레지스트의 열린 부분을 기준으로 모든 방향으로 식각이 발생한다는 의미이고"
+        }
+      ],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "etch-rate",
+      "title": "식각 속도",
+      "engName": "Etch Rate",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "공정 품질 지표",
+      "scaleLevel": 3,
+      "classificationNote": "식각 속도의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "식각 반응이 얼마나 빠르게 진행되는지 나타내는 공정 특성이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "속도는 단어 그대로 식각 반응이 얼마나 빠른지 나타내는 수치이다.",
+      "evidenceQuote": "속도는 단어 그대로 식각 반응이 얼마나 빠른지 나타내는 수치이다.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "정확도와 속도",
+          "description": "다른 조건이 같으면 빠를수록 유리하지만 실제 개발에서는 정확도 등의 특성과 속도 간 타협이 필요하다.",
+          "evidenceQuote": "공정을 개발하는 과정에서 정확도 등의 수치와 속도 사이에서 타협이 필요하다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "공정 품질 지표",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "etch-uniformity",
+      "title": "식각 균일도",
+      "engName": "Etch Uniformity",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "공정 품질 지표",
+      "scaleLevel": 3,
+      "classificationNote": "식각 균일도의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "웨이퍼 위치에 따른 식각 진행의 차이를 나타내는 특성이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "균일도는 식각이 전체 웨이퍼 영역에서 얼마나 불균일하게 일어나는지를 나타내는 척도이다.",
+      "evidenceQuote": "균일도는 식각이 전체 웨이퍼 영역에서 얼마나 불균일하게 일어나는지를 나타내는 척도이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "기체 공급과 부산물 배출",
+          "content": "웨이퍼 한 장 전체를 처리하면서 기체를 투입하고 부산물을 제거하므로 위치마다 식각 속도가 달라질 수 있다.",
+          "formula": null,
+          "evidenceQuote": "이로 인해 웨이퍼 위치 별로 식각 속도의 차이가 발생한다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "지표 방향 확인",
+          "description": "균일도라는 말이 문맥에 따라 불균일도를 뜻하기도 하므로 수치의 방향을 확인해야 한다.",
+          "evidenceQuote": "균일도라는 단어가 문맥에 따라서는 불균일도를 의미하는 경우도 있으니"
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "공정 품질 지표",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "wet-etching",
+      "title": "습식 식각",
+      "engName": "Wet Etching",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "습식 식각의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "웨이퍼를 액체 식각액에 담가 화학 반응으로 물질을 제거하는 식각 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "식각에서의 습식은 웨이퍼를 액체에 ‘담갔다 건지는’ 방식을 의미한다.",
+      "evidenceQuote": "식각에서의 습식은 웨이퍼를 액체에 ‘담갔다 건지는’ 방식을 의미한다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "빠른 화학 반응",
+          "content": "담그는 방식은 화학적 식각을 사용하므로 속도가 빠르고 선택비가 높다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "이러한 방식은 식각 속도가 매우 빠르며, 담그는 방식의 특성상 화학적 식각밖에 쓸 수 없으므로 선택비가 높다는 장점이 있다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "등방성과 표면 장력",
+          "description": "액체가 자유롭게 반응해 레지스트 뒤쪽까지 깎으므로 정밀도가 낮고, 작은 틈에는 표면 장력으로 식각액이 들어가지 못한다. 원문은 현대 반도체 핵심 층 제조에 사용할 수 없다고 범위를 한정해 설명한다.",
+          "evidenceQuote": "액체의 특성상 틈이 너무 작으면 표면 장력으로 인해 식각액 자체가 포토레지스트 틈으로 침투하지 못하게 된다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "dry-etching",
+          "name": "건식 식각",
+          "reason": "액체와 기체 방식으로 대조된다.",
+          "evidenceQuote": "건식 식각은 기체를 이용하는 식각 전체를 포괄하는 개념이다."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "etching",
+          "name": "식각",
+          "reason": "식각의 액체 방식이다.",
+          "evidenceQuote": "산화와 마찬가지로 식각 역시 습식과 건식으로 나뉜다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "dry-etching",
+      "title": "건식 식각",
+      "engName": "Dry Etching",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "건식 식각의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "기체를 이용하는 식각을 포괄하며 플라즈마 식각·스퍼터링·RIE 등을 포함하는 범주이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "건식 식각은 기체를 이용하는 식각 전체를 포괄하는 개념이다.",
+      "evidenceQuote": "건식 식각은 기체를 이용하는 식각 전체를 포괄하는 개념이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "방법별 방향성 차이",
+          "content": "화학적 방식은 등방성을, 물리적 방식은 비등방성을 가질 수 있다. 비등방성 RIE의 보급 때문에 건식을 비등방성이라고 단순화하지만 모든 건식 방식의 본질적 특성은 아니다.",
+          "formula": null,
+          "evidenceQuote": "화학적 방식으로 이루어지는 건식 식각이라면 등방성을 가질 것이고, 물리적 방법을 사용한다면 비등방성을 가질 것이다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "wet-etching",
+          "name": "습식 식각",
+          "reason": "액체 방식과 비교한다.",
+          "evidenceQuote": "식각에서의 습식은 웨이퍼를 액체에 ‘담갔다 건지는’ 방식을 의미한다."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "etching",
+          "name": "식각",
+          "reason": "식각의 기체 방식이다.",
+          "evidenceQuote": "산화와 마찬가지로 식각 역시 습식과 건식으로 나뉜다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "chemical-etching",
+      "title": "화학적 식각",
+      "engName": "Chemical Etching",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "전공정",
+      "scaleLevel": 3,
+      "classificationNote": "화학적 식각의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "제거 대상과 잘 반응하는 화학 물질을 이용해 선택적으로 물질을 제거하는 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "화학적 방법은 특정 물질과 잘 반응하는 물질을 이용하는 것이다.",
+      "evidenceQuote": "화학적 방법은 특정 물질과 잘 반응하는 물질을 이용하는 것이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "대상별 반응물 선택",
+          "content": "대상 산화막이나 증착막에 맞춰 불소·염소 기반 화합물 등을 선택한다. 화학 반응이 주된 메커니즘이므로 선택비가 높다.",
+          "formula": null,
+          "evidenceQuote": "주로 불소나 염소 기반의 화합물들이 화학적 식각에 사용된다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "sputtering",
+          "name": "스퍼터링",
+          "reason": "화학 반응과 물리적 충돌이 비교된다.",
+          "evidenceQuote": "하나는 화학적 방법으로 없애는 것이고, 다른 하나는 물리적으로 제거하는 것이다."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "etching",
+          "name": "식각",
+          "reason": "물질 제거 메커니즘에 따른 식각 방식이다.",
+          "evidenceQuote": "웨이퍼 위의 물질을 없애는 방법은 크게 두 가지가 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "sputtering",
+      "title": "스퍼터링",
+      "engName": "Sputtering",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "전공정",
+      "scaleLevel": 3,
+      "classificationNote": "스퍼터링의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "고에너지 입자를 물질에 충돌시켜 표면 물질을 떨어뜨리는 물리적 제거 기법이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "높은 에너지를 가진 입자를 웨이퍼 표면에 충돌시키면 물질 표면이 떨어져 나가게 되는데, 이를 스퍼터링(Sputtering)이라 부른다.",
+      "evidenceQuote": "높은 에너지를 가진 입자를 웨이퍼 표면에 충돌시키면 물질 표면이 떨어져 나가게 되는데, 이를 스퍼터링(Sputtering)이라 부른다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "기체 이온화와 가속",
+          "content": "주로 불활성 기체를 저압에서 이온화하고 전기장으로 양이온을 웨이퍼 방향으로 가속해 충돌시킨다. 증착할 물질을 만드는 데에도 같은 기법을 쓴다.",
+          "formula": null,
+          "evidenceQuote": "기체(주로 불활성 기체)의 기압을 낮춘 뒤 높은 에너지를 가해주게 되면 기체가 원자(+)와 전자(-)로 분리된다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "속도와 선택성",
+          "description": "저압으로 기체량이 적어 느리며 충돌이 물질을 가리지 않아 남겨야 할 물질도 제거된다.",
+          "evidenceQuote": "물리적 방법의 특성상 제거해서는 안 되는 물질도 확률적으로 제거된다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "chemical-etching",
+          "name": "화학적 식각",
+          "reason": "물리 충돌과 화학 반응의 장단점이 대조된다.",
+          "evidenceQuote": "하나는 화학적 방법으로 없애는 것이고, 다른 하나는 물리적으로 제거하는 것이다."
+        }
+      ],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "reactive-ion-etching",
+      "title": "반응성 이온 식각",
+      "engName": "Reactive Ion Etching",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "반응성 이온 식각의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "플라즈마에서 생성한 양이온 충돌과 라디칼의 화학 반응을 결합해 선택비와 비등방성을 확보하는 건식 식각이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "실제 현장에서 가장 중요하게 사용되는 방법은 위 두 가지 방법을 합친 반응성 이온 식각(RIE, Reactive Ion Etching)이다.",
+      "evidenceQuote": "실제 현장에서 가장 중요하게 사용되는 방법은 위 두 가지 방법을 합친 반응성 이온 식각(RIE, Reactive Ion Etching)이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "반응 기체의 플라즈마화",
+          "content": "반응성·불활성 혼합 기체에 에너지를 가해 전자·양이온·라디칼을 생성한다. 양이온은 전기장으로 가속되어 강한 방향성을 갖고 물리적으로 식각한다.",
+          "formula": null,
+          "evidenceQuote": "식각 기체가 전자(Electron), 양이온(Positive Ion), 라디칼(Radical)*로 분리된다."
+        },
+        {
+          "step": 2,
+          "title": "충돌에 따른 결합 약화와 라디칼 반응",
+          "content": "직진하는 양이온이 전면부에 충돌해 결합을 약화한다. 측면 결합은 상대적으로 유지되며 라디칼이 약화된 전면을 빠르게 반응시켜 비등방성이 높아진다.",
+          "formula": null,
+          "evidenceQuote": "이후 반응성 높은 라디칼이 접촉하게 되면 전면부가 더욱 빠르게 식각된다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "식각만으로 완전한 형상 구현 불가",
+          "description": "원하는 패턴을 100% 만들 수 없어 기체 조합 변경과 하드 마스크 등 다른 공정·신물질의 도움이 필요하다.",
+          "evidenceQuote": "기타 조절되지 않는 문제들은 기체의 조합을 바꾸거나, 하드 마스크*를 사용하는 다른 공정 단계와 신물질의 도움을 받아야 한다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "dry-etching",
+          "name": "건식 식각",
+          "reason": "기체를 플라즈마화하는 건식 식각의 일종이다.",
+          "evidenceQuote": "RIE는 건식 식각의 일종으로, 식각 기체를 플라즈마로 바꿔 식각하는 방식을 말한다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "전공정",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "etchant",
+      "title": "식각 물질",
+      "engName": "Etchant",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "식각 재료",
+      "scaleLevel": 1,
+      "classificationNote": "식각 물질의 원문 역할에 따라 materials_infra, 규모 1로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "제거 대상과 반응해 물질을 제거하는 식각용 화학 물질로, 부산물 배출성·선택비·반응 속도에 따라 선택한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "가스 선택의 핵심은 생겨난 부산물이 제거하기 용이한가, 선택비와 반응 속도가 얼마나 뛰어난가 등이다.",
+      "evidenceQuote": "가스 선택의 핵심은 생겨난 부산물이 제거하기 용이한가, 선택비와 반응 속도가 얼마나 뛰어난가 등이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "할로겐과 휘발성 부산물",
+          "content": "F·Cl·Br 계열 화합물을 주로 사용한다. Si는 F와 반응해 기화가 쉬운 불화규소가 되며 SiF4의 표준기압 기화점은 원문에서 영하 90.3도로 제시된다.",
+          "formula": null,
+          "evidenceQuote": "SiF4의 경우, 기화점이 표준 기압에서 영하 90.3도이므로 반응과 동시에 바로 기화될 것임을 알 수 있다."
+        },
+        {
+          "step": 2,
+          "title": "산화규소 반응과 탄소 비율",
+          "content": "안정적인 SiO₂는 불소에 탄소가 결합한 기체의 발열 작용을 이용한다고 설명한다. Si와 SiO₂가 함께 노출된 조건에서 탄소 비율 증가가 SiO₂ 선택비를 올린다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "불소 기체에 탄소 비율이 높아질수록 발열반응이 강해지므로, SiO2의 선택비가 오르게 된다."
+        },
+        {
+          "step": 3,
+          "title": "첨가 기체",
+          "content": "O₂·N₂·H₂ 등을 첨가해 특성을 조절한다. Si 제거 시 H₂는 비등방성을 높이는 내벽을 만들며 Ne 같은 불활성 기체는 농도 조절과 물리 식각 효과를 제공한다.",
+          "formula": null,
+          "evidenceQuote": "수소의 경우 규소 제거 과정에서 첨가하게 되면 비등방성을 높여주는 내벽을 생성한다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "구리 부산물의 비휘발성",
+          "description": "구리와 가스의 반응 부산물 기화점은 원문에서 1,000℃를 넘는다고 제시한다. 웨이퍼를 1,000℃로 올리면 중요 소자가 손상되므로 직접 식각이 어렵고 다마신 도입과 연결된다.",
+          "evidenceQuote": "구리의 경우는 가스와의 반응 부산물의 기화점이 1,000℃가 넘는다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "식각 재료",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "hard-mask",
+      "title": "하드 마스크",
+      "engName": "Hard Mask",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "패터닝 재료·부품",
+      "scaleLevel": 3,
+      "classificationNote": "하드 마스크의 원문 역할에 따라 materials_infra, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "미세화에 따른 기존 패턴 붕괴를 방지하기 위해 추가하는 하부 마스크이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "패턴 미세화로 인해 기존 포토마스크 패턴이 무너지는 것을 방지하기 위해 추가된 하부 포토마스크",
+      "evidenceQuote": "패턴 미세화로 인해 기존 포토마스크 패턴이 무너지는 것을 방지하기 위해 추가된 하부 포토마스크",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "패터닝 보조막",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "damascene",
+      "title": "다마신 공정",
+      "engName": "Damascene",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "금속 배선",
+      "scaleLevel": 3,
+      "classificationNote": "다마신 공정의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "금속이 들어갈 공간을 먼저 식각하고 금속을 증착한 뒤 남는 부분을 물리적으로 갈아내는 구리 배선 형성 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "먼저 금속 자리를 식각한 뒤, 금속을 증착하고 물리적으로 여분을 갈아내는 방식",
+      "evidenceQuote": "먼저 금속 자리를 식각한 뒤, 금속을 증착하고 물리적으로 여분을 갈아내는 방식",
+      "principles": [
+        {
+          "step": 1,
+          "title": "공정 순서",
+          "content": "금속 자리 식각 후 금속 증착, 여분 제거 순으로 진행해 직접 식각하기 어려운 구리를 배선에 도입한다.",
+          "formula": null,
+          "evidenceQuote": "구리는 압도적으로 전기적 특성이 좋음에도 불구하고 알루미늄의 전기적 특성이 한계에 다다르고 나서야 다마신(Damascene)*이라는 새로운 공법과 함께 도입될 수 있었다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "금속 배선",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "aspect-ratio",
+      "title": "식각 종횡비",
+      "engName": "Aspect Ratio",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "공정 품질 지표",
+      "scaleLevel": 3,
+      "classificationNote": "식각 종횡비의 원문 역할에 따라 unit_process, 규모 3로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "식각 깊이를 식각 밑변으로 나눈 값으로, 값이 클수록 폭에 비해 깊은 형상을 의미한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "종횡비 : 식각 깊이를 식각 밑변으로 나눈 값.",
+      "evidenceQuote": "종횡비 : 식각 깊이를 식각 밑변으로 나눈 값.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "형상 지표",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "finfet",
+      "title": "핀펫",
+      "engName": "FinFET",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "트랜지스터·게이트 구조",
+      "scaleLevel": 2,
+      "classificationNote": "핀펫의 원문 역할에 따라 device, 규모 2로 분류했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전류 통로가 물고기 지느러미와 비슷한 모양인 3차원 MOSFET의 일종이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "3차원 MOSFET의 일종으로, 전류의 통로가 물고기 지느러미 모양과 비슷하게 생겼다.",
+      "evidenceQuote": "3차원 MOSFET의 일종으로, 전류의 통로가 물고기 지느러미 모양과 비슷하게 생겼다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "트랜지스터 구조",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

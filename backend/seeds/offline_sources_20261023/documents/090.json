@@ -1,0 +1,50 @@
+{
+  "index": 90,
+  "filePath": "samsung/glossary/반도체-용어-사전led편-휘도.md",
+  "sourceHash": "3569df7535f5828bc313d9aac76261226172b067675bbcde3ce070ae5d47cb45",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1381,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 빈 파서 후보를 대조해 실제 개념명·정의·명시된 적용 상황을 보완했다. 설명 예시를 실측 사양으로 바꾸지 않고 수치 없는 사례도 보존했다. "
+  },
+  "concepts": [
+    {
+      "conceptId": "luminance",
+      "title": "휘도",
+      "engName": "Luminance",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "광학 물리량",
+      "scaleLevel": 1,
+      "classificationNote": "휘도의 원문 정의에 따라 광학 물리량에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "관측자가 광원을 특정 방향에서 볼 때 얼마나 밝게 보이는지를 나타내는 값이다. 단위는 nit 또는 cd/㎡이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "빛의 단위 중 하나. 단위는 nit(니트) 혹은 cd/㎡(칸델라/제곱미터).\n광원으로부터 복사되는 빛의 밝기의 척도로 구체적으로 관측자가 광원을 특정 방향에서 볼 때, 얼마나 밝아 보이는가를 나타내는 값이다. 일정한 범위를 가진 광원의 광도를, 그 광원의 면적으로 나눠 계산하며, 1 nit는 1㎡당 1cd의 광도를 뜻한다.",
+      "evidenceQuote": "빛의 단위 중 하나. 단위는 nit(니트) 혹은 cd/㎡(칸델라/제곱미터).\n광원으로부터 복사되는 빛의 밝기의 척도로 구체적으로 관측자가 광원을 특정 방향에서 볼 때, 얼마나 밝아 보이는가를 나타내는 값이다. 일정한 범위를 가진 광원의 광도를, 그 광원의 면적으로 나눠 계산하며, 1 nit는 1㎡당 1cd의 광도를 뜻한다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "광도와 면적",
+          "content": "일정한 범위를 가진 광원의 광도를 그 광원의 면적으로 나누어 계산한다. 1nit는 1㎡당 1cd의 광도를 뜻한다.",
+          "formula": null,
+          "evidenceQuote": "빛의 단위 중 하나. 단위는 nit(니트) 혹은 cd/㎡(칸델라/제곱미터).\n광원으로부터 복사되는 빛의 밝기의 척도로 구체적으로 관측자가 광원을 특정 방향에서 볼 때, 얼마나 밝아 보이는가를 나타내는 값이다. 일정한 범위를 가진 광원의 광도를, 그 광원의 면적으로 나눠 계산하며, 1 nit는 1㎡당 1cd의 광도를 뜻한다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "광학 물리량",
+          "scaleLevel": 1
+        }
+      ]
+    }
+  ]
+}

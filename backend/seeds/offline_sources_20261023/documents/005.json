@@ -1,0 +1,577 @@
+{
+  "index": 5,
+  "filePath": "lam_research/lam_solution_etch_en.md",
+  "sourceHash": "5a28a82a72c2f765472a9a012c74e39385381efb78c4d824be84095f717f7719",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 6827,
+    "method": "codex-offline-source-review",
+    "notes": "전체 원문을 읽고 일반 메커니즘은 principles에, 실제 제품군과 관련 블로그 발췌는 사례에 나눴다. 제품의 지원 기술과 응용 목록을 장비가 공정의 하위유형인 것처럼 기록하지 않았다. 극저온 온도, 선택비 수치와 이온 조건은 원문에 없어 생성하지 않았다. Sense.i 한영 기술 목록 차이는 사례에 보류 표시했다. 400층·600층 건물 비유를 1,000층 양산 실적으로 바꾸지 않았다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "etching",
+      "title": "식각",
+      "engName": "Etch",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "재료 제거 또는 웨이퍼 표면 보호를 수행하는 단위 공정이며 장비 제품은 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "웨이퍼에 증착된 막과 재료를 선택적으로 제거하여 반도체 소자의 피처를 만드는 공정이다. 전도성 구성요소와 절연 구조뿐 아니라 TSV·MEMS용 고종횡비 형상도 만든다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "Etch processes help create chip features by selectively removing films and materials that have been deposited on the wafer. These processes involve fabricating increasingly small and complex features with complicated combinations of materials that need to be removed. The primary technology, reactive ion etch (RIE), activates the wafer surface with ions (charged particles) to remove material. Advanced etch techniques, such as atomic layer etching (ALE) are capable of removing a few atomic layers of material at a time. While conductor etch processes precisely shape electrically active components like transistors, dielectric etch forms the insulating structures that protect conducting parts. Etch processes also create the tall, high-aspect ratio features, such as through-silicon vias (TSVs), that allow packaging of chips together and for micro-electromechanical systems (MEMS).",
+      "evidenceQuote": "Etch processes help create chip features by selectively removing films and materials that have been deposited on the wafer. These processes involve fabricating increasingly small and complex features with complicated combinations of materials that need to be removed. The primary technology, reactive ion etch (RIE), activates the wafer surface with ions (charged particles) to remove material. Advanced etch techniques, such as atomic layer etching (ALE) are capable of removing a few atomic layers of material at a time. While conductor etch processes precisely shape electrically active components like transistors, dielectric etch forms the insulating structures that protect conducting parts. Etch processes also create the tall, high-aspect ratio features, such as through-silicon vias (TSVs), that allow packaging of chips together and for micro-electromechanical systems (MEMS).",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "AI 시대 NAND 적층 구조에 관한 게시물 발췌",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "2024년 6월 12일 게시물 발췌는 AI의 성능 요구로 NAND가 수직 400층 이상으로 향하고 있으며 현재 소자 높이가 수 µm에서 수십 µm라고 설명한다.",
+          "caution": "400층 건물에 600층을 더하는 표현은 설명용 비유이며 실제 1,000층 양산 실적으로 기록하지 않았다. 게시물 전체가 아닌 발췌만 제공된다.",
+          "evidenceQuote": "The artificial intelligence era depends on the storage infrastructure needed to run advanced technology, such as generative AI. The performance requirements for these AI innovations are pushing NAND devices to quickly scale to 400 vertically stacked layers and beyond.    For readers who are new to semiconductors, that’s a big deal. Imagine a skyscraper with an unfathomable 400 floors, where each floor represents a layer of memory in a NAND device. Now, imagine adding 600 more floors to that building...only in semiconductors, this super tall structure is still invisible to the naked eye. Today, these devices range in height from a few micrometers (µm) to tens of micrometers.",
+          "specifications": [
+            {
+              "parameter": "NAND 적층 확대 방향",
+              "value": "400 vertically stacked layers and beyond",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "The artificial intelligence era depends on the storage infrastructure needed to run advanced technology, such as generative AI. The performance requirements for these AI innovations are pushing NAND devices to quickly scale to 400 vertically stacked layers and beyond.    For readers who are new to semiconductors, that’s a big deal. Imagine a skyscraper with an unfathomable 400 floors, where each floor represents a layer of memory in a NAND device. Now, imagine adding 600 more floors to that building...only in semiconductors, this super tall structure is still invisible to the naked eye. Today, these devices range in height from a few micrometers (µm) to tens of micrometers."
+            },
+            {
+              "parameter": "소자 높이 범위",
+              "value": "a few micrometers (µm) to tens of micrometers",
+              "unit": "µm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "The artificial intelligence era depends on the storage infrastructure needed to run advanced technology, such as generative AI. The performance requirements for these AI innovations are pushing NAND devices to quickly scale to 400 vertically stacked layers and beyond.    For readers who are new to semiconductors, that’s a big deal. Imagine a skyscraper with an unfathomable 400 floors, where each floor represents a layer of memory in a NAND device. Now, imagine adding 600 more floors to that building...only in semiconductors, this super tall structure is still invisible to the naked eye. Today, these devices range in height from a few micrometers (µm) to tens of micrometers."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "메모리 층을 높이 쌓으면 여러 층을 관통하는 형상을 만드는 식각이 필요해진다. 제시된 층수와 높이는 이 게시물 발췌가 설명한 맥락의 값이다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "AI 시대 GAA·3D NAND 식각 응용에 관한 게시물 발췌",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "2023년 11월 8일 발췌는 3D 소자 구조에 새로운 식각 기술이 필요하다고 설명한다. 여러 방향의 재료 제거를 GAA 형성 및 원자층 수정과 연결하고 종횡비 의존 식각을 2D에서 3D NAND로의 전환과 연결한다.",
+          "caution": "관련 게시물 발췌의 표현을 보존한 적용 맥락이다. 구체적 반응 조건이나 장비별 실증 수치는 없다.",
+          "evidenceQuote": "The rise of artificial intelligence (AI) has placed significant demands on semiconductor performance, particularly in the realm of etching technology. AI requires massive amounts of data for training, necessitating high levels of parallel processing, non-volatile memory, and fast data transfer rates.    To achieve these capabilities advanced devices are designed in three dimensions, leading to the need for novel etching techniques. Perpendicular etching, which involves removing materials in multiple directions, is essential for crafting gate-all-around (GAA) transistor architectures and precise modification of atomic layers. Aspect-ratio-dependent etching is crucial for the transition from 2D to 3D NAND architecture, enabling the efficient storage capacity increase by etching through numerous layers.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "GAA에서는 채널 주변을 가공해야 하고 3D NAND에서는 많은 층을 통과하는 형상을 만들어야 하므로 서로 다른 형태를 제어하는 식각이 필요하다는 설명이다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [
+        {
+          "id": "deposition",
+          "name": "증착",
+          "reason": "원문은 웨이퍼에 앞서 증착된 막과 재료를 식각으로 제거한다고 설명한다.",
+          "evidenceQuote": "Etch processes help create chip features by selectively removing films and materials that have been deposited on the wafer. These processes involve fabricating increasingly small and complex features with complicated combinations of materials that need to be removed. The primary technology, reactive ion etch (RIE), activates the wafer surface with ions (charged particles) to remove material. Advanced etch techniques, such as atomic layer etching (ALE) are capable of removing a few atomic layers of material at a time. While conductor etch processes precisely shape electrically active components like transistors, dielectric etch forms the insulating structures that protect conducting parts. Etch processes also create the tall, high-aspect ratio features, such as through-silicon vias (TSVs), that allow packaging of chips together and for micro-electromechanical systems (MEMS)."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "reactive-ion-etching",
+      "title": "반응성 이온 식각",
+      "engName": "Reactive Ion Etch (RIE)",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "재료 제거 또는 웨이퍼 표면 보호를 수행하는 단위 공정이며 장비 제품은 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "이온을 이용해 웨이퍼 표면을 활성화하거나 충격을 가하여 재료를 제거하는 식각 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "Etch processes help create chip features by selectively removing films and materials that have been deposited on the wafer. These processes involve fabricating increasingly small and complex features with complicated combinations of materials that need to be removed. The primary technology, reactive ion etch (RIE), activates the wafer surface with ions (charged particles) to remove material. Advanced etch techniques, such as atomic layer etching (ALE) are capable of removing a few atomic layers of material at a time. While conductor etch processes precisely shape electrically active components like transistors, dielectric etch forms the insulating structures that protect conducting parts. Etch processes also create the tall, high-aspect ratio features, such as through-silicon vias (TSVs), that allow packaging of chips together and for micro-electromechanical systems (MEMS).",
+      "evidenceQuote": "Etch processes help create chip features by selectively removing films and materials that have been deposited on the wafer. These processes involve fabricating increasingly small and complex features with complicated combinations of materials that need to be removed. The primary technology, reactive ion etch (RIE), activates the wafer surface with ions (charged particles) to remove material. Advanced etch techniques, such as atomic layer etching (ALE) are capable of removing a few atomic layers of material at a time. While conductor etch processes precisely shape electrically active components like transistors, dielectric etch forms the insulating structures that protect conducting parts. Etch processes also create the tall, high-aspect ratio features, such as through-silicon vias (TSVs), that allow packaging of chips together and for micro-electromechanical systems (MEMS).",
+      "principles": [
+        {
+          "step": 1,
+          "title": "이온에 의한 표면 작용",
+          "content": "이온으로 웨이퍼 표면을 활성화하거나 충격을 가해 재료를 제거한다.",
+          "formula": null,
+          "evidenceQuote": "Etch processes help create chip features by selectively removing films and materials that have been deposited on the wafer. These processes involve fabricating increasingly small and complex features with complicated combinations of materials that need to be removed. The primary technology, reactive ion etch (RIE), activates the wafer surface with ions (charged particles) to remove material. Advanced etch techniques, such as atomic layer etching (ALE) are capable of removing a few atomic layers of material at a time. While conductor etch processes precisely shape electrically active components like transistors, dielectric etch forms the insulating structures that protect conducting parts. Etch processes also create the tall, high-aspect ratio features, such as through-silicon vias (TSVs), that allow packaging of chips together and for micro-electromechanical systems (MEMS)."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "Sense.i 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "컴팩트한 고밀도 구조에 시스템 지능을 갖춘 식각 플랫폼으로 소개된다.",
+          "caution": "한국어 페이지는 DRIE와 RIE를, 영어 페이지는 RIE를 표기한다. 기술 표기 차이는 원문 인용에 보존했으며 장비 기능의 동등성을 확인하지 않았다.",
+          "evidenceQuote": "Sense.i Product Family\n\nReactive Ion Etch (RIE)\n\nOur latest etch platform offers unparalleled system intelligence in a compact, high-density architecture to deliver process performance at the highest productivity.\n\nAdvanced Memory, Interconnect, Patterning, Transistor",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "여러 식각 기능을 작은 공간에 배치하고 장비 지능으로 공정 성능과 생산성을 높이려는 플랫폼이다.",
+            "background": null
+          }
+        }
+      ],
+      "isA": [
+        {
+          "id": "etching",
+          "name": "식각",
+          "reason": "원문에서 해당 재료 제거 기법 또는 식각 응용으로 제시한다.",
+          "evidenceQuote": "Etch processes help create chip features by selectively removing films and materials that have been deposited on the wafer. These processes involve fabricating increasingly small and complex features with complicated combinations of materials that need to be removed. The primary technology, reactive ion etch (RIE), activates the wafer surface with ions (charged particles) to remove material. Advanced etch techniques, such as atomic layer etching (ALE) are capable of removing a few atomic layers of material at a time. While conductor etch processes precisely shape electrically active components like transistors, dielectric etch forms the insulating structures that protect conducting parts. Etch processes also create the tall, high-aspect ratio features, such as through-silicon vias (TSVs), that allow packaging of chips together and for micro-electromechanical systems (MEMS)."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "atomic-layer-etching",
+      "title": "원자층 식각",
+      "engName": "Atomic Layer Etch (ALE)",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "재료 제거 또는 웨이퍼 표면 보호를 수행하는 단위 공정이며 장비 제품은 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "한 번에 몇 개의 원자층을 제거하여 매우 작은 피처를 형성할 수 있는 정밀 식각 기법이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "Etch processes help create chip features by selectively removing films and materials that have been deposited on the wafer. These processes involve fabricating increasingly small and complex features with complicated combinations of materials that need to be removed. The primary technology, reactive ion etch (RIE), activates the wafer surface with ions (charged particles) to remove material. Advanced etch techniques, such as atomic layer etching (ALE) are capable of removing a few atomic layers of material at a time. While conductor etch processes precisely shape electrically active components like transistors, dielectric etch forms the insulating structures that protect conducting parts. Etch processes also create the tall, high-aspect ratio features, such as through-silicon vias (TSVs), that allow packaging of chips together and for micro-electromechanical systems (MEMS).",
+      "evidenceQuote": "Etch processes help create chip features by selectively removing films and materials that have been deposited on the wafer. These processes involve fabricating increasingly small and complex features with complicated combinations of materials that need to be removed. The primary technology, reactive ion etch (RIE), activates the wafer surface with ions (charged particles) to remove material. Advanced etch techniques, such as atomic layer etching (ALE) are capable of removing a few atomic layers of material at a time. While conductor etch processes precisely shape electrically active components like transistors, dielectric etch forms the insulating structures that protect conducting parts. Etch processes also create the tall, high-aspect ratio features, such as through-silicon vias (TSVs), that allow packaging of chips together and for micro-electromechanical systems (MEMS).",
+      "principles": [
+        {
+          "step": 1,
+          "title": "소수 원자층 제거",
+          "content": "한 번에 몇 개의 원자층을 제거해 작은 피처를 정밀하게 만든다.",
+          "formula": null,
+          "evidenceQuote": "Etch processes help create chip features by selectively removing films and materials that have been deposited on the wafer. These processes involve fabricating increasingly small and complex features with complicated combinations of materials that need to be removed. The primary technology, reactive ion etch (RIE), activates the wafer surface with ions (charged particles) to remove material. Advanced etch techniques, such as atomic layer etching (ALE) are capable of removing a few atomic layers of material at a time. While conductor etch processes precisely shape electrically active components like transistors, dielectric etch forms the insulating structures that protect conducting parts. Etch processes also create the tall, high-aspect ratio features, such as through-silicon vias (TSVs), that allow packaging of chips together and for micro-electromechanical systems (MEMS)."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "isA": [
+        {
+          "id": "etching",
+          "name": "식각",
+          "reason": "원문에서 해당 재료 제거 기법 또는 식각 응용으로 제시한다.",
+          "evidenceQuote": "Etch processes help create chip features by selectively removing films and materials that have been deposited on the wafer. These processes involve fabricating increasingly small and complex features with complicated combinations of materials that need to be removed. The primary technology, reactive ion etch (RIE), activates the wafer surface with ions (charged particles) to remove material. Advanced etch techniques, such as atomic layer etching (ALE) are capable of removing a few atomic layers of material at a time. While conductor etch processes precisely shape electrically active components like transistors, dielectric etch forms the insulating structures that protect conducting parts. Etch processes also create the tall, high-aspect ratio features, such as through-silicon vias (TSVs), that allow packaging of chips together and for micro-electromechanical systems (MEMS)."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "conductor-etching",
+      "title": "전도체 식각",
+      "engName": "Conductor Etch",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "재료 제거 또는 웨이퍼 표면 보호를 수행하는 단위 공정이며 장비 제품은 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "트랜지스터 같은 전기적으로 활성인 구성요소의 형상을 정밀하게 만드는 식각 공정이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "Etch processes help create chip features by selectively removing films and materials that have been deposited on the wafer. These processes involve fabricating increasingly small and complex features with complicated combinations of materials that need to be removed. The primary technology, reactive ion etch (RIE), activates the wafer surface with ions (charged particles) to remove material. Advanced etch techniques, such as atomic layer etching (ALE) are capable of removing a few atomic layers of material at a time. While conductor etch processes precisely shape electrically active components like transistors, dielectric etch forms the insulating structures that protect conducting parts. Etch processes also create the tall, high-aspect ratio features, such as through-silicon vias (TSVs), that allow packaging of chips together and for micro-electromechanical systems (MEMS).",
+      "evidenceQuote": "Etch processes help create chip features by selectively removing films and materials that have been deposited on the wafer. These processes involve fabricating increasingly small and complex features with complicated combinations of materials that need to be removed. The primary technology, reactive ion etch (RIE), activates the wafer surface with ions (charged particles) to remove material. Advanced etch techniques, such as atomic layer etching (ALE) are capable of removing a few atomic layers of material at a time. While conductor etch processes precisely shape electrically active components like transistors, dielectric etch forms the insulating structures that protect conducting parts. Etch processes also create the tall, high-aspect ratio features, such as through-silicon vias (TSVs), that allow packaging of chips together and for micro-electromechanical systems (MEMS).",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "Akara 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "밀리초 수준의 공정 반응으로 웨이퍼 처리량을 높이고 낭비 시간을 줄이는 전도체 식각 장비이다. 옹스트롬 수준 균일도와 웨이퍼 간 반복성을 제공한다고 소개한다.",
+          "caution": "",
+          "evidenceQuote": "Akara®\n\nConductor Etch\n\nDesigned for high-volume production with maximum process yield, Akara® increases wafer output and eliminates wasted time, with millisecond response times to any change. The industry’s most advanced etch uniformity controls provide angstrom-level critical dimension uniformity and wafer to wafer repeatability.\n\nDRAM, Logic, NAND",
+          "specifications": [
+            {
+              "parameter": "공정 반응 시간 수준",
+              "value": "밀리초 수준",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "Akara®\n\nConductor Etch\n\nDesigned for high-volume production with maximum process yield, Akara® increases wafer output and eliminates wasted time, with millisecond response times to any change. The industry’s most advanced etch uniformity controls provide angstrom-level critical dimension uniformity and wafer to wafer repeatability.\n\nDRAM, Logic, NAND"
+            },
+            {
+              "parameter": "임계 치수 균일도 수준",
+              "value": "옹스트롬 수준",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "Akara®\n\nConductor Etch\n\nDesigned for high-volume production with maximum process yield, Akara® increases wafer output and eliminates wasted time, with millisecond response times to any change. The industry’s most advanced etch uniformity controls provide angstrom-level critical dimension uniformity and wafer to wafer repeatability.\n\nDRAM, Logic, NAND"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "소자의 전도성 부분을 깎는 장비로, 공정 변화에 빠르게 반응하고 웨이퍼마다 비슷한 모양을 만드는 제어 능력을 강조한다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "Kiyo 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "RIE 기반의 전도체 식각 제품으로 주요 소자 피처에 필요한 정밀도와 공정 제어를 제공한다.",
+          "caution": "",
+          "evidenceQuote": "Kiyo Product Family\n\nReactive Ion Etch (RIE)\n\nThese market-leading conductor etch products deliver the high-performance precision and control at high productivity needed for critical device features.\n\nAdvanced Memory, Analog & Mixed Signal, Discrete & Power Devices, Interconnect, Patterning, Sensors & Transducers, Transistor",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "전기가 흐르는 소자 부분을 원하는 모양으로 깎기 위해 RIE를 사용하는 장비 사례이다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "Versys Metal 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "RIE 기반 금속 식각 제품군으로 전기 연결과 금속 하드마스크 응용의 공정 제어를 제공한다.",
+          "caution": "",
+          "evidenceQuote": "Versys Metal Product Family\n\nReactive Ion Etch (RIE)\n\nThese metal etch products provide excellent process control at high-productivity for electrical connection and metal hardmask applications.\n\nAdvanced Memory, Advanced Packaging, Analog & Mixed Signal, Discrete & Power Devices, Interconnect, Patterning",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "전기 연결용 금속이나 패턴 보호용 금속막을 필요한 모양으로 깎는 장비 사례이다.",
+            "background": null
+          }
+        }
+      ],
+      "isA": [
+        {
+          "id": "etching",
+          "name": "식각",
+          "reason": "원문에서 해당 재료 제거 기법 또는 식각 응용으로 제시한다.",
+          "evidenceQuote": "Etch processes help create chip features by selectively removing films and materials that have been deposited on the wafer. These processes involve fabricating increasingly small and complex features with complicated combinations of materials that need to be removed. The primary technology, reactive ion etch (RIE), activates the wafer surface with ions (charged particles) to remove material. Advanced etch techniques, such as atomic layer etching (ALE) are capable of removing a few atomic layers of material at a time. While conductor etch processes precisely shape electrically active components like transistors, dielectric etch forms the insulating structures that protect conducting parts. Etch processes also create the tall, high-aspect ratio features, such as through-silicon vias (TSVs), that allow packaging of chips together and for micro-electromechanical systems (MEMS)."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "dielectric-etching",
+      "title": "유전체 식각",
+      "engName": "Dielectric Etch",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "재료 제거 또는 웨이퍼 표면 보호를 수행하는 단위 공정이며 장비 제품은 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전도성 구성요소를 보호하는 절연 구조물을 형성하는 식각 공정이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "Etch processes help create chip features by selectively removing films and materials that have been deposited on the wafer. These processes involve fabricating increasingly small and complex features with complicated combinations of materials that need to be removed. The primary technology, reactive ion etch (RIE), activates the wafer surface with ions (charged particles) to remove material. Advanced etch techniques, such as atomic layer etching (ALE) are capable of removing a few atomic layers of material at a time. While conductor etch processes precisely shape electrically active components like transistors, dielectric etch forms the insulating structures that protect conducting parts. Etch processes also create the tall, high-aspect ratio features, such as through-silicon vias (TSVs), that allow packaging of chips together and for micro-electromechanical systems (MEMS).",
+      "evidenceQuote": "Etch processes help create chip features by selectively removing films and materials that have been deposited on the wafer. These processes involve fabricating increasingly small and complex features with complicated combinations of materials that need to be removed. The primary technology, reactive ion etch (RIE), activates the wafer surface with ions (charged particles) to remove material. Advanced etch techniques, such as atomic layer etching (ALE) are capable of removing a few atomic layers of material at a time. While conductor etch processes precisely shape electrically active components like transistors, dielectric etch forms the insulating structures that protect conducting parts. Etch processes also create the tall, high-aspect ratio features, such as through-silicon vias (TSVs), that allow packaging of chips together and for micro-electromechanical systems (MEMS).",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "Flex 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "ALE·극저온 식각·RIE를 지원하는 유전체 식각 제품군으로 첨단 소자의 다양한 구조 형성을 대상으로 한다.",
+          "caution": "",
+          "evidenceQuote": "Flex Product Family\n\nAtomic Layer Etch (ALE) Cryogenic Etching Reactive Ion Etch (RIE)\n\nOur dielectric etch systems offer application-focused capabilities for creating a wide range of challenging structures in advanced devices.\n\nAdvanced Memory, Advanced Packaging, Analog & Mixed Signal, Discrete & Power Devices, Interconnect, Optoelectronics & Photonics, Patterning, Transistor",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "소자에서 절연 재료를 깎아 필요한 모양을 만드는 장비군이다. 원자층 식각 등 여러 식각 방식을 제공한다.",
+            "background": null
+          }
+        }
+      ],
+      "isA": [
+        {
+          "id": "etching",
+          "name": "식각",
+          "reason": "원문에서 해당 재료 제거 기법 또는 식각 응용으로 제시한다.",
+          "evidenceQuote": "Etch processes help create chip features by selectively removing films and materials that have been deposited on the wafer. These processes involve fabricating increasingly small and complex features with complicated combinations of materials that need to be removed. The primary technology, reactive ion etch (RIE), activates the wafer surface with ions (charged particles) to remove material. Advanced etch techniques, such as atomic layer etching (ALE) are capable of removing a few atomic layers of material at a time. While conductor etch processes precisely shape electrically active components like transistors, dielectric etch forms the insulating structures that protect conducting parts. Etch processes also create the tall, high-aspect ratio features, such as through-silicon vias (TSVs), that allow packaging of chips together and for micro-electromechanical systems (MEMS)."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "cryogenic-etching",
+      "title": "극저온 식각",
+      "engName": "Cryogenic Etching",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "재료 제거 또는 웨이퍼 표면 보호를 수행하는 단위 공정이며 장비 제품은 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "원문이 Flex와 Vantex의 지원 기술로 제시하는 극저온 식각 기법이다. Vantex는 Sense.i 플랫폼에서 고종횡비 식각을 대상으로 한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "Vantex Product Family\n\nCryogenic Etching Reactive Ion Etch (RIE)\n\nDesigned for the Sense.i platform, Vantex redefines high aspect ratio etching with innovations in technology and Equipment Intelligence.\n\nAdvanced Memory",
+      "evidenceQuote": "Vantex Product Family\n\nCryogenic Etching Reactive Ion Etch (RIE)\n\nDesigned for the Sense.i platform, Vantex redefines high aspect ratio etching with innovations in technology and Equipment Intelligence.\n\nAdvanced Memory",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "Vantex 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "Sense.i 플랫폼용으로 설계한 RIE·극저온 식각 제품군이며 고종횡비 식각을 대상으로 한다.",
+          "caution": "",
+          "evidenceQuote": "Vantex Product Family\n\nCryogenic Etching Reactive Ion Etch (RIE)\n\nDesigned for the Sense.i platform, Vantex redefines high aspect ratio etching with innovations in technology and Equipment Intelligence.\n\nAdvanced Memory",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "Sense.i 플랫폼에서 높고 좁은 구조를 식각하기 위한 제품이다. 이 발췌에는 극저온의 구체적 온도값은 없다.",
+            "background": null
+          }
+        }
+      ],
+      "isA": [
+        {
+          "id": "etching",
+          "name": "식각",
+          "reason": "원문에서 해당 재료 제거 기법 또는 식각 응용으로 제시한다.",
+          "evidenceQuote": "Vantex Product Family\n\nCryogenic Etching Reactive Ion Etch (RIE)\n\nDesigned for the Sense.i platform, Vantex redefines high aspect ratio etching with innovations in technology and Equipment Intelligence.\n\nAdvanced Memory"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "deep-reactive-ion-etching",
+      "title": "심부 반응성 이온 식각",
+      "engName": "Deep Reactive Ion Etch (DRIE)",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "재료 제거 또는 웨이퍼 표면 보호를 수행하는 단위 공정이며 장비 제품은 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "깊은 식각에 사용하는 반응성 이온 식각 기술이다. Syndion은 고종횡비 피처에서 웨이퍼 전면 균일도 제어를 제공하는 제품군으로 소개된다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "Syndion Product Family\n\nDeep Reactive Ion Etch (DRIE) Reactive Ion Etch (RIE)\n\nFor deep etch applications, this product family provides the exceptional across-wafer uniformity control needed for critical high aspect ratio features.\n\nAdvanced Memory, Advanced Packaging, High Bandwidth Memory, Interconnect, Sensors & Transducers",
+      "evidenceQuote": "Syndion Product Family\n\nDeep Reactive Ion Etch (DRIE) Reactive Ion Etch (RIE)\n\nFor deep etch applications, this product family provides the exceptional across-wafer uniformity control needed for critical high aspect ratio features.\n\nAdvanced Memory, Advanced Packaging, High Bandwidth Memory, Interconnect, Sensors & Transducers",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "Reliant Etch 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "DRIE와 RIE 기술을 포함하며 특수 기술 로드맵과 팹 생산 수명 연장을 지원하는 제품군이다.",
+          "caution": "",
+          "evidenceQuote": "Reliant Etch Products\n\nDeep Reactive Ion Etch (DRIE) Reactive Ion Etch (RIE) Reliant Systems\n\nOur Reliant etch products enable roadmaps for Specialty Technologies and extend the productive life of fabs.\n\nAdvanced Memory, Advanced Packaging, Analog & Mixed Signal, Discrete & Power Devices, Interconnect, Optoelectronics & Photonics, Sensors & Transducers, Transistor",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "특수 소자 제조에 사용하는 일반 및 깊은 식각용 장비를 묶어 소개한 제품군이다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "Syndion 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "심부 식각에서 주요 고종횡비 피처를 형성하기 위한 웨이퍼 전면 균일도 제어를 제공한다.",
+          "caution": "",
+          "evidenceQuote": "Syndion Product Family\n\nDeep Reactive Ion Etch (DRIE) Reactive Ion Etch (RIE)\n\nFor deep etch applications, this product family provides the exceptional across-wafer uniformity control needed for critical high aspect ratio features.\n\nAdvanced Memory, Advanced Packaging, High Bandwidth Memory, Interconnect, Sensors & Transducers",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "깊고 좁은 구조를 만들 때 웨이퍼의 위치에 따라 깎이는 결과가 달라지지 않도록 제어하는 장비이다.",
+            "background": null
+          }
+        }
+      ],
+      "isA": [
+        {
+          "id": "reactive-ion-etching",
+          "name": "반응성 이온 식각",
+          "reason": "원문 장비 기술명이 심부 반응성 이온 식각으로 명시된다.",
+          "evidenceQuote": "Syndion Product Family\n\nDeep Reactive Ion Etch (DRIE) Reactive Ion Etch (RIE)\n\nFor deep etch applications, this product family provides the exceptional across-wafer uniformity control needed for critical high aspect ratio features.\n\nAdvanced Memory, Advanced Packaging, High Bandwidth Memory, Interconnect, Sensors & Transducers"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "high-selectivity-isotropic-etching",
+      "title": "Lam 고선택비 등방성 식각",
+      "engName": "Lam Selective Etch Portfolio",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "재료 제거 또는 웨이퍼 표면 보호를 수행하는 단위 공정이며 장비 제품은 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "재료를 등방성으로 제거하면서 옹스트롬 수준의 정밀도와 매우 높은 선택비를 제공하는 식각 기술이다. 원문은 3D 구조와 첨단 로직·파운드리 응용을 대상으로 제시한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "Selective Etch Product Family\n\nSelective Etch\n\nBreakthrough portfolio delivers isotropic material removal with angstrom-scale precision and ultra-high selectivity capabilities for 3D architectures and advanced logic and foundry applications.\n\nAdvanced Memory, Interconnect, Patterning, Transistor",
+      "evidenceQuote": "Selective Etch Product Family\n\nSelective Etch\n\nBreakthrough portfolio delivers isotropic material removal with angstrom-scale precision and ultra-high selectivity capabilities for 3D architectures and advanced logic and foundry applications.\n\nAdvanced Memory, Interconnect, Patterning, Transistor",
+      "principles": [
+        {
+          "step": 1,
+          "title": "등방성 선택 제거",
+          "content": "재료를 여러 방향에서 등방성으로 제거하면서 높은 선택비와 옹스트롬 수준의 정밀도를 제공한다.",
+          "formula": null,
+          "evidenceQuote": "Selective Etch Product Family\n\nSelective Etch\n\nBreakthrough portfolio delivers isotropic material removal with angstrom-scale precision and ultra-high selectivity capabilities for 3D architectures and advanced logic and foundry applications.\n\nAdvanced Memory, Interconnect, Patterning, Transistor"
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "Selective Etch 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "3D 구조와 첨단 로직·파운드리 응용에서 등방성 재료 제거와 옹스트롬 수준 정밀도 및 매우 높은 선택비를 제공한다.",
+          "caution": "",
+          "evidenceQuote": "Selective Etch Product Family\n\nSelective Etch\n\nBreakthrough portfolio delivers isotropic material removal with angstrom-scale precision and ultra-high selectivity capabilities for 3D architectures and advanced logic and foundry applications.\n\nAdvanced Memory, Interconnect, Patterning, Transistor",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "여러 재료가 함께 있는 구조에서 특정 재료를 더 잘 제거하면서 여러 방향으로 정밀하게 깎는 식각 장비군이다.",
+            "background": null
+          }
+        }
+      ],
+      "isA": [
+        {
+          "id": "etching",
+          "name": "식각",
+          "reason": "원문에서 해당 재료 제거 기법 또는 식각 응용으로 제시한다.",
+          "evidenceQuote": "Selective Etch Product Family\n\nSelective Etch\n\nBreakthrough portfolio delivers isotropic material removal with angstrom-scale precision and ultra-high selectivity capabilities for 3D architectures and advanced logic and foundry applications.\n\nAdvanced Memory, Interconnect, Patterning, Transistor"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "bevel-etching",
+      "title": "베벨 식각",
+      "engName": "Plasma Bevel Etch",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "식각",
+      "scaleLevel": 3,
+      "classificationNote": "재료 제거 또는 웨이퍼 표면 보호를 수행하는 단위 공정이며 장비 제품은 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "웨이퍼 가장자리의 잔류물을 제거하여 다른 영역으로 이동한 입자가 소자 결함을 일으키는 위험을 줄이는 식각 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "Coronus Product Family\n\nPlasma Bevel Etch and Deposition\n\nCoronus systems focus on the bevel edge to enhance overall yield.  Semiconductor processing can cause residues and roughness to accumulate along the wafer edge where they may flake off, drift to other areas, and create defects that cause a device to fail. Coronus etch products remove bevel residues and Coronus deposition protect the wafer bevel from damage.\n\nAdvanced Memory, Advanced Packaging, Interconnect, Patterning, Transistor",
+      "evidenceQuote": "Coronus Product Family\n\nPlasma Bevel Etch and Deposition\n\nCoronus systems focus on the bevel edge to enhance overall yield.  Semiconductor processing can cause residues and roughness to accumulate along the wafer edge where they may flake off, drift to other areas, and create defects that cause a device to fail. Coronus etch products remove bevel residues and Coronus deposition protect the wafer bevel from damage.\n\nAdvanced Memory, Advanced Packaging, Interconnect, Patterning, Transistor",
+      "principles": [
+        {
+          "step": 1,
+          "title": "가장자리 잔류물 제거",
+          "content": "베벨에 누적된 잔류물과 거칠기가 떨어져 다른 영역으로 이동하면 결함을 일으킬 수 있으므로 베벨 잔류물을 제거한다.",
+          "formula": null,
+          "evidenceQuote": "Coronus Product Family\n\nPlasma Bevel Etch and Deposition\n\nCoronus systems focus on the bevel edge to enhance overall yield.  Semiconductor processing can cause residues and roughness to accumulate along the wafer edge where they may flake off, drift to other areas, and create defects that cause a device to fail. Coronus etch products remove bevel residues and Coronus deposition protect the wafer bevel from damage.\n\nAdvanced Memory, Advanced Packaging, Interconnect, Patterning, Transistor"
+        }
+      ],
+      "limitations": [
+        {
+          "title": "가장자리 잔류물의 이동",
+          "description": "웨이퍼 가장자리의 잔류물과 거칠기가 떨어져 다른 영역으로 이동하면 소자 고장을 유발하는 결함을 만들 수 있다.",
+          "evidenceQuote": "Coronus Product Family\n\nPlasma Bevel Etch and Deposition\n\nCoronus systems focus on the bevel edge to enhance overall yield.  Semiconductor processing can cause residues and roughness to accumulate along the wafer edge where they may flake off, drift to other areas, and create defects that cause a device to fail. Coronus etch products remove bevel residues and Coronus deposition protect the wafer bevel from damage.\n\nAdvanced Memory, Advanced Packaging, Interconnect, Patterning, Transistor"
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "Coronus 제품군",
+          "perspectiveBadge": "Lam Research",
+          "narrative": "식각 제품이 베벨 잔류물을 제거하고 증착 제품은 베벨 손상을 방지한다. 가장자리에서 떨어진 잔류물이 다른 영역에 결함을 만드는 위험을 대상으로 한다.",
+          "caution": "",
+          "evidenceQuote": "Coronus Product Family\n\nPlasma Bevel Etch and Deposition\n\nCoronus systems focus on the bevel edge to enhance overall yield.  Semiconductor processing can cause residues and roughness to accumulate along the wafer edge where they may flake off, drift to other areas, and create defects that cause a device to fail. Coronus etch products remove bevel residues and Coronus deposition protect the wafer bevel from damage.\n\nAdvanced Memory, Advanced Packaging, Interconnect, Patterning, Transistor",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "웨이퍼 가장자리에 쌓인 찌꺼기가 다른 곳으로 옮겨가면 결함이 생길 수 있다. 이 제품군은 찌꺼기를 제거하거나 가장자리를 보호해 그 문제를 다룬다.",
+            "background": null
+          }
+        }
+      ],
+      "isA": [
+        {
+          "id": "etching",
+          "name": "식각",
+          "reason": "원문에서 해당 재료 제거 기법 또는 식각 응용으로 제시한다.",
+          "evidenceQuote": "Coronus Product Family\n\nPlasma Bevel Etch and Deposition\n\nCoronus systems focus on the bevel edge to enhance overall yield.  Semiconductor processing can cause residues and roughness to accumulate along the wafer edge where they may flake off, drift to other areas, and create defects that cause a device to fail. Coronus etch products remove bevel residues and Coronus deposition protect the wafer bevel from damage.\n\nAdvanced Memory, Advanced Packaging, Interconnect, Patterning, Transistor"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "식각",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "bevel-deposition",
+      "title": "베벨 증착",
+      "engName": "Bevel Deposition",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "증착",
+      "scaleLevel": 3,
+      "classificationNote": "재료 제거 또는 웨이퍼 표면 보호를 수행하는 단위 공정이며 장비 제품은 사례로 구분한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "웨이퍼 베벨을 손상으로부터 보호하기 위해 가장자리에 적용하는 증착 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "Coronus Product Family\n\nPlasma Bevel Etch and Deposition\n\nCoronus systems focus on the bevel edge to enhance overall yield.  Semiconductor processing can cause residues and roughness to accumulate along the wafer edge where they may flake off, drift to other areas, and create defects that cause a device to fail. Coronus etch products remove bevel residues and Coronus deposition protect the wafer bevel from damage.\n\nAdvanced Memory, Advanced Packaging, Interconnect, Patterning, Transistor",
+      "evidenceQuote": "Coronus Product Family\n\nPlasma Bevel Etch and Deposition\n\nCoronus systems focus on the bevel edge to enhance overall yield.  Semiconductor processing can cause residues and roughness to accumulate along the wafer edge where they may flake off, drift to other areas, and create defects that cause a device to fail. Coronus etch products remove bevel residues and Coronus deposition protect the wafer bevel from damage.\n\nAdvanced Memory, Advanced Packaging, Interconnect, Patterning, Transistor",
+      "principles": [
+        {
+          "step": 1,
+          "title": "베벨 손상 보호",
+          "content": "Coronus 증착 제품은 웨이퍼 베벨을 손상으로부터 보호한다.",
+          "formula": null,
+          "evidenceQuote": "Coronus Product Family\n\nPlasma Bevel Etch and Deposition\n\nCoronus systems focus on the bevel edge to enhance overall yield.  Semiconductor processing can cause residues and roughness to accumulate along the wafer edge where they may flake off, drift to other areas, and create defects that cause a device to fail. Coronus etch products remove bevel residues and Coronus deposition protect the wafer bevel from damage.\n\nAdvanced Memory, Advanced Packaging, Interconnect, Patterning, Transistor"
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "증착",
+          "scaleLevel": 3
+        }
+      ],
+      "isA": [
+        {
+          "id": "deposition",
+          "name": "증착",
+          "reason": "동일 Coronus 문맥에서 식각 제품은 잔류물을 제거하고 증착 제품은 베벨을 보호한다고 구분한다. 베벨 증착은 증착을 수행하는 위치와 보호 용도로 특정한 증착 방식이다.",
+          "evidenceQuote": "Coronus systems focus on the bevel edge to enhance overall yield.  Semiconductor processing can cause residues and roughness to accumulate along the wafer edge where they may flake off, drift to other areas, and create defects that cause a device to fail. Coronus etch products remove bevel residues and Coronus deposition protect the wafer bevel from damage."
+        }
+      ]
+    }
+  ]
+}

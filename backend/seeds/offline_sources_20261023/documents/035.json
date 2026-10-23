@@ -1,0 +1,66 @@
+{
+  "index": 35,
+  "filePath": "samsung/glossary/반도체-용어-사전-standard-ic-표준형-반도체.md",
+  "sourceHash": "9b165b8156be3bdd0d618bcd1c9a53bc8ac38458e4ca055c1f853f9839e5b6c9",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1491,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. "
+  },
+  "concepts": [
+    {
+      "conceptId": "standard-ic",
+      "title": "표준형 반도체",
+      "engName": "Standard IC",
+      "aliases": [
+        "Standard"
+      ],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "일정한 표준 규격으로 만들어져 요건에 맞는 다양한 전자제품에 사용할 수 있는 집적회로이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "전 세계적으로 일정한 표준을 정해 만들어진 집적회로",
+      "evidenceQuote": "전 세계적으로 일정한 표준을 정해 만들어진 집적회로",
+      "principles": [
+        {
+          "step": 1,
+          "title": "정해진 규격의 공용성",
+          "content": "특정 주문에 맞추는 ASIC과 달리, 정해진 규격과 일정 요건을 충족하면 다양한 전자제품에 사용할 수 있다.",
+          "formula": null,
+          "evidenceQuote": "반면 표준형 반도체는 규격이 정해져 있어 일정 요건만 갖추면 어떤 전자제품에도 사용할 수 있는 제품이다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "asic",
+          "name": "주문형 반도체",
+          "reason": "원문이 표준형과 특정 주문형을 대비한다.",
+          "evidenceQuote": "반도체를 간단하게 분류하면 표준형 반도체(Standard)와 주문형 반도체(ASIC)로 나눌 수 있는데"
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "integrated-circuit",
+          "name": "집적회로",
+          "reason": "원문 정의에 명시한다.",
+          "evidenceQuote": "전 세계적으로 일정한 표준을 정해 만들어진 집적회로"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,454 @@
+{
+  "index": 1,
+  "filePath": "amat/amat_core_technologies.md",
+  "sourceHash": "931ad284b700da3a319f779973f0d75e22fd70a13c5c5712542b82c7899f28b1",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 2725,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체를 끝까지 읽고 파서 제안을 대조했다. 문서 맥락의 정의·원리·조건·사례와 관계를 구분했다. 원문 요약의 주장은 제공 자료의 범위로 한정했으며 장비 최신 성능·표준 판본을 외부 확인하지 않았다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "cmp",
+      "title": "화학기계적 연마",
+      "engName": "Chemical Mechanical Planarization",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "평탄화",
+      "scaleLevel": 3,
+      "classificationNote": "화학기계적 연마의 기술적 대상을 평탄화에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "슬러리의 화학 작용과 패드·웨이퍼의 가압·회전 마찰을 함께 사용해 웨이퍼 표면을 평탄화하는 공정이다.",
+      "purpose": "미세 포토 공정의 초점 심도 여유와 적층·다층 배선·하이브리드 본딩용 평탄면을 확보한다.",
+      "summaryEvidenceQuote": "- 웨이퍼 표면에 슬러리(Slurry, 화학 연마제)를 분사하면서 폴리싱 패드(Polishing Pad)와 웨이퍼 헤드를 가압·회전시켜 물리적 마찰과 화학적 부식을 동시에 일으켜 나노미터 수준의 평탄면(Global Planarity)을 형성하는 공정.",
+      "evidenceQuote": "- 웨이퍼 표면에 슬러리(Slurry, 화학 연마제)를 분사하면서 폴리싱 패드(Polishing Pad)와 웨이퍼 헤드를 가압·회전시켜 물리적 마찰과 화학적 부식을 동시에 일으켜 나노미터 수준의 평탄면(Global Planarity)을 형성하는 공정.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "화학·기계 작용 결합",
+          "content": "슬러리를 분사하며 폴리싱 패드와 헤드를 가압·회전시켜 나노미터 수준의 평탄면을 형성한다.",
+          "formula": null,
+          "evidenceQuote": "- 웨이퍼 표면에 슬러리(Slurry, 화학 연마제)를 분사하면서 폴리싱 패드(Polishing Pad)와 웨이퍼 헤드를 가압·회전시켜 물리적 마찰과 화학적 부식을 동시에 일으켜 나노미터 수준의 평탄면(Global Planarity)을 형성하는 공정."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "재료별 제거율과 배선 밀도",
+          "description": "구리가 주변 절연막보다 많이 깎이는 디싱과 고밀도 배선 영역의 침식이 발생할 수 있다.",
+          "evidenceQuote": "- **디싱(Dishing)**: 연마 속도가 빠른 금속(구리 Cu) 배선 부위가 절연막보다 오목하게 파여 들어가는 현상."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "AMAT Catalyst CMP의 선택비 제어",
+          "perspectiveBadge": "Applied Materials",
+          "narrative": "Catalyst CMP는 슬러리 온도와 마찰 열을 제어해 구리와 절연막의 연마 속도비를 1:1에 가깝게 유지한다.",
+          "caution": "",
+          "evidenceQuote": "- **Catalyst™ CMP**: 슬러리 온도와 마찰 열을 실시간 제어하여 구리와 절연막의 연마 속도비(Selectivity)를 1:1에 가깝게 유지.",
+          "specifications": [
+            {
+              "parameter": "구리:절연막 연마 속도비",
+              "value": "1:1에 가깝게",
+              "unit": null,
+              "safetyMargin": null,
+              "role": "재료별 연마 속도 차이 제어",
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **Catalyst™ CMP**: 슬러리 온도와 마찰 열을 실시간 제어하여 구리와 절연막의 연마 속도비(Selectivity)를 1:1에 가깝게 유지."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "구리 배선과 그 주변 절연막이 서로 다른 속도로 깎이면 표면에 높낮이 차이가 생길 수 있습니다. 이 사례의 1:1에 가깝다는 값은 두 재료가 비슷한 속도로 깎이도록 제어한다는 뜻입니다. 온도와 마찰 열을 조절하는 이유도 이 차이를 관리하기 위해서입니다. 모든 CMP 공정에 그대로 적용할 보편적인 조리법이나 허용 오차를 뜻하지는 않습니다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "Insepra SiCN 및 Reflexion LK Prime의 결함 제어",
+          "perspectiveBadge": "Applied Materials",
+          "narrative": "Insepra SiCN은 유전체 경도를 높여 침식을 억제하고 Reflexion LK Prime은 다중 플래튼과 패드 컨디셔너로 단계별 압력을 분할 제어한다.",
+          "caution": "",
+          "evidenceQuote": "- **Insepra™ SiCN**: 기존 $SiO_2$ 절연막 대신 실리콘탄소질화물(SiCN) 유전체를 도입하여 기계적 경도를 높이고 침식 억제.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "이 사례는 잘 깎이는 재료를 선택하는 것과 누르는 압력을 공정 단계마다 조절하는 것을 함께 다룹니다. 원문은 결함을 줄이는 장비의 역할을 설명하지만 구체적인 압력 설정값이나 안전 여유는 제시하지 않습니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "평탄화",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "dishing",
+      "title": "디싱",
+      "engName": "Dishing",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "평탄화 결함",
+      "scaleLevel": 2,
+      "classificationNote": "디싱의 기술적 대상을 평탄화 결함에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "CMP에서 금속 배선이 주변 절연막보다 빠르게 연마되어 오목하게 파이는 결함이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- **디싱(Dishing)**: 연마 속도가 빠른 금속(구리 Cu) 배선 부위가 절연막보다 오목하게 파여 들어가는 현상.",
+      "evidenceQuote": "- **디싱(Dishing)**: 연마 속도가 빠른 금속(구리 Cu) 배선 부위가 절연막보다 오목하게 파여 들어가는 현상.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "본딩 접촉 불량",
+          "description": "하이브리드 본딩의 구리 패드 디싱은 접합 시 미세 빈 공간과 전기적 오픈 결함을 유발할 수 있다.",
+          "evidenceQuote": "- **하이브리드 본딩에서의 치명성**: 구리 패드에 디싱이 발생하면, 상하 칩 접합 시 빈 공간(Micro-void)이 남아 전기적 오픈 결함이 발생함."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "평탄화 결함",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "erosion",
+      "title": "침식",
+      "engName": "Erosion",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "평탄화 결함",
+      "scaleLevel": 2,
+      "classificationNote": "침식의 기술적 대상을 평탄화 결함에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "미세 금속 배선이 밀집된 영역의 절연막 전체가 과도하게 연마되어 낮아지는 결함이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- **침식(Erosion)**: 미세 금속 배선이 밀집된 영역 전체의 절연막이 과도하게 깎여 낮아지는 현상.",
+      "evidenceQuote": "- **침식(Erosion)**: 미세 금속 배선이 밀집된 영역 전체의 절연막이 과도하게 깎여 낮아지는 현상.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "평탄화 결함",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "epitaxy",
+      "title": "에피택시",
+      "engName": "Epitaxy",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "증착",
+      "scaleLevel": 3,
+      "classificationNote": "에피택시의 기술적 대상을 증착에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "단결정 기판의 결정 격자를 따라 새로운 단결정 박막을 성장시키는 열화학 증착 기술이다.",
+      "purpose": "선단 로직 채널 형성과 DRAM 소스·드레인 저항 감소에 사용한다.",
+      "summaryEvidenceQuote": "- 단결정 실리콘 기판 위에 기판의 결정 격자(Crystal Lattice) 구조를 그대로 복제하면서 새로운 단결정 박막을 성장시키는 초정밀 열화학 증착 기술.",
+      "evidenceQuote": "- 단결정 실리콘 기판 위에 기판의 결정 격자(Crystal Lattice) 구조를 그대로 복제하면서 새로운 단결정 박막을 성장시키는 초정밀 열화학 증착 기술.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "격자 복제와 응력 제어",
+          "content": "Centura Prime Epi와 Xtera Epi는 고진공·고순도 수소 환경에서 SiGe를 정밀 도핑하고 Ge 격자 차이로 채널 응력을 조절한다.",
+          "formula": null,
+          "evidenceQuote": "- **Centura® Prime Epi / Xtera Epi**:"
+        },
+        {
+          "step": 2,
+          "title": "캐리어 이동도 제어",
+          "content": "Ge 원자의 격자 크기 차이를 이용해 인장·압축 응력을 인가한다.",
+          "formula": null,
+          "evidenceQuote": "- 게르마늄(Ge) 원자의 격자 크기 차이를 이용해 채널에 인장/압축 응력(Strain Engineering)을 인가하여 캐리어 이동도(Mobility)를 극대화."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "증착",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "selective-epitaxy",
+      "title": "선택적 에피택시 성장",
+      "engName": "Selective Epitaxial Growth",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "증착",
+      "scaleLevel": 3,
+      "classificationNote": "선택적 에피택시 성장의 기술적 대상을 증착에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "절연막에는 성장하지 않고 노출된 실리콘 표면에서만 단결정이 자라도록 화학 반응을 제어하는 에피택시 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 선택적 에피택시 성장(SEG, Selective Epitaxial Growth): 절연막 위에는 성장하지 않고 노출된 실리콘 표면에서만 단결정이 성장하도록 화학 반응 제어.",
+      "evidenceQuote": "- 선택적 에피택시 성장(SEG, Selective Epitaxial Growth): 절연막 위에는 성장하지 않고 노출된 실리콘 표면에서만 단결정이 성장하도록 화학 반응 제어.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "epitaxy",
+          "name": "에피택시",
+          "reason": "선택적 에피택시 성장은 에피택시의 선택적 성장 방식이다.",
+          "evidenceQuote": "- 선택적 에피택시 성장(SEG, Selective Epitaxial Growth): 절연막 위에는 성장하지 않고 노출된 실리콘 표면에서만 단결정이 성장하도록 화학 반응 제어."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "증착",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "inspection-metrology",
+      "title": "계측 및 결함 검사",
+      "engName": "Inspection and Metrology",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "검사·계측",
+      "scaleLevel": 3,
+      "classificationNote": "계측 및 결함 검사의 기술적 대상을 검사·계측에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "인라인에서 회로 패턴의 파티클·브리지·미개방·패턴 붕괴를 찾아 수율 손실을 예방하는 검사와 측정 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 나노미터 단위의 회로 패턴 결함(Particle, Bridge, Not-Open, Pattern Collapse)을 인라인(In-line) 상에서 고속으로 찾아내고 수율 손실(Yield Killer)을 예방하는 설비군.",
+      "evidenceQuote": "- 나노미터 단위의 회로 패턴 결함(Particle, Bridge, Not-Open, Pattern Collapse)을 인라인(In-line) 상에서 고속으로 찾아내고 수율 손실(Yield Killer)을 예방하는 설비군.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "검사·계측",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "provision-ebeam",
+      "title": "PROVision 전자빔 검사",
+      "engName": "PROVision E-beam Inspection",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "검사·계측",
+      "scaleLevel": 3,
+      "classificationNote": "PROVision 전자빔 검사의 기술적 대상을 검사·계측에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전자빔으로 미세 회로와 깊은 3D NAND 채널 바닥의 결함을 직접 이미징하는 AMAT 검사 시스템이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- **PROVision® 전자빔(E-beam) 검사 시스템**:",
+      "evidenceQuote": "- **PROVision® 전자빔(E-beam) 검사 시스템**:",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "PROVision의 미세 회로 및 채널 바닥 검사",
+          "perspectiveBadge": "Applied Materials",
+          "narrative": "원문은 광학 검사로 구분하기 어려운 2나노 이하 회로와 깊은 채널 바닥을 1나노미터 이하 해상도로 이미징한다고 설명한다.",
+          "caution": "",
+          "evidenceQuote": "- 광학 검사로는 식별 불가능한 2나노 이하 회로 선폭 및 3D NAND 깊은 채널 바닥면의 결함을 1나노미터 이하 해상도로 직접 이미징.",
+          "specifications": [
+            {
+              "parameter": "대상 회로 선폭",
+              "value": "2 이하",
+              "unit": "나노미터",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 광학 검사로는 식별 불가능한 2나노 이하 회로 선폭 및 3D NAND 깊은 채널 바닥면의 결함을 1나노미터 이하 해상도로 직접 이미징."
+            },
+            {
+              "parameter": "직접 이미징 해상도",
+              "value": "1 이하",
+              "unit": "나노미터",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 광학 검사로는 식별 불가능한 2나노 이하 회로 선폭 및 3D NAND 깊은 채널 바닥면의 결함을 1나노미터 이하 해상도로 직접 이미징."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "표의 두 값은 서로 다른 뜻입니다. 2나노 이하라는 값은 살펴보려는 회로 크기의 조건이고, 1나노미터 이하라는 값은 결함을 구분해 영상으로 보는 해상도입니다. 작은 회로를 만든다는 성능과 작은 결함을 찾아낸다는 검사 성능을 구분해서 읽으면 됩니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "inspection-metrology",
+          "name": "계측 및 결함 검사",
+          "reason": "계측 및 결함 검사 절에서 회로·채널 결함을 전자빔으로 직접 이미징하는 검사 시스템으로 제시되므로 검사·계측 기술의 구체적인 종류이다.",
+          "evidenceQuote": "**PROVision® 전자빔(E-beam) 검사 시스템**"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "검사·계측",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "extract-ai",
+      "title": "ExtractAI 결함 분류",
+      "engName": "ExtractAI",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "검사·계측",
+      "scaleLevel": 3,
+      "classificationNote": "ExtractAI 결함 분류의 기술적 대상을 검사·계측에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전자빔·광학 검사에서 표면 노이즈와 칩 불량을 유발하는 결함을 머신러닝으로 분리·분류하는 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 전자빔/광학 검사에서 발생하는 수억 개의 무해한 웨이퍼 표면 노이즈(Noise)와 실제 칩 불량을 일으키는 치명적 결함(Defect)을 머신러닝으로 실시간 분리·분류.",
+      "evidenceQuote": "- 전자빔/광학 검사에서 발생하는 수억 개의 무해한 웨이퍼 표면 노이즈(Noise)와 실제 칩 불량을 일으키는 치명적 결함(Defect)을 머신러닝으로 실시간 분리·분류.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "inspection-metrology",
+          "name": "계측 및 결함 검사",
+          "reason": "계측 및 결함 검사 절에서 검사 신호의 노이즈와 실제 결함을 분리·분류하는 구체적인 결함 검사 기술로 제시된다.",
+          "evidenceQuote": "전자빔/광학 검사에서 발생하는 수억 개의 무해한 웨이퍼 표면 노이즈(Noise)와 실제 칩 불량을 일으키는 치명적 결함(Defect)을 머신러닝으로 실시간 분리·분류."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "검사·계측",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "verity-sem",
+      "title": "VeritySEM 선폭 계측",
+      "engName": "VeritySEM",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "검사·계측",
+      "scaleLevel": 3,
+      "classificationNote": "VeritySEM 선폭 계측의 기술적 대상을 검사·계측에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "CD-SEM을 이용해 회로 선폭을 비파괴 측정하는 계측 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- **VeritySEM®**: 주사전자현미경(CD-SEM)을 이용한 선폭(Critical Dimension) 초정밀 비파괴 측정.",
+      "evidenceQuote": "- **VeritySEM®**: 주사전자현미경(CD-SEM)을 이용한 선폭(Critical Dimension) 초정밀 비파괴 측정.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "inspection-metrology",
+          "name": "계측 및 결함 검사",
+          "reason": "선폭을 CD-SEM으로 측정하는 구체적인 계측 방식이므로 일반 계측·결함 검사의 하위 종류로 연결한다.",
+          "evidenceQuote": "**VeritySEM®**: 주사전자현미경(CD-SEM)을 이용한 선폭(Critical Dimension) 초정밀 비파괴 측정."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "검사·계측",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "hybrid-bonding",
+      "title": "하이브리드 본딩",
+      "engName": "Hybrid Bonding",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "접합·패키징",
+      "scaleLevel": 3,
+      "classificationNote": "하이브리드 본딩의 기술적 대상을 접합·패키징에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "범프 없이 절연체와 구리 패드를 직접 접합하는 이종집적 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- 범프(Bump) 없이 절연체와 구리 패드를 분자 단위로 직접 접합하는 이종집적(Heterogeneous Integration) 패키징.",
+      "evidenceQuote": "- 범프(Bump) 없이 절연체와 구리 패드를 분자 단위로 직접 접합하는 이종집적(Heterogeneous Integration) 패키징.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "Kinex 통합 접합 흐름",
+          "content": "AMAT와 Besi의 Kinex는 표면 플라즈마 활성화·정밀 정렬·상온 직접 접합·열처리·계측을 단일 진공 환경에서 처리해 대기 노출에 따른 구리 산화를 억제한다.",
+          "formula": null,
+          "evidenceQuote": "- 웨이퍼 표면 플라즈마 활성화(Surface Activation) → 나노미터 정밀 정렬(Sub-micron Die Alignment) → 직접 상온 접합(Direct Contact) → 열처리(Anneal) 및 계측을 단일 진공 환경에서 턴키(Turn-key)로 처리하여 대기 노출에 의한 구리 산화막 형성을 원천 방지."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [
+        {
+          "id": "cmp",
+          "name": "화학기계적 연마",
+          "reason": "직접 접합을 위한 평탄면 확보와 디싱 억제가 선행되어야 한다.",
+          "evidenceQuote": "- **하이브리드 본딩에서의 치명성**: 구리 패드에 디싱이 발생하면, 상하 칩 접합 시 빈 공간(Micro-void)이 남아 전기적 오픈 결함이 발생함."
+        }
+      ],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "접합·패키징",
+          "scaleLevel": 3
+        }
+      ]
+    }
+  ]
+}

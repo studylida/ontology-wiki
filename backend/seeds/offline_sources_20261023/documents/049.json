@@ -1,0 +1,137 @@
+{
+  "index": 49,
+  "filePath": "samsung/glossary/반도체-용어-사전-모바일-d램.md",
+  "sourceHash": "691cce7bd25591ffdaee3d55d26d6dca7614df2081bc9644552fe27a0ab97013",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1755,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. DDR1·2·3와 2배씩을 2013년 설명으로 보존하고 현재 세대 전체의 성능 법칙으로 일반화하지 않았다. AP·eMMC·LPDDR의 역할을 소속이나 대안으로 바꾸지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "mobile-dram",
+      "title": "모바일 D램",
+      "engName": "Mobile DRAM",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "모바일 기기에 특화된 D램으로, 모바일 AP와 데이터를 주고받으며 빠른 데이터 처리를 위한 작업 공간을 제공하는 휘발성 주기억장치이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "모바일 D램은 컴퓨터에 사용되는 D램(Dynamic RAM)과 같이, 모바일 기기에 특화되어 장착되는 D램이다.",
+      "evidenceQuote": "모바일 D램은 컴퓨터에 사용되는 D램(Dynamic RAM)과 같이, 모바일 기기에 특화되어 장착되는 D램이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "AP와 주기억 공간",
+          "content": "모바일 AP가 CPU 역할을 하고 eMMC가 보조기억장치, LPDDR이 주기억장치 역할을 맡는 구성에서 모바일 D램은 AP와 데이터를 교환하는 작업 공간이다.",
+          "formula": null,
+          "evidenceQuote": "컴퓨터를 구성하는 중앙처리장치(CPU), 보조기억장치(HDD/SSD), 주기억장치(D램)와 같이 휴대용 디지털 기기에도 모바일 특성에 맞는 장치로 구성되는데, 바로 모바일 AP(중앙처리장치), eMMC(보조기억장치), LPDDR(주기억장치)이다. 모바일 D램은 CPU역할을 하는 모바일 AP와 데이터를 주고 받으며 데이터를 빠르게 처리 할 수 있도록 하는 작업 공간 역할을 한다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "휘발성",
+          "description": "전원을 끄면 데이터가 사라진다. 원문은 보조기억장치보다 읽고 쓰는 속도가 빠른 주기억장치로 설명한다.",
+          "evidenceQuote": "주기억장치인 D램은 전원을 끄면 데이터가 소멸되는 휘발성 기억소자로, 보조기억장치보다 읽고 쓰는 속도가 매우 빠르다."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "2013년 DDR 세대 비교 설명",
+          "perspectiveBadge": "2013.11.25 사전",
+          "narrative": "원문은 DDR1·DDR2·DDR3를 구분하고 세대 숫자가 하나씩 높아질 때 데이터 처리 속도가 2배씩 빨라진다고 설명한다.",
+          "caution": "본문의 단순화된 세대 비교이다. 클럭·전송률·제품 사양 조건이 없다.",
+          "evidenceQuote": "D램은 데이터를 읽고, 쓰는 속도에 따라 DDR1,2,3로 구분하는데 숫자가 하나씩 높아질 수록 데이터 처리 속도는 2배씩 빨라지게 된다.",
+          "specifications": [
+            {
+              "parameter": "원문 비교 세대",
+              "value": "DDR1,2,3",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "D램은 데이터를 읽고, 쓰는 속도에 따라 DDR1,2,3로 구분하는데 숫자가 하나씩 높아질 수록 데이터 처리 속도는 2배씩 빨라지게 된다."
+            },
+            {
+              "parameter": "세대 숫자 증가당 처리속도 설명",
+              "value": "2배씩",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "D램은 데이터를 읽고, 쓰는 속도에 따라 DDR1,2,3로 구분하는데 숫자가 하나씩 높아질 수록 데이터 처리 속도는 2배씩 빨라지게 된다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "세대에 따른 속도 증가를 설명하는 입문 문장이다. 특정 동작 조건·제품 속도나 LPDDR 전 세대의 성능 보장을 뜻하지 않는다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "dram",
+          "name": "D램",
+          "reason": "모바일 기기에 특화된 D램이라고 정의한다.",
+          "evidenceQuote": "모바일 D램은 컴퓨터에 사용되는 D램(Dynamic RAM)과 같이, 모바일 기기에 특화되어 장착되는 D램이다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "lpddr",
+      "title": "LPDDR D램",
+      "engName": "Low Power Double Data Rate",
+      "aliases": [
+        "LPDDR"
+      ],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "이동성이 중요한 휴대용 디지털 기기에 적합한 고성능·저소비전력 D램이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "여기서 이동성이 강조되는 휴대용 디지털 기기에 적합한 고성능, 저소비전력 D램이 바로 ‘LPDDR(Low Power Double Data Rate) D램’이다.",
+      "evidenceQuote": "여기서 이동성이 강조되는 휴대용 디지털 기기에 적합한 고성능, 저소비전력 D램이 바로 ‘LPDDR(Low Power Double Data Rate) D램’이다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "dram",
+          "name": "D램",
+          "reason": "원문이 저전력 D램으로 정의한다.",
+          "evidenceQuote": "여기서 이동성이 강조되는 휴대용 디지털 기기에 적합한 고성능, 저소비전력 D램이 바로 ‘LPDDR(Low Power Double Data Rate) D램’이다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

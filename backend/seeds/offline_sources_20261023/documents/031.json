@@ -1,0 +1,117 @@
+{
+  "index": 31,
+  "filePath": "samsung/glossary/반도체-용어-사전-p형-반도체.md",
+  "sourceHash": "3ca0f940e666449898a4f9f54d0d46ce19313d13be80439f2fc04806c28eb02e",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1646,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. 진성 반도체의 전류가 절대 흐르지 않는다는 단순화는 일반 정의에 채택하지 않았다. p형 도핑의 4족·3족·최외각 전자 3개 및 붕소(B)를 보존했다. 전가 오기는 해설에서 전자로 정리했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "p-type-semiconductor",
+      "title": "p형 반도체",
+      "engName": "p-type Semiconductor",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "반도체 기초 재료",
+      "scaleLevel": 1,
+      "classificationNote": "재료의 성질 또는 기초 물리량을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "순수 반도체에 3족 불순물을 첨가하여 정공 수를 늘린 불순물 반도체이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "순수한 반도체에 특정 불순물(3족 원소)을 첨가하여 정공(hole)의 수를 증가시킨 반도체.",
+      "evidenceQuote": "순수한 반도체에 특정 불순물(3족 원소)을 첨가하여 정공(hole)의 수를 증가시킨 반도체.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "3족 도핑과 정공",
+          "content": "4족 실리콘에 최외각 전자 3개인 붕소(B) 등의 3족 원소를 넣으면 공유결합 뒤 전자가 비어 있는 정공이 생기며 전압을 가하면 정공 이동으로 전류가 흐른다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "4족 원소인 실리콘 단결정(순수 반도체)에 최외각 전자가 3개인 붕소(B) 등 3족 원소를 불순물로 첨가하면 실리콘 원자와 모두 공유 결합 후, 전가가 비어있는 상태, 즉 정공이 생긴다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "extrinsic-semiconductor",
+          "name": "불순물 반도체",
+          "reason": "불순물 첨가로 정공을 증가시키는 구체적 유형이다.",
+          "evidenceQuote": "진성 반도체에 특정 불순물을 첨가하여 전자(electron)나 정공(Hole)의 수를 증가시켜 전기전도도를 조절할 수 있는데, 이러한 반도체를 외인성 반도체(Extrinsic) 혹은 불순물 반도체라고 한다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "재료·물성·인프라",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "extrinsic-semiconductor",
+      "title": "불순물 반도체",
+      "engName": "Extrinsic Semiconductor",
+      "aliases": [
+        "외인성 반도체"
+      ],
+      "domainFacet": "materials_infra",
+      "category": "재료·물성·인프라",
+      "scaleLevel": 1,
+      "classificationNote": "재료의 성질 또는 기초 물리량을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "진성 반도체에 불순물을 첨가하여 전자나 정공 수를 늘리고 전기전도도를 조절한 반도체이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "진성 반도체에 특정 불순물을 첨가하여 전자(electron)나 정공(Hole)의 수를 증가시켜 전기전도도를 조절할 수 있는데, 이러한 반도체를 외인성 반도체(Extrinsic) 혹은 불순물 반도체라고 한다.",
+      "evidenceQuote": "진성 반도체에 특정 불순물을 첨가하여 전자(electron)나 정공(Hole)의 수를 증가시켜 전기전도도를 조절할 수 있는데, 이러한 반도체를 외인성 반도체(Extrinsic) 혹은 불순물 반도체라고 한다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "재료·물성·인프라",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "intrinsic-semiconductor",
+      "title": "진성 반도체",
+      "engName": "intrinsic semiconductor",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "재료·물성·인프라",
+      "scaleLevel": 1,
+      "classificationNote": "재료의 성질 또는 기초 물리량을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "불순물을 첨가하기 전의 순수한 반도체를 뜻한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "순수 반도체인 진성 반도체(intrinsic semiconductor)",
+      "evidenceQuote": "순수 반도체인 진성 반도체(intrinsic semiconductor)",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "재료·물성·인프라",
+          "scaleLevel": 1
+        }
+      ]
+    }
+  ]
+}

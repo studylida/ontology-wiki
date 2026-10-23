@@ -175,6 +175,10 @@ class SourceParser:
             if len(heading_clean) < 3 or len(heading_clean) > 40:
                 continue
 
+            # 웹사이트 네비게이션 및 기사 소제목 노이즈 차단
+            if any(noise in heading_clean for noise in ["관련태그", "더 알아보기", "소식", "▶", "단계.", "뉴스룸", "블로그"]):
+                continue
+
             concept_id = f"cand-{path.stem[:16]}-{re.sub(r'[^a-zA-Z0-9]', '', heading_clean)[:12].lower()}"
             candidates.append({
                 "id": concept_id,

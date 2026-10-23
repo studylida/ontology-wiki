@@ -1,0 +1,123 @@
+{
+  "index": 80,
+  "filePath": "samsung/glossary/반도체-용어-사전led편-색온도.md",
+  "sourceHash": "81e2a1bca5b53e4411b6ef39b1175f2b863101d25e527179536d05a67437e55d",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1520,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체를 대조해 실제 개념명과 정의를 보존했다. 일반 적용 상황과 설명용 수치를 실제 제품 실측으로 바꾸지 않았다. "
+  },
+  "concepts": [
+    {
+      "conceptId": "color-temperature",
+      "title": "색온도",
+      "engName": "Color Temperature",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "광학 물리량",
+      "scaleLevel": 1,
+      "classificationNote": "색온도의 원문 정의에 따라 광학 물리량에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "광원의 빛과 같은 빛을 띠는 흑체의 온도로 광색을 표시하는 방법이다. 단위는 K(켈빈)이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "광원 빛을 표시하는 방법 중 하나. 단위는 K(켈빈)\n어떤 물체가 빛을 띄고 있을 때, 이 빛과 같은 빛을 띄는 흑체의 온도를 이용하여 물체의 색온도를 결정한다. 완전 방사체인 흑체는 열을 가하면 금속과 같이 달궈지면서 붉은색을 띠다가 점차 밝은 흰색을 띠게 된다. 따라서 색온도는 높을수록 차가운 광색(청색)을 갖고, 색온도가 낮을수록 따뜻한 광색(적색)을 갖는다.",
+      "evidenceQuote": "광원 빛을 표시하는 방법 중 하나. 단위는 K(켈빈)\n어떤 물체가 빛을 띄고 있을 때, 이 빛과 같은 빛을 띄는 흑체의 온도를 이용하여 물체의 색온도를 결정한다. 완전 방사체인 흑체는 열을 가하면 금속과 같이 달궈지면서 붉은색을 띠다가 점차 밝은 흰색을 띠게 된다. 따라서 색온도는 높을수록 차가운 광색(청색)을 갖고, 색온도가 낮을수록 따뜻한 광색(적색)을 갖는다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "흑체 온도와 광색 대응",
+          "content": "완전 방사체인 흑체는 열을 받으면 붉은색에서 점차 밝은 흰색을 띤다. 색온도가 높을수록 차가운 청색 광색, 낮을수록 따뜻한 적색 광색을 갖는다.",
+          "formula": null,
+          "evidenceQuote": "광원 빛을 표시하는 방법 중 하나. 단위는 K(켈빈)\n어떤 물체가 빛을 띄고 있을 때, 이 빛과 같은 빛을 띄는 흑체의 온도를 이용하여 물체의 색온도를 결정한다. 완전 방사체인 흑체는 열을 가하면 금속과 같이 달궈지면서 붉은색을 띠다가 점차 밝은 흰색을 띠게 된다. 따라서 색온도는 높을수록 차가운 광색(청색)을 갖고, 색온도가 낮을수록 따뜻한 광색(적색)을 갖는다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "정오의 태양광 색온도 예",
+          "perspectiveBadge": "정오의 태양광",
+          "narrative": "원문이 제시한 정오의 태양광의 색온도는 약 5,500K이다.",
+          "caution": "원문은 일반적으로 실제 온도보다 다소 높게 매겨진다고 설명한다.",
+          "evidenceQuote": "정오의 태양광 색온도는 약 5,500K, 백열전구의 색온도는 약 2,700K, 형광등의 색온도는 약 6,000K이며, 일반적으로 실제 온도보다 다소 높게 매겨진다.",
+          "specifications": [
+            {
+              "parameter": "색온도",
+              "value": "약 5,500",
+              "unit": "K",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "정오의 태양광 색온도는 약 5,500K, 백열전구의 색온도는 약 2,700K, 형광등의 색온도는 약 6,000K이며, 일반적으로 실제 온도보다 다소 높게 매겨진다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "정오의 태양광 빛의 색을 흑체 온도에 대응시킨 예시이다. 물체의 실제 온도와 구별해야 한다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "백열전구 색온도 예",
+          "perspectiveBadge": "백열전구",
+          "narrative": "원문이 제시한 백열전구의 색온도는 약 2,700K이다.",
+          "caution": "원문은 일반적으로 실제 온도보다 다소 높게 매겨진다고 설명한다.",
+          "evidenceQuote": "정오의 태양광 색온도는 약 5,500K, 백열전구의 색온도는 약 2,700K, 형광등의 색온도는 약 6,000K이며, 일반적으로 실제 온도보다 다소 높게 매겨진다.",
+          "specifications": [
+            {
+              "parameter": "색온도",
+              "value": "약 2,700",
+              "unit": "K",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "정오의 태양광 색온도는 약 5,500K, 백열전구의 색온도는 약 2,700K, 형광등의 색온도는 약 6,000K이며, 일반적으로 실제 온도보다 다소 높게 매겨진다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "백열전구 빛의 색을 흑체 온도에 대응시킨 예시이다. 물체의 실제 온도와 구별해야 한다.",
+            "background": null
+          }
+        },
+        {
+          "perspectiveTitle": "형광등 색온도 예",
+          "perspectiveBadge": "형광등",
+          "narrative": "원문이 제시한 형광등의 색온도는 약 6,000K이다.",
+          "caution": "원문은 일반적으로 실제 온도보다 다소 높게 매겨진다고 설명한다.",
+          "evidenceQuote": "정오의 태양광 색온도는 약 5,500K, 백열전구의 색온도는 약 2,700K, 형광등의 색온도는 약 6,000K이며, 일반적으로 실제 온도보다 다소 높게 매겨진다.",
+          "specifications": [
+            {
+              "parameter": "색온도",
+              "value": "약 6,000",
+              "unit": "K",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "정오의 태양광 색온도는 약 5,500K, 백열전구의 색온도는 약 2,700K, 형광등의 색온도는 약 6,000K이며, 일반적으로 실제 온도보다 다소 높게 매겨진다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "형광등 빛의 색을 흑체 온도에 대응시킨 예시이다. 물체의 실제 온도와 구별해야 한다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "광학 물리량",
+          "scaleLevel": 1
+        }
+      ]
+    }
+  ]
+}

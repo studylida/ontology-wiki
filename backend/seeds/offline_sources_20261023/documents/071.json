@@ -1,0 +1,102 @@
+{
+  "index": 71,
+  "filePath": "samsung/glossary/반도체-용어-사전-패키징.md",
+  "sourceHash": "c71aaca0d9a70fe36e6d16d2312b4ea19bb66a1e325c595b88ca2475ea74709d",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1618,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 빈 파서 후보를 대조하여 실제 개념명·정의·명시된 종류·선후 관계를 보완했다. 발행사나 관련기사를 도입 사례로 추정하지 않았다. "
+  },
+  "concepts": [
+    {
+      "conceptId": "packaging",
+      "title": "패키징",
+      "engName": "Packaging",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "패키징 통합",
+      "scaleLevel": 4,
+      "classificationNote": "패키징의 원문 정의에 따라 반도체 패키징에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "반도체 칩을 전자기기에 적합한 형태로 만들고 외부 환경으로부터 보호하며 단자 간 전기적 연결을 제공하는 공정이다.",
+      "purpose": "상호배선·전력 공급·방열을 수행하고 고온·불순물·물리적 충격으로부터 집적회로를 보호한다.",
+      "summaryEvidenceQuote": "반도체 패키징(Packaging)은 칩을 외부 환경으로부터 보호하고, 단자 간 연결을 위해 전기적으로 포장하는 공정이다.",
+      "evidenceQuote": "반도체 패키징(Packaging)은 칩을 외부 환경으로부터 보호하고, 단자 간 연결을 위해 전기적으로 포장하는 공정이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "전기적 포장",
+          "content": "집적회로를 필요한 위치에 장착할 수 있도록 모양을 만들고 상호배선·전력 공급·방열 역할을 제공한다.",
+          "formula": null,
+          "evidenceQuote": "집적회로(IC)는 기판이나 전자기기의 구성품으로, 필요한 위치에 장착하기 위해서는 그에 맞는 모양으로 전기적인 포장을 해야 한다. 즉 상호배선, 전력 공급, 방열과 같은 역할을 한다."
+        },
+        {
+          "step": 2,
+          "title": "외부 환경 보호",
+          "content": "고온, 불순물, 물리적 충격 등 외부 환경으로부터 칩을 보호한다.",
+          "formula": null,
+          "evidenceQuote": "또한 패키징은 반도체 칩을 보호하는 역할도 하는데, 고온이나 불순물 및 물리적 충격과 같은 다양한 외부 환경으로부터 안전하게 집적회로를 보호한다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [
+        {
+          "id": "package-test",
+          "name": "패키지 테스트",
+          "reason": "패키징 완료 후 정상 동작을 검사한다고 명시한다.",
+          "evidenceQuote": "패키징 공정이 완료된 후 칩이 정상적으로 작동하는지 확인하는데 이를 패키지 테스트(Package Test)라고 한다. 패키지 테스트는 완제품 형태에서 진행되는데, 검사 장비에 칩을 넣고 다양한 조건에서 특성을 측정해 불량 유무를 구별한다."
+        }
+      ],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "purposeEvidenceQuote": "집적회로(IC)는 기판이나 전자기기의 구성품으로, 필요한 위치에 장착하기 위해서는 그에 맞는 모양으로 전기적인 포장을 해야 한다. 즉 상호배선, 전력 공급, 방열과 같은 역할을 한다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "반도체 패키징",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "package-test",
+      "title": "패키지 테스트",
+      "engName": "Package Test",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "검사·계측",
+      "scaleLevel": 3,
+      "classificationNote": "패키지 테스트의 원문 정의에 따라 반도체 검사에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "패키징이 끝난 완제품 형태의 칩을 검사 장비에 넣어 다양한 조건에서 특성을 측정하고 불량 유무를 구별하는 검사이다.",
+      "purpose": "패키징 완료 후 칩의 정상 작동 여부를 확인한다.",
+      "summaryEvidenceQuote": "패키징 공정이 완료된 후 칩이 정상적으로 작동하는지 확인하는데 이를 패키지 테스트(Package Test)라고 한다. 패키지 테스트는 완제품 형태에서 진행되는데, 검사 장비에 칩을 넣고 다양한 조건에서 특성을 측정해 불량 유무를 구별한다.",
+      "evidenceQuote": "패키징 공정이 완료된 후 칩이 정상적으로 작동하는지 확인하는데 이를 패키지 테스트(Package Test)라고 한다. 패키지 테스트는 완제품 형태에서 진행되는데, 검사 장비에 칩을 넣고 다양한 조건에서 특성을 측정해 불량 유무를 구별한다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [
+        {
+          "id": "packaging",
+          "name": "패키징",
+          "reason": "원문에서 패키징 완료 후 진행하는 검사라고 명시한다.",
+          "evidenceQuote": "패키징 공정이 완료된 후 칩이 정상적으로 작동하는지 확인하는데 이를 패키지 테스트(Package Test)라고 한다. 패키지 테스트는 완제품 형태에서 진행되는데, 검사 장비에 칩을 넣고 다양한 조건에서 특성을 측정해 불량 유무를 구별한다."
+        }
+      ],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "purposeEvidenceQuote": "집적회로(IC)는 기판이나 전자기기의 구성품으로, 필요한 위치에 장착하기 위해서는 그에 맞는 모양으로 전기적인 포장을 해야 한다. 즉 상호배선, 전력 공급, 방열과 같은 역할을 한다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "반도체 검사",
+          "scaleLevel": 3
+        }
+      ]
+    }
+  ]
+}

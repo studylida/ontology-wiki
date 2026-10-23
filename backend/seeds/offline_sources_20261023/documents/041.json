@@ -1,0 +1,232 @@
+{
+  "index": 41,
+  "filePath": "samsung/glossary/반도체-용어-사전-다이오드.md",
+  "sourceHash": "1ba87a5f9713e96b1691ed717ecda18e0a5066d5d3f6b43d29ceb4f8fa957552",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1657,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. 전류 방향을 전자 이동 방향과 혼동하지 않았다. 진공관 역사와 pn 접합 설명을 구별하고 쇼트키까지 모두 pn 접합이라고 일반화하지 않았다. 스위칭·쇼트키의 상세 원리는 본문에 없어 비웠다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "diode",
+      "title": "다이오드",
+      "engName": "Diode",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "회로 소자",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "저마늄이나 규소 등으로 만들며 정류나 발광 등의 특성을 갖는 반도체 소자이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "저마늄이나 규소로 만들며 정류, 발광 특성 등을 지닌 반도체 소자.",
+      "evidenceQuote": "저마늄이나 규소로 만들며 정류, 발광 특성 등을 지닌 반도체 소자.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "pn 접합의 정류",
+          "content": "본문은 p형과 n형을 접합한 다이오드의 전류가 p형 anode에서 n형 cathode로 흐르는 방향성을 정류 작용으로 설명한다.",
+          "formula": null,
+          "evidenceQuote": "pn 접합 다이오드에서 전류는 p형 반도체(anode)에서 n형 반도체(cathode)로 흐른다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "pn-junction",
+      "title": "pn 접합",
+      "engName": "pn Junction",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "p형 반도체와 n형 반도체를 접합한 구조로, 본문은 반도체 다이오드의 바탕으로 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "최초의 다이오드는 진공관으로 만들어 졌으며, 반도체에서 다이오드는 p형 반도체와 n형 반도체를 접합하여 만든 pn 접합(pn Junction)에 바탕을 두고 있다.",
+      "evidenceQuote": "최초의 다이오드는 진공관으로 만들어 졌으며, 반도체에서 다이오드는 p형 반도체와 n형 반도체를 접합하여 만든 pn 접합(pn Junction)에 바탕을 두고 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "diode",
+          "name": "다이오드",
+          "reason": "다이오드 설명에서 p형과 n형 반도체를 접합한 구조를 pn 접합이라 정의하고 그 접합이 다이오드의 바탕이라고 명시한다. pn 접합 다이오드의 구조 구성에 한정한 관계이며 모든 다이오드가 같은 구조라는 주장은 아니다.",
+          "evidenceQuote": "최초의 다이오드는 진공관으로 만들어 졌으며, 반도체에서 다이오드는 p형 반도체와 n형 반도체를 접합하여 만든 pn 접합(pn Junction)에 바탕을 두고 있다."
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "led",
+      "title": "발광 다이오드",
+      "engName": "LED",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "광반도체 소자",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "빛을 발하는 특성을 가진 다이오드이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "빛을 발하는 발광 다이오드(LED)",
+      "evidenceQuote": "빛을 발하는 발광 다이오드(LED)",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "diode",
+          "name": "다이오드",
+          "reason": "원문이 다이오드 종류로 명시한다.",
+          "evidenceQuote": "다이오드에는 다양한 종류가 있는데, 빛을 발하는 발광 다이오드(LED), 일정 전압 이상이 되면 n형 반도체(cathode)에서 p형 반도체(anode)로 전류가 흐르는 정전압(제너) 다이오드 이외에도 스위칭 다이오드, 쇼트키 다이오드 등이 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "zener-diode",
+      "title": "제너 다이오드",
+      "engName": "제너 다이오드",
+      "aliases": [
+        "정전압 다이오드"
+      ],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "일정 전압 이상에서 n형 cathode에서 p형 anode로 전류가 흐르는 정전압 다이오드이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "일정 전압 이상이 되면 n형 반도체(cathode)에서 p형 반도체(anode)로 전류가 흐르는 정전압(제너) 다이오드",
+      "evidenceQuote": "일정 전압 이상이 되면 n형 반도체(cathode)에서 p형 반도체(anode)로 전류가 흐르는 정전압(제너) 다이오드",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "diode",
+          "name": "다이오드",
+          "reason": "원문이 다이오드 종류로 명시한다.",
+          "evidenceQuote": "다이오드에는 다양한 종류가 있는데, 빛을 발하는 발광 다이오드(LED), 일정 전압 이상이 되면 n형 반도체(cathode)에서 p형 반도체(anode)로 전류가 흐르는 정전압(제너) 다이오드 이외에도 스위칭 다이오드, 쇼트키 다이오드 등이 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "switching-diode",
+      "title": "스위칭 다이오드",
+      "engName": "스위칭 다이오드",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "본문에서 다이오드의 종류로 열거한 소자이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "다이오드에는 다양한 종류가 있는데, 빛을 발하는 발광 다이오드(LED), 일정 전압 이상이 되면 n형 반도체(cathode)에서 p형 반도체(anode)로 전류가 흐르는 정전압(제너) 다이오드 이외에도 스위칭 다이오드, 쇼트키 다이오드 등이 있다.",
+      "evidenceQuote": "다이오드에는 다양한 종류가 있는데, 빛을 발하는 발광 다이오드(LED), 일정 전압 이상이 되면 n형 반도체(cathode)에서 p형 반도체(anode)로 전류가 흐르는 정전압(제너) 다이오드 이외에도 스위칭 다이오드, 쇼트키 다이오드 등이 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "diode",
+          "name": "다이오드",
+          "reason": "원문이 다이오드 종류로 명시한다.",
+          "evidenceQuote": "다이오드에는 다양한 종류가 있는데, 빛을 발하는 발광 다이오드(LED), 일정 전압 이상이 되면 n형 반도체(cathode)에서 p형 반도체(anode)로 전류가 흐르는 정전압(제너) 다이오드 이외에도 스위칭 다이오드, 쇼트키 다이오드 등이 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "schottky-diode",
+      "title": "쇼트키 다이오드",
+      "engName": "쇼트키 다이오드",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "반도체 소자·회로",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "본문에서 다이오드의 종류로 열거한 소자이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "다이오드에는 다양한 종류가 있는데, 빛을 발하는 발광 다이오드(LED), 일정 전압 이상이 되면 n형 반도체(cathode)에서 p형 반도체(anode)로 전류가 흐르는 정전압(제너) 다이오드 이외에도 스위칭 다이오드, 쇼트키 다이오드 등이 있다.",
+      "evidenceQuote": "다이오드에는 다양한 종류가 있는데, 빛을 발하는 발광 다이오드(LED), 일정 전압 이상이 되면 n형 반도체(cathode)에서 p형 반도체(anode)로 전류가 흐르는 정전압(제너) 다이오드 이외에도 스위칭 다이오드, 쇼트키 다이오드 등이 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "diode",
+          "name": "다이오드",
+          "reason": "원문이 다이오드 종류로 명시한다.",
+          "evidenceQuote": "다이오드에는 다양한 종류가 있는데, 빛을 발하는 발광 다이오드(LED), 일정 전압 이상이 되면 n형 반도체(cathode)에서 p형 반도체(anode)로 전류가 흐르는 정전압(제너) 다이오드 이외에도 스위칭 다이오드, 쇼트키 다이오드 등이 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

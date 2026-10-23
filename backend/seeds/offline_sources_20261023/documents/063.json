@@ -1,0 +1,102 @@
+{
+  "index": 63,
+  "filePath": "samsung/glossary/반도체-용어-사전-종합-반도체-업체-idm.md",
+  "sourceHash": "845f5e421fd4298619cac6881c31038fd0ffaa118abbc14222b233a74371221a",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1574,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 빈 파서 후보를 대조하여 실제 개념명·정의·명시된 종류·선후 관계를 보완했다. 발행사나 관련기사를 도입 사례로 추정하지 않았다. "
+  },
+  "concepts": [
+    {
+      "conceptId": "idm",
+      "title": "종합 반도체 업체",
+      "engName": "Integrated Device Manufacturer",
+      "aliases": [
+        "IDM"
+      ],
+      "domainFacet": "operations",
+      "category": "반도체 산업 구조",
+      "scaleLevel": 5,
+      "classificationNote": "종합 반도체 업체의 원문 정의에 따라 반도체 산업 구조에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "반도체 설계 기술과 생산설비를 모두 보유하고 칩 설계부터 완제품 생산·판매까지 자체 운영하는 업체이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "종합 반도체 업체는 반도체 생산설비만을 갖추고 있는 파운드리 업체와 반도체 설계만을 전문으로 하는 팹리스 업체와는 달리 설계 기술과 생산 설비를 모두 보유한 대규모의 반도체 업체이다.",
+      "evidenceQuote": "종합 반도체 업체는 반도체 생산설비만을 갖추고 있는 파운드리 업체와 반도체 설계만을 전문으로 하는 팹리스 업체와는 달리 설계 기술과 생산 설비를 모두 보유한 대규모의 반도체 업체이다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "반도체 산업 구조",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "foundry",
+      "title": "파운드리",
+      "engName": "Foundry",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "제조 운영·품질",
+      "scaleLevel": 5,
+      "classificationNote": "파운드리의 원문 정의에 따라 반도체 산업 구조에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "반도체 제조과정만 전담하는 업체이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "반도체 업체는 칩 설계부터 완제품 생산 및 판매까지 모든 분야를 자체 운영하는 ‘종합 반도체 업체(IDM)’, 반도체 제조과정만 전담하는 ‘파운드리 업체(Foundry)‘, 그리고 설계 기술만을 가진 ‘반도체 설계 업체(Fabless)‘로 구분된다.",
+      "evidenceQuote": "반도체 업체는 칩 설계부터 완제품 생산 및 판매까지 모든 분야를 자체 운영하는 ‘종합 반도체 업체(IDM)’, 반도체 제조과정만 전담하는 ‘파운드리 업체(Foundry)‘, 그리고 설계 기술만을 가진 ‘반도체 설계 업체(Fabless)‘로 구분된다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "반도체 산업 구조",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "fabless",
+      "title": "팹리스",
+      "engName": "Fabless",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "반도체 산업 구조",
+      "scaleLevel": 5,
+      "classificationNote": "팹리스의 원문 정의에 따라 반도체 산업 구조에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "반도체 설계 기술을 갖고 설계만을 전문으로 하는 업체이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "반도체 업체는 칩 설계부터 완제품 생산 및 판매까지 모든 분야를 자체 운영하는 ‘종합 반도체 업체(IDM)’, 반도체 제조과정만 전담하는 ‘파운드리 업체(Foundry)‘, 그리고 설계 기술만을 가진 ‘반도체 설계 업체(Fabless)‘로 구분된다.",
+      "evidenceQuote": "반도체 업체는 칩 설계부터 완제품 생산 및 판매까지 모든 분야를 자체 운영하는 ‘종합 반도체 업체(IDM)’, 반도체 제조과정만 전담하는 ‘파운드리 업체(Foundry)‘, 그리고 설계 기술만을 가진 ‘반도체 설계 업체(Fabless)‘로 구분된다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "반도체 산업 구조",
+          "scaleLevel": 5
+        }
+      ]
+    }
+  ]
+}

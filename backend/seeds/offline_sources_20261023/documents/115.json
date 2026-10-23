@@ -1,0 +1,430 @@
+{
+  "index": 115,
+  "filePath": "skhynix/skhynix_ai_07_summary.md",
+  "sourceHash": "d840fcab5e3d868290806b68d3934835e51bf2824b1e7ea909a25f01833e22b7",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 7631,
+    "method": "codex-offline-source-review",
+    "notes": "text/115.txt 전체 7631자와 초안을 대조했다. AI 생태계의 메모리 요구와 CXL·HBM 구성, 역전파·기울기 하강법·과적합을 구별했다. 저빈도 번역 서비스·모바일 뉴로모픽·저전력 PIM은 원문이 명시한 가정과 제안으로 보존했다. 데이터 1~2개로 학습하는 미래와 메모리 수요 변화는 조건부 전망이며 실현 기술이나 확정 수요로 기록하지 않았다. CXL 영문 확장과 1999년 이전 그래픽 처리에 관한 원문 역사적 단순화는 일반 기술 사실로 확대하지 않았다. 외부 자료와 현행 제품·서비스는 검증하지 않았다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "memory-semiconductor",
+      "title": "메모리 반도체",
+      "engName": "Memory Semiconductor",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "데이터 저장 반도체 범주이며 데이터를 보관하는 메모리 반도체의 분류이므로 소자 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "데이터와 신경망을 저장하고 연산 장치에 필요한 데이터를 공급하는 반도체다. 원문은 AI 인프라에서 고대역폭·대용량 메모리와 고용량·고성능 낸드 저장소의 역할을 구별해 설명한다.",
+      "purpose": "거대한 신경망과 학습 데이터를 담고 연산 장치 및 학습 인프라에 데이터를 공급",
+      "summaryEvidenceQuote": "GPU에 끊임없이 처리할 작업과 데이터를 넘겨줄 고성능(고대역폭) 메모리",
+      "evidenceQuote": "GPU에 끊임없이 처리할 작업과 데이터를 넘겨줄 고성능(고대역폭) 메모리",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "미세화에 따른 성능 개선의 제약",
+          "description": "원문은 미세화 난도가 높아지면서 AI의 성능 요구를 반도체가 선제적으로 충족하기 어려워졌다는 필자의 판단을 제시한다.",
+          "evidenceQuote": "반도체 미세화의 난이도가 높아짐에 따라 반도체의 성능 향상은 상당히 제한되기 때문이다."
+        },
+        {
+          "title": "학습 방법 변화에 대한 조건부 전망",
+          "description": "역전파를 넘어서는 학습 방법으로 적은 데이터만으로 학습할 수 있다면 대규모 메모리·GPU·낸드 수요의 전제가 바뀔 수 있다는 가정이다.",
+          "evidenceQuote": "만약 인공지능이 인간처럼 데이터 1~2개만 보고도 새로운 동물을 구분할 수 있게 된다면, 거대한 메모리도, 고성능 GPU도 그리고 데이터 저장을 위한 거대한 낸드 저장소도 필요 없어질지 모른다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "데이터 저장 반도체",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "hbm",
+      "title": "고대역폭 메모리",
+      "engName": "HBM",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "적층 메모리",
+      "scaleLevel": 4,
+      "classificationNote": "적층 메모리 범주이며 여러 D램 다이와 연결을 통합한 적층 메모리 제품이므로 패키지 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "여러 D램을 수직으로 연결해 데이터 처리 속도를 높이는 메모리다. 원문은 GPU에 데이터를 계속 공급하고 큰 신경망과 데이터를 담기 위한 AI용 메모리로 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "HBM(High Bandwidth Memory, 고대역폭 메모리): 여러 개의 D램을 수직으로 연결해 기존 D램보다 데이터 처리 속도를 혁신적으로 끌어올린 AI용 고성능 메모리",
+      "evidenceQuote": "HBM(High Bandwidth Memory, 고대역폭 메모리): 여러 개의 D램을 수직으로 연결해 기존 D램보다 데이터 처리 속도를 혁신적으로 끌어올린 AI용 고성능 메모리",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "dram",
+          "name": "D램",
+          "reason": "원문은 여러 D램의 수직 연결 제품이라고 설명한다.",
+          "evidenceQuote": "여러 개의 D램을 수직으로 연결해"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "적층 메모리",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "nand-flash",
+      "title": "낸드플래시",
+      "engName": "NAND Flash",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "비휘발성 메모리 범주이며 데이터를 저장하는 비휘발성 메모리 소자이므로 소자 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "원문에서 방대한 데이터를 저장하고 이동시켜 인공지능 학습 인프라의 성능과 효율을 지원하는 메모리다. 원본 자료를 신경망이 이해하는 형태로 가공하고 공급하는 생태계의 저장 역할을 맡는다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "방대한 데이터의 저장 및 이동이 필요한 곳에는 낸드플래시(이하 낸드)가 채택됐다.",
+      "evidenceQuote": "방대한 데이터의 저장 및 이동이 필요한 곳에는 낸드플래시(이하 낸드)가 채택됐다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "비휘발성 메모리",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "cxl",
+      "title": "컴퓨트 익스프레스 링크",
+      "engName": "CXL",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "컴퓨팅 인터페이스",
+      "scaleLevel": 4,
+      "classificationNote": "메모리 연결 인터페이스 범주이며 여러 연산 장치와 메모리의 연결 규약이므로 통합 시스템 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "메모리의 확장과 공유를 통해 서비스에 맞는 메모리 환경을 제공하는 인터페이스 기술이다. 원문은 큰 공유 메모리에 여러 신경망을 두고 연산 칩을 활용하는 구성을 제안한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "CXL(Computer eXpress Link)처럼 메모리의 확장 및 공유를 통해 다양한 서비스에 최적화된 메모리 환경을 제공할 수 있다.",
+      "evidenceQuote": "CXL(Computer eXpress Link)처럼 메모리의 확장 및 공유를 통해 다양한 서비스에 최적화된 메모리 환경을 제공할 수 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "호출 빈도에 따른 번역 신경망 배치",
+          "perspectiveBadge": "가상 번역 서비스",
+          "narrative": "라틴어·티베트어·타히티어처럼 사용 빈도가 낮은 모델은 CXL과 연산 칩 한 개로 여러 신경망을 활용하고, 빈도가 높은 모델은 HBM과 여러 GPU로 성능을 높이는 제안이다.",
+          "caution": "원문이 가정한 서비스 구성이다. 실제 고객 도입이나 정량 비용·성능 결과가 아니다.",
+          "evidenceQuote": "CXL + 한 개의 연산칩 구조를 통해 연산칩 한 개가 여러 인공신경망을 사용하게 하는 것이 더욱 효율적일 것이다.",
+          "specifications": [
+            {
+              "parameter": "저빈도 모델의 제안 구성",
+              "value": "CXL + 연산 칩 한 개",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "CXL + 한 개의 연산칩 구조"
+            },
+            {
+              "parameter": "고빈도 모델의 제안 구성",
+              "value": "HBM + 여러 GPU",
+              "unit": null,
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "HBM + 여러 개의 GPU 구조"
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "가끔 쓰는 여러 번역기를 위해 계산 장치를 각각 고정하지 말고 큰 메모리와 계산 장치를 함께 활용하자는 아이디어다. 자주 쓰는 모델에는 더 많은 GPU를 배치하는 방향을 비교한다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "메모리 연결 인터페이스",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "backpropagation",
+      "title": "역전파",
+      "engName": "Backpropagation",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "인공지능 학습 알고리즘",
+      "scaleLevel": 4,
+      "classificationNote": "인공지능 학습 알고리즘 범주이며 신경망 전체의 학습을 조정하는 알고리즘이므로 시스템 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "예측 출력과 실제 출력 사이 오차를 역방향으로 전파해 가중치를 조정하는 신경망 학습 방법이다. 원문은 반복적으로 오차가 작아지는 방향으로 값을 수정하는 수치적 학습 과정으로 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "예측한 출력값과 실제 출력값의 차이인 오차를 계산하고, 이것을 다시 역으로 전파해 가중치를 조정해 예측 출력값과 실제 출력값을 일치시키는 방법.",
+      "evidenceQuote": "예측한 출력값과 실제 출력값의 차이인 오차를 계산하고, 이것을 다시 역으로 전파해 가중치를 조정해 예측 출력값과 실제 출력값을 일치시키는 방법.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "오차의 역방향 전달",
+          "content": "순전파가 입력에 가중치를 곱해 출력을 내는 데 대해 역전파는 오차를 이용해 가중치를 반복 조정한다.",
+          "formula": null,
+          "evidenceQuote": "수치 해석적으로 오차가 작아지는 쪽으로 조금씩 값을 조절하는 과정을 반복하여 학습을 가능하게 함"
+        }
+      ],
+      "limitations": [
+        {
+          "title": "현재 학습 전제의 한계",
+          "description": "원문은 역전파와 기울기 하강법 기반 학습이 많은 데이터를 요구하고 인간 수준 인식에 이르기 어렵다는 필자의 해석을 제시한다.",
+          "evidenceQuote": "역전파와 기울기 하강법 기반의 학습은 장점만 있는 것은 아니다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "ai-training",
+          "name": "인공신경망 학습",
+          "reason": "115의 역전파 정의는 오차 계산·역방향 전달·가중치 조정의 반복으로 학습을 가능하게 한다고 설명한다. 단순한 적용 대상 언급이 아니라 해당 학습을 이루는 내부 연산 절차이므로 역전파→학습의 구성 방향이다.",
+          "evidenceQuote": "수치 해석적으로 오차가 작아지는 쪽으로 조금씩 값을 조절하는 과정을 반복하여 학습을 가능하게 함"
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "인공지능 학습 알고리즘",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "gradient-descent",
+      "title": "기울기 하강법",
+      "engName": "Gradient Descent",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "인공지능 최적화 알고리즘",
+      "scaleLevel": 4,
+      "classificationNote": "인공지능 최적화 알고리즘 범주이며 학습 함수의 갱신을 다루는 최적화 방법이므로 시스템 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "함수 출력과 원하는 값의 차이가 줄어드는 방향으로 함수를 갱신하여 손실이 낮은 곳을 찾는 최적화 방법이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "특정 함수에 입력값을 넣은 뒤, 함수의 출력값과 원하는 기댓값의 차이를 줄이는 방향으로 함수를 갱신해 가는 방법",
+      "evidenceQuote": "특정 함수에 입력값을 넣은 뒤, 함수의 출력값과 원하는 기댓값의 차이를 줄이는 방향으로 함수를 갱신해 가는 방법",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "적은 데이터에 대한 과적합 가능성",
+          "description": "원문은 한 개의 데이터로 최적 함수를 찾으려 하면 과적합이 생길 수 있어 많은 데이터에 작은 학습량을 적용하는 상황을 설명한다.",
+          "evidenceQuote": "1개의 데이터로 최적의 함수를 찾으려고 할 때 과적합*이 발생할 수 있다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "ai-training",
+          "name": "인공신경망 학습",
+          "reason": "115는 인공신경망을 함수로 보고 손실을 줄이는 방향으로 그 함수를 갱신하는 기울기 하강법을 설명한다. 원문의 역전파·기울기 하강법 기반 학습에서 가중 함수의 갱신이 학습을 구성하는 내부 절차이므로 그 맥락에 한정한 소속이다.",
+          "evidenceQuote": "특정 함수에 입력값을 넣은 뒤, 함수의 출력값과 원하는 기댓값의 차이를 줄이는 방향으로 함수를 갱신해 가는 방법"
+        }
+      ],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "인공지능 최적화 알고리즘",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "overfitting",
+      "title": "과적합",
+      "engName": "Overfitting",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "인공지능 학습 한계",
+      "scaleLevel": 4,
+      "classificationNote": "인공지능 학습 한계 범주이며 소자 물성이 아니라 학습 모델 전체의 일반화 현상이므로 시스템 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "학습 데이터의 전체적인 경향에서 벗어난 부분까지 지나치게 고려하여 실제 새로운 데이터에 대한 일반화 성능이 낮아지는 현상이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "학습 데이터를 수집할 때 전체적인 경향성에서 벗어난 데이터까지를 고려해 실제 데이터에 대해서는 일반화 성능이 떨어지는 모델을 얻게 되는 현상",
+      "evidenceQuote": "학습 데이터를 수집할 때 전체적인 경향성에서 벗어난 데이터까지를 고려해 실제 데이터에 대해서는 일반화 성능이 떨어지는 모델을 얻게 되는 현상",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "인공지능 학습 한계",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "neuromorphic-computing",
+      "title": "뉴로모픽 컴퓨팅",
+      "engName": "Neuromorphic",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "뇌 모방 연산 구조",
+      "scaleLevel": 4,
+      "classificationNote": "뇌 모방 연산 구조 범주이며 뇌 모방 방식으로 저장과 연산 체계를 구성하는 접근이므로 시스템 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "거대 신경망의 모바일 기기 탑재처럼 새로운 고객 요구에 대응할 후보로 제시되는 반도체 접근이다. 이 문헌은 구체적인 소자나 연산 구조를 정의하지 않고 신규 사업 가능성을 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "이런 사업 아이템이 뉴로모픽 반도체 시장 진출의 시작점이 될지 모른다.",
+      "evidenceQuote": "이런 사업 아이템이 뉴로모픽 반도체 시장 진출의 시작점이 될지 모른다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "거대 신경망의 모바일 탑재 사업 구상",
+          "perspectiveBadge": "가정 고객 요구",
+          "narrative": "고객이 충분한 데이터를 갖고 거대 신경망을 모바일 기기에 넣으려는 사업을 구상한다면 새로운 기기와 반도체를 개발할 수 있다고 제안한다.",
+          "caution": "구체적인 고객·제품·도입 실적이 없는 제안이며 데이터가 부족한 사업 자체를 메모리 기술이 해결하는 것은 아니라고 원문이 한정한다.",
+          "evidenceQuote": "특정 고객이 데이터는 충분한데 거대 신경망을 모바일 기기에 넣어야 하는 사업 모델을 구상했다면",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "저장할 자료가 충분한 상황에서 기기 크기와 비용 문제를 풀 새로운 반도체를 찾는 가상 사업 아이디어다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "뇌 모방 연산 구조",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "pim",
+      "title": "프로세싱 인 메모리",
+      "engName": "PIM",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 내 연산 구조",
+      "scaleLevel": 4,
+      "classificationNote": "메모리 내 연산 구조 범주이며 메모리와 연산의 역할을 결합하는 접근이므로 통합 연산 구조 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "전력 절감이 큰 효용을 주는 사업에서 고려할 수 있는 메모리 연산 기술의 대안이다. 이 문헌은 PIM의 내부 구조나 구현 원리는 설명하지 않고 고객 요구에 맞춘 적용 가능성만 제시한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "사업 아이템이 극단적으로 기기의 전력을 아낄수록 큰 이득을 보는 상황이라면 PIM[관련기사]을 제안해 볼 수 있다.",
+      "evidenceQuote": "사업 아이템이 극단적으로 기기의 전력을 아낄수록 큰 이득을 보는 상황이라면 PIM[관련기사]을 제안해 볼 수 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "전력 절감이 중요한 사업의 PIM 제안",
+          "perspectiveBadge": "가정 고객 요구",
+          "narrative": "전력을 극단적으로 줄일수록 이득이 큰 사업에는 PIM을 대안으로 고려할 수 있다는 제안이다.",
+          "caution": "제품 비교나 측정된 절감률·전력값은 없다.",
+          "evidenceQuote": "기기의 전력을 아낄수록 큰 이득을 보는 상황이라면 PIM[관련기사]을 제안해 볼 수 있다.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "모든 서비스에 같은 칩을 쓰기보다 전기 사용량을 줄이는 것이 중요한 경우에 맞는 구조를 찾자는 설명이다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "메모리 내 연산 구조",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "bert",
+      "title": "BERT 언어 모델",
+      "engName": "BERT",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "자연어 처리 모델",
+      "scaleLevel": 4,
+      "classificationNote": "자연어 처리 모델 범주이며 자연어 처리를 수행하는 신경망 모델이므로 통합 연산 체계 수준으로 본다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "구글이 만든 자연어 처리 모델로 검색에서 단어의 의미와 문맥을 이해하고 유용한 결과를 대응시키는 데 도움을 주는 모델이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "BERT(Bidirectional Encoder Representations from Transformers): 구글이 만든 자연어 처리 모델.",
+      "evidenceQuote": "BERT(Bidirectional Encoder Representations from Transformers): 구글이 만든 자연어 처리 모델.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "구글 검색과 자연어 모델의 상호작용",
+          "perspectiveBadge": "Google BERT",
+          "narrative": "원문은 BERT와 같은 언어 모델의 개발이 검색 서비스의 성능 향상과 연결되고 서비스 사용 데이터가 다시 AI 개선에 활용되는 흐름을 설명한다.",
+          "caution": "정확도 향상률이나 BERT 자체의 하드웨어 사양은 제시되지 않는다.",
+          "evidenceQuote": "구글의 경우는 BERT*와 같은 인공지능 기반 언어 모델이 개발됐기 때문이다.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "언어를 더 잘 이해하는 모델이 검색 서비스를 돕고, 서비스에서 얻는 자료가 다시 모델 발전으로 이어진다는 생태계 사례다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "자연어 처리 모델",
+          "scaleLevel": 4
+        }
+      ]
+    }
+  ]
+}

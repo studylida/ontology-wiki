@@ -1,0 +1,59 @@
+{
+  "index": 72,
+  "filePath": "samsung/glossary/반도체-용어-사전-팹리스.md",
+  "sourceHash": "e09665f0629b9757d900c7de817c05b5293270c20b9a5e40c2a66b4c228b31f0",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1724,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 빈 파서 후보를 대조하여 실제 개념명·정의·명시된 종류·선후 관계를 보완했다. 발행사나 관련기사를 도입 사례로 추정하지 않았다. "
+  },
+  "concepts": [
+    {
+      "conceptId": "fabless",
+      "title": "팹리스",
+      "engName": "Fabless",
+      "aliases": [
+        "반도체 설계 업체"
+      ],
+      "domainFacet": "operations",
+      "category": "반도체 산업 구조",
+      "scaleLevel": 5,
+      "classificationNote": "팹리스의 원문 정의에 따라 반도체 산업 구조에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "반도체 설계 기술은 있으나 자체 생산라인은 없는 설계 전문 업체이다. 파운드리에 비용을 지불해 생산을 위탁하고 생산된 반도체를 판매한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "반도체 설계 기술은 있으나 생산 라인이 없는 업체.",
+      "evidenceQuote": "반도체 설계 기술은 있으나 생산 라인이 없는 업체.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "위탁 생산과 판매",
+          "content": "팹리스가 파운드리에 위탁 비용을 지불하고 파운드리가 생산한 반도체를 팔아 이익을 얻는다.",
+          "formula": null,
+          "evidenceQuote": "즉, 팹리스 업체는 파운드리 업체에 위탁 비용을 지불하고, 파운드리 업체가 대신 생산한 반도체를 팔아 이익을 얻는 구조이다."
+        },
+        {
+          "step": 2,
+          "title": "자체 생산라인 부담 회피",
+          "content": "생산라인 건설에 큰 비용이 들기 때문에 팹리스가 파운드리를 통해 위탁 생산한다.",
+          "formula": null,
+          "evidenceQuote": "반도체 개발에서 설계가 가장 중요하지만 이를 생산하기 위해선 실제 생산라인도 필요하다. 하지만 하나의 생산라인 건설에는 천문학적인 비용이 소요되기 때문에, 설계 전문인 팹리스 업체는 파운드리 업체를 통해 위탁 생산을 한다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "반도체 산업 구조",
+          "scaleLevel": 5
+        }
+      ]
+    }
+  ]
+}

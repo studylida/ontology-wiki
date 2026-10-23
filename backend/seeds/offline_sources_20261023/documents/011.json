@@ -1,0 +1,315 @@
+{
+  "index": 11,
+  "filePath": "research_institutes/tier1_landmark_03_packaging_hybrid_bonding.md",
+  "sourceHash": "e5ec9882daa5ad5cc4e15d86508fccdbb662cc79e03ca2159ebd2784b345a380",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 4191,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체를 끝까지 읽고 빈 파서 후보를 정정·보완했다. 원리·관계의 의미 및 사례·조건별 수치 귀속을 검토했다. 등록된 로컬 아카이브 요약만 검토했으며 인용된 원 논문의 전문·DOI 실재·최신 표준 판본은 외부 확인하지 않았다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "hybrid-bonding",
+      "title": "하이브리드 본딩",
+      "engName": "Hybrid Bonding",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "접합·패키징",
+      "scaleLevel": 3,
+      "classificationNote": "하이브리드 본딩의 기술적 대상을 접합·패키징에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "평탄한 절연체와 구리 패드를 범프 없이 직접 접합하는 적층 접합 기술이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- **돌파구:** 솔더를 전혀 쓰지 않고, CMP로 원자 수준의 극평탄화(RMS 거칠기 $< 0.5\\ \\text{nm}$)된 유전체(SiO2/SiCN)와 Cu 패드를 동시에 원자 결합시키는 DBI(Direct Bond Interconnect) 기술 창안. 피치를 $1\\ \\mu\\text{m}$ 이하로 축소시켜 범프 대비 배선 밀도를 1,000배 이상 극대화함.",
+      "evidenceQuote": "- **돌파구:** 솔더를 전혀 쓰지 않고, CMP로 원자 수준의 극평탄화(RMS 거칠기 $< 0.5\\ \\text{nm}$)된 유전체(SiO2/SiCN)와 Cu 패드를 동시에 원자 결합시키는 DBI(Direct Bond Interconnect) 기술 창안. 피치를 $1\\ \\mu\\text{m}$ 이하로 축소시켜 범프 대비 배선 밀도를 1,000배 이상 극대화함.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "절연막 표면 활성화와 축합",
+          "content": "플라즈마로 Si-OH를 만들고 상온 수소 결합 후 탈수 축합으로 Si-O-Si 공유 결합을 형성한다.",
+          "formula": "\\mathrm{Si-OH+HO-Si\\rightarrow Si-O-Si+H_2O}",
+          "evidenceQuote": "- 탈수 축합 반응($\\text{Si-OH} + \\text{HO-Si} \\rightarrow \\text{Si-O-Si} + \\text{H}_2\\text{O}\\uparrow$)을 통해 $150\\sim 200^\\circ\\text{C}$ 저온에서 공유 결합 형성."
+        },
+        {
+          "step": 2,
+          "title": "구리 차등 팽창과 확산",
+          "content": "구리와 산화막의 열팽창 차이를 이용해 리세스된 구리 패드를 열처리에서 접촉·확산시킨다.",
+          "formula": null,
+          "evidenceQuote": "- Cu의 열팽창계수($\\text{CTE}_{\\text{Cu}} \\approx 16.5\\ \\text{ppm/K}$)가 산화막($\\text{CTE}_{\\text{SiO}_2} \\approx 0.5\\ \\text{ppm/K}$)보다 훨씬 큼."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "DBI 아카이브의 표면·리세스·어닐링 조건",
+          "perspectiveBadge": "Ziptronix / Xperi 등록 연구 요약",
+          "narrative": "원문이 요약한 DBI의 표면 평탄도, 미세 피치와 구리 접합 조건이다.",
+          "caution": "로컬 아카이브의 DBI 요약이며 공정 레시피·허용 공차로 사용하지 않는다.",
+          "evidenceQuote": "- **돌파구:** 솔더를 전혀 쓰지 않고, CMP로 원자 수준의 극평탄화(RMS 거칠기 $< 0.5\\ \\text{nm}$)된 유전체(SiO2/SiCN)와 Cu 패드를 동시에 원자 결합시키는 DBI(Direct Bond Interconnect) 기술 창안. 피치를 $1\\ \\mu\\text{m}$ 이하로 축소시켜 범프 대비 배선 밀도를 1,000배 이상 극대화함.",
+          "specifications": [
+            {
+              "parameter": "RMS 표면 거칠기",
+              "value": "< 0.5",
+              "unit": "nm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **돌파구:** 솔더를 전혀 쓰지 않고, CMP로 원자 수준의 극평탄화(RMS 거칠기 $< 0.5\\ \\text{nm}$)된 유전체(SiO2/SiCN)와 Cu 패드를 동시에 원자 결합시키는 DBI(Direct Bond Interconnect) 기술 창안. 피치를 $1\\ \\mu\\text{m}$ 이하로 축소시켜 범프 대비 배선 밀도를 1,000배 이상 극대화함."
+            },
+            {
+              "parameter": "DBI 피치",
+              "value": "1 이하",
+              "unit": "㎛",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **돌파구:** 솔더를 전혀 쓰지 않고, CMP로 원자 수준의 극평탄화(RMS 거칠기 $< 0.5\\ \\text{nm}$)된 유전체(SiO2/SiCN)와 Cu 패드를 동시에 원자 결합시키는 DBI(Direct Bond Interconnect) 기술 창안. 피치를 $1\\ \\mu\\text{m}$ 이하로 축소시켜 범프 대비 배선 밀도를 1,000배 이상 극대화함."
+            },
+            {
+              "parameter": "절연막 공유 결합 온도",
+              "value": "150~200",
+              "unit": "°C",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 탈수 축합 반응($\\text{Si-OH} + \\text{HO-Si} \\rightarrow \\text{Si-O-Si} + \\text{H}_2\\text{O}\\uparrow$)을 통해 $150\\sim 200^\\circ\\text{C}$ 저온에서 공유 결합 형성."
+            },
+            {
+              "parameter": "구리 리세스",
+              "value": "2~5",
+              "unit": "nm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- CMP 단계에서 Cu 표면을 산화막 표면보다 $2\\sim 5\\ \\text{nm}$ 미세하게 낮게 리세스(Dishing recess)시킴."
+            },
+            {
+              "parameter": "구리 어닐링",
+              "value": "300~350",
+              "unit": "°C",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 어닐링($300\\sim 350^\\circ\\text{C}$) 시 Cu가 위로 팽창하면서 상하 대향 Cu 패드가 강력한 압축 응력 하에서 원자 상호 확산(Inter-diffusion)을 일으켜 보이드 없는 금속 접합 달성."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "두 표면이 잘 맞닿아야 하므로 먼저 매우 평평하게 만들고, 절연막과 구리의 결합 과정을 나누어 제어합니다. 구리 리세스는 구리 면을 주변 절연막보다 조금 낮추는 공정 상태입니다. 이 값은 원문 연구의 조건이며 서비스가 권장하는 안전 여유가 아닙니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "접합·패키징",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "fan-out-wafer-level-packaging",
+      "title": "팬아웃 웨이퍼 레벨 패키징",
+      "engName": "Fan-Out Wafer-Level Packaging",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "패키징 통합",
+      "scaleLevel": 4,
+      "classificationNote": "팬아웃 웨이퍼 레벨 패키징의 기술적 대상을 패키징에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "칩 바깥 몰딩 영역까지 재배선층을 확장하여 패키지 연결을 형성하는 패키징 방식이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- **돌파구:** PCB 기판을 완전히 제거(Substrate-less)하고, 칩 외곽 몰딩 컴파운드 영역까지 고밀도 재배선층(RDL, Redistribution Layer)을 직접 형성하는 InFO(Integrated Fan-Out) 공정 확립.",
+      "evidenceQuote": "- **돌파구:** PCB 기판을 완전히 제거(Substrate-less)하고, 칩 외곽 몰딩 컴파운드 영역까지 고밀도 재배선층(RDL, Redistribution Layer)을 직접 형성하는 InFO(Integrated Fan-Out) 공정 확립.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "TIV·RDL과 휨 제어",
+          "content": "몰딩층 관통 TIV와 미세 RDL로 상하 칩을 연결하고, 재료 간 CTE 차이로 생기는 휨을 잔류 응력 상쇄 막으로 제어한다.",
+          "formula": null,
+          "evidenceQuote": "- 실리콘 칩과 에폭시 몰딩 컴파운드(EMC)의 열팽창계수 불일치로 인한 캐리어 웨이퍼 휨을 보상하기 위해 잔류 응력 상쇄 유전막 엔지니어링 적용."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "2016 InFO 아카이브의 미세 배선·두께 비교",
+          "perspectiveBadge": "TSMC / 등록 논문 요약",
+          "narrative": "기판을 제거한 InFO 구조의 TIV 연결 거리·RDL 및 PCB 기반 대비 성능을 기록한다.",
+          "caution": "제공 아카이브의 특정 InFO 비교 조건이며 원 논문·현재 제품은 미확인이다.",
+          "evidenceQuote": "- PCB 기반 대비 패키지 두께 20% 이상 감소, 열저항 15% 개선, 고주파 신호 손실 30% 감쇄.",
+          "specifications": [
+            {
+              "parameter": "TIV 연결 거리",
+              "value": "< 100",
+              "unit": "㎛",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 몰딩층을 관통하는 수직 구리 필러(Cu Post, TIV)를 도금 형성하여 패키지 상단의 DRAM과 하단의 AP 로직 칩을 최단 거리($< 100\\ \\mu\\text{m}$)로 연결 (PoP 구조)."
+            },
+            {
+              "parameter": "RDL 선폭/간격",
+              "value": "2/2 이하",
+              "unit": "㎛",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- 폴리이미드(PI) 유전체와 Cu 세미 애디티브 공정(SAP)을 통해 $L/S = 2/2\\ \\mu\\text{m}$ 이하의 미세 배선 구현."
+            },
+            {
+              "parameter": "PCB 대비 두께 감소",
+              "value": "20 이상",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- PCB 기반 대비 패키지 두께 20% 이상 감소, 열저항 15% 개선, 고주파 신호 손실 30% 감쇄."
+            },
+            {
+              "parameter": "열저항 개선",
+              "value": "15",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- PCB 기반 대비 패키지 두께 20% 이상 감소, 열저항 15% 개선, 고주파 신호 손실 30% 감쇄."
+            },
+            {
+              "parameter": "고주파 신호 손실 감쇄",
+              "value": "30",
+              "unit": "%",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- PCB 기반 대비 패키지 두께 20% 이상 감소, 열저항 15% 개선, 고주파 신호 손실 30% 감쇄."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "칩 밖까지 전선 길을 넓히는 재배선층으로 연결하고 별도 기판을 줄이는 패키지 설명입니다. 미세 배선 크기는 전선의 폭과 간격을 뜻하고, 두께·열저항·신호 손실 개선율은 각각 PCB 기반 구조와의 비교입니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "패키징",
+          "scaleLevel": 4
+        }
+      ]
+    },
+    {
+      "conceptId": "cowos",
+      "title": "CoWoS 2.5D 패키징",
+      "engName": "Chip-on-Wafer-on-Substrate",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "패키징 통합",
+      "scaleLevel": 4,
+      "classificationNote": "CoWoS 2.5D 패키징의 기술적 대상을 패키징에 대응했다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "실리콘 인터포저 위에 로직 칩과 HBM을 나란히 연결하는 2.5D 이종집적 플랫폼이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "- **CoWoS(Chip-on-Wafer-on-Substrate):** 복수의 로직 칩(GPU/ASIC)과 HBM 스택을 하나의 거대한 실리콘 인터포저 위에 마이크로범프로 나란히 실장하여 단일 칩 수준의 버스 대역폭($> 10\\ \\text{TB/s}$)과 극소 지연(Latency) 실현.",
+      "evidenceQuote": "- **CoWoS(Chip-on-Wafer-on-Substrate):** 복수의 로직 칩(GPU/ASIC)과 HBM 스택을 하나의 거대한 실리콘 인터포저 위에 마이크로범프로 나란히 실장하여 단일 칩 수준의 버스 대역폭($> 10\\ \\text{TB/s}$)과 극소 지연(Latency) 실현.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "CoWoS 실리콘 인터포저 아카이브 사양",
+          "perspectiveBadge": "TSMC / 등록 논문 요약",
+          "narrative": "미세 배선과 TSV 인터포저 위에서 GPU/ASIC과 HBM 스택을 마이크로범프로 연결하는 구조이다.",
+          "caution": "등록 아카이브의 사양 요약이며 개별 GPU 제품의 공식 대역폭을 확인한 것은 아니다.",
+          "evidenceQuote": "- **실리콘 인터포저(Si Interposer):** $65\\ \\text{nm}$ 이하 반도체 공정을 인터포저에 적용하여 서브마이크론($0.4/0.4\\ \\mu\\text{m}$) 미세 배선과 고밀도 관통전극(TSV) 구현.",
+          "specifications": [
+            {
+              "parameter": "인터포저 공정",
+              "value": "65 이하",
+              "unit": "nm",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **실리콘 인터포저(Si Interposer):** $65\\ \\text{nm}$ 이하 반도체 공정을 인터포저에 적용하여 서브마이크론($0.4/0.4\\ \\mu\\text{m}$) 미세 배선과 고밀도 관통전극(TSV) 구현."
+            },
+            {
+              "parameter": "미세 배선 폭/간격",
+              "value": "0.4/0.4",
+              "unit": "㎛",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **실리콘 인터포저(Si Interposer):** $65\\ \\text{nm}$ 이하 반도체 공정을 인터포저에 적용하여 서브마이크론($0.4/0.4\\ \\mu\\text{m}$) 미세 배선과 고밀도 관통전극(TSV) 구현."
+            },
+            {
+              "parameter": "원문 제시 버스 대역폭",
+              "value": "> 10",
+              "unit": "TB/s",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "- **CoWoS(Chip-on-Wafer-on-Substrate):** 복수의 로직 칩(GPU/ASIC)과 HBM 스택을 하나의 거대한 실리콘 인터포저 위에 마이크로범프로 나란히 실장하여 단일 칩 수준의 버스 대역폭($> 10\\ \\text{TB/s}$)과 극소 지연(Latency) 실현."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "인터포저는 여러 칩 사이에 아주 많은 연결을 마련하는 중간 바닥 역할을 합니다. 이 사례는 GPU와 HBM을 옆으로 연결하는 구조이며, 표의 배선 크기를 GPU의 트랜지스터 크기와 같은 뜻으로 읽지 않도록 구분해야 합니다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "heterogeneous-integration",
+          "name": "이종 집적",
+          "reason": "실리콘 인터포저 위에서 로직 칩과 HBM 스택을 함께 실장하는 CoWoS를 2.5D 이종집적 플랫폼으로 제시한다.",
+          "evidenceQuote": "## 3. 실리콘 인터포저 기반 2.5D 이종집적 (TSMC CoWoS) 논문 (2013)"
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "패키징",
+          "scaleLevel": 4
+        }
+      ]
+    }
+  ]
+}

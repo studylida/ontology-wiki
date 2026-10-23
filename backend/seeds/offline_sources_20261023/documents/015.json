@@ -1,0 +1,61 @@
+{
+  "index": 15,
+  "filePath": "samsung/glossary/반도체-용어-사전-3d-v낸드플래시-메모리.md",
+  "sourceHash": "e63f75ac8ee80e3e843197d2fdb21b47bbdedf49549cc3de25ff0d3e7d549bc5",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1614,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. 원문의 비교 대상 표기 ‘기존 2D V낸드플래시’는 앞 문맥의 2D 낸드로 읽었으며 별도 기술명으로 만들지 않았다. 10나노급 조건을 보존했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "v-nand",
+      "title": "3D V낸드플래시 메모리",
+      "engName": "3D Vertical NAND",
+      "aliases": [
+        "3D V낸드플래시",
+        "3차원 수직구조 낸드플래시 메모리"
+      ],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "단층으로 배열하던 낸드플래시 셀을 3차원 수직으로 적층한 메모리 기술이다.",
+      "purpose": "2D 낸드 미세화에 따른 셀 간 간섭과 전자 누설을 줄인다.",
+      "summaryEvidenceQuote": "기존에 단층으로 배열된 셀을 3차원 수직으로 적층한 낸드플래시 메모리.",
+      "evidenceQuote": "기존에 단층으로 배열된 셀을 3차원 수직으로 적층한 낸드플래시 메모리.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "수직 적층으로 간섭 완화",
+          "content": "원문은 10나노급 공정에서 셀 간격 축소로 전자 누설 간섭이 심해져 수직 적층을 도입했으며 속도·수명·전력 효율이 개선됐다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "이로 인해 전자가 누설되는 간섭 현상이 심화되었는데, 이러한 문제를 극복하기 위해 기존 단층구조로 배열된 셀을 3차원 수직구조로 적층하는 혁신적인 기술이 개발된 것이다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "nand-flash",
+          "name": "낸드플래시 메모리",
+          "reason": "원문 정의가 낸드플래시의 수직 적층형이다.",
+          "evidenceQuote": "기존에 단층으로 배열된 셀을 3차원 수직으로 적층한 낸드플래시 메모리."
+        }
+      ],
+      "purposeEvidenceQuote": "최첨단 10나노급 공정이 도입되면서 이웃한 셀 간의 간격이 좁아지게 되었다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

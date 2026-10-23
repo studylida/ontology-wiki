@@ -1,0 +1,59 @@
+{
+  "index": 91,
+  "filePath": "samsung/glossary/반도체-용어-사전led편.md",
+  "sourceHash": "920b179978a9c6015805156d7a3cf4964715d6109895654cf62c3173208c18ae",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1358,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 빈 파서 후보를 대조해 실제 개념명·정의·명시된 적용 상황을 보완했다. 설명 예시를 실측 사양으로 바꾸지 않고 수치 없는 사례도 보존했다. 문서 제목이 비어 있는 LED편이나 본문 정의는 LED이므로 발광 다이오드로 명명했다. 명시된 재료를 다른 화합물 목록으로 보충하지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "led",
+      "title": "발광 다이오드",
+      "engName": "Light Emitting Diode",
+      "aliases": [
+        "LED"
+      ],
+      "domainFacet": "device",
+      "category": "광반도체 소자",
+      "scaleLevel": 2,
+      "classificationNote": "발광 다이오드의 원문 정의에 따라 광반도체 소자에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "Ga(갈륨), P(인), As(비소)를 재료로 하여 만드는 전기 구동형 발광 다이오드 소자이다. 원문은 화합물 반도체의 일종으로 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "화합물 반도체의 일종으로 Ga(갈륨), P(인), As(비소)를 재료로 하여 만든 전기 구동형 발광 다이오드 소자이다. 반도체 p-n 접합 구조에 순방향의 전류를 인가하면 빛접합면에서 전자와 정공이 결합해 밴드 갭 에너지에 해당되는 특성 파장의 빛을 만들어 낸다.",
+      "evidenceQuote": "화합물 반도체의 일종으로 Ga(갈륨), P(인), As(비소)를 재료로 하여 만든 전기 구동형 발광 다이오드 소자이다. 반도체 p-n 접합 구조에 순방향의 전류를 인가하면 빛접합면에서 전자와 정공이 결합해 밴드 갭 에너지에 해당되는 특성 파장의 빛을 만들어 낸다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "p-n 접합의 발광",
+          "content": "반도체 p-n 접합 구조에 순방향 전류를 인가하면 접합면에서 전자와 정공이 결합하여 밴드 갭 에너지에 해당하는 특성 파장의 빛을 만든다.",
+          "formula": null,
+          "evidenceQuote": "화합물 반도체의 일종으로 Ga(갈륨), P(인), As(비소)를 재료로 하여 만든 전기 구동형 발광 다이오드 소자이다. 반도체 p-n 접합 구조에 순방향의 전류를 인가하면 빛접합면에서 전자와 정공이 결합해 밴드 갭 에너지에 해당되는 특성 파장의 빛을 만들어 낸다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "compound-semiconductor",
+          "name": "화합물 반도체",
+          "reason": "원문이 발광 다이오드를 화합물 반도체의 일종이라고 명시한다.",
+          "evidenceQuote": "화합물 반도체의 일종으로 Ga(갈륨), P(인), As(비소)를 재료로 하여 만든 전기 구동형 발광 다이오드 소자이다. 반도체 p-n 접합 구조에 순방향의 전류를 인가하면 빛접합면에서 전자와 정공이 결합해 밴드 갭 에너지에 해당되는 특성 파장의 빛을 만들어 낸다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "광반도체 소자",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

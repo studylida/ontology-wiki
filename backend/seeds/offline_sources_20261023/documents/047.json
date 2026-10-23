@@ -1,0 +1,223 @@
+{
+  "index": 47,
+  "filePath": "samsung/glossary/반도체-용어-사전-메모리-반도체.md",
+  "sourceHash": "2bf535ef9c2aaeac8b5985a24eb5b35f3d127b4bcac1947eeef84c135150f216",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1560,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. ROM을 수정 불가로 총괄하면서 플래시를 하위 종류로 둔 입문 분류이다. ROM의 수정 불가 표현을 모든 하위 소자에 확대하지 않고 기술적 불일치는 원문 한계로 남겼다. 단순 언급의 하위 유형은 본문에 있는 분류 정의까지만 보존했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "memory-semiconductor",
+      "title": "메모리 반도체",
+      "engName": "Memory Semiconductor",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "데이터를 저장하는 용도로 사용하는 반도체이다.",
+      "purpose": "많은 양의 정보를 빠르게 저장·처리하며 모바일 기기에서는 얇은 두께와 낮은 전력 소비도 중요하다.",
+      "summaryEvidenceQuote": "정보(Data)를 저장하는 용도로 사용되는 반도체.",
+      "evidenceQuote": "정보(Data)를 저장하는 용도로 사용되는 반도체.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "purposeEvidenceQuote": "메모리 반도체는 말 그대로 기억장치이므로, 얼마나 많은 양을 기억하고(대용량) 얼마나 빨리 동작할 수 있는가(고성능)가 중요하다. 또한 최근 모바일 기기의 사용과 그 중요도가 높아지면서 메모리의 초박형과 저전력성 역시 중요해지고 있다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "ram",
+      "title": "램",
+      "engName": "RAM",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "정보를 기록하고 읽거나 수정할 수 있는 휘발성 메모리이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "메모리 반도체에는 정보를 기록하고 기록해 둔 정보를 읽거나 수정할 수 있는 램(RAM, 휘발성)과 기록된 정보를 읽을 수만 있고 수정할 수는 없는 롬(ROM, 비휘발성)이 있다.",
+      "evidenceQuote": "메모리 반도체에는 정보를 기록하고 기록해 둔 정보를 읽거나 수정할 수 있는 램(RAM, 휘발성)과 기록된 정보를 읽을 수만 있고 수정할 수는 없는 롬(ROM, 비휘발성)이 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "memory-semiconductor",
+          "name": "메모리 반도체",
+          "reason": "원문이 메모리 반도체의 두 유형으로 구분한다.",
+          "evidenceQuote": "메모리 반도체에는 정보를 기록하고 기록해 둔 정보를 읽거나 수정할 수 있는 램(RAM, 휘발성)과 기록된 정보를 읽을 수만 있고 수정할 수는 없는 롬(ROM, 비휘발성)이 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "rom",
+      "title": "롬",
+      "engName": "ROM",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "본문은 기록된 정보를 읽는 비휘발성 메모리로 정의한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "메모리 반도체에는 정보를 기록하고 기록해 둔 정보를 읽거나 수정할 수 있는 램(RAM, 휘발성)과 기록된 정보를 읽을 수만 있고 수정할 수는 없는 롬(ROM, 비휘발성)이 있다.",
+      "evidenceQuote": "메모리 반도체에는 정보를 기록하고 기록해 둔 정보를 읽거나 수정할 수 있는 램(RAM, 휘발성)과 기록된 정보를 읽을 수만 있고 수정할 수는 없는 롬(ROM, 비휘발성)이 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "memory-semiconductor",
+          "name": "메모리 반도체",
+          "reason": "원문이 메모리 반도체의 두 유형으로 구분한다.",
+          "evidenceQuote": "메모리 반도체에는 정보를 기록하고 기록해 둔 정보를 읽거나 수정할 수 있는 램(RAM, 휘발성)과 기록된 정보를 읽을 수만 있고 수정할 수는 없는 롬(ROM, 비휘발성)이 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "dram",
+      "title": "D램",
+      "engName": "D램",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "원문이 RAM의 하위 종류로 제시하는 메모리이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "정보 저장방식에 따라 램(RAM)에는 D램과 S램 등이 있으며, 롬(ROM)에는 플래시 메모리 등이 있다.",
+      "evidenceQuote": "정보 저장방식에 따라 램(RAM)에는 D램과 S램 등이 있으며, 롬(ROM)에는 플래시 메모리 등이 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "ram",
+          "name": "램",
+          "reason": "저장방식에 따른 종류로 명시한다.",
+          "evidenceQuote": "정보 저장방식에 따라 램(RAM)에는 D램과 S램 등이 있으며, 롬(ROM)에는 플래시 메모리 등이 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "sram",
+      "title": "S램",
+      "engName": "S램",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "원문이 RAM의 하위 종류로 제시하는 메모리이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "정보 저장방식에 따라 램(RAM)에는 D램과 S램 등이 있으며, 롬(ROM)에는 플래시 메모리 등이 있다.",
+      "evidenceQuote": "정보 저장방식에 따라 램(RAM)에는 D램과 S램 등이 있으며, 롬(ROM)에는 플래시 메모리 등이 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "ram",
+          "name": "램",
+          "reason": "저장방식에 따른 종류로 명시한다.",
+          "evidenceQuote": "정보 저장방식에 따라 램(RAM)에는 D램과 S램 등이 있으며, 롬(ROM)에는 플래시 메모리 등이 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "flash-memory",
+      "title": "플래시 메모리",
+      "engName": "플래시 메모리",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "원문이 ROM의 하위 종류로 제시하는 메모리이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "정보 저장방식에 따라 램(RAM)에는 D램과 S램 등이 있으며, 롬(ROM)에는 플래시 메모리 등이 있다.",
+      "evidenceQuote": "정보 저장방식에 따라 램(RAM)에는 D램과 S램 등이 있으며, 롬(ROM)에는 플래시 메모리 등이 있다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "rom",
+          "name": "롬",
+          "reason": "원문의 메모리 분류에 따른다.",
+          "evidenceQuote": "정보 저장방식에 따라 램(RAM)에는 D램과 S램 등이 있으며, 롬(ROM)에는 플래시 메모리 등이 있다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

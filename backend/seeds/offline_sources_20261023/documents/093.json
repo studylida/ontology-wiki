@@ -1,0 +1,465 @@
+{
+  "index": 93,
+  "filePath": "samsung/samsung_fab_01_wafer.md",
+  "sourceHash": "1375defd2d8bdec0bbf745043f6e9a13dc774ff2646bb9b7ee487c05a9a99ac8",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 4224,
+    "method": "codex-offline-source-review",
+    "notes": "전체 원문을 끝까지 대조했다. 파서가 놓친 웨이퍼·재료·구조 명칭과 제조 단계를 분리했다. 재료 치수와 원가/생산량 조건은 일반 설명으로 보존했으며 발행사를 적용 기업으로 만들지 않았다. FAB·어셈블리 사업도 원문 정의 범위로만 추출했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "wafer",
+      "title": "웨이퍼",
+      "engName": "Wafer",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "반도체 기초 재료",
+      "scaleLevel": 1,
+      "classificationNote": "웨이퍼의 재료·물성·막 또는 기판을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "실리콘이나 갈륨 아세나이드 등의 단결정 기둥을 얇게 잘라 만든 원판형 기판으로, 반도체 집적회로를 형성하는 기반이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "웨이퍼는 실리콘(Si), 갈륨 아세나이드(GaAs) 등을 성장시켜 만든 단결정 기둥을 적당한 두께로 얇게 썬 원판을 의미하는데요.",
+      "evidenceQuote": "웨이퍼는 실리콘(Si), 갈륨 아세나이드(GaAs) 등을 성장시켜 만든 단결정 기둥을 적당한 두께로 얇게 썬 원판을 의미하는데요.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "지름과 두께의 영향",
+          "content": "잉곳 지름이 웨이퍼 크기를 결정한다. 원문 예시는 150mm(6인치), 200mm(8인치), 300mm(12인치)이며 두께가 얇을수록 제조원가가 줄고 지름이 클수록 한 번에 생산할 수 있는 칩 수가 늘어난다.",
+          "formula": null,
+          "evidenceQuote": "잉곳의 지름이 웨이퍼의 크기를 결정해 150mm(6인치), 200mm(8인치), 300mm(12인치) 등의 웨이퍼가 되는데요. 웨이퍼 두께가 얇을수록 제조원가가 줄어들며, 지름이 클수록 한번에 생산할 수 있는 반도체 칩 수가 증가하기 때문에 웨이퍼의 두께와 크기는 점차 얇고 커지는 추세입니다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "반도체 기판",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "silicon",
+      "title": "실리콘",
+      "engName": "Silicon",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "반도체 기초 재료",
+      "scaleLevel": 1,
+      "classificationNote": "실리콘의 재료·물성·막 또는 기판을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "대부분의 웨이퍼 제조에 사용되며 모래에서 추출하는 규소(Si)이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "대부분의 웨이퍼는 모래에서 추출한 규소, 즉 실리콘으로 만듭니다.",
+      "evidenceQuote": "대부분의 웨이퍼는 모래에서 추출한 규소, 즉 실리콘으로 만듭니다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "원재료 특성",
+          "content": "원문은 풍부한 부존량으로 재료 수급이 안정적이며 독성이 없다는 장점을 설명한다.",
+          "formula": null,
+          "evidenceQuote": "실리콘은 지구상에 풍부하게 존재하고 있어 안정적인 재료 수급이 가능하고, 독성이 없어 환경적으로도 우수하다는 장점을 가지고 있습니다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "반도체 재료",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "integrated-circuit",
+      "title": "집적회로",
+      "engName": "Semiconductor Integrated circuit",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "집적회로·시스템 칩",
+      "scaleLevel": 4,
+      "classificationNote": "집적회로의 소자 또는 회로 구조를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "기능 처리와 저장을 위해 많은 소자를 하나의 칩 안에 집적한 전자부품이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "반도체 집적회로란, 다양한 기능을 처리하고 저장하기 위해 많은 소자를 하나의 칩 안에 집적한 전자부품을 말합니다.",
+      "evidenceQuote": "반도체 집적회로란, 다양한 기능을 처리하고 저장하기 위해 많은 소자를 하나의 칩 안에 집적한 전자부품을 말합니다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "웨이퍼 위 형성",
+          "content": "얇은 기판인 웨이퍼 위에 다수의 동일 회로를 만든다.",
+          "formula": null,
+          "evidenceQuote": "웨이퍼라는 얇은 기판 위에 다수의 동일 회로를 만들어 반도체 집적회로가 탄생되는 만큼, 웨이퍼는 반도체의 기반인 셈이죠."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "집적회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "ingot",
+      "title": "실리콘 잉곳",
+      "engName": "Ingot",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "반도체 기초 재료",
+      "scaleLevel": 1,
+      "classificationNote": "실리콘 잉곳의 재료·물성·막 또는 기판을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "고순도 실리콘 용액을 결정 성장시켜 굳힌 실리콘 기둥이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "실리콘 원료를 뜨거운 열로 녹여 고순도의 실리콘 용액을 만들고 이것을 결정 성장시켜 굳히는 건데요. 이렇게 만들어진 실리콘 기둥을 잉곳(Ingot)이라고 합니다.",
+      "evidenceQuote": "실리콘 원료를 뜨거운 열로 녹여 고순도의 실리콘 용액을 만들고 이것을 결정 성장시켜 굳히는 건데요. 이렇게 만들어진 실리콘 기둥을 잉곳(Ingot)이라고 합니다.",
+      "principles": [],
+      "limitations": [
+        {
+          "title": "반도체용 순도",
+          "description": "수 나노미터의 미세 공정을 다루는 반도체용 잉곳은 초고순도 잉곳을 사용한다.",
+          "evidenceQuote": "수 나노미터(nm)의 미세한 공정을 다루는 반도체용 잉곳은 실리콘 잉곳 중에서도 초고순도의 잉곳을 사용합니다."
+        }
+      ],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "웨이퍼 원재료",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "wafer-slicing",
+      "title": "웨이퍼 슬라이싱",
+      "engName": "Wafer Slicing",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "웨이퍼 제조",
+      "scaleLevel": 3,
+      "classificationNote": "웨이퍼 슬라이싱의 단위 공정·장비 또는 공정 품질 지표를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "잉곳을 다이아몬드 톱으로 균일한 두께의 얇은 원판으로 절단하는 웨이퍼 제조 단계이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "둥근 팽이 모양의 잉곳을 원판형의 웨이퍼로 만들기 위해서는 다이아몬드 톱을 이용해 균일한 두께로 얇게 써는 작업이 필요합니다.",
+      "evidenceQuote": "둥근 팽이 모양의 잉곳을 원판형의 웨이퍼로 만들기 위해서는 다이아몬드 톱을 이용해 균일한 두께로 얇게 써는 작업이 필요합니다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [
+        {
+          "id": "wafer-lapping-polishing",
+          "name": "웨이퍼 표면 연마",
+          "reason": "절단 직후의 거친 표면을 후속 연마한다.",
+          "evidenceQuote": "절단된 웨이퍼는 가공을 거쳐 거울처럼 매끄럽게 만들어야 되는데요."
+        }
+      ],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "웨이퍼 제조",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "wafer-lapping-polishing",
+      "title": "웨이퍼 표면 연마",
+      "engName": "Lapping&Polishing",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "웨이퍼 제조",
+      "scaleLevel": 3,
+      "classificationNote": "웨이퍼 표면 연마의 단위 공정·장비 또는 공정 품질 지표를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "절단된 웨이퍼를 연마액과 연마 장비로 가공하여 표면을 매끄럽게 만드는 단계이다.",
+      "purpose": "절단 직후 표면의 흠결과 거칠기가 회로 정밀도에 미치는 영향을 줄인다.",
+      "summaryEvidenceQuote": "그래서 연마액과 연마 장비(Polishing machine)를 통해 웨이퍼 표면을 매끄럽게 갈아냅니다.",
+      "evidenceQuote": "그래서 연마액과 연마 장비(Polishing machine)를 통해 웨이퍼 표면을 매끄럽게 갈아냅니다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "purposeEvidenceQuote": "절단 직후의 웨이퍼는 표면에 흠결이 있고 거칠어 회로의 정밀도에 영향을 미칠 수 있기 때문입니다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "웨이퍼 제조",
+          "scaleLevel": 3
+        }
+      ]
+    },
+    {
+      "conceptId": "bare-wafer",
+      "title": "베어 웨이퍼",
+      "engName": "Bare wafer",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "반도체 기판",
+      "scaleLevel": 1,
+      "classificationNote": "베어 웨이퍼의 재료·물성·막 또는 기판을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "회로를 형성하기 위한 가공 전 상태의 웨이퍼이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "가공 전의 웨이퍼를 아직 옷을 입지 않은 상태라는 의미로 베어 웨이퍼(Bare wafer)라고 합니다.",
+      "evidenceQuote": "가공 전의 웨이퍼를 아직 옷을 입지 않은 상태라는 의미로 베어 웨이퍼(Bare wafer)라고 합니다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "wafer",
+          "name": "웨이퍼",
+          "reason": "가공 전 상태로 구분한 웨이퍼이다.",
+          "evidenceQuote": "가공 전의 웨이퍼를 아직 옷을 입지 않은 상태라는 의미로 베어 웨이퍼(Bare wafer)라고 합니다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "반도체 기판",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "die",
+      "title": "다이",
+      "engName": "Die",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "반도체 칩",
+      "scaleLevel": 2,
+      "classificationNote": "다이의 소자 또는 회로 구조를 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "웨이퍼 위에서 전자회로가 집적된 개별 사각형 IC 칩을 가리킨다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "이 사각형 하나하나가 전자 회로가 집적되어 있는 IC칩인데, 이것을 다이라고 합니다.",
+      "evidenceQuote": "이 사각형 하나하나가 전자 회로가 집적되어 있는 IC칩인데, 이것을 다이라고 합니다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 칩",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "scribe-line",
+      "title": "스크라이브 라인",
+      "engName": "Scribe Line",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "웨이퍼·패키지 구성",
+      "scaleLevel": 2,
+      "classificationNote": "스크라이브 라인의 재료·물성·막 또는 기판을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "다이 사이에 두는 간격으로 웨이퍼 가공 뒤 개별 다이를 절단할 폭을 확보한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "이 간격을 스크라이브 라인이라고 합니다. 다이와 다이 사이에 스크라이브 라인을 두는 이유는, 웨이퍼 가공이 끝난 뒤, 이 다이들을 한 개씩 자르고 조립해 칩으로 만들기 위해서인데요.",
+      "evidenceQuote": "이 간격을 스크라이브 라인이라고 합니다. 다이와 다이 사이에 스크라이브 라인을 두는 이유는, 웨이퍼 가공이 끝난 뒤, 이 다이들을 한 개씩 자르고 조립해 칩으로 만들기 위해서인데요.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "절단 폭 확보",
+          "content": "다이아몬드 톱으로 잘라낼 수 있는 폭을 둔다.",
+          "formula": null,
+          "evidenceQuote": "다이아몬드 톱으로 잘라낼 수 있는 폭을 두는 것이죠."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "웨이퍼 구조",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "flat-zone",
+      "title": "웨이퍼 플랫존",
+      "engName": "Flat Zone",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "웨이퍼·패키지 구성",
+      "scaleLevel": 2,
+      "classificationNote": "웨이퍼 플랫존의 재료·물성·막 또는 기판을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "웨이퍼 구조를 구별하고 가공 시 수직·수평 판단의 기준선으로 사용하는 영역이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "웨이퍼의 구조를 구별하기 위해 만든 영역으로 플랫존은 웨이퍼 가공 시 기준선이 됩니다.",
+      "evidenceQuote": "웨이퍼의 구조를 구별하기 위해 만든 영역으로 플랫존은 웨이퍼 가공 시 기준선이 됩니다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "방향 기준",
+          "content": "미세 결정구조를 눈으로 판단하기 어려워 플랫존을 기준으로 수직·수평을 판단한다.",
+          "formula": null,
+          "evidenceQuote": "웨이퍼의 결정구조는 매우 미세해 눈으로 판단할 수 없기 때문에 이 플랫존을 기준으로 웨이퍼의 수직, 수평을 판단합니다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "wafer-notch",
+          "name": "웨이퍼 노치",
+          "reason": "플랫존 대신 사용하는 구조이다.",
+          "evidenceQuote": "최근에는 플랫존 대신 노치가 있는 웨이퍼도 있습니다."
+        }
+      ],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "웨이퍼 구조",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "wafer-notch",
+      "title": "웨이퍼 노치",
+      "engName": "Notch",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "웨이퍼 구조",
+      "scaleLevel": 1,
+      "classificationNote": "웨이퍼 노치의 재료·물성·막 또는 기판을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "플랫존 대신 웨이퍼에 두는 구조로, 원문은 플랫존 웨이퍼보다 더 많은 다이를 만들 수 있다고 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "최근에는 플랫존 대신 노치가 있는 웨이퍼도 있습니다. 노치 웨이퍼가 플랫존 웨이퍼보다 더 많은 다이를 만들 수 있어 효율이 높습니다.",
+      "evidenceQuote": "최근에는 플랫존 대신 노치가 있는 웨이퍼도 있습니다. 노치 웨이퍼가 플랫존 웨이퍼보다 더 많은 다이를 만들 수 있어 효율이 높습니다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "flat-zone",
+          "name": "웨이퍼 플랫존",
+          "reason": "노치는 플랫존을 대신하는 구조이다.",
+          "evidenceQuote": "최근에는 플랫존 대신 노치가 있는 웨이퍼도 있습니다."
+        }
+      ],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "웨이퍼 구조",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "fab-industry",
+      "title": "팹 산업",
+      "engName": "FAB, Fabrication",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "반도체 산업",
+      "scaleLevel": 5,
+      "classificationNote": "팹 산업의 산업 활동을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "웨이퍼를 자재로 하여 회로를 설계하고 제조하는 웨이퍼 가공산업이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "웨이퍼를 자재로 해 회로를 설계하고 제조하는 웨이퍼 가공산업인 팹(FAB, Fabrication) 산업이 있습니다.",
+      "evidenceQuote": "웨이퍼를 자재로 해 회로를 설계하고 제조하는 웨이퍼 가공산업인 팹(FAB, Fabrication) 산업이 있습니다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "반도체 산업",
+          "scaleLevel": 5
+        }
+      ]
+    },
+    {
+      "conceptId": "semiconductor-assembly",
+      "title": "반도체 어셈블리 사업",
+      "engName": "assembly",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "반도체 산업",
+      "scaleLevel": 5,
+      "classificationNote": "반도체 어셈블리 사업의 산업 활동을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "가공된 웨이퍼의 다이를 잘라 습기나 압력으로부터 보호받도록 포장하는 사업이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "가공된 웨이퍼를 가져다가 다이를 잘라서 습기나 압력에 보호받게 포장(package)하는 어셈블리(assembly) 사업도 있습니다.",
+      "evidenceQuote": "가공된 웨이퍼를 가져다가 다이를 잘라서 습기나 압력에 보호받게 포장(package)하는 어셈블리(assembly) 사업도 있습니다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "반도체 산업",
+          "scaleLevel": 5
+        }
+      ]
+    }
+  ]
+}

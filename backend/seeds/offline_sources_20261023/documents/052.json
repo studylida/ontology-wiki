@@ -1,0 +1,95 @@
+{
+  "index": 52,
+  "filePath": "samsung/glossary/반도체-용어-사전-산화막.md",
+  "sourceHash": "7c1f5c1c422c9fe934669aaf7bb786abeddb1c1bfe7a658c6087323ab7852bc2",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1467,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. 막이라는 재료·구조와 막을 형성하는 공정을 분리했다. 온도 수치나 건식·습식 조건은 원문에 없어 추가하지 않았다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "oxide-film",
+      "title": "산화막",
+      "engName": "Oxide Film",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "반도체 공정 재료",
+      "scaleLevel": 1,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "실리콘 웨이퍼 표면을 불순물로부터 보호하고 배선 사이를 절연하는 얇고 균일한 실리콘 산화막(SiO2)이다.",
+      "purpose": "공정 불순물로부터 웨이퍼를 보호하고 배선이 합선되지 않게 구분한다.",
+      "summaryEvidenceQuote": "고온에서 산소를 실리콘 웨이퍼 표면과 화학 반응시켜 생성되는 얇고 균일한 실리콘 산화막(SiO2)이다.",
+      "evidenceQuote": "고온에서 산소를 실리콘 웨이퍼 표면과 화학 반응시켜 생성되는 얇고 균일한 실리콘 산화막(SiO2)이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "실리콘과 산소 반응",
+          "content": "고온에서 산소와 실리콘 표면을 화학 반응시켜 막을 만든다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "고온에서 산소를 실리콘 웨이퍼 표면과 화학 반응시켜 생성되는 얇고 균일한 실리콘 산화막(SiO2)이다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "oxide",
+          "name": "산화물 절연체",
+          "reason": "실리콘 표면을 산소와 반응시켜 형성한 SiO2 막이며 같은 본문에서 절연 역할을 명시한다. 등록 oxide는 일반적으로 SiO2를 가리키는 산화물 절연체이므로 재료 분류가 대응한다.",
+          "evidenceQuote": "고온에서 산소를 실리콘 웨이퍼 표면과 화학 반응시켜 생성되는 얇고 균일한 실리콘 산화막(SiO2)이다."
+        }
+      ],
+      "purposeEvidenceQuote": "특히 눈에 보이지 않는 미세한 오염물질도 집적회로의 전기적 특성에 영향을 미칠 수 있기 때문에, 공정 시 발생하는 불순물로부터 웨이퍼를 보호하는 산화막의 역할이 매우 중요하다. 또한 산화막은 웨이퍼 위에 그려지는 각 배선이 합선되지 않도록 구분해주는 절연막 역할을 하기도 한다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "소자 박막·절연 구조",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "thermal-oxidation",
+      "title": "열산화 공정",
+      "engName": "열산화 공정",
+      "aliases": [],
+      "domainFacet": "unit_process",
+      "category": "산화",
+      "scaleLevel": 3,
+      "classificationNote": "제조·검사 공정 또는 관련 장비 기술을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "고온을 이용하여 실리콘 산화막을 형성하는 공정으로, 원문에서 보편적인 산화막 형성법으로 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "일반적으로 산화막 형성 방법에는 여러 가지가 있지만, 고온을 이용한 열산화 공정이 보편적으로 사용된다.",
+      "evidenceQuote": "일반적으로 산화막 형성 방법에는 여러 가지가 있지만, 고온을 이용한 열산화 공정이 보편적으로 사용된다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "고온 산소 반응",
+          "content": "원문이 설명한 실리콘 산화막은 고온에서 산소와 실리콘 웨이퍼 표면의 화학 반응으로 생성된다.",
+          "formula": null,
+          "evidenceQuote": "고온에서 산소를 실리콘 웨이퍼 표면과 화학 반응시켜 생성되는 얇고 균일한 실리콘 산화막(SiO2)이다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "unit_process",
+          "category": "반도체 공정",
+          "scaleLevel": 3
+        }
+      ]
+    }
+  ]
+}

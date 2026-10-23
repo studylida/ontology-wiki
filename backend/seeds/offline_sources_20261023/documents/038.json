@@ -1,0 +1,127 @@
+{
+  "index": 38,
+  "filePath": "samsung/glossary/반도체-용어-사전-낸드-플래시-메모리.md",
+  "sourceHash": "aacea24514c04a08929f8f6618c307fc2a9bca108d54a2c959f3847459e245b9",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1626,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. 직렬 연결 정의를 채택했다. 원문의 수직 배열과 셀 주소 불필요 설명은 2013년 입문 자료의 단순화로 한정하며 3D NAND로 치환하지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "nand-flash",
+      "title": "낸드플래시 메모리",
+      "engName": "NAND Flash Memory",
+      "aliases": [
+        "NAND Flash",
+        "낸드 플래시"
+      ],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "셀을 직렬로 연결한 플래시 메모리로, 원문은 대용량화와 빠른 쓰기에 유리한 저장 기술로 설명한다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "반도체의 셀이 직렬로 배열되어 있는 플래시 메모리의 한 종류.",
+      "evidenceQuote": "반도체의 셀이 직렬로 배열되어 있는 플래시 메모리의 한 종류.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "직렬 셀과 순차 읽기",
+          "content": "원문은 셀을 순차적으로 찾아 읽으므로 NOR보다 읽기는 느리고 쓰기는 빠르다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "또한 데이터를 순차적으로 찾아가 읽기 때문에 노어 플래시보다 읽기 속도는 느리지만, 별도로 셀의 주소를 기억할 필요가 없어 쓰기속도는 훨씬 빠르다."
+        }
+      ],
+      "limitations": [
+        {
+          "title": "NOR 대비 읽기 속도",
+          "description": "대용량화와 쓰기속도에 유리한 대신 NOR보다 읽기속도가 느리다고 대비한다.",
+          "evidenceQuote": "낸드 플래시는 용량을 늘리기 쉽고 쓰기 속도가 빠른 반면 노어 플래시는 읽기 속도가 빠른 장점을 갖고 있다."
+        },
+        {
+          "title": "수직 배열에 관한 원문 범위",
+          "description": "본문은 셀을 수직으로 배열하여 좁은 면적에 많은 셀을 만든다고 기술하지만 2D NAND와 3D NAND를 구분하지 않는다. 이 표현을 모든 NAND의 3차원 적층 구조 정의로 일반화하지 않는다.",
+          "evidenceQuote": "낸드 플래시는 저장단위인 셀을 수직으로 배열하는 구조이기 때문에 좁은 면적에 많은 셀을 만들 수 있어 대용량화가 가능하다."
+        }
+      ],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "모바일·전자제품의 저장장치",
+          "perspectiveBadge": "모바일 기기·전자제품",
+          "narrative": "소형화와 대용량화가 가능하여 저장장치로 사용된다고 설명한다.",
+          "caution": "",
+          "evidenceQuote": "이처럼 낸드 플래시는 소형화, 대용량화가 가능하기 때문에 다양한 모바일 기기 및 전자제품의 저장장치로 사용되고 있다.",
+          "specifications": [],
+          "seedExplanation": {
+            "explanation": "좁은 공간에 데이터를 많이 저장하려는 기기의 용도이다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [
+        {
+          "id": "nor-flash",
+          "name": "노어플래시 메모리",
+          "reason": "직렬/병렬 구조 및 용량·읽기·쓰기 특성을 대비한다.",
+          "evidenceQuote": "플래시 메모리는 반도체 칩 내부의 전자회로 형태에 따라 직렬로 연결된 낸드 플래시와 병렬로 연결된 노어 플래시로 구분된다."
+        }
+      ],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "flash-memory",
+          "name": "플래시 메모리",
+          "reason": "원문의 회로 형태에 따른 플래시 종류이다.",
+          "evidenceQuote": "플래시 메모리는 반도체 칩 내부의 전자회로 형태에 따라 직렬로 연결된 낸드 플래시와 병렬로 연결된 노어 플래시로 구분된다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    },
+    {
+      "conceptId": "nor-flash",
+      "title": "노어플래시 메모리",
+      "engName": "노어 플래시",
+      "aliases": [],
+      "domainFacet": "device",
+      "category": "메모리 소자",
+      "scaleLevel": 2,
+      "classificationNote": "소자 또는 회로 구조와 기능을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "셀을 병렬로 연결한 플래시 메모리로, 원문 비교에서는 NAND보다 읽기속도가 빠르다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "플래시 메모리는 반도체 칩 내부의 전자회로 형태에 따라 직렬로 연결된 낸드 플래시와 병렬로 연결된 노어 플래시로 구분된다.",
+      "evidenceQuote": "플래시 메모리는 반도체 칩 내부의 전자회로 형태에 따라 직렬로 연결된 낸드 플래시와 병렬로 연결된 노어 플래시로 구분된다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "flash-memory",
+          "name": "플래시 메모리",
+          "reason": "원문이 병렬형 플래시 종류로 구분한다.",
+          "evidenceQuote": "플래시 메모리는 반도체 칩 내부의 전자회로 형태에 따라 직렬로 연결된 낸드 플래시와 병렬로 연결된 노어 플래시로 구분된다."
+        }
+      ],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "반도체 소자·회로",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

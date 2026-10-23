@@ -1,0 +1,57 @@
+{
+  "index": 70,
+  "filePath": "samsung/glossary/반도체-용어-사전-파운드리.md",
+  "sourceHash": "e0a991cf81eb3f8b722c4bf4d6bc745193e7a68f2aa1301a97b9d571232c946b",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1623,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 빈 파서 후보를 대조하여 실제 개념명·정의·명시된 종류·선후 관계를 보완했다. 발행사나 관련기사를 도입 사례로 추정하지 않았다. "
+  },
+  "concepts": [
+    {
+      "conceptId": "foundry",
+      "title": "파운드리",
+      "engName": "Foundry",
+      "aliases": [],
+      "domainFacet": "operations",
+      "category": "제조 운영·품질",
+      "scaleLevel": 5,
+      "classificationNote": "파운드리의 원문 정의에 따라 반도체 산업 구조에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "반도체 생산설비를 갖추고 외부에서 넘겨받은 제품 설계를 바탕으로 제조를 전담하는 위탁 생산업체이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "파운드리 업체는 제품 설계를 외부에서 넘겨받아 반도체를 생산하는 위탁 업체이다. 즉 반도체 생산설비를 갖추고 있지만 직접 설계하여 제품을 만드는 것이 아니라, 위탁하는 업체의 제품을 대신 생산해 이익을 얻는 것이다.",
+      "evidenceQuote": "파운드리 업체는 제품 설계를 외부에서 넘겨받아 반도체를 생산하는 위탁 업체이다. 즉 반도체 생산설비를 갖추고 있지만 직접 설계하여 제품을 만드는 것이 아니라, 위탁하는 업체의 제품을 대신 생산해 이익을 얻는 것이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "설계의 위탁 생산",
+          "content": "직접 설계하여 제품을 만드는 대신 위탁 업체의 제품을 생산하여 이익을 얻는다.",
+          "formula": null,
+          "evidenceQuote": "파운드리 업체는 제품 설계를 외부에서 넘겨받아 반도체를 생산하는 위탁 업체이다. 즉 반도체 생산설비를 갖추고 있지만 직접 설계하여 제품을 만드는 것이 아니라, 위탁하는 업체의 제품을 대신 생산해 이익을 얻는 것이다."
+        },
+        {
+          "step": 2,
+          "title": "생산라인 비용 분담",
+          "content": "생산라인 건설에 큰 비용이 들기 때문에 설계 전문 팹리스는 파운드리에 생산을 위탁한다.",
+          "formula": null,
+          "evidenceQuote": "반도체 개발에서 설계가 가장 중요하지만 이를 생산하기 위해선 실제 생산라인도 필요하다. 하지만 하나의 생산라인 건설에는 천문학적인 비용이 소요되기 때문에, 설계 전문인 팹리스 업체는 파운드리 업체를 통해 위탁 생산을 한다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "operations",
+          "category": "반도체 산업 구조",
+          "scaleLevel": 5
+        }
+      ]
+    }
+  ]
+}

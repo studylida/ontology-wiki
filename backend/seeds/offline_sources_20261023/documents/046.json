@@ -1,0 +1,66 @@
+{
+  "index": 46,
+  "filePath": "samsung/glossary/반도체-용어-사전-마스크-mask.md",
+  "sourceHash": "bd569f79534b970647fe8774e5a11ff3ffe8fb56d58c235a8181cc4b9ec97cc9",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1565,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. 원문의 마스크와 웨이퍼 크기 비교를 일반적 규격으로 확대하지 않았다. 패턴의 축소 전사와 전면 반복이라는 원리를 보존하고 수치 배율을 만들지 않았다. 태그 Mast는 오기로 보고 별칭으로 채택하지 않았다."
+  },
+  "concepts": [
+    {
+      "conceptId": "photomask",
+      "title": "마스크",
+      "engName": "Mask",
+      "aliases": [
+        "포토마스크"
+      ],
+      "domainFacet": "materials_infra",
+      "category": "패터닝 재료·부품",
+      "scaleLevel": 3,
+      "classificationNote": "제조·검사 공정 또는 관련 장비 기술을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "포토공정에서 사용하는 미세 전자회로 패턴이 그려진 유리판이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "반도체 집적회로의 제조공정 중 포토공정에서 사용하는 미세한 전자회로가 그려진 유리판.",
+      "evidenceQuote": "반도체 집적회로의 제조공정 중 포토공정에서 사용하는 미세한 전자회로가 그려진 유리판.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "전자빔 패턴 제작",
+          "content": "전자빔 설비로 설계 회로 패턴을 유리판에 그려 넣어 제작한다.",
+          "formula": null,
+          "evidenceQuote": "마스크는 전자빔 설비를 이용해 설계된 회로 패턴을 유리판 위에 그려 넣어 만들어진다."
+        },
+        {
+          "step": 2,
+          "title": "감광액으로 패턴 전사",
+          "content": "설비의 마스크를 통과한 빛으로 감광액을 도포한 웨이퍼에 회로 패턴을 만든다. 원문은 전자부품 수십억 개와 회로선을 그리는 포토공정을 설명한다.",
+          "formula": null,
+          "evidenceQuote": "포토공정은 웨이퍼 위에 전자회로를 그리는 단계로, 반도체 칩에 전자부품 수십억 개와 이를 연결하는 회로선을 그리는 작업이다. 설비에 마스크를 넣고 빛을 투과해 감광액이 칠해진 웨이퍼 위에 미세한 전자회로 그림이 만들어 지도록 하는 것이다."
+        },
+        {
+          "step": 3,
+          "title": "축소 전사의 반복",
+          "content": "원문은 마스크를 웨이퍼보다 크게 제작하며, 패턴을 축소해 한 칩에 전사한 뒤 반복축소 촬영으로 웨이퍼 전면을 주사한다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "반도체 회로는 미세하기 때문에 마스크는 웨이퍼보다 크게 제작을 한다. 회로패턴이 담긴 마스크는 축소 촬영법으로 1개의 칩에 회로를 새겨 넣고, 그 후 반복축소 촬영으로 웨이퍼의 전면을 주사하는 방식이다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "노광 재료·부품",
+          "scaleLevel": 3
+        }
+      ]
+    }
+  ]
+}

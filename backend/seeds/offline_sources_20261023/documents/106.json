@@ -1,0 +1,12 @@
+{
+  "index": 106,
+  "filePath": "samsung/samsung_glossary_terms_ep3.md",
+  "sourceHash": "8f07953532c77e71feec134e2024985f1a5d9cdd85a28d843314bab3f81b5d9d",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1707,
+    "method": "codex-offline-source-review",
+    "notes": "전체 원문을 끝까지 대조했다. 본문은 메모리·시스템 반도체·나노·EUV 용어를 다룬다는 영상 소개일 뿐 용어 정의나 공정 원리는 제공하지 않는다. 관련글·태그를 근거로 빈 기술 정보를 보충하지 않아 개념 추출을 보류했다. 영상은 열거나 시청하지 않았다."
+  },
+  "concepts": []
+}

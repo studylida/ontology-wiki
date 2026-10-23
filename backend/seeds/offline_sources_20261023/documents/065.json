@@ -1,0 +1,77 @@
+{
+  "index": 65,
+  "filePath": "samsung/glossary/반도체-용어-사전-집적회로ic.md",
+  "sourceHash": "b6e5323d62db814475c4d3124f20f903ff565e4115a515aa2246ab42e9f0e43a",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1621,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 빈 파서 후보를 대조하여 실제 개념명·정의·명시된 종류·선후 관계를 보완했다. 발행사나 관련기사를 도입 사례로 추정하지 않았다. "
+  },
+  "concepts": [
+    {
+      "conceptId": "integrated-circuit",
+      "title": "집적회로",
+      "engName": "Integrated Circuit",
+      "aliases": [
+        "IC"
+      ],
+      "domainFacet": "device",
+      "category": "집적회로·시스템 칩",
+      "scaleLevel": 4,
+      "classificationNote": "집적회로의 원문 정의에 따라 집적회로에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "트랜지스터·다이오드·저항·커패시터 등 여러 전자회로 소자를 하나의 기판 위나 기판 자체에 분리 불가능한 상태로 결합한 초소형 복합 전자소자 또는 시스템이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "많은 전자회로 소자가 하나의 기판 위 또는 기판 자체에 분리 불가능한 상태로 결합되어 있는 초소형 구조의 복합적 전자소자 또는 시스템.",
+      "evidenceQuote": "많은 전자회로 소자가 하나의 기판 위 또는 기판 자체에 분리 불가능한 상태로 결합되어 있는 초소형 구조의 복합적 전자소자 또는 시스템.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "소자 집적",
+          "content": "여러 전자부품을 작은 반도체 안에서 하나의 전자회로로 구성한다. 원문은 실리콘 평면에 몇 천 개 또는 몇 만 개를 모아 집적한다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "트랜지스터, 다이오드, 저항, 캐패시터 등 복잡한 전자부품들을 정밀하게 만들어 작은 반도체 속에 하나의 전자회로로 구성해 집어 넣은 것이다. 즉, 개개의 반도체를 하나씩 따로 따로 사용하지 않고 실리콘의 평면상에 몇 천개 몇 만개를 모아 차곡차곡 쌓아놓은 것이다. ‘모아서 쌓는다’ 즉, 집적한다고 하여 집적회로(IC)라는 이름이 붙게된 것이다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [
+        {
+          "perspectiveTitle": "잭 킬비의 집적회로 발명과 집적도 발전",
+          "perspectiveBadge": "TI",
+          "narrative": "원문은 집적회로가 1958년 미국 TI사의 기술자 잭 킬비에 의해 발명되었으며 이후 SSI, MSI, LSI, VLSI, ULSI 등으로 집적도가 발전했다고 설명한다.",
+          "caution": "",
+          "evidenceQuote": "집적회로(IC)는 1958년 미국 TI사의 기술자, 잭 킬비에 의해 발명된 것으로, 기술이 발전함에 따라 하나의 반도체에 들어가는 회로의 집적도 SSI, MSI, LSI, VLSI, ULSI 등으로 발전하여 오늘날 첨단 반도체 제품이 등장하게 되었다.",
+          "specifications": [
+            {
+              "parameter": "원문 발명 연도",
+              "value": "1958",
+              "unit": "년",
+              "safetyMargin": null,
+              "role": null,
+              "tradeoff": null,
+              "rationale": null,
+              "isConfidential": false,
+              "evidenceQuote": "집적회로(IC)는 1958년 미국 TI사의 기술자, 잭 킬비에 의해 발명된 것으로, 기술이 발전함에 따라 하나의 반도체에 들어가는 회로의 집적도 SSI, MSI, LSI, VLSI, ULSI 등으로 발전하여 오늘날 첨단 반도체 제품이 등장하게 되었다."
+            }
+          ],
+          "seedExplanation": {
+            "explanation": "하나의 반도체에 여러 회로를 넣는 방식이 발전하면서 집적도가 높은 제품이 등장했다는 역사적 설명이다.",
+            "background": null
+          }
+        }
+      ],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "집적회로",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

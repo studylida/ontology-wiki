@@ -1,0 +1,52 @@
+{
+  "index": 77,
+  "filePath": "samsung/glossary/반도체-용어-사전led편-도광판.md",
+  "sourceHash": "412859674de63dd39f6005e2fd1f48345d5fc2277c8ad1c70a36eeecc76f5434",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1383,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체를 대조해 실제 개념명과 정의를 보존했다. 일반 적용 상황과 설명용 수치를 실제 제품 실측으로 바꾸지 않았다. "
+  },
+  "concepts": [
+    {
+      "conceptId": "light-guide-plate",
+      "title": "도광판",
+      "engName": "Light Guide Plate",
+      "aliases": [
+        "LGP"
+      ],
+      "domainFacet": "device",
+      "category": "디스플레이 광학 부품",
+      "scaleLevel": 2,
+      "classificationNote": "도광판의 원문 정의에 따라 디스플레이 광학 부품에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "BLU 안에 조립되는 아크릴 사출물로 광원의 빛을 LCD 전체 면에 균일하게 전달하는 플라스틱 성형 렌즈의 하나이다.",
+      "purpose": "BLU의 휘도와 균일한 조명 기능을 제공한다.",
+      "summaryEvidenceQuote": "BLU(Back Light Unit)의 휘도와 균일한 조명 기능을 수행하는 부품.\nLCD 내에서 빛을 액정에 인도하는 BLU 안에 조립되어 있는 아크릴 사출물을 말하며, BLU 광원에서 발산되는 빛을 LCD 전체 면에 균일하게 전달하는 역할을 하는 플라스틱 성형 렌즈의 하나이다.",
+      "evidenceQuote": "BLU(Back Light Unit)의 휘도와 균일한 조명 기능을 수행하는 부품.\nLCD 내에서 빛을 액정에 인도하는 BLU 안에 조립되어 있는 아크릴 사출물을 말하며, BLU 광원에서 발산되는 빛을 LCD 전체 면에 균일하게 전달하는 역할을 하는 플라스틱 성형 렌즈의 하나이다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [
+        {
+          "id": "blu",
+          "name": "백라이트 유닛",
+          "reason": "원문에 BLU 안에 조립되는 부품이라고 명시되어 있다.",
+          "evidenceQuote": "BLU(Back Light Unit)의 휘도와 균일한 조명 기능을 수행하는 부품.\nLCD 내에서 빛을 액정에 인도하는 BLU 안에 조립되어 있는 아크릴 사출물을 말하며, BLU 광원에서 발산되는 빛을 LCD 전체 면에 균일하게 전달하는 역할을 하는 플라스틱 성형 렌즈의 하나이다."
+        }
+      ],
+      "isA": [],
+      "purposeEvidenceQuote": "BLU(Back Light Unit)의 휘도와 균일한 조명 기능을 수행하는 부품.\nLCD 내에서 빛을 액정에 인도하는 BLU 안에 조립되어 있는 아크릴 사출물을 말하며, BLU 광원에서 발산되는 빛을 LCD 전체 면에 균일하게 전달하는 역할을 하는 플라스틱 성형 렌즈의 하나이다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "device",
+          "category": "디스플레이 광학 부품",
+          "scaleLevel": 2
+        }
+      ]
+    }
+  ]
+}

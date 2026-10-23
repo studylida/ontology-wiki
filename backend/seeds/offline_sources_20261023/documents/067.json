@@ -1,0 +1,59 @@
+{
+  "index": 67,
+  "filePath": "samsung/glossary/반도체-용어-사전-커패시턴스.md",
+  "sourceHash": "7ae9a3649388aed413d0f846924419f16dc2551109bc229832c0c6e4862b5bea",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1562,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 빈 파서 후보를 대조하여 실제 개념명·정의·명시된 종류·선후 관계를 보완했다. 발행사나 관련기사를 도입 사례로 추정하지 않았다. "
+  },
+  "concepts": [
+    {
+      "conceptId": "capacitance",
+      "title": "커패시턴스",
+      "engName": "Capacitance",
+      "aliases": [
+        "정전용량"
+      ],
+      "domainFacet": "materials_infra",
+      "category": "전기적 물성",
+      "scaleLevel": 1,
+      "classificationNote": "커패시턴스의 원문 정의에 따라 전기적 물성에 분류한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "커패시터의 전하 충전 능력으로, 인가 전압에 대한 축적 전하량의 비율이다. 기호는 C, 단위는 패럿(F)이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "커패시터가 전하를 충전할 수 있는 능력으로 정전용량 혹은 커패시턴스(Capacitance)라고 한다.",
+      "evidenceQuote": "커패시터가 전하를 충전할 수 있는 능력으로 정전용량 혹은 커패시턴스(Capacitance)라고 한다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "전하량과 전압의 비율",
+          "content": "축적 전하량 Q와 인가 전압 V 사이의 관계는 C = Q/V 또는 Q = CV이다. 전압이 같을 때 C가 클수록 더 많은 전하가 대전된다.",
+          "formula": "C = Q/V 혹은 Q = CV",
+          "evidenceQuote": "즉 전압, 전하량, 커패시턴스의 관계를 식으로 나타내면 C = Q/V 혹은 Q = CV가 된다."
+        },
+        {
+          "step": 2,
+          "title": "패럿의 의미",
+          "content": "1F는 1V를 커패시터에 인가했을 때 두 평행판 사이에 1C(쿨롬)의 전하를 축적할 수 있음을 의미한다.",
+          "formula": null,
+          "evidenceQuote": "커패시터에 축적된 전하를 Q, 인가된 전압을 V라고 하면, 1F의 커패시턴스는 1V의 전압을 커패시터에 인가했을 때 1C(쿨롬, coulomb)의 전하를 두 평행판 사이에 축적할 수 있음을 의미한다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "전기적 물성",
+          "scaleLevel": 1
+        }
+      ]
+    }
+  ]
+}

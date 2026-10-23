@@ -1,0 +1,89 @@
+{
+  "index": 37,
+  "filePath": "samsung/glossary/반도체-용어-사전-규소.md",
+  "sourceHash": "c0f9d663ca54a537af946ae8616ce71e66dc9ac44e235c200b601cec83b47668",
+  "review": {
+    "wholeDocumentRead": true,
+    "rawCharactersRead": 1621,
+    "method": "codex-offline-source-review",
+    "notes": "원문 전체와 대조했다. 비어 있던 파서 후보를 원문 의미에 따라 새로 작성하고 실제 개념명으로 제목을 정정했다. 웹 메뉴·관련 글·홍보는 기술 근거에서 제외했다. silicon 원소와 silicone 유기 규소 화합물을 구별했다. 석영·자수정의 규산염 표기는 원문상 보조 예시로, 별도 재료 분류 지식으로 확대하지 않았다. 미연결 개념 관계 재검토에서 원문이 지지하는 관계를 보강했다. 판단과 보류 사유는 relation-review.json에 기록했다."
+  },
+  "concepts": [
+    {
+      "conceptId": "silicon",
+      "title": "규소",
+      "engName": "Silicon",
+      "aliases": [
+        "실리콘"
+      ],
+      "domainFacet": "materials_infra",
+      "category": "반도체 기초 재료",
+      "scaleLevel": 1,
+      "classificationNote": "재료의 성질 또는 기초 물리량을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "원자번호 14번의 준금속 원소로 반도체 성질을 가지며 웨이퍼의 주재료로 쓰인다.",
+      "purpose": "웨이퍼와 철·구리 합금, 유기 규소 화합물인 silicone의 재료로 사용한다.",
+      "summaryEvidenceQuote": "규소(silicon)는 원자번호 14번의 원소로, 금속과 비금속의 특성을 모두 갖는 준금속이다.",
+      "evidenceQuote": "규소(silicon)는 원자번호 14번의 원소로, 금속과 비금속의 특성을 모두 갖는 준금속이다.",
+      "principles": [
+        {
+          "step": 1,
+          "title": "산출과 정제",
+          "content": "규소는 지각에서 산소 다음으로 풍부하며 모래·암석·흙 등에 산화물 또는 규산염으로 존재한다. 반도체용으로 정제한 규소를 열로 녹여 잉곳을 만든다고 설명한다.",
+          "formula": null,
+          "evidenceQuote": "주로 모래에서 추출되는 규소는 반도체 원료로 쓰이기 위해 정제과정을 거친다. 규소를 뜨거운 열로 녹여 둥근 막대 모양의 규소봉으로 만드는데 이것이 바로 웨이퍼의 재료인 잉곳(ingot)이다."
+        }
+      ],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [
+        {
+          "id": "semiconductor",
+          "name": "반도체",
+          "reason": "규소의 전기전도 성질을 도체와 부도체의 중간이라고 설명하므로 재료로서의 반도체 분류에 대응한다.",
+          "evidenceQuote": "전기가 잘 흐르는 물질인 도체와 흐르지 않는 물질인 부도체의 중간 성질을 띠며, 지각에서 산소 다음으로 풍부하게 존재하는 원소이다. 모래, 암석, 흙 등에서 산화물 또는 규산염으로 존재한다."
+        }
+      ],
+      "purposeEvidenceQuote": "이외에도 규소는 철, 구리 등의 합금의 원료로 사용되거나 실리콘(silicone)이라 불리는 유기 규소 화합물의 재료가 되는 등 다양한 용도로 활용된다.",
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "재료·물성·인프라",
+          "scaleLevel": 1
+        }
+      ]
+    },
+    {
+      "conceptId": "ingot",
+      "title": "잉곳",
+      "engName": "ingot",
+      "aliases": [],
+      "domainFacet": "materials_infra",
+      "category": "반도체 기초 재료",
+      "scaleLevel": 1,
+      "classificationNote": "재료의 성질 또는 기초 물리량을 설명한다. 동일 개념의 최종 분류는 문헌 간 통합 검토에서 확정했다.",
+      "summary": "정제한 규소를 녹여 만든 둥근 막대 모양의 규소봉으로 웨이퍼의 재료이다.",
+      "purpose": "",
+      "summaryEvidenceQuote": "규소를 뜨거운 열로 녹여 둥근 막대 모양의 규소봉으로 만드는데 이것이 바로 웨이퍼의 재료인 잉곳(ingot)이다.",
+      "evidenceQuote": "규소를 뜨거운 열로 녹여 둥근 막대 모양의 규소봉으로 만드는데 이것이 바로 웨이퍼의 재료인 잉곳(ingot)이다.",
+      "principles": [],
+      "limitations": [],
+      "perspectiveCases": [],
+      "previousSteps": [],
+      "nextSteps": [],
+      "alternatives": [],
+      "partOf": [],
+      "isA": [],
+      "classificationProposals": [
+        {
+          "domainFacet": "materials_infra",
+          "category": "재료·물성·인프라",
+          "scaleLevel": 1
+        }
+      ]
+    }
+  ]
+}
