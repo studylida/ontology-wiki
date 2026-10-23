@@ -41,9 +41,11 @@
  * @property {string} publishedDate - 발행 일자
  * @property {string} quote - 핵심 인용구 및 실측 데이터
  * @property {string} sectionContext - 섹션 및 페이지 위치
- * @property {number} relevanceScore - 인과 적합도 (0.0 ~ 1.0)
+ * @property {number} relevanceScore - 과거 검색 점수 (새 결과의 관련성 판단에 사용하지 않음)
  * @property {string} externalUrl - 원문 열람 URL
  * @property {string} urlLabel - 링크 라벨
+ * @property {ResearchAssessmentDTO|null} assessment
+ * @property {Array<{id:string,text:string,sectionContext:string|null}>} readSegments
  * @property {string} credibilityTier - 신뢰성 티어
  * @property {'metadata'|'abstract'|'source_excerpt'|'registered_excerpt'} retrievalStatus - 확보한 내용의 범위
  */
@@ -69,9 +71,9 @@
 /**
  * @typedef {Object} ResearchClarifyResponseDTO
  * @property {string} searchTopic
- * @property {Array<ScopeFilterDTO>} refinedScopeFilters
+ * @property {Array<ScopeFilterDTO>} scopeFilters
  * @property {Array<string>} targetInstitutions
- * @property {number} initialConfidenceScore
+ * @property {ResearchSearchPlanDTO|null} searchPlan
  */
 
 /**
@@ -84,6 +86,7 @@
  * @property {string} ctaButtonLabel
  * @property {ComparisonResearchContextDTO|null} comparisonContext
  * @property {string} notice
+ * @property {ResearchDiscoveryContextDTO|null} discoveryContext
  */
 
 /**
@@ -101,4 +104,50 @@
  * @property {string} status - 상태 ('pending')
  * @property {string} conceptTitle
  * @property {string} message
+ */
+
+/**
+ * Research report generationStatus: ai_generated | source_only | legacy_unverified.
+ * Candidate draftPayload: {conceptId, content} for concept_enrichment; for new_concept,
+ * {isNewConcept:true, title, engName?, content, purpose, domainFacet:null|string,
+ * scaleLevel:null|number, processCategory:string}. Unknown classification stays unknown until approval.
+ */
+
+/**
+ * @typedef {Object} ResearchSearchPlanDTO
+ * @property {string} originalQuestion
+ * @property {string} interpretedQuestion
+ * @property {string[]} assumptions
+ * @property {string[]} searchQueries
+ * @property {string|null} clarificationQuestion
+ * @property {'ready'|'needs_clarification'|'source_only'} status
+ */
+/**
+ * @typedef {Object} ResearchAssessmentDTO
+ * @property {'included'|'deferred'|'excluded'} decision
+ * @property {string} documentSummary
+ * @property {string} inclusionReason
+ * @property {string} usefulness
+ * @property {string[]} limitations
+ * @property {string[]} evidenceReferences - server-owned read segment IDs
+ */
+/**
+ * @typedef {Object} ResearchDiscoveryContextDTO
+ * @property {ResearchSearchPlanDTO} plan
+ * @property {string[]} queriesExecuted
+ * @property {'complete'|'partial'|'source_only'} generationStatus
+ * @property {string[]} remainingQuestions
+ * @property {string} stopReason
+ * @property {string[]} [pendingQueries]
+ * @property {Array<{query:string,newDocumentCount:number,evaluatedCount:number,elapsedMs:number}>} [searchRounds]
+ * @property {boolean} [canContinue]
+ * @property {number} [schemaVersion]
+ */
+
+/**
+ * Evidence extensions: deferReason is content_unavailable/insufficient_content/not_assessed/assessment_failed.
+ * assessmentCurrent=false keeps the previous explanation for history but blocks downstream selection.
+ * acquisitionAttempts contain server-owned {url,resolvedUrl?,at,outcome,contentType?}.
+ * readSegments may include sourceUrl/contentKind; external_excerpt means public partial text, never full reading.
+ * Session responses include updatedAt for conditional continuation. Synthesis may have needsRefresh.
  */

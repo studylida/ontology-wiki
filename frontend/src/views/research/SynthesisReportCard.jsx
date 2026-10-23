@@ -10,7 +10,7 @@ import { FileText, CheckCircle2, AlertTriangle } from 'lucide-react';
 export function SynthesisReportCard({ synthesisReport }) {
   if (!synthesisReport) return null;
 
-  const { title, narrativeMarkdown, consensusFacts = [], tensionGaps = [] } = synthesisReport;
+  const { title, narrativeMarkdown, consensusFacts = [], tensionGaps = [], generationStatus } = synthesisReport;
 
   // 마크다운 서술 간단 렌더러 (### 헤더 및 본문 단락 분리)
   const renderMarkdown = (text = '') => {
@@ -71,7 +71,7 @@ export function SynthesisReportCard({ synthesisReport }) {
           </h3>
         </div>
         <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>
-          선택된 공인 기술 문헌 및 표준 규격을 대조 분석하여 도출된 공학적 인과 인사이트입니다.
+          {generationStatus !== 'ai_generated' && generationStatus !== 'source_only' ? '과거 저장 리포트입니다. 생성·검증 상태는 미확인입니다.' : generationStatus === 'source_only' ? 'AI 분석을 완료하지 못해 확보한 자료만 표시합니다.' : '선택한 문헌 발췌·초록을 바탕으로 작성한 분석 초안입니다. 주장과 적용 조건은 원문으로 확인해 주세요.'}
         </p>
       </div>
 
@@ -107,6 +107,7 @@ export function SynthesisReportCard({ synthesisReport }) {
             </h4>
           </div>
           <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.8125rem', lineHeight: 1.6, color: 'var(--text-primary)' }}>
+            {consensusFacts.length === 0 && <li>선택 자료에서 공통 합의를 확인하지 않았습니다.</li>}
             {consensusFacts.map((fact, idx) => (
               <li key={idx} style={{ marginBottom: '4px' }}>{fact}</li>
             ))}
@@ -132,6 +133,7 @@ export function SynthesisReportCard({ synthesisReport }) {
             </h4>
           </div>
           <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.8125rem', lineHeight: 1.6, color: 'var(--text-primary)' }}>
+            {tensionGaps.length === 0 && <li>자료 간 이견·한계를 별도로 확인하지 않았습니다.</li>}
             {tensionGaps.map((gap, idx) => (
               <li key={idx} style={{ marginBottom: '4px' }}>{gap}</li>
             ))}

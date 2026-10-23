@@ -5,6 +5,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
+import { researchFormatterService } from '../../services/researchFormatterService';
 import { Send, X, FileText, CheckCircle2 } from 'lucide-react';
 
 export function ExportCandidateModal({
@@ -16,13 +17,14 @@ export function ExportCandidateModal({
   onSubmit
 }) {
   const dialogRef = useRef(null);
-  const [userNote, setUserNote] = useState('공인 문헌 교차 분석 및 실측 데이터에 기반한 신규 온톨로지 지식 승격 제안');
+  const [userNote, setUserNote] = useState('');
 
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
 
     if (isOpen) {
+      setUserNote('');
       if (!dialog.open) {
         dialog.showModal();
       }
@@ -111,7 +113,7 @@ export function ExportCandidateModal({
             }}
           >
             <div style={{ fontWeight: 800, color: 'var(--text-primary)', marginBottom: '4px' }}>
-              [{candidate.candidateType || '신규 개념'}] {candidate.title}
+              [{researchFormatterService.getCandidateTypeLabel(candidate.candidateType)}] {candidate.title}
             </div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
               {candidate.summary}
@@ -131,7 +133,7 @@ export function ExportCandidateModal({
             <input
               type="text"
               readOnly
-              value={`${currentUser?.name || '현장 엔지니어'} (${currentUser?.department || '패키징선행개발팀'}, Level ${currentUser?.level || 2})`}
+              value={`${currentUser?.name || '미확인'} (${currentUser?.department || '부서 미입력'}, Level ${currentUser?.level ?? '미확인'})`}
               style={{
                 padding: '8px 12px',
                 borderRadius: '6px',
@@ -153,7 +155,7 @@ export function ExportCandidateModal({
               required
               value={userNote}
               onChange={(e) => setUserNote(e.target.value)}
-              placeholder="검토관이 확인할 수 있도록 신규 지식 발의 배경과 실측 근거를 기재하세요."
+              placeholder="검토관이 확인할 수 있도록 제안 배경과 선택한 문헌에서 확인할 내용을 기재하세요."
               style={{
                 padding: '8px 12px',
                 borderRadius: '6px',

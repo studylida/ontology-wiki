@@ -33,7 +33,10 @@ class LLMGateway:
         preferred_provider: Optional[str] = None,
         tier: Literal["tier1_fast", "tier2_reasoning", "tier3_local"] = "tier1_fast",
         model_override: Optional[str] = None,
-        timeout_sec: Optional[float] = None
+        timeout_sec: Optional[float] = None,
+        slow_call_threshold_ms: Optional[float] = None,
+        reasoning_effort: Optional[Literal["low", "medium", "high"]] = None,
+        allow_fallback: bool = True
     ) -> Optional[str]:
         """Calls 4-Tier AI models with DLP tokenization, active failover, and zero-AI fallback.
         
@@ -92,6 +95,12 @@ class LLMGateway:
             if active_gemini_key:
                 provider_chain.append({"provider": "gemini", "key": active_gemini_key, "model": "gemini-2.5-pro", "timeout": 20.0})
 
+        if not allow_fallback:
+            provider = preferred_provider or "openai"
+            key = active_gemini_key if provider == "gemini" else active_openai_key
+            provider_chain = ([{"provider": provider, "key": key, "model": primary_model,
+                                "timeout": timeout_sec or 30.0}] if key else [])
+
         start_time = time.time()
         response_text = None
         used_meta = None
@@ -105,30 +114,35 @@ class LLMGateway:
 
             try:
                 if prov == "openai":
-                    response_text = await self._call_openai(tokenized_prompt, system_instruction, key, model=m_name, timeout=t_limit)
+                    response_text = await self._call_openai(tokenized_prompt, system_instruction, key, model=m_name, timeout=t_limit,
+                        reasoning_effort=reasoning_effort if m_name == primary_model else None)
                 elif prov == "gemini":
                     response_text = await self._call_gemini(tokenized_prompt, system_instruction, key, model=m_name, timeout=t_limit)
 
                 if response_text and response_text.strip():
                     used_meta = f"{prov}:{m_name}"
-                    logger.info(f"[LLM Gateway] Success with {tier} -> {used_meta}")
+                    logger.info(f"[LLM Gateway] Success with {tier} -> {used_meta}" +
+                                (f" (thinking={reasoning_effort})" if reasoning_effort and m_name == primary_model else ""))
                     break
                 else:
-                    logger.warning(f"[LLM Gateway] Candidate {prov}:{m_name} failed. Attempting failover...")
+                    logger.warning(f"[LLM Gateway] Candidate {prov}:{m_name} failed. " +
+                                   ("Attempting failover..." if allow_fallback else "Fallback disabled."))
             except (httpx.TimeoutException, httpx.RequestError) as e:
-                logger.warning(f"[LLM Gateway] Candidate {prov}:{m_name} network error: {e}. Attempting failover...")
+                logger.warning(f"[LLM Gateway] Candidate {prov}:{m_name} network error: {type(e).__name__}. " +
+                               ("Attempting failover..." if allow_fallback else "Fallback disabled."))
             except Exception as e:
                 logger.error(f"[LLM Gateway] Candidate {prov}:{m_name} unexpected error: {e}. Attempting failover...")
 
         duration_ms = (time.time() - start_time) * 1000
 
         if response_text:
-            await circuit_breaker.record_call(success=True, duration_ms=duration_ms)
+            await circuit_breaker.record_call(success=True, duration_ms=duration_ms, slow_call_threshold_ms=slow_call_threshold_ms)
             detokenized = dlp_tokenizer.detokenize(response_text, session_id=session_id)
             return detokenized
         else:
-            logger.warning(f"[LLM Gateway] All AI candidates failed for {tier}. Activating Tier 4 Deterministic Fallback.")
-            await circuit_breaker.record_call(success=False, duration_ms=duration_ms)
+            logger.warning(f"[LLM Gateway] All AI candidates failed for {tier}. " +
+                           ("Activating Tier 4 Deterministic Fallback." if allow_fallback else "Fallback disabled."))
+            await circuit_breaker.record_call(success=False, duration_ms=duration_ms, slow_call_threshold_ms=slow_call_threshold_ms)
             return None
 
     async def _call_gemini(self, prompt: str, system_prompt: Optional[str], api_key: str, model: str = "gemini-2.5-flash", timeout: float = 8.0) -> Optional[str]:
@@ -153,7 +167,8 @@ class LLMGateway:
                 logger.warning(f"Gemini API returned status {resp.status_code}: {resp.text[:200]}")
                 return None
 
-    async def _call_openai(self, prompt: str, system_prompt: Optional[str], api_key: str, model: str = "gpt-4o-mini", timeout: float = 8.0) -> Optional[str]:
+    async def _call_openai(self, prompt: str, system_prompt: Optional[str], api_key: str, model: str = "gpt-4o-mini", timeout: float = 8.0,
+                           reasoning_effort: Optional[str] = None) -> Optional[str]:
         """Calls OpenAI Chat Completion REST API."""
         url = "https://api.openai.com/v1/chat/completions"
         messages = []
@@ -170,6 +185,9 @@ class LLMGateway:
             "messages": messages,
             "temperature": 0.2
         }
+        if reasoning_effort is not None:
+            payload.pop("temperature")
+            payload["reasoning_effort"] = reasoning_effort
 
         async with httpx.AsyncClient(timeout=timeout) as client:
             resp = await client.post(url, headers=headers, json=payload)

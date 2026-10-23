@@ -56,6 +56,8 @@ class Settings(BaseSettings):
     # 4-Tier 모델 매핑
     TIER1_MODEL: str = "gpt-4o-mini"
     TIER2_MODEL: str = "gpt-4o"
+    RESEARCH_MODEL: str = "gpt-6.1-sol"
+    RESEARCH_REASONING_EFFORT: Literal["low", "medium", "high"] = "medium"
     TIER3_LOCAL_URL: str = "http://localhost:11434/v1"
     TIER3_LOCAL_MODEL: str = "qwen2.5:7b"
     ENABLE_LOCAL_LLM: bool = False

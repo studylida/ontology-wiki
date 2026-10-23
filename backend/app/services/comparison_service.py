@@ -1,3 +1,4 @@
+from backend.app.services.research_evidence import usable_research_evidence, evidence_content
 """Purpose-led comparison of wiki content, with a persistent research round trip."""
 from copy import deepcopy
 from datetime import datetime
@@ -6,6 +7,7 @@ import json
 import re
 import uuid
 import unicodedata
+from hashlib import sha256
 
 from backend.app.core.llm_gateway import llm_gateway
 from backend.app.models.entities import ComparisonSessionModel
@@ -13,6 +15,7 @@ from backend.app.repositories.comparison_repo import comparison_repo
 from backend.app.repositories.concept_repo import concept_repo
 from backend.app.repositories.research_repo import research_repo
 from backend.app.schemas.comparison import ComparisonSessionDTO, ClarifyResponse
+from backend.app.schemas.ontology import EvidenceSourceDTO
 
 
 def public_evidence(item):
@@ -284,11 +287,11 @@ class ComparisonService:
         feed = {item["id"]: item for item in research.evidence_feed or []}
         if not body.selectedEvidenceIds or any(eid not in feed for eid in body.selectedEvidenceIds):
             raise ValueError("조사 세션에 있는 문헌을 선택해 주세요.")
-        if not any(feed[eid].get("quote") for eid in body.selectedEvidenceIds):
+        if not all(usable_research_evidence(feed[eid]) for eid in body.selectedEvidenceIds):
             raise ValueError("서지정보만 있는 자료로 내용을 보강할 수 없습니다. 초록이나 발췌가 확보된 자료를 선택해 주세요.")
         context = deepcopy(session.context_params)
         merged = {e["id"]: e for e in context.get("researchEvidence", [])}
-        merged.update({eid: feed[eid] for eid in body.selectedEvidenceIds})
+        merged.update({eid: evidence_content(feed[eid]) for eid in body.selectedEvidenceIds})
         context["researchEvidence"] = list(merged.values())
         session.context_params = context
         await self.refresh(db, session, **keys)
@@ -309,6 +312,26 @@ class ComparisonService:
         return {"id": session.id, "title": session.title, "isPinned": session.is_pinned,
                 "folderId": session.folder_id, "updatedAt": session.updated_at.isoformat()}
 
+    async def prepare_evidences(self, db, items):
+        registered = {e.id: e for e in await research_repo.evidences(db)}
+        sources, aliases = {}, {}
+        for raw in items:
+            if not raw.get("quote", "").strip():
+                continue
+            existing = registered.get(raw["id"])
+            if existing:
+                if not public_evidence(existing) or existing.quote != raw["quote"] or existing.external_url != raw.get("externalUrl", ""):
+                    raise ValueError("등록 출처가 변경되었거나 공개 자료가 아닙니다. 다시 조사해 주세요.")
+                item = EvidenceSourceDTO.model_validate(existing)
+            else:
+                item = EvidenceSourceDTO.model_validate(raw)
+                key = f"{item.sourceType}\n{item.externalUrl}\n{item.sourceName}\n{item.quote}"
+                item.id = "E-RES-" + sha256(key.encode()).hexdigest()[:24]
+            item.referencedConcepts = []
+            sources[item.id] = item.model_dump(by_alias=True)
+            aliases[raw["id"]] = item.id
+        return {"op": "add", "path": "/evidenceSources", "value": list(sources.values())}, aliases
+
     async def export(self, db, session_id, body, user):
         if not user or user.level < 2:
             raise PermissionError("로그인한 현장 엔지니어(Level 2) 이상만 검토 티켓을 발의할 수 있습니다.")
@@ -324,13 +347,17 @@ class ComparisonService:
         parts.extend(f"{r['axis']}\nA: {r['valA']}\nB: {r['valB']}" for r in result.get("matrix", []))
         parts.extend(f"질문: {q['query']}\n답변: {q['explanation']}" for q in result.get("deepDiveHistory", []))
         evidences = [*result.get("evidences", []), *session.context_params.get("researchEvidence", [])]
-        parts.extend(f"[{e['id']}] {e['sourceName']} {e.get('externalUrl', '')}\n{e.get('quote', '')}" for e in evidences)
-        draft = concept.summary + "\n\n[비교 검토 제안]\n" + "\n\n".join(parts)
+        evidence_patch, aliases = await self.prepare_evidences(db, evidences)
+        proposal = "[비교 검토 제안]\n" + "\n\n".join(parts)
+        for original, saved in aliases.items():
+            proposal = proposal.replace(f"[{original}]", f"[{saved}]")
+        proposal += "\n\n" + "\n\n".join(f"[{e['id']}] {e['sourceName']} {e['externalUrl']}\n{e['quote']}" for e in evidence_patch["value"])
+        draft = concept.summary + "\n\n" + proposal
         ticket = comparison_repo.add_ticket(db, dict(id=f"rev-{uuid.uuid4().hex}", concept_id=concept.id,
             concept_title=concept.title, title=body.title, review_type=body.reviewType, author=user.name,
             department=user.department, status="pending", source_session_id=session.id, origin_type="비교분석",
             current_version=concept.version, target_version=concept.version, current_content=concept.summary,
-            ai_merged_draft=draft, structured_patches=[], directive_history=[], override_reason=body.overrideReason,
+            ai_merged_draft=draft, structured_patches=[evidence_patch], directive_history=[], override_reason=body.overrideReason,
             integrity_report={"evidence_match_rate": 0.0, "has_ontology_conflict": False,
                 "impact_scope_count": 0, "verified": False, "validation_details": "비교 결과와 출처를 첨부한 검토 대기 제안; 자동 정합성 검증 미실시"}))
         session.exported_review_id = ticket.id

@@ -41,7 +41,7 @@ class CircuitBreaker:
         self.permitted_calls_half_open = permitted_calls_half_open
 
         self._state = CircuitState.CLOSED
-        self._window: List[Tuple[bool, float]] = []  # [(is_success, duration_ms)]
+        self._window: List[Tuple[bool, bool]] = []  # [(is_success, exceeded_caller_latency_budget)]
         self._state_changed_at = time.time()
         self._half_open_probes = 0
         self._half_open_successes = 0
@@ -69,7 +69,7 @@ class CircuitBreaker:
             return self._half_open_probes < self.permitted_calls_half_open
         return False
 
-    async def record_call(self, success: bool, duration_ms: float):
+    async def record_call(self, success: bool, duration_ms: float, slow_call_threshold_ms: Optional[float] = None):
         async with self._lock:
             now = time.time()
             current_state = self.state
@@ -101,13 +101,14 @@ class CircuitBreaker:
                 return
 
             if current_state == CircuitState.CLOSED:
-                self._window.append((success, duration_ms))
+                threshold = self.slow_call_threshold_ms if slow_call_threshold_ms is None else slow_call_threshold_ms
+                self._window.append((success, duration_ms > threshold))
                 if len(self._window) > self.sliding_window_size:
                     self._window.pop(0)
 
                 if len(self._window) >= min(10, self.sliding_window_size):
                     failures = sum(1 for s, _ in self._window if not s)
-                    slow_calls = sum(1 for _, d in self._window if d > self.slow_call_threshold_ms)
+                    slow_calls = sum(1 for _, is_slow in self._window if is_slow)
                     total = len(self._window)
 
                     fail_rate = failures / total

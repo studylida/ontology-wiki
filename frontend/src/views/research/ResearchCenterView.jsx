@@ -16,10 +16,16 @@ import { CheckCircle2, AlertTriangle, X } from 'lucide-react';
 export function ResearchCenterView({
   activeStep = 'search',
   searchTopic = '',
-  targetInstitutions = [],
+  institutionQuery = '',
   pastSessions = [],
   currentSessionId = null,
   evidenceFeed = [],
+  displayedEvidence = evidenceFeed,
+  evidenceCounts = {},
+  evidenceFilter = 'all',
+  setEvidenceFilter,
+  showMoreEvidence,
+  handleContinueResearch,
   selectedEvidenceIds = [],
   synthesisReport = null,
   candidates = [],
@@ -33,6 +39,11 @@ export function ResearchCenterView({
   currentUser = null,
   comparisonContext = null,
   discoveryNotice = '',
+  searchPlan = null,
+  discoveryContext = null,
+  discoveryPhase = '',
+  clarificationAnswer = '',
+  setClarificationAnswer,
   usableSelectedIds = [],
   handleReturnToComparison,
 
@@ -43,7 +54,7 @@ export function ResearchCenterView({
   toggleEvidenceSelection,
   selectAllEvidences,
   handleSynthesizeReport,
-  toggleInstitution,
+  setInstitutionQuery,
   openExportCandidateModal,
   closeExportCandidateModal,
   handleExportCandidateTicket,
@@ -121,16 +132,42 @@ export function ResearchCenterView({
             </button>
           </div>
         </section>}
-        {isDiscovering && <p role="status">관련 문헌을 조사하고 있습니다. 다른 탭으로 이동해도 이 화면의 요청은 계속됩니다.</p>}
+        {isDiscovering && <p role="status">{discoveryPhase === 'clarifying' ? '질문을 해석하고 있습니다.' : '문헌을 검색하고 확보한 내용을 검토하고 있습니다.'} 다른 탭으로 이동해도 이 화면의 요청은 계속됩니다.</p>}
+        {searchPlan && <section aria-label="조사 질문 해석" style={{ padding: '16px', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
+          <strong>이 질문을 이렇게 이해했습니다</strong>
+          <p>{searchPlan.interpretedQuestion}</p>
+          {searchPlan.assumptions?.map((text, i) => <p key={i}>가정·확인 범위: {text}</p>)}
+          {searchPlan.status === 'needs_clarification' && <form onSubmit={(event) => {
+            event.preventDefault(); handleDiscover(searchTopic, comparisonContext, clarificationAnswer);
+          }}>
+            <label htmlFor="research-clarification">{searchPlan.clarificationQuestion}</label>
+            <input id="research-clarification" value={clarificationAnswer} onChange={(event) => setClarificationAnswer(event.target.value)} required />
+            <button type="submit" disabled={isDiscovering || !clarificationAnswer.trim()}>답변하고 조사 계속</button>
+          </form>}
+          {discoveryContext && <>
+            <p>실행한 검색: {discoveryContext.queriesExecuted.join(' / ')}</p>
+            <p>{discoveryContext.stopReason}</p>
+            {discoveryContext.remainingQuestions.length > 0 && <details><summary>남은 조사 ({discoveryContext.remainingQuestions.length})</summary>
+              {discoveryContext.remainingQuestions.map((text, i) => <p key={i}>{text}</p>)}
+            </details>}
+          </>}
+        </section>}
         {discoveryNotice && <p role="status">{discoveryNotice}</p>}
+        {currentSessionId && discoveryContext?.canContinue && <button type="button" onClick={handleContinueResearch} disabled={isDiscovering || isSynthesizing}>
+          {isDiscovering ? '남은 자료를 확보·평가하고 있습니다...' : '이어서 조사하기'}
+        </button>}
+        {discoveryContext?.searchRounds?.length > 0 && <details><summary>검색·처리 기록 ({discoveryContext.searchRounds.length})</summary>
+          {discoveryContext.searchRounds.map((round, index) => <p key={index}>{round.query} · 신규 {round.newDocumentCount}건 · 평가 {round.evaluatedCount}건 · {Math.round(round.elapsedMs / 1000)}초{round.status === 'retry_later' ? ' · 검색 실패, 재시도 대기' : ''}</p>)}
+        </details>}
+        {synthesisReport?.needsRefresh && <p role="status">보고서에 사용한 근거가 변경됐습니다. 문헌을 확인하고 종합 보고서를 다시 생성해 주세요.</p>}
         {/* 1단계: 검색 주제 및 필터 영역 */}
         {activeStep === 'search' && (
           <ResearchSearchArea
             searchTopic={searchTopic}
-            targetInstitutions={targetInstitutions}
+            institutionQuery={institutionQuery}
             isDiscovering={isDiscovering}
             onChangeSearchTopic={setSearchTopic}
-            onToggleInstitution={toggleInstitution}
+            onChangeInstitutionQuery={setInstitutionQuery}
             onDiscover={handleDiscover}
           />
         )}
@@ -139,6 +176,12 @@ export function ResearchCenterView({
         {activeStep === 'feed' && (
           <EvidenceFeedList
             evidenceFeed={evidenceFeed}
+            displayedEvidence={displayedEvidence}
+            evidenceCounts={evidenceCounts}
+            evidenceFilter={evidenceFilter}
+            onFilter={setEvidenceFilter}
+            onShowMore={showMoreEvidence}
+            isDiscovering={isDiscovering}
             selectedEvidenceIds={selectedEvidenceIds}
             searchTopic={searchTopic}
             isSynthesizing={isSynthesizing}

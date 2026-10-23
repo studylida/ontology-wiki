@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import { researchFormatterService } from '../../services/researchFormatterService';
 import { Lightbulb, Send, Check, ShieldAlert, Tag, ExternalLink } from 'lucide-react';
 
 export function KnowledgeCandidateList({
@@ -36,7 +37,7 @@ export function KnowledgeCandidateList({
               도출된 온톨로지 지식 후보 (Knowledge Candidates)
             </h3>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '2px 0 0 0' }}>
-              공인 문헌 교차 검증을 통과한 신규 개념 및 규격 후보입니다. 검토 승인 센터(Tab 3)에 정식 안건으로 등록할 수 있습니다.
+              확보한 문헌을 바탕으로 AI가 제안한 검토 대기 후보입니다. 검토 승인 센터(Tab 3)에 정식 안건으로 등록할 수 있습니다.
             </p>
           </div>
         </div>
@@ -86,7 +87,7 @@ export function KnowledgeCandidateList({
                       color: '#fff'
                     }}
                   >
-                    {cand.candidateType || '신규 개념'}
+                    {researchFormatterService.getCandidateTypeLabel(cand.candidateType)}
                   </span>
                   <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)' }}>
                     {cand.title}
@@ -147,6 +148,8 @@ export function KnowledgeCandidateList({
                 </div>
               )}
 
+              {cand.draftPayload?.content && cand.draftPayload.content !== cand.summary && <p style={{ whiteSpace: 'pre-wrap' }}>{cand.draftPayload.content}</p>}
+              {cand.draftPayload?.isNewConcept && <p>분류안: {cand.draftPayload.domainFacet || '분야 미확정'} · 규모 {cand.draftPayload.scaleLevel ?? '미확정'} · {cand.draftPayload.processCategory || '분류 미확정'} (검토관이 승인 시 확정)</p>}
               {/* 뒷받침 공인 출처 배지 목록 */}
               {evidenceIds.length > 0 && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>

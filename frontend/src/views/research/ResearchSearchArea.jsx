@@ -12,20 +12,14 @@ const PRESET_TOPICS = [
   '3D DRAM 모놀리식 인터커넥트 신뢰성 및 열 저항'
 ];
 
-const AVAILABLE_INSTITUTIONS = [
-  'Intel Foundry',
-  'IEEE ECTC',
-  'SEMI 3D Packaging',
-  'Samsung Tech Day',
-  'TSMC OIP'
-];
+
 
 export function ResearchSearchArea({
   searchTopic = '',
-  targetInstitutions = [],
+  institutionQuery = '',
   isDiscovering = false,
   onChangeSearchTopic,
-  onToggleInstitution,
+  onChangeInstitutionQuery,
   onDiscover
 }) {
   const handleSubmit = (e) => {
@@ -52,7 +46,7 @@ export function ResearchSearchArea({
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
           <Sparkles size={22} style={{ color: 'var(--accent-primary)' }} />
           <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>
-            글로벌 공인 문헌·백서 Deep Research 조사실
+            외부 문헌·백서 조사실
           </h2>
         </div>
         <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.6 }}>
@@ -113,7 +107,7 @@ export function ResearchSearchArea({
             <span>문헌 발굴 중...</span>
           ) : (
             <>
-              <span>공인 문헌 발굴 시작</span>
+              <span>문헌 검색 시작</span>
               <ArrowRight size={16} />
             </>
           )}
@@ -123,7 +117,7 @@ export function ResearchSearchArea({
       {/* 추천 반도체 주제 칩 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
         <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
-          추천 조사 주제:
+          조사 주제 입력 예시:
         </span>
         {PRESET_TOPICS.map((topic, idx) => (
           <button
@@ -157,48 +151,13 @@ export function ResearchSearchArea({
         ))}
       </div>
 
-      {/* 5대 공인 발행 기관 필터 체크 */}
       <div style={{ paddingTop: '12px', borderTop: '1px solid var(--border-color)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
-          <Building2 size={16} style={{ color: 'var(--accent-primary)' }} />
-          <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-            타깃 공인 발행 기관 코퍼스 필터
-          </span>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          {AVAILABLE_INSTITUTIONS.map((inst) => {
-            const isChecked = targetInstitutions.includes(inst);
-            return (
-              <label
-                key={inst}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '6px 12px',
-                  borderRadius: '6px',
-                  border: isChecked ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
-                  background: isChecked ? 'var(--accent-primary-light)' : 'var(--bg-surface-2)',
-                  color: isChecked ? 'var(--accent-primary)' : 'var(--text-secondary)',
-                  fontSize: '0.75rem',
-                  fontWeight: isChecked ? 700 : 500,
-                  cursor: 'pointer',
-                  userSelect: 'none',
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={isChecked}
-                  onChange={() => onToggleInstitution(inst)}
-                  style={{ cursor: 'pointer' }}
-                />
-                <span>{inst}</span>
-              </label>
-            );
-          })}
-        </div>
+        <label htmlFor="research-publisher-filter" style={{ display: 'block', marginBottom: '8px' }}>발행처 키워드 필터 (선택)</label>
+        <input id="research-publisher-filter" type="text" value={institutionQuery}
+          onChange={(event) => onChangeInstitutionQuery(event.target.value)}
+          placeholder="발행처명을 입력하세요. 여러 값은 쉼표로 구분합니다."
+          style={{ width: '100%', padding: '10px', border: '1px solid var(--border-color)', borderRadius: '6px', background: 'var(--bg-surface-2)', color: 'var(--text-primary)' }} />
+        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>자료의 발행처·제목에 입력한 문자열이 포함되는지 확인합니다. 비워두면 전체를 검색하며, 학회·행사 전용 코퍼스 검색을 뜻하지 않습니다.</p>
       </div>
     </div>
   );

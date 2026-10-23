@@ -4,11 +4,18 @@
  */
 
 import React from 'react';
+import { usableEvidenceIds, evidenceState, safeSourceUrl } from '../../services/researchService';
 import { BookOpen, ExternalLink, CheckSquare, Square, Layers, ArrowRight, Quote } from 'lucide-react';
 import { researchFormatterService } from '../../services/researchFormatterService';
 
 export function EvidenceFeedList({
   evidenceFeed = [],
+  displayedEvidence = evidenceFeed,
+  evidenceCounts = {},
+  evidenceFilter = 'all',
+  onFilter,
+  onShowMore,
+  isDiscovering = false,
   selectedEvidenceIds = [],
   searchTopic = '',
   isSynthesizing = false,
@@ -17,7 +24,8 @@ export function EvidenceFeedList({
   onSynthesize,
   onBackToSearch
 }) {
-  const allSelected = evidenceFeed.length > 0 && selectedEvidenceIds.length === evidenceFeed.length;
+  const eligibleIds = usableEvidenceIds(evidenceFeed, evidenceFeed.map((e) => e.id));
+  const allSelected = eligibleIds.length > 0 && eligibleIds.every((id) => selectedEvidenceIds.includes(id));
 
   return (
     <div
@@ -48,7 +56,7 @@ export function EvidenceFeedList({
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Layers size={18} style={{ color: 'var(--accent-primary)' }} />
             <h3 style={{ fontSize: '1.125rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>
-              문헌 검색 결과 (Evidence Feed)
+              문헌 조사 결과
             </h3>
             <span
               style={{
@@ -73,6 +81,7 @@ export function EvidenceFeedList({
           <button
             type="button"
             onClick={onSelectAll}
+            disabled={isDiscovering}
             style={{
               padding: '6px 12px',
               borderRadius: '6px',
@@ -109,14 +118,24 @@ export function EvidenceFeedList({
         </div>
       </div>
 
+      <div aria-label="문헌 처리 상태">
+        <label htmlFor="research-evidence-state">상태별 문헌 </label>
+        <select id="research-evidence-state" value={evidenceFilter} onChange={(event) => onFilter?.(event.target.value)}>
+          <option value="all">전체 ({evidenceFeed.length})</option>
+          {['included', 'content_unavailable', 'insufficient_content', 'not_assessed', 'assessment_failed', 'excluded', 'unverified'].map((state) =>
+            <option key={state} value={state}>{researchFormatterService.getResearchStateLabel(state)} ({evidenceCounts[state] || 0})</option>)}
+        </select>
+        <p>{Object.entries(evidenceCounts).map(([state, count]) => `${researchFormatterService.getResearchStateLabel(state)} ${count}건`).join(' · ')}</p>
+      </div>
+
       {/* 문헌 카드 목록 */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         {evidenceFeed.length === 0 && <p role="status">관련 문헌을 찾지 못했습니다. 검색어나 기관 필터를 바꿔 다시 조사해 주세요.</p>}
-        {evidenceFeed.map((item) => {
+        {displayedEvidence.map((item) => {
           const isChecked = selectedEvidenceIds.includes(item.id);
           const tierMeta = researchFormatterService.getCredibilityMeta(item.credibilityTier);
           const typeLabel = researchFormatterService.getSourceTypeLabel(item.sourceType);
-          const relMeta = researchFormatterService.getRelevanceMeta(item.relevanceScore);
+          const assessment = item.assessment;
 
           return (
             <div
@@ -139,6 +158,7 @@ export function EvidenceFeedList({
                     type="checkbox"
                     aria-label={`${item.sourceName} 선택`}
                     checked={isChecked}
+                    disabled={isDiscovering || !eligibleIds.includes(item.id)}
                     onChange={() => onToggleEvidence(item.id)}
                     style={{ width: '16px', height: '16px', cursor: 'pointer' }}
                   />
@@ -176,15 +196,15 @@ export function EvidenceFeedList({
 
                   {/* 출처 유형 라벨 */}
                   <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    {typeLabel} · {item.retrievalStatus === 'metadata' ? '서지정보만 확보' : item.retrievalStatus === 'abstract' ? '초록 확보' : ['source_excerpt', 'registered_excerpt'].includes(item.retrievalStatus) ? '원문 발췌 확보' : '확보 상태 미확인'}
+                    {typeLabel} · {item.retrievalStatus === 'metadata' ? '서지정보만 확보' : item.retrievalStatus === 'abstract' ? '초록 확보' : item.retrievalStatus === 'external_excerpt' ? '공개 원문 일부 확보' : ['source_excerpt', 'registered_excerpt'].includes(item.retrievalStatus) ? '원문 발췌 확보' : '확보 상태 미확인'}
                   </span>
                 </div>
 
                 {/* 적합도 점수 */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>검색 일치도:</span>
-                  <span style={{ fontSize: '0.8125rem', fontWeight: 800, color: relMeta.color }}>
-                    {relMeta.percentText}
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>관련성 판단:</span>
+                  <span style={{ fontSize: '0.8125rem', fontWeight: 800, color: 'var(--text-secondary)' }}>
+                    {researchFormatterService.getResearchStateLabel(evidenceState(item))}
                   </span>
                 </div>
               </div>
@@ -199,6 +219,23 @@ export function EvidenceFeedList({
                 </div>
               </div>
 
+              {item.assessmentCurrent === false && <p role="status">{researchFormatterService.getResearchStateLabel(evidenceState(item))} · 최신 확보 구간의 평가가 완료되면 선택할 수 있습니다.</p>}
+              {assessment && item.assessmentCurrent !== false && <div aria-label="문헌 관련성 설명" style={{ lineHeight: 1.7 }}>
+                <p><strong>어떤 문헌인가요?</strong> {assessment.documentSummary}</p>
+                <p><strong>{assessment.decision === 'included' ? '왜 이번 조사에 포함했나요?' : '왜 보류·제외했나요?'}</strong> {assessment.inclusionReason}</p>
+                {assessment.usefulness && <p><strong>무엇을 알아볼 수 있나요?</strong> {assessment.usefulness}</p>}
+                {assessment.limitations?.map((text, i) => <p key={i}><strong>적용 한계·미확인:</strong> {text}</p>)}
+                <p>{assessment.evidenceReferences?.length ? '위 설명은 확보한 내용에 대한 AI의 판단입니다.' : '확보 범위와 판단 상태를 확인해 주세요.'}</p>
+                {assessment.evidenceReferences?.length > 0 && <details>
+                  <summary>판단에 사용한 근거 구절 보기</summary>
+                  {item.readSegments?.filter((segment) => assessment.evidenceReferences.includes(segment.id)).map((segment) =>
+                    <blockquote key={segment.id} style={{ whiteSpace: 'pre-wrap' }}>{segment.text}<footer>{segment.sectionContext}</footer></blockquote>)}
+                </details>}
+              </div>}
+              {item.assessmentCurrent === false && assessment?.evidenceReferences?.length > 0 && <details><summary>이전 확보 구간의 평가 보기</summary><p>{assessment.inclusionReason}</p></details>}
+              {item.acquisitionAttempts?.length > 0 && <details><summary>내용 확보 기록 ({item.acquisitionAttempts.length})</summary>
+                {item.acquisitionAttempts.map((attempt, index) => <p key={index}>{safeSourceUrl(attempt.resolvedUrl || attempt.url) ? <a href={safeSourceUrl(attempt.resolvedUrl || attempt.url)} target="_blank" rel="noopener noreferrer">조회한 출처</a> : '주소 확인 불가'} · {researchFormatterService.getAcquisitionLabel(attempt.outcome)} · {attempt.at}</p>)}
+              </details>}
               {/* 핵심 인용 및 실측 데이터 박스 */}
               <div
                 style={{
@@ -226,10 +263,10 @@ export function EvidenceFeedList({
               </div>
 
               {/* 원문 링크 */}
-              {item.externalUrl && (
+              {safeSourceUrl(item.externalUrl) && (
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <a
-                    href={item.externalUrl}
+                    href={safeSourceUrl(item.externalUrl)}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
@@ -242,7 +279,7 @@ export function EvidenceFeedList({
                       gap: '4px'
                     }}
                   >
-                    <span>{item.urlLabel || '공인 원문 보기'}</span>
+                    <span>{item.urlLabel || '출처 링크 확인'}</span>
                     <ExternalLink size={12} />
                   </a>
                 </div>
@@ -251,6 +288,7 @@ export function EvidenceFeedList({
           );
         })}
       </div>
+      {displayedEvidence.length < (evidenceFilter === 'all' ? evidenceFeed.length : evidenceCounts[evidenceFilter] || 0) && <button type="button" onClick={onShowMore}>문헌 더 보기</button>}
 
       {/* 하단 CTA 액션 바 */}
       <div
@@ -271,7 +309,7 @@ export function EvidenceFeedList({
         <button
           type="button"
           onClick={onSynthesize}
-          disabled={isSynthesizing || selectedEvidenceIds.length === 0}
+          disabled={isDiscovering || isSynthesizing || selectedEvidenceIds.length === 0}
           style={{
             padding: '12px 24px',
             borderRadius: '8px',

@@ -4,11 +4,10 @@
  * (1단계: 주제 검색/필터 ➔ 2단계: 공인 문헌 피드 ➔ 3단계: 종합 리포트 및 지식 후보 발행)
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { researchRepo } from '../repositories/researchRepo';
-import { usableEvidenceIds } from '../services/researchService';
+import { usableEvidenceIds, recommendedEvidenceIds, researchCounts, visibleResearchEvidence } from '../services/researchService';
 
-const DEFAULT_INSTITUTIONS = [];
 
 export function useResearchController({ currentUser, initialQuery = '', onNavigateToTab } = {}) {
   // 화면 단계: 'search' | 'feed' | 'report'
@@ -16,13 +15,21 @@ export function useResearchController({ currentUser, initialQuery = '', onNaviga
 
   // 검색 주제 및 필터
   const [searchTopic, setSearchTopic] = useState(initialQuery || '');
-  const [targetInstitutions, setTargetInstitutions] = useState(DEFAULT_INSTITUTIONS);
+  const [institutionQuery, setInstitutionQuery] = useState('');
+  const targetInstitutions = useMemo(() => [...new Set(institutionQuery.split(',').map((value) => value.trim()).filter(Boolean))], [institutionQuery]);
 
   // 세션 목록 및 현재 세션
   const [pastSessions, setPastSessions] = useState([]);
   const [currentSessionId, setCurrentSessionId] = useState(null);
+  const [sessionUpdatedAt, setSessionUpdatedAt] = useState(null);
+  const [evidenceFilter, setEvidenceFilter] = useState('all');
+  const [visibleCount, setVisibleCount] = useState(30);
   const [comparisonContext, setComparisonContext] = useState(null);
   const [discoveryNotice, setDiscoveryNotice] = useState('');
+  const [searchPlan, setSearchPlan] = useState(null);
+  const [discoveryContext, setDiscoveryContext] = useState(null);
+  const [discoveryPhase, setDiscoveryPhase] = useState('');
+  const [clarificationAnswer, setClarificationAnswer] = useState('');
   const discoveryRequest = useRef(0);
 
   // 문헌 피드 & 종합 리포트 결과
@@ -59,6 +66,7 @@ export function useResearchController({ currentUser, initialQuery = '', onNaviga
 
   useEffect(() => {
     loadSessions();
+    return () => { discoveryRequest.current += 1; };
   }, [loadSessions]);
 
   // initialQuery 변경 시 자동 검색어 반영
@@ -73,22 +81,32 @@ export function useResearchController({ currentUser, initialQuery = '', onNaviga
    */
   const selectPastSession = useCallback(async (sessionId) => {
     const requestId = ++discoveryRequest.current;
+    setIsExporting(false);
+    setIsExportCandidateModalOpen(false);
+    setCandidateToExport(null);
     setIsDiscovering(false);
     setIsSynthesizing(true);
     try {
       const res = await researchRepo.getSession(sessionId);
       if (requestId !== discoveryRequest.current) return;
       setCurrentSessionId(res.sessionId);
+      setSessionUpdatedAt(res.updatedAt || null);
+      setEvidenceFilter('all'); setVisibleCount(30);
       setSearchTopic(res.searchTopic || '');
+      setInstitutionQuery((res.targetInstitutions || []).join(', '));
+      setClarificationAnswer('');
+      setDiscoveryPhase('');
       setEvidenceFeed(res.evidenceFeed || []);
-      setSelectedEvidenceIds(usableEvidenceIds(res.evidenceFeed || [], (res.evidenceFeed || []).map((e) => e.id)));
+      setSelectedEvidenceIds(recommendedEvidenceIds(res.evidenceFeed || []));
       setComparisonContext(res.comparisonContext || null);
       setDiscoveryNotice(res.notice || '');
+      setDiscoveryContext(res.discoveryContext || null);
+      setSearchPlan(res.discoveryContext?.plan || null);
       setSynthesisReport(res.synthesisReport || null);
       setCandidates(res.candidates || []);
       setActiveStep(res.synthesisReport ? 'report' : 'feed');
     } catch (err) {
-      setNotification({ type: 'error', message: err.message || '세션 정보를 불러오지 못했습니다.' });
+      if (requestId === discoveryRequest.current) setNotification({ type: 'error', message: err.message || '세션 정보를 불러오지 못했습니다.' });
     } finally {
       if (requestId === discoveryRequest.current) setIsSynthesizing(false);
     }
@@ -97,7 +115,7 @@ export function useResearchController({ currentUser, initialQuery = '', onNaviga
   /**
    * 1단계 ➔ 2단계: 실측 문헌 피드 발굴 실행
    */
-  const handleDiscover = useCallback(async (overrideTopic, context = comparisonContext) => {
+  const handleDiscover = useCallback(async (overrideTopic, context = comparisonContext, answer = '') => {
     const topic = (overrideTopic || searchTopic).trim();
     if (topic.length < 2) {
       setNotification({ type: 'warning', message: '조사할 기술 주제를 2자 이상 입력해주세요.' });
@@ -106,6 +124,13 @@ export function useResearchController({ currentUser, initialQuery = '', onNaviga
 
     const requestId = ++discoveryRequest.current;
     setIsDiscovering(true);
+    setDiscoveryPhase('clarifying');
+    setDiscoveryNotice('');
+    setDiscoveryContext(null);
+    setSearchPlan(null);
+    setIsExporting(false);
+    setIsExportCandidateModalOpen(false);
+    setCandidateToExport(null);
     setIsSynthesizing(false);
     setSearchTopic(topic);
     setComparisonContext(context);
@@ -116,27 +141,63 @@ export function useResearchController({ currentUser, initialQuery = '', onNaviga
     setSelectedEvidenceIds([]);
     setActiveStep('search');
     try {
+      const clarified = await researchRepo.clarifyTopic({
+        searchTopic: topic, targetInstitutions, comparisonContext: context, clarificationAnswer: answer
+      });
+      if (requestId !== discoveryRequest.current) return;
+      setSearchPlan(clarified.searchPlan || null);
+      if (clarified.searchPlan?.status === 'needs_clarification') return;
+      setDiscoveryPhase('discovering');
       const res = await researchRepo.discoverEvidences({
         searchTopic: topic,
         targetInstitutions,
-        comparisonContext: context
+        comparisonContext: context,
+        searchPlan: clarified.searchPlan,
+        clarificationAnswer: answer
       });
       if (requestId !== discoveryRequest.current) return;
 
       setCurrentSessionId(res.sessionId);
+      setSessionUpdatedAt(res.updatedAt || null);
+      setEvidenceFilter('all'); setVisibleCount(30);
       setEvidenceFeed(res.evidenceFeed || []);
-      setSelectedEvidenceIds(usableEvidenceIds(res.evidenceFeed || [], (res.evidenceFeed || []).map((e) => e.id)));
+      setSelectedEvidenceIds(recommendedEvidenceIds(res.evidenceFeed || []));
       setComparisonContext(res.comparisonContext || null);
       setDiscoveryNotice(res.notice || '');
+      setDiscoveryContext(res.discoveryContext || null);
+      setSearchPlan(res.discoveryContext?.plan || null);
       setActiveStep('feed');
       // 세션 목록 갱신
       loadSessions();
     } catch (err) {
       if (requestId === discoveryRequest.current) setNotification({ type: 'error', message: err.message || '문헌 발굴 요청에 실패했습니다.' });
     } finally {
-      if (requestId === discoveryRequest.current) setIsDiscovering(false);
+      if (requestId === discoveryRequest.current) { setIsDiscovering(false); setDiscoveryPhase(''); }
     }
   }, [searchTopic, targetInstitutions, loadSessions, comparisonContext]);
+
+  const handleContinueResearch = useCallback(async () => {
+    if (!currentSessionId || !sessionUpdatedAt || isDiscovering || isSynthesizing) return;
+    const requestId = ++discoveryRequest.current;
+    const knownIds = new Set(evidenceFeed.map((e) => e.id));
+    setIsDiscovering(true); setDiscoveryPhase('continuing');
+    try {
+      const res = await researchRepo.continueResearch(currentSessionId, sessionUpdatedAt);
+      if (requestId !== discoveryRequest.current) return;
+      const feed = res.evidenceFeed || [];
+      const additions = recommendedEvidenceIds(feed).filter((id) => !knownIds.has(id));
+      setSelectedEvidenceIds((previous) => usableEvidenceIds(feed, [...new Set([...previous, ...additions])]));
+      setEvidenceFeed(feed); setSessionUpdatedAt(res.updatedAt || null);
+      setDiscoveryContext(res.discoveryContext || null); setDiscoveryNotice(res.notice || '');
+      setSearchPlan(res.discoveryContext?.plan || null);
+      setSynthesisReport(res.synthesisReport || null); setCandidates(res.candidates || []);
+      setActiveStep('feed'); loadSessions();
+    } catch (err) {
+      if (requestId === discoveryRequest.current) setNotification({ type: 'error', message: err.message || '조사를 이어가지 못했습니다.' });
+    } finally {
+      if (requestId === discoveryRequest.current) { setIsDiscovering(false); setDiscoveryPhase(''); }
+    }
+  }, [currentSessionId, sessionUpdatedAt, isDiscovering, isSynthesizing, evidenceFeed, loadSessions]);
 
   /**
    * 문헌 선택 토글
@@ -148,10 +209,11 @@ export function useResearchController({ currentUser, initialQuery = '', onNaviga
   }, []);
 
   const selectAllEvidences = useCallback(() => {
-    if (selectedEvidenceIds.length === evidenceFeed.length) {
+    const eligibleIds = usableEvidenceIds(evidenceFeed, evidenceFeed.map((e) => e.id));
+    if (eligibleIds.length > 0 && eligibleIds.every((id) => selectedEvidenceIds.includes(id))) {
       setSelectedEvidenceIds([]);
     } else {
-      setSelectedEvidenceIds(evidenceFeed.map((e) => e.id));
+      setSelectedEvidenceIds(eligibleIds);
     }
   }, [evidenceFeed, selectedEvidenceIds]);
 
@@ -159,42 +221,46 @@ export function useResearchController({ currentUser, initialQuery = '', onNaviga
    * 2단계 ➔ 3단계: 선택된 문헌 종합 분석 리포트 생성
    */
   const handleSynthesizeReport = useCallback(async () => {
+    if (isDiscovering) return;
     if (!currentSessionId) return;
     if (usableEvidenceIds(evidenceFeed, selectedEvidenceIds).length === 0) {
       setNotification({ type: 'warning', message: '종합 분석을 생성할 공인 문헌을 1건 이상 선택해주세요.' });
       return;
     }
 
+    const requestId = ++discoveryRequest.current;
     setIsSynthesizing(true);
     try {
       const res = await researchRepo.synthesizeReport(currentSessionId, {
         selectedEvidenceIds: usableEvidenceIds(evidenceFeed, selectedEvidenceIds)
       });
+      if (requestId === discoveryRequest.current && res.updatedAt) setSessionUpdatedAt(res.updatedAt);
 
+      if (requestId !== discoveryRequest.current) return;
       setSynthesisReport(res.synthesisReport || null);
       setCandidates(res.candidates || []);
       setActiveStep('report');
       loadSessions();
     } catch (err) {
-      setNotification({ type: 'error', message: err.message || '종합 분석 리포트 생성에 실패했습니다.' });
+      if (requestId === discoveryRequest.current) setNotification({ type: 'error', message: err.message || '종합 분석 리포트 생성에 실패했습니다.' });
     } finally {
-      setIsSynthesizing(false);
+      if (requestId === discoveryRequest.current) setIsSynthesizing(false);
     }
-  }, [currentSessionId, selectedEvidenceIds, evidenceFeed, loadSessions]);
+  }, [currentSessionId, selectedEvidenceIds, evidenceFeed, loadSessions, isDiscovering]);
 
   /**
    * 기관 필터 토글
    */
-  const toggleInstitution = useCallback((inst) => {
-    setTargetInstitutions((prev) =>
-      prev.includes(inst) ? prev.filter((i) => i !== inst) : [...prev, inst]
-    );
-  }, []);
+
 
   /**
    * 지식 후보 티켓 내보내기 모달 열기
    */
   const openExportCandidateModal = useCallback((candidate) => {
+    if (isDiscovering || synthesisReport?.needsRefresh) {
+      setNotification({ type: 'warning', message: '최신 근거로 종합 보고서를 확인한 뒤 내보내 주세요.' });
+      return;
+    }
     // Level 2 이상 권한 가드레일 (게스트 차단 알림)
     if (!currentUser || currentUser.level < 2) {
       setNotification({
@@ -205,7 +271,7 @@ export function useResearchController({ currentUser, initialQuery = '', onNaviga
     }
     setCandidateToExport(candidate);
     setIsExportCandidateModalOpen(true);
-  }, [currentUser]);
+  }, [currentUser, isDiscovering, synthesisReport]);
 
   const closeExportCandidateModal = useCallback(() => {
     setIsExportCandidateModalOpen(false);
@@ -217,16 +283,15 @@ export function useResearchController({ currentUser, initialQuery = '', onNaviga
    */
   const handleExportCandidateTicket = useCallback(async ({ userNote }) => {
     if (!candidateToExport || !currentSessionId) return;
-
+    const requestId = discoveryRequest.current;
     setIsExporting(true);
     try {
       const res = await researchRepo.exportCandidateTicket(candidateToExport.candidateId, {
         sessionId: currentSessionId,
-        userNote: userNote || '',
-        author: currentUser?.name || '현장 엔지니어',
-        department: currentUser?.department || '패키징선행개발팀'
+        userNote: userNote || ''
       });
 
+      if (requestId !== discoveryRequest.current) return;
       setIsExportCandidateModalOpen(false);
       setCandidateToExport(null);
       setNotification({
@@ -236,12 +301,12 @@ export function useResearchController({ currentUser, initialQuery = '', onNaviga
 
       // Tab 3 검토 센터로 자동 이동
       if (onNavigateToTab) {
-        setTimeout(() => onNavigateToTab('review', { ticketId: res.ticketId }), 1200);
+        setTimeout(() => { if (requestId === discoveryRequest.current) onNavigateToTab('review', { ticketId: res.ticketId }); }, 1200);
       }
     } catch (err) {
-      setNotification({ type: 'error', message: err.message || '티켓 발행에 실패했습니다.' });
+      if (requestId === discoveryRequest.current) setNotification({ type: 'error', message: err.message || '티켓 발행에 실패했습니다.' });
     } finally {
-      setIsExporting(false);
+      if (requestId === discoveryRequest.current) setIsExporting(false);
     }
   }, [candidateToExport, currentSessionId, currentUser, onNavigateToTab]);
 
@@ -250,6 +315,9 @@ export function useResearchController({ currentUser, initialQuery = '', onNaviga
    */
   const handleResetSearch = useCallback(() => {
     discoveryRequest.current += 1;
+    setIsExporting(false);
+    setIsExportCandidateModalOpen(false);
+    setCandidateToExport(null);
     setIsDiscovering(false);
     setIsSynthesizing(false);
     setActiveStep('search');
@@ -259,8 +327,13 @@ export function useResearchController({ currentUser, initialQuery = '', onNaviga
     setSynthesisReport(null);
     setCandidates([]);
     setCurrentSessionId(null);
+    setSessionUpdatedAt(null); setEvidenceFilter('all'); setVisibleCount(30);
     setComparisonContext(null);
     setDiscoveryNotice('');
+    setSearchPlan(null);
+    setDiscoveryContext(null);
+    setDiscoveryPhase('');
+    setClarificationAnswer('');
   }, []);
 
   const usableSelectedIds = usableEvidenceIds(evidenceFeed, selectedEvidenceIds);
@@ -274,13 +347,30 @@ export function useResearchController({ currentUser, initialQuery = '', onNaviga
   }, [comparisonContext, currentSessionId, evidenceFeed, selectedEvidenceIds, onNavigateToTab]);
 
   return {
+    handleContinueResearch,
+    evidenceFilter,
+    setEvidenceFilter: (value) => { setEvidenceFilter(value); setVisibleCount(30); },
+    evidenceCounts: researchCounts(evidenceFeed),
+    displayedEvidence: visibleResearchEvidence(evidenceFeed, evidenceFilter, visibleCount),
+    showMoreEvidence: () => setVisibleCount((value) => value + 30),
     activeStep,
     searchTopic,
     targetInstitutions,
+    institutionQuery,
+    setInstitutionQuery: (value) => {
+      discoveryRequest.current += 1;
+      setInstitutionQuery(value); setSearchPlan(null); setDiscoveryContext(null);
+      setClarificationAnswer(''); setDiscoveryNotice(''); setIsDiscovering(false); setDiscoveryPhase('');
+    },
     pastSessions,
     currentSessionId,
     comparisonContext,
     discoveryNotice,
+    searchPlan,
+    discoveryContext,
+    discoveryPhase,
+    clarificationAnswer,
+    setClarificationAnswer,
     usableSelectedIds,
     handleReturnToComparison,
     evidenceFeed,
@@ -295,14 +385,17 @@ export function useResearchController({ currentUser, initialQuery = '', onNaviga
     candidateToExport,
     notification,
 
-    setSearchTopic,
+    setSearchTopic: (value) => {
+      discoveryRequest.current += 1;
+      setSearchTopic(value); setSearchPlan(null); setDiscoveryContext(null);
+      setClarificationAnswer(''); setDiscoveryNotice(''); setIsDiscovering(false); setDiscoveryPhase('');
+    },
     setActiveStep,
     selectPastSession,
     handleDiscover,
     toggleEvidenceSelection,
     selectAllEvidences,
     handleSynthesizeReport,
-    toggleInstitution,
     openExportCandidateModal,
     closeExportCandidateModal,
     handleExportCandidateTicket,

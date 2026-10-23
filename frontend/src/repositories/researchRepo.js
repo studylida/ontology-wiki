@@ -17,7 +17,7 @@ export const researchRepo = {
 
   /**
    * 외부 문헌 조사 주제 구체화 및 범위 필터 도출
-   * @param {{ searchTopic: string }} data
+   * @param {{ searchTopic: string, targetInstitutions?: string[], comparisonContext?: Object, clarificationAnswer?: string }} data
    * @returns {Promise<import('../types/research.dto').ResearchClarifyResponseDTO>}
    */
   async clarifyTopic(data) {
@@ -26,11 +26,15 @@ export const researchRepo = {
 
   /**
    * 공인 문헌 발굴 피드 생성 (Deep Research Agent)
-   * @param {{ searchTopic: string, targetInstitutions?: string[] }} data
+   * @param {{ searchTopic: string, targetInstitutions?: string[], comparisonContext?: Object, searchPlan?: Object, clarificationAnswer?: string }} data
    * @returns {Promise<import('../types/research.dto').ResearchDiscoverResponseDTO>}
    */
   async discoverEvidences(data) {
     return httpClient.post('/research/discover', data);
+  },
+
+  async continueResearch(sessionId, expectedUpdatedAt) {
+    return httpClient.post(`/research/sessions/${sessionId}/continue`, { expectedUpdatedAt });
   },
 
   /**
