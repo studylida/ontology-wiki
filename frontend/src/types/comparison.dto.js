@@ -32,11 +32,35 @@
  */
 
 /**
+ * @typedef {Object} ComparisonDraftDTO
+ * @property {string} targetAName - 등록 여부와 독립적인 초안 대상명
+ * @property {string} targetBName
+ * @property {string} purpose
+ * @property {string} applicationContext
+ * @property {Array<DynamicAxisCandidateDTO>} axes
+ */
+
+/**
  * @typedef {Object} ClarifyResponseDTO
+ * @property {ComparisonDraftDTO} draft
  * @property {string} recognizedIntent
  * @property {Array<ClarifyBranchDTO>} branches
  * @property {Array<ClarificationQuestionDTO>} [clarificationQuestions]
- * @property {Array<DynamicAxisTagDTO>} [dynamicAxesPool]
+ * @property {Array<DynamicAxisCandidateDTO>} [dynamicAxesPool]
+ * @property {string|null} [targetA] - 확인된 등록 대상
+ * @property {string|null} [targetB] - 확인된 등록 대상
+ * @property {Array<string>} [unresolvedMentions]
+ * @property {string} [generationStatus]
+ * @property {string} [message]
+ */
+
+/**
+ * @typedef {Object} DynamicAxisCandidateDTO
+ * @property {string} axisId
+ * @property {string} label
+ * @property {string} category
+ * @property {string} categoryLabel
+ * @property {Array<string>} [terms] - 관련 등록 설명·사양의 검색어
  */
 
 /**
@@ -57,6 +81,8 @@
  * @property {string} valB - Target B 기준값
  * @property {string|null} [evidenceA] - Target A 출처
  * @property {string|null} [evidenceB] - Target B 출처
+ * @property {Array<string>} [evidenceIdsA] - Target A의 관련 공개 출처
+ * @property {Array<string>} [evidenceIdsB] - Target B의 관련 공개 출처
  * @property {boolean} isGap - 온톨로지 공인 실측 미등록(Knowledge Gap) 여부
  * @property {string} [basis] - 출처 또는 측정 조건 안내
  */

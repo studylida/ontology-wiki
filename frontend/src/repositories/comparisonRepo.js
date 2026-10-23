@@ -14,8 +14,8 @@ export const comparisonRepo = {
     return httpClient.post(`/comparison-sessions/${sessionId}/research-evidence`, data);
   },
   /**
-   * 자연어 질문 구체화 및 등록 개념 비교 후보 도출 (Track 1)
-   * @param {{ query: string, baseConceptId?: string, customAxes?: string[] }} data
+   * Agent가 자연어를 초안으로 해석하고 Service가 위키 연결 여부를 덧붙인다.
+   * @param {{ query: string, draft?: import('../types/comparison.dto').ComparisonDraftDTO, targetA?: string, targetB?: string, answers?: Object, baseConceptId?: string, customAxes?: string[] }} data
    * @returns {Promise<import('../types/comparison.dto').ClarifyResponseDTO>}
    */
   async clarify(data) {

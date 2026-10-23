@@ -1,4 +1,4 @@
-"""Research flow assertions: mocked external services, in-memory DB, no operational writes."""
+"""Research flow assertions. Run via verify_research_discovery.py --regression for mocked discovery."""
 import asyncio
 import json
 import sys
@@ -181,10 +181,11 @@ async def checks():
                 return json.dumps({'contributions':[{'sourceId':source['id'],'content':{'summary':'','purpose':'','principles':[{'step':1,'title':'원리','content':source['quote'],'evidenceQuote':source['quote']}],'limitations':[],'perspectiveCases':[]}}]})
             with patch('backend.app.agents.directive_agent.llm_gateway.generate_text',new=directive):
                 r=await client.post(f'/api/v1/review-tickets/{tickets[0]}/directive',json={'directiveText':'원문으로 원리 보강','ticketVersion':1});r.raise_for_status()
-            assert {p['path'] for p in r.json()['structuredPatches']}=={'/concept','/evidenceSources','/wikiDraft'}
+            # Internal wiki/working snapshots stay out of the public ticket response.
+            assert {p['path'] for p in r.json()['structuredPatches']}=={'/concept','/evidenceSources'}
             preview=(await client.get(f'/api/v1/review-tickets/{tickets[0]}/wiki-preview')).json()['previewConcept']
             assert preview['purpose']=='칩 연결' and preview['principles']
-            with patch('backend.app.core.citation_manager.EvidenceCitationManager.is_deprecation_intended',new=AsyncMock(return_value=False)),patch('backend.app.agents.explainer_agent.explainer_agent.precompile_concept_explainers',new=AsyncMock()),patch.object(review_tickets.cache_manager,'release_presence_lock',new=AsyncMock()),patch.object(review_tickets.cache_manager,'delete',new=AsyncMock()),patch.object(review_tickets.cache_manager,'delete_prefix',new=AsyncMock()):
+            with patch('backend.app.core.citation_manager.EvidenceCitationManager.is_deprecation_intended',new=AsyncMock(return_value=False)),patch.object(review_tickets.cache_manager,'release_presence_lock',new=AsyncMock()),patch.object(review_tickets.cache_manager,'delete',new=AsyncMock()),patch.object(review_tickets.cache_manager,'delete_prefix',new=AsyncMock()):
                 r=await client.post(f'/api/v1/review-tickets/{tickets[0]}/approve',json={'conceptPlacement':{'domainFacet':'unit_process','scaleLevel':3,'processCategory':'광학 접합'}});r.raise_for_status()
             async with factory() as session:
                 concept=await session.get(ConceptModel,new_id)
@@ -197,4 +198,5 @@ async def checks():
         print('PASS honest empty/error/source-only results, exact publisher filters, Sol medium routing, existing/new deduplication, 403/422 guards, source-preserving tickets and reviewer-confirmed new concept approval; in-memory DB only')
     finally:await engine.dispose()
 
-asyncio.run(checks())
+if __name__ == '__main__':
+    asyncio.run(checks())

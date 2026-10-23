@@ -5,6 +5,7 @@
  */
 
 import React, { useState } from 'react';
+import {ComparisonMarkdown} from './ComparisonMarkdown';
 import { Sparkles, Send, ShieldAlert, ArrowRight, MessageSquare, AlertCircle } from 'lucide-react';
 
 const QUICK_TAIL_QUESTIONS = [
@@ -15,6 +16,7 @@ const QUICK_TAIL_QUESTIONS = [
 
 export function TailQuestionAdvisor({
   chatHistory = [],
+  evidences = [],
   isAdvising = false,
   onSendTailQuestion,
   onOpenExportModal
@@ -185,7 +187,7 @@ export function TailQuestionAdvisor({
                       인과 추론 및 튜닝 조언
                     </span>
                   </div>
-                  <div style={{ whiteSpace: 'pre-wrap' }}>{item.answer}</div>
+                  <ComparisonMarkdown evidences={evidences}>{item.answer}</ComparisonMarkdown>
 
                   {item.warnings && item.warnings.length > 0 && (
                     <div

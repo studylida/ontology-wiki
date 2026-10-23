@@ -7,6 +7,7 @@
 import React from 'react';
 import { Layers, AlertTriangle, BookCheck, Sparkles, Filter } from 'lucide-react';
 import { matrixHighlightService } from '../../services/matrixHighlightService';
+import {evidenceHref, openEvidence} from './ComparisonMarkdown';
 
 export function ComparisonMatrixTable({
   matrixRows = [],
@@ -34,10 +35,10 @@ export function ComparisonMatrixTable({
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Layers size={18} style={{ color: 'var(--accent-primary)' }} />
           <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>
-            심층 인과 비교 매트릭스 (Multidimensional Matrix)
+            목적별 비교와 근거
           </h3>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-            총 {matrixRows.length}개 축 비교
+            현재 {matrixRows.length}개 항목
           </span>
         </div>
 
@@ -152,16 +153,16 @@ export function ComparisonMatrixTable({
                           title="클릭하여 지식 갭 상세 확인 및 외부 문헌 조사(Tab 4) 연계"
                         >
                           <AlertTriangle size={12} />
-                          <span>⚠️ 미등록 데이터 (Gap)</span>
+                          <span>{row.valA === '공개 근거 미확인' ? '공개 근거 미확인' : '미등록 데이터 (Gap)'}</span>
                         </button>
                       ) : (
                         <div>
-                          <span style={{ fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', whiteSpace: 'pre-wrap' }}>
+                          <span style={{ fontWeight: row.axisCategory === 'purpose' ? 400 : 600, color: 'var(--text-primary)', whiteSpace: 'pre-wrap' }}>
                             {row.valA}
                           </span>
                           {row.evidenceA && (
                             <span style={{ marginLeft: '6px', fontSize: '0.6875rem', color: 'var(--accent-primary)', fontWeight: 600 }}>
-                              [{row.evidenceA}]
+                              {(row.evidenceIdsA?.length ? row.evidenceIdsA : [row.evidenceA]).map(id => <a key={id} href={evidenceHref(id)} onClick={event => openEvidence(event, id)}>[{id}] </a>)}
                             </span>
                           )}
                         </div>
@@ -190,16 +191,16 @@ export function ComparisonMatrixTable({
                           title="클릭하여 지식 갭 상세 확인 및 외부 문헌 조사(Tab 4) 연계"
                         >
                           <AlertTriangle size={12} />
-                          <span>⚠️ 미등록 데이터 (Gap)</span>
+                          <span>{row.valB === '공개 근거 미확인' ? '공개 근거 미확인' : '미등록 데이터 (Gap)'}</span>
                         </button>
                       ) : (
                         <div>
-                          <span style={{ fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', whiteSpace: 'pre-wrap' }}>
+                          <span style={{ fontWeight: row.axisCategory === 'purpose' ? 400 : 600, color: 'var(--text-primary)', whiteSpace: 'pre-wrap' }}>
                             {row.valB}
                           </span>
                           {row.evidenceB && (
                             <span style={{ marginLeft: '6px', fontSize: '0.6875rem', color: 'var(--accent-primary)', fontWeight: 600 }}>
-                              [{row.evidenceB}]
+                              {(row.evidenceIdsB?.length ? row.evidenceIdsB : [row.evidenceB]).map(id => <a key={id} href={evidenceHref(id)} onClick={event => openEvidence(event, id)}>[{id}] </a>)}
                             </span>
                           )}
                         </div>

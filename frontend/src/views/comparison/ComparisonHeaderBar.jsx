@@ -66,7 +66,8 @@ export function ComparisonHeaderBar({
             </span>
           </div>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
-            {currentSession.query}
+            비교 목적: {currentSession.contextParams?.draft?.purpose || currentSession.query}
+            {currentSession.contextParams?.draft?.purpose && <div>원래 질문: {currentSession.query}</div>}
           </div>
         </div>
       </div>

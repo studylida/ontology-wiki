@@ -1,3 +1,5 @@
+import {ComparisonMarkdown, evidenceAnchor} from './ComparisonMarkdown';
+import './comparison.css';
 /**
  * [계층 1] ComparisonCenterView (Pure Dumb UI Component)
  * - Tab 2 기술 대안 인과 탐구실 메인 오케스트레이터 뷰
@@ -24,6 +26,8 @@ export function ComparisonCenterView({
   targetB = '',
   domain = '',
   concepts = [],
+  axisCandidates = [], selectedAxes = [], customAxisText = '', answers = {},
+  setCustomAxisText, toggleAxis, setAnswer, handleConfirmTargets, draft, setDraftField, handleApplyDraft,
   categories = [],
   comparisonSummary = '',
   comparisonEvidences = [],
@@ -46,7 +50,6 @@ export function ComparisonCenterView({
   setDomain,
   setSelectedCategory,
   handleClarifyQuery,
-  handleSelectBranch,
   handleStartDirectComparison,
   handleResetToSetup,
   handleOpenGapPopover,
@@ -119,10 +122,13 @@ export function ComparisonCenterView({
           domain={domain}
           concepts={concepts}
           isStartingComparison={isMatrixLoading}
+          axisCandidates={axisCandidates} selectedAxes={selectedAxes} customAxisText={customAxisText}
+          answers={answers} onCustomAxisTextChange={setCustomAxisText} onToggleAxis={toggleAxis}
+          onAnswerChange={setAnswer} onConfirmTargets={handleConfirmTargets}
+          draft={draft} onDraftFieldChange={setDraftField} onApplyDraft={handleApplyDraft} onResearch={handleNavigateToResearch}
           onSelectTrackMode={setTrackMode}
           onQueryChange={setQuery}
           onClarifyQuery={handleClarifyQuery}
-          onSelectBranch={handleSelectBranch}
           onTargetAChange={setTargetA}
           onTargetBChange={setTargetB}
           onDomainChange={setDomain}
@@ -143,14 +149,14 @@ export function ComparisonCenterView({
 
           <section style={{ padding: '20px', background: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: '12px' }} aria-busy={isMatrixLoading}>
             <h3>목적에 따른 비교 해설</h3>
-            <p style={{ whiteSpace: 'pre-wrap' }}>{comparisonSummary}</p>
+            <ComparisonMarkdown evidences={comparisonEvidences}>{comparisonSummary}</ComparisonMarkdown>
             <button type="button" disabled={isMatrixLoading || isAdvising} onClick={() => handleNavigateToResearch()}
               style={{ padding: '8px 14px', border: '1px solid var(--accent-primary)', borderRadius: '6px', background: 'var(--accent-primary-light)', color: 'var(--accent-primary)', fontWeight: 600, cursor: 'pointer' }}>
               필요한 문헌 조사하기
             </button>
             {comparisonEvidences.length > 0 && <details style={{ marginTop: '12px' }}>
               <summary>비교에 사용한 자료 ({comparisonEvidences.length})</summary>
-              {comparisonEvidences.map((item, index) => <p key={`${item.id}-${index}`}>
+              {comparisonEvidences.map((item, index) => <p key={`${item.id}-${index}`} id={evidenceAnchor(item.id)}>
                 [{item.id}] {item.sourceName} {item.retrievalStatus === 'metadata' ? '(서지정보만 확보)' : ''}<br />
                 {item.externalUrl && <a href={item.externalUrl} target="_blank" rel="noopener noreferrer">출처 확인</a>}
                 <span style={{ display: 'block', whiteSpace: 'pre-wrap' }}>{item.quote}</span>
@@ -169,9 +175,11 @@ export function ComparisonCenterView({
             onSelectCategory={setSelectedCategory}
             onOpenGapPopover={handleOpenGapPopover}
           />
+          <p>목적별 평가는 관련 등록 설명과 공개 사양을 모아 보여줍니다. 조사에서 연결한 미검토 문헌은 해설 자료이며, 승인된 위키 사양으로 자동 반영하지 않습니다.</p>
 
           {/* 하단 대화형 꼬리질문 & 조건 튜닝 상담 */}
           <TailQuestionAdvisor
+            evidences={comparisonEvidences}
             chatHistory={chatHistory}
             isAdvising={isAdvising}
             onSendTailQuestion={handleSendTailQuestion}

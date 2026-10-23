@@ -1,10 +1,10 @@
 import { comparisonRepo } from '../repositories/comparisonRepo';
 
 export const comparisonService = {
-  async start({ targetA, targetB, title, query, domain, userId }) {
+  async start({ targetA, targetB, title, query, domain, axes, answers, draft, userId }) {
     if (!targetA || !targetB || targetA === targetB) throw new Error('서로 다른 비교 대상 두 개를 선택해 주세요.');
     return comparisonRepo.createSession({ title, query: query.trim() || title, userId,
-      contextParams: { targetA, targetB, domain } });
+      contextParams: { targetA, targetB, domain, axes, draft, clarificationAnswers: answers } });
   },
 
   sessionView(session) {
@@ -20,6 +20,7 @@ export const comparisonService = {
     return { comparisonSessionId: session.id, originalQuestion: session.query,
       targetA: session.contextParams.targetA, targetB: session.contextParams.targetB,
       targetAName: session.contextParams.targetAName, targetBName: session.contextParams.targetBName,
+      axes: session.contextParams.axes || [],
       conditions: session.contextParams.conditions || [], gapAxis: gap?.row?.axis || '',
       targetSide: gap?.targetSide || '' };
   },

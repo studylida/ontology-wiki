@@ -11,6 +11,7 @@ class ComparisonConceptOption(BaseModel):
     title: str
     engName: str
     domain: str
+    aliases: List[str] = Field(default_factory=list)
 
 
 class TailQuestionEntry(BaseModel):
@@ -170,6 +171,16 @@ class DynamicAxisCandidate(BaseModel):
     label: str
     category: str
     categoryLabel: str = Field(..., alias="category_label", serialization_alias="categoryLabel")
+    terms: List[str] = Field(default_factory=list)
+
+
+class ComparisonDraft(BaseModel):
+    """Question interpretation, independent of registration and verified comparison facts."""
+    targetAName: str = ""
+    targetBName: str = ""
+    purpose: str = ""
+    applicationContext: str = ""
+    axes: List[DynamicAxisCandidate] = Field(default_factory=list)
 
 
 class ClarifyRequest(BaseModel):
@@ -179,6 +190,10 @@ class ClarifyRequest(BaseModel):
     query: str = Field(..., min_length=2, description="엔지니어 비교 질문")
     baseConceptId: Optional[str] = Field(None, alias="base_concept_id", serialization_alias="baseConceptId")
     customAxes: Optional[List[str]] = Field(default_factory=list, alias="custom_axes", serialization_alias="customAxes")
+    targetA: Optional[str] = None
+    targetB: Optional[str] = None
+    answers: Dict[str, str] = Field(default_factory=dict)
+    draft: ComparisonDraft = Field(default_factory=ComparisonDraft)
 
 
 class ClarifyResponse(BaseModel):
@@ -186,9 +201,15 @@ class ClarifyResponse(BaseModel):
     model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
 
     recognizedIntent: str = Field(..., alias="recognized_intent", serialization_alias="recognizedIntent")
-    branches: List[ClarifyBranch]
-    dynamicAxesPool: Any = Field(..., alias="dynamic_axes_pool", serialization_alias="dynamicAxesPool")
-    clarificationQuestions: Any = Field(..., alias="clarification_questions", serialization_alias="clarificationQuestions")
+    branches: List[ClarifyBranch] = Field(default_factory=list)
+    draft: ComparisonDraft = Field(default_factory=ComparisonDraft)
+    dynamicAxesPool: List[DynamicAxisCandidate] = Field(default_factory=list, alias="dynamic_axes_pool", serialization_alias="dynamicAxesPool")
+    clarificationQuestions: List[ClarificationQuestion] = Field(default_factory=list, alias="clarification_questions", serialization_alias="clarificationQuestions")
+    targetA: Optional[str] = None
+    targetB: Optional[str] = None
+    unresolvedMentions: List[str] = Field(default_factory=list)
+    generationStatus: str = "ready"
+    message: str = ""
 
 
 # 호환용 별칭
@@ -208,6 +229,8 @@ class ComparisonMatrixRow(BaseModel):
     evidenceB: Optional[str] = Field(None, alias="evidence_b", serialization_alias="evidenceB")
     isGap: bool = Field(False, alias="is_gap", serialization_alias="isGap")
     basis: Optional[str] = None
+    evidenceIdsA: List[str] = Field(default_factory=list)
+    evidenceIdsB: List[str] = Field(default_factory=list)
 
 
 class ResearchEnrichmentRequest(BaseModel):
