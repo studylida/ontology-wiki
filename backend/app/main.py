@@ -18,6 +18,7 @@ from backend.app.api.evidences import router as evidences_router
 from backend.app.api.research import router as research_router
 from backend.app.api.chatbot import router as chatbot_router
 from backend.app.api.auth import router as auth_router
+from backend.app.api.admin_sources import router as admin_sources_router
 
 logging.basicConfig(
     level=logging.INFO if not settings.DEBUG else logging.DEBUG,
@@ -115,6 +116,7 @@ app.include_router(evidences_router, prefix="/api/v1")
 app.include_router(research_router, prefix="/api/v1")
 app.include_router(chatbot_router, prefix="/api/v1")
 app.include_router(auth_router, prefix="/api/v1")
+app.include_router(admin_sources_router, prefix="/api/v1")
 
 
 @app.get("/healthz", tags=["System"])

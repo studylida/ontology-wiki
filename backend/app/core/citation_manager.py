@@ -15,7 +15,7 @@ from backend.app.models.entities import EvidenceSourceModel, ResearchSessionMode
 
 logger = logging.getLogger("citation_manager")
 
-CITATION_REGEX = re.compile(r"\[E-(\d+)\]", re.IGNORECASE)
+CITATION_REGEX = re.compile(r"\[(E-[A-Za-z0-9][A-Za-z0-9_.:/-]*)\]", re.IGNORECASE)
 
 
 class EvidenceCitationManager:
@@ -27,7 +27,7 @@ class EvidenceCitationManager:
         if not text:
             return []
         matches = CITATION_REGEX.findall(text)
-        tags: Set[str] = {f"E-{int(m):02d}" for m in matches}
+        tags: Set[str] = {f"E-{int(m[2:]):02d}" if m[2:].isdigit() else m for m in matches}
         return sorted(list(tags))
 
     @staticmethod
@@ -161,7 +161,7 @@ class EvidenceCitationManager:
         for tag in tags_to_restore:
             orig_sentence = orig_sentences.get(tag)
             if orig_sentence:
-                clean_orig_sentence = re.sub(r"\[E-\d+\]", "", orig_sentence).strip()
+                clean_orig_sentence = CITATION_REGEX.sub("", orig_sentence).strip()
                 words = [w for w in clean_orig_sentence.split() if len(w) >= 2]
                 match_count = sum(1 for w in words if w in edited_text)
                 is_sentence_deleted = (len(words) > 0 and (match_count / len(words)) < 0.4)

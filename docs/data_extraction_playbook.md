@@ -1,6 +1,31 @@
 # 반도체 산업 위키 — 공식 출처별 데이터 추출 전략 및 프롬프트 플레이북 (Data Extraction Playbook)
 
-본 문서는 반도체 산업 지식 위키의 사전 적재(Pre-seeding) 및 지속적 확장을 위해, 각 공식 출처(기업·학술·표준)의 원문 형태를 분석하고 최적화된 필터링 기준, Pydantic 구조화 스키마, 시스템 프롬프트를 누적 기록하는 엔지니어링 가이드라인이다.
+본 문서는 출처를 읽을 때 확인할 기술적 관점과 원문 보존·검증 원칙을 기록하는 참고 자료다. 문서에 든 기술명·회사·수치·수식은 현재 입력의 사실을 대신하지 않는다. 발행사별 관점은 선택적 점검 기준이며, 모든 문서에 그 내용을 채우라는 지시가 아니다.
+
+## 실행 계약과 공통 원칙
+
+- 실행 모델은 추출 전용 설정 `SOURCE_EXTRACTION_MODEL=gemini-3.8-flash`, `SOURCE_EXTRACTION_REASONING_EFFORT=medium`이다. 최초 추출·분류·파라미터 보완·관계 및 사례 검토가 같은 설정을 사용하며 다른 탭의 모델 설정은 바꾸지 않는다. 선택 모델 실패 시 더 작은 모델로 대체하지 않고 기존 실패 처리로 알린다.
+
+- 런타임 출력 계약은 `backend/app/schemas/source_ingestion.py`와 기존 위키 DTO를 따른다. 아래 과거 발행사별 독립 스키마 대신 공통 `ExtractedConceptDiffDTO`의 정의·목적·원리·한계·사례·관계로 매핑한다. 새 필수 필드나 출처별 별도 저장 구조를 만들지 않는다.
+- 원문에 있는 내용을 빠짐없이 보존하되, 없는 필드를 채우지 않는다. 수치·단위·범위·약/이상/이하/돌파·실측/목표/전망/예시를 그대로 구별한다. 원문에 없는 메커니즘·회사 사례·안전 마진·수식을 전문 지식으로 보충하지 않는다.
+- 발행처는 적용 회사가 아니다. 일반 기술 수치를 특정 회사·제품 사례에 붙이지 않는다. 회사/제품 맥락은 소제목에, 실제 값은 뒤 문장에 있을 수 있으므로 문서 구조로 동일 조건인지 확인한다.
+- 전후 공정, 동급 대안, 종류(`isA`), 실제 구성 소속(`partOf`)은 별도 관계다. 사용 장비·외부 연결·평가 기준·응용 분야를 종류나 소속으로 바꾸지 않는다. 교육 편성 순서만으로 공정 순서를 만들지 않는다.
+- `source_service.clean_web_noise()`는 frontmatter와 식별 가능한 웹 UI 행만 제외한다. 기술 문장을 키워드 때문에 삭제하거나 긴 문서의 뒤쪽을 일괄 절단하지 않는다. 정제 결과를 의미 검토에도 사용한다. `validate_quotes()`는 기존 계약의 후보 정규화만 맡으며 인용 일치 여부로 적용을 차단하지 않는다.
+- `extract_single_document()`는 모든 구간을 처리하고 기존 사례·파라미터 보완 후 신규 관계와 사례 귀속을 검토한다. `review_relation_subjects()`는 모든 관계 유형을, `review_perspective_cases()`는 현재 신규 사례와 각 사양을 검토한다. 틀린 사양만 보류할 때는 맞는 사례 설명을 보존한다. 보류 사유는 기존 `validationWarnings`로 전달하며 문제없는 본문·기존 전문가 지식·다른 출처 기여는 보존한다.
+- 보호 토큰의 내부 정규화 숫자는 실제 수치가 아니다. 전체 토큰을 유지해 기존 게이트웨이에서 복원한 뒤 원문 값을 검증한다. 공개 문서 추출을 위해 다른 서비스의 DLP를 우회하거나 변경하지 않는다.
+- JSON·Pydantic 형식 검사와 문자열 근거 확인은 의미 정확도를 보장하지 않는다. 본문인지, 누구의 어떤 조건인지, 그 관계 유형이 맞는지를 별도로 확인한다.
+
+- 원문 줄 번호·인용문 문자열 일치·같은 줄의 명칭 유무로 추출 내용을 배제하지 않는다. 인용과 위치는 가능한 경우 메타데이터로 보관하며 Service의 기존 의미 검토로 관계의 주체·유형과 사례·수치의 귀속·조건을 판단한다. 형식·ID·분류 충돌·전체 후보 판정·적용 트랜잭션 검사는 유지한다.
+
+## 프롬프트와 예시 비교
+
+기본은 특정 기술·수치 예시를 포함하지 않는 공통 프롬프트다. Service 생성자의 `use_examples=True`는 격리 검증에서만 같은 파이프라인에 판단 예시를 추가한다. 발행사별 예시를 무조건 주입하지 않고 현재 단계·구간에 관련된 원문 기반 예시만 제한해 선택한다. 예시의 사실은 현재 입력의 근거가 될 수 없다.
+
+예시 원문과 검증 원문을 분리하고, 같은 검증 문서·모델·처리 조건에서 예시 없음과 추가를 비교한다. 이미 분석한 실패 문서는 회귀 자료로 쓰며 최종 효과는 별도 문서에서 확인한다. 예시·프롬프트를 보완한 문서를 다시 미사용 평가 문서라고 부르지 않는다. 허위 생성, 관계 주체·유형, 수치의 조건·회사 귀속, 한정어 손실, 정상 정의·사례 누락을 함께 평가한다. 품질 개선이 확인될 때만 예시를 기본 활성화하거나 129건으로 확대한다. 운영 DB의 수동 보정으로 통과시키지 않는다.
+
+## 발행사별 관점의 사용법
+
+이하의 수집 전략과 도메인 사례는 참고 자료다. 현재 원문에 해당 내용이 있을 때만 적용하며, 문서가 용어 정의인지 공정 설명인지 장비·표준·운영·연구 설명인지 먼저 구별한다.
 
 ---
 
@@ -16,7 +41,7 @@
 [전처리: 잡음 태그 제거, 텍스트 정규화]
             │
             ▼
-[LLM 구조화 추출기 (출처별 전용 프롬프트 & Pydantic 스키마)]
+[LLM 구조화 추출기 (공통 위키 계약 + 원문 유형별 선택적 점검)]
    ├── 삼성전자: Engineering Neutralizer (비유 제거, 순차 단계, 표준 정의)
    ├── SK하이닉스: Advanced Tradeoff & Mechanism (공학적 상충, 정량 수치, 양산 관리)
    ├── 램리서치: Equipment Physics & Chamber Control (하드웨어 한계, 가스/플라즈마 파라미터)
@@ -53,36 +78,11 @@
   2. 블로그 인사말 및 유튜브 홍보 ("삼성반도체이야기 독자 여러분", "구독과 좋아요").
   3. 자사 홍보성 형용사 ("세계 최초", "압도적 클라쓰").
 
-### 2.3 Pydantic 스키마
-```python
-from pydantic import BaseModel, Field
-from typing import List, Optional
+### 2.3 공통 위키 계약 매핑
+**현재 공통 DTO 매핑:** 개념 정의→`summary`, 도입 목적→`purpose`, 원문 공정 단계·원리→`principles`, 품질 한계→`limitations`, 명시된 선후·대안→관계 배열. 상위 공정과 하위 방식을 분리한다.
 
-class ProcessStep(BaseModel):
-    step_number: int
-    name: str = Field(description="정식 공정 단계 국문/영문 명칭 (비유 표현 절대 제외)")
-    sub_steps: List[str] = Field(description="세부 실행 순서")
-    key_materials: List[str] = Field(description="투입되는 소재/가스/화학물질")
-    key_equipment: List[str] = Field(description="사용되는 핵심 설비/장비")
-    mechanism: str = Field(description="물리/화학적 반응 원리 (객관적 서술)")
+원문에 없는 항목은 비우고, 위키 공통 출력 계약을 그대로 사용한다.
 
-class TechnicalComparison(BaseModel):
-    comparison_axis: str = Field(description="비교 대상 (예: 건식산화 vs 습식산화)")
-    aspects: List[dict] = Field(description="반응속도, 막질 밀도, 두께, 비용 등 비교 항목")
-
-class QualityMetric(BaseModel):
-    metric_name: str = Field(description="품질/수율 핵심 관리 지표")
-    description: str = Field(description="지표의 기술적 의미 및 불량 방지 목적")
-
-class SamsungFabricationOntology(BaseModel):
-    process_name: str
-    standard_definition: str = Field(description="일상 비유가 제거된 엄밀한 백과사전식 1~2줄 정의")
-    prerequisite_processes: List[str]
-    next_processes: List[str]
-    steps: List[ProcessStep]
-    comparisons: List[TechnicalComparison]
-    quality_metrics: List[QualityMetric]
-```
 
 ### 2.4 시스템 프롬프트 (Engineering Neutralizer Rule)
 ```markdown
@@ -92,7 +92,7 @@ class SamsungFabricationOntology(BaseModel):
 [엄격한 필터링 규칙]
 1. 비유 표현(Metaphor Stripping) 엄격 금지:
    - "피자 도우", "흑백 사진 인화", "미술시간 판화", "빌딩 짓기" 등 초심자용 일상 비유는 절대로 정의나 메커니즘에 포함하지 마라.
-   - 반드시 "단결정 실리콘 성장", "UV 선택적 투과", "플라즈마 라디칼 반응" 등 반도체 공학 표준 용어로 환원하여 작성하라.
+   - 원문에 기술적 설명이 함께 있을 때만 그 설명으로 정리하라. 비유만 있다면 메커니즘을 외부 지식으로 보충하지 마라.
 2. 홍보 및 감성적 수식어 제거:
    - "완벽한", "놀라운", "세계 최고", "독자 여러분" 등의 표현은 모두 배제하고 건조하고 명확한 기술 문서 톤(Dry Technical Tone)을 유지하라.
 3. 양자 대조 구조(건식 vs 습식, 양성 vs 음성, PVD vs CVD, 와이어 vs 플립칩)가 등장하면 빠짐없이 TechnicalComparison에 매핑하라.
@@ -121,35 +121,11 @@ class SamsungFabricationOntology(BaseModel):
   2. 취업준비생 응원 문구.
   3. 사내 문화 및 행사 스케치.
 
-### 3.3 Pydantic 스키마
-```python
-from pydantic import BaseModel, Field
-from typing import List, Optional
+### 3.3 공통 위키 계약 매핑
+**현재 공통 DTO 매핑:** 정의·메커니즘·한계→공통 본문 필드, 실제 회사·제품·설계 조건→`perspectiveCases`, 해당 조건의 수치→`specifications`. 운영 지표는 공정과 구분하고, 수치 없는 정의·사례도 보존한다.
 
-class EngineeringTradeoff(BaseModel):
-    decision_point: str = Field(description="공학적 의사결정 주제 (예: W2W vs D2W, 압력 조절 등)")
-    factor_a: dict = Field(description="선택 A의 장점과 치명적 단점 (예: 생산성 vs 수율 리스크)")
-    factor_b: dict = Field(description="선택 B의 장점과 치명적 단점")
-    resolution_engineering: str = Field(description="업계의 공학적 해결책 또는 절충안")
+원문에 없는 항목은 비우고, 위키 공통 출력 계약을 그대로 사용한다.
 
-class PhysicalMechanism(BaseModel):
-    phenomenon: str = Field(description="물리/화학적 현상 (예: RIE 비등방성, 구리 식각 불가)")
-    cause_and_reaction: str = Field(description="분자/이온 단위의 반응 원리 및 기화점 수치")
-    adopted_process: str = Field(description="이를 해결하기 위해 채택된 공법 (예: 다마신 공법)")
-
-class OperationalRule(BaseModel):
-    metric: str = Field(description="팹 운영 관리 지표 (TAT, Q-TIME, Bottleneck)")
-    definition: str = Field(description="기술적 정의")
-    risk_if_violated: str = Field(description="미준수 시 발생하는 결함 및 수율 손실 요인")
-
-class SKHynixTechnicalOntology(BaseModel):
-    domain: str = Field(description="전공정, 첨단 패키징, AI 메모리, 양산관리")
-    technology_name: str
-    key_quantitative_specs: List[str] = Field(description="피치(㎛), 기화점(℃), 층수 등 정량 수치")
-    tradeoffs: List[EngineeringTradeoff]
-    mechanisms: List[PhysicalMechanism]
-    operational_rules: Optional[List[OperationalRule]] = None
-```
 
 ### 3.4 시스템 프롬프트 (Advanced Tradeoff & Mechanism Rule)
 ```markdown
@@ -157,8 +133,8 @@ class SKHynixTechnicalOntology(BaseModel):
 주어진 SK하이닉스 뉴스룸 칼럼 및 기술 해설을 분석하여 지식 위키의 [심화 메커니즘]과 [공학적 트레이드오프]를 추출하라.
 
 [핵심 추출 지침]
-1. 상충 관계(Trade-off) 필수 추출:
-   - "A를 취하면 B가 나빠지는" 물리적/경제적 딜레마를 찾아내고, 업계가 이를 어떤 신소재나 공법으로 절충했는지 반드시 정리하라.
+1. 원문에 명시된 상충 관계(Trade-off) 보존:
+   - "A를 취하면 B가 나빠지는" 물리적/경제적 딜레마를 찾아내고, 같은 원문이 설명한 절충안이 있을 때만 정리하라. 해결책이 없으면 만들지 마라.
 2. 정량 수치 보존:
    - 피치(㎛), 온도(℃), 진공도, 종횡비(Aspect Ratio) 등의 정량 실측 수치는 생략하지 말고 그대로 보존하라.
 3. 팹 양산 운영 규칙(TAT, Q-TIME, Bottleneck)은 [반도체 생산운영 지식 모델] 섹션에 매핑하라.
@@ -187,29 +163,11 @@ class SKHynixTechnicalOntology(BaseModel):
   1. 장비사 IR/마케팅 문구 ("시장 점유율 1위", "고객사의 총소유비용 TCO 절감").
   2. 웹사이트 내비게이션, 쿠키 정책 및 법적 고지.
 
-### 4.3 Pydantic 스키마
-```python
-from pydantic import BaseModel, Field
-from typing import List, Optional
+### 4.3 공통 위키 계약 매핑
+**현재 공통 DTO 매핑:** 장비 제품군·공정·용어 정의를 구분해 공통 개념으로 추출한다. 장비 기능·적용 조건은 원문 범위의 본문·사례로, 실제 제어값은 해당 사례의 사양으로 매핑한다. 단순 제품·응용 목록은 관계가 아니다.
 
-class EquipmentCapability(BaseModel):
-    platform_name: str = Field(description="장비 플랫폼 명칭 (예: Akara, FLEX, SABRE 3D)")
-    process_type: str = Field(description="식각(RIE/ALE/Cryo), 증착(ALD/CVD/ECD), 베벨 제어")
-    physical_limit_addressed: str = Field(description="해결한 물리적 한계 (예: HAR 틸팅, 구리 보이드, 베벨 파티클)")
-    hardware_mechanism: str = Field(description="하드웨어 작동 원리 (밀리초 펄스, 극저온, 전기도금)")
-    target_devices: List[str] = Field(description="적용 소자 (3D NAND, HBM TSV, GAA 로직)")
+원문에 없는 항목은 비우고, 위키 공통 출력 계약을 그대로 사용한다.
 
-class EquipmentParameter(BaseModel):
-    parameter_name: str = Field(description="장비 제어 파라미터 (예: RF Bias, Cryo Temp, Chamber Pressure)")
-    control_significance: str = Field(description="해당 변수 제어가 박막/식각 형상에 미치는 영향")
-
-class LamEquipmentOntology(BaseModel):
-    technology_domain: str
-    term_or_feature: str
-    official_definition: str
-    equipment_platforms: List[EquipmentCapability]
-    critical_parameters: List[EquipmentParameter]
-```
 
 ### 4.4 시스템 프롬프트 (Equipment Physics & Chamber Control Rule)
 ```markdown
@@ -220,7 +178,7 @@ class LamEquipmentOntology(BaseModel):
 1. 하드웨어 플랫폼 및 기술 매핑:
    - 식각/증착 공정이 단순히 화학 반응으로 끝나지 않고, 어떤 챔버 메커니즘(극저온 플라즈마, ALD 자기제한 반응, ECD 전기도금)으로 구현되는지 장비 플랫폼과 매핑하라.
 2. 팹 결함 제어 관점 반영:
-   - 웨이퍼 베벨(Bevel Edge) 결함 방지, 종횡비 100:1 채널 홀 틸팅 제어 등 하드웨어 레벨의 수율 관리 파라미터를 누락 없이 수록하라.
+   - 현재 원문에 명시된 결함·제어 목적·제어 파라미터만 보존하라. 위에 든 베벨·종횡비 사례와 수치를 현재 문서에 복사하지 마라.
 ```
 
 ---
@@ -252,28 +210,11 @@ class LamEquipmentOntology(BaseModel):
   1. 법적 표준 저작권 공지, 표준화 위원회 회의록, 투표 절차 안내.
   2. 장비사 영업 채널 안내 및 전시회 부스 스케치.
 
-### 5.3 Pydantic 스키마
-```python
-from pydantic import BaseModel, Field
-from typing import List, Optional
+### 5.3 공통 위키 계약 매핑
+**현재 공통 DTO 매핑:** 장비/소재/단위공정과 통신·제어·설비 운영 표준을 구분해 공통 DTO로 추출한다. 표준 식별자·메시지 번호를 제조 파라미터로 바꾸지 않는다.
 
-class EquipmentProcessSolution(BaseModel):
-    category: str = Field(description="CMP, Epitaxy, E-beam Inspection, Hybrid Bonding")
-    platform: str = Field(description="장비 플랫폼 (Reflexion LK, Centura Epi, PROVision, Kinex)")
-    physical_challenge: str = Field(description="해결한 물리적 결함 (Dishing, Lattice Strain, Invisible Defect)")
-    co_optimized_solution: str = Field(description="공정/소재/하드웨어 복합 해결책")
+원문에 없는 항목은 비우고, 위키 공통 출력 계약을 그대로 사용한다.
 
-class SemiStandardSpec(BaseModel):
-    standard_id: str = Field(description="SEMI 규격 번호 (예: SEMI E30, SEMI E98, SEMI E133, SEMI E10)")
-    standard_name: str = Field(description="표준 정식 명칭 (GEM, OBEM, APCS, RAM)")
-    domain: str = Field(description="통신 프로토콜, 장비 객체 모델, 공정 제어(APC/FDC), 설비 효율(OEE)")
-    state_models_or_messages: List[str] = Field(description="주요 상태 머신 또는 SECS-II 메시지 스트림/함수")
-    operational_impact: str = Field(description="스마트 팹 운영 및 수율/생산성에 미치는 영향")
-
-class AmatSemiIntegrationOntology(BaseModel):
-    equipment_solutions: List[EquipmentProcessSolution]
-    automation_standards: List[SemiStandardSpec]
-```
 
 ### 5.4 시스템 프롬프트 (Smart Fab Automation & Process Control Rule)
 ```markdown
@@ -282,7 +223,7 @@ class AmatSemiIntegrationOntology(BaseModel):
 
 [핵심 추출 지침]
 1. 팹 자동화 연계성(SEMI 표준) 확보:
-   - 장비가 독립적으로 동작하는 것이 아니라, SECS/GEM(E30), E98(OBEM), E133(APCS)을 통해 어떻게 호스트와 통신하고 FDC/R2R 제어를 받는지를 명확히 규명하라.
+   - 현재 원문에 장비 통신이나 호스트 제어 연계가 명시되어 있으면 그 규격과 기능을 보존하라. 단위공정/장비 소개만 있는 문서에 표준 연계를 만들어 붙이지 마라.
 2. 단위공정 물리 한계(AMAT 솔루션) 명시:
    - CMP의 디싱(Dishing)과 침식(Erosion), 에피택시의 선택적 성장, E-beam의 결함 검출 한계를 장비 메커니즘과 매핑하라.
 3. 설비 효율 지표(E10, E79 OEE)는 생산운영 지식 모델로 정규화하라.
@@ -312,34 +253,11 @@ class AmatSemiIntegrationOntology(BaseModel):
   1. 지정학적 장비 수출 통제 및 무역 분쟁 뉴스.
   2. 네덜란드 본사 행사 및 주가/실적 홍보 멘트.
 
-### 6.3 Pydantic 스키마
-```python
-from pydantic import BaseModel, Field
-from typing import List, Optional
+### 6.3 공통 위키 계약 매핑
+**현재 공통 DTO 매핑:** 원문이 설명하는 기술·장비 세대·광학 조건을 분리하고 본문·사례·사양에 매핑한다. 파장·NA·해상도는 원문 표기와 각 세대의 소속을 보존한다. 수식은 원문에 있을 때만 `principles.formula`에 보존한다.
 
-class OpticalParameter(BaseModel):
-    wavelength_nm: float = Field(description="광원 파장 (예: 13.5nm EUV, 193nm ArFi)")
-    numerical_aperture: float = Field(description="개구수 NA (예: 0.33, 0.55)")
-    k1_factor: float = Field(description="공정 계수 k1")
-    achieved_resolution_nm: float = Field(description="달성 해상도 CD (nm)")
+원문에 없는 항목은 비우고, 위키 공통 출력 계약을 그대로 사용한다.
 
-class OpticalHardwareMechanism(BaseModel):
-    subsystem: str = Field(description="광원(LPP), 투영 광학계(Bragg Mirrors), 펠리클, 스테이지")
-    physical_principle: str = Field(description="주석 플라즈마 방출, Mo/Si 원자층 반사, 아나모픽 4x/8x 비대칭 축소")
-    limiting_factor: str = Field(description="빛의 흡수, 마스크 섀도잉, 광량 감쇄 등 물리적 한계")
-
-class ComputationalCorrection(BaseModel):
-    technique: str = Field(description="OPC, SMO, SBAR")
-    distortion_addressed: str = Field(description="회절 왜곡, 모서리 라운딩, 빛의 간섭")
-    mathematical_approach: str = Field(description="사전 역왜곡, 광원 동공 합성")
-
-class ASMLLithographyOntology(BaseModel):
-    platform_generation: str = Field(description="NXE (0.33 NA) vs EXE (0.55 High-NA)")
-    optical_parameters: OpticalParameter
-    hardware_mechanisms: List[OpticalHardwareMechanism]
-    computational_corrections: List[ComputationalCorrection]
-    closed_loop_metrology: dict = Field(description="YieldStar DBO 오버레이 실시간 피드백 루프")
-```
 
 ### 6.4 시스템 프롬프트 (Optical Physics & Holistic Lithography Rule)
 ```markdown
@@ -348,10 +266,10 @@ class ASMLLithographyOntology(BaseModel):
 
 [핵심 추출 지침]
 1. 레일리 한계식($CD = k_1 \frac{\lambda}{NA}$)과의 연계성 명시:
-   - 모든 기술(EUV, High-NA, OPC)이 레일리 수식의 어떤 변수(파장 단축, NA 확대, k1 개선)를 공략하는지 반드시 명시하라.
+   - 현재 원문에 수식과 기술별 연계가 함께 설명되어 있을 때만 보존하라. 모든 기술을 특정 수식에 강제로 연결하지 마라.
 2. 진공 반사 광학계와 아나모픽 광학 메커니즘 보존:
-   - Mo/Si 브래그 거울 반사율 감쇄, 0.55 NA 마스크 섀도잉 극복을 위한 4x/8x 비대칭 축소 투영 원리를 누락 없이 수록하라.
-3. 홀리스틱 폐루프(스캐너-YieldStar-OPC)를 생산운영 R2R 인터페이스와 매핑하라.
+   - 현재 원문이 설명한 광학 메커니즘과 수치를 해당 장비 세대·조건에만 귀속하라. 참고 예시의 NA·축소 배율·반사율을 다른 문서에 채우지 마라.
+3. 원문이 명시한 피드백·폐루프 연계만 보존하라. 다른 표준이나 R2R 인터페이스와의 연결을 추정하지 마라.
 ```
 
 ---
@@ -407,29 +325,11 @@ Tier 2 아카이브는 고정된 완료형이 아니며, 지식 베이스가 스
   2. 단순 리뷰 논문 중 정량적 실험 데이터가 결여된 개론성 기고문.
   3. 학회 등록 안내, 감사 문구(Acknowledgment), 연구비 지원 과제 번호.
 
-### 7.5 Pydantic 스키마
-```python
-from pydantic import BaseModel, Field
-from typing import List, Optional, Literal
+### 7.5 공통 위키 계약 매핑
+**현재 공통 DTO 매핑:** 정의·원리·연구 한계는 공통 본문에, 실제 실험/회사/제품 조건과 결과는 사례·사양에 매핑한다. 서지 메타데이터와 출처 URL은 지식의 근거로 보존한다. 논문 요약 스냅샷을 읽은 것을 원 논문 전체 검증이라고 표시하지 않는다.
 
-class AcademicEvidence(BaseModel):
-    tier: Literal["Tier-1 Landmark", "Tier-2 Fab Applied", "Tier-3 On-Demand"] = Field(description="3-Tier 분류")
-    domain: str = Field(description="트랜지스터, 메모리, 패키징, 공정물리, 수율/FDC")
-    publication_source: str = Field(description="IEEE IEDM/ISSCC/TED/ECTC, SPIE, imec Whitepaper, Acta Materialia")
-    paper_title: str
-    authors: str
-    year: int
-    doi: Optional[str]
-    physical_barrier_or_fab_problem: str = Field(description="해결하고자 한 물리적 한계 또는 팹 양산 수율 병목")
-    core_engineering_mechanism: str = Field(description="실험 및 이론으로 검증된 공학적 핵심 메커니즘")
-    fab_quantitative_parameters: dict = Field(description="양산 검증 수치 (선택비, EOT, 점도, 열전도도, 디싱 깊이 등)")
-    industry_impact: str = Field(description="실제 양산 라인(삼성, SK하이닉스, TSMC 등) 적용 및 상용화 파급력")
+원문에 없는 항목은 비우고, 위키 공통 출력 계약을 그대로 사용한다.
 
-class ResearchInstituteOntology(BaseModel):
-    research_body: str = Field(description="imec, NIST, IEEE, SPIE, AVS, ECS")
-    tier_level: str
-    evidence_papers: List[AcademicEvidence]
-```
 
 ### 7.6 시스템 프롬프트 (3-Tier Academic Landmark & Fab Applied Rule)
 ```markdown
@@ -442,7 +342,7 @@ class ResearchInstituteOntology(BaseModel):
    - Tier 2(현행 팹 양산 라인 핵심 적용 논문): HBM MR-MUF 보이드 제어, EUV CNT 펠리클 열화, DRAM ZAZ 커패시터, GAA SiGe 선택식각, Cu CMP BTA 화학, OES FDC 등 팹 라인 실무.
    - Tier 3(온디맨드 딥 다이브): 특정 미세 파라미터 질의 시 실시간 인용 연결.
 2. 엄격한 정량 공학 파라미터 보존:
-   - 단순 원리 기술에 그치지 않고, 논문에서 증명된 정량 수치(선택비 150:1, EOT 0.42nm, 점도 1.5 Pa·s, 열전도도 2.5 W/m·K 등)를 필수 보존하라.
+   - 단순 원리 기술에 그치지 않고, 현재 제공된 논문/요약에 실제로 적힌 정량값과 실험 조건을 보존하라. 이 플레이북의 예시 수치를 입력에 복사하지 마라.
 3. 정확한 학술 서지 메타데이터 기록:
-   - 저자, 학회/저널명, 연도, DOI를 명시하여 위키 독자가 원문을 직접 검증할 수 있도록 하라.
+   - 저자, 학회/저널명, 연도, DOI를 명시하여 위키 독자가 출처를 검증할 수 있도록 하라. 제공된 요약에 없는 서지정보는 추정하지 마라.
 ```

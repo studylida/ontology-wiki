@@ -1,0 +1,577 @@
+{
+  "version": 1,
+  "description": "원문 기반 대표 판단 예시. 닫힌 정답 목록이나 위키 시드가 아니다. expected는 판단에 필요한 부분 JSON이다.",
+  "examples": [
+    {
+      "id": "peer-alternative",
+      "judgment": "상위 공정과 하위 방식, 실제 비교 주체 구분",
+      "sourcePath": "samsung/samsung_fab_02_oxidation.md",
+      "sourceSha256": "5aa7b4e7a784416bad796cd816b7f60ba9aab99a01323e29dd383540c7cbab37",
+      "sourceLines": [
+        160
+      ],
+      "excerpt": "1: 열산화 방법은 산화반응에 사용되는 기체에 따라 건식산화(Dry Oxidation)와 습식산화(Wet Oxidation)로 나뉘는데요. 건식산화는 순수한 산소(O₂)만을 이용하기 때문에 산화막 성장속도가 느려 주로 얇은 막을 형성할 때 쓰이며, 전기적 특성이 좋은 산화물을 만들 수 있습니다. 습식 산화는 산소(O₂)와 함께 용해도가 큰 수증기(H₂O)를 함께 사용하기 때문에 산화막 성장속도가 빠르고 보다 두꺼운 막을 형성할 수 있지만, 건식 산화에 비해 산화층의 밀도가 낮습니다. 보통 동일한 온도와 시간에서 습식산화를 통해 얻어진 산화막은 건식산화를 사용한 것보다 약 5~10배 정도 더 두껍습니다.",
+      "keywords": [
+        "비해",
+        "반면",
+        "대체",
+        "대안",
+        "compared",
+        "versus",
+        "rather than"
+      ],
+      "expected": {
+        "extract": {
+          "concepts": [
+            {
+              "id": "dry-oxidation",
+              "title": "건식산화",
+              "domainFacet": "unit_process",
+              "scaleLevel": 3,
+              "alternatives": [
+                {
+                  "targetId": "wet-oxidation",
+                  "targetName": "습식산화",
+                  "commonGoal": "실리콘 산화막 형성",
+                  "tradeoff": "건식은 성장속도가 느리나 전기적 특성이 좋고, 습식은 성장이 빠르나 산화층 밀도가 낮다.",
+                  "evidenceLine": 1
+                }
+              ],
+              "isA": [
+                {
+                  "id": "thermal-oxidation",
+                  "name": "열산화",
+                  "reason": "반응 기체에 따른 열산화 방식",
+                  "evidenceLine": 1
+                }
+              ]
+            },
+            {
+              "id": "wet-oxidation",
+              "title": "습식산화",
+              "domainFacet": "unit_process",
+              "scaleLevel": 3
+            }
+          ]
+        },
+        "relations": {
+          "inputCandidate": {
+            "candidateIndex": 0,
+            "ownerId": "thermal-oxidation",
+            "field": "alternatives",
+            "targetId": "wet-oxidation"
+          },
+          "decisions": [
+            {
+              "candidateIndex": 0,
+              "supported": true,
+              "ownerId": "dry-oxidation",
+              "targetId": "wet-oxidation",
+              "ownerMention": "건식산화",
+              "targetMention": "습식산화",
+              "evidenceLine": 1,
+              "reason": "비교 주체는 열산화 전체가 아니라 건식산화이다."
+            }
+          ]
+        }
+      },
+      "rationale": "배열의 소유자와 비교 상대가 원문에서 비교되는 동급 방식이어야 한다. 상위 종류는 isA로 구분한다.",
+      "commonMistake": "열산화 전체의 대안으로 습식산화를 붙이거나 건식→습식을 제조 순서로 만들지 않는다."
+    },
+    {
+      "id": "actual-sequence",
+      "judgment": "원문에 명시된 물리적 선후 순서",
+      "sourcePath": "samsung/samsung_fab_01_wafer.md",
+      "sourceSha256": "1375defd2d8bdec0bbf745043f6e9a13dc774ff2646bb9b7ee487c05a9a99ac8",
+      "sourceLines": [
+        164
+      ],
+      "excerpt": "1: 절단된 웨이퍼는 가공을 거쳐 거울처럼 매끄럽게 만들어야 되는데요. 절단 직후의 웨이퍼는 표면에 흠결이 있고 거칠어 회로의 정밀도에 영향을 미칠 수 있기 때문입니다. 그래서 연마액과 연마 장비(Polishing machine)를 통해 웨이퍼 표면을 매끄럽게 갈아냅니다.",
+      "keywords": [
+        "직후",
+        "이후",
+        "선행",
+        "후속",
+        "거친 후",
+        "한 뒤",
+        "다음 공정",
+        "before",
+        "after",
+        "follows",
+        "→"
+      ],
+      "expected": {
+        "extract": {
+          "concepts": [
+            {
+              "id": "wafer-polishing",
+              "title": "연마",
+              "previousSteps": [
+                {
+                  "id": "wafer-slicing",
+                  "name": "절단",
+                  "reason": "절단 직후의 거친 웨이퍼 표면을 연마한다.",
+                  "evidenceLine": 1
+                }
+              ]
+            }
+          ]
+        },
+        "relations": {
+          "inputCandidate": {
+            "candidateIndex": 0,
+            "ownerId": "wafer-polishing",
+            "field": "previousSteps",
+            "targetId": "wafer-slicing"
+          },
+          "decisions": [
+            {
+              "candidateIndex": 0,
+              "supported": true,
+              "ownerId": "wafer-polishing",
+              "targetId": "wafer-slicing",
+              "ownerMention": "연마",
+              "targetMention": "절단",
+              "evidenceLine": 1,
+              "reason": "절단된 웨이퍼를 연마한다. previousSteps의 소유자는 후행 연마이다."
+            }
+          ]
+        }
+      },
+      "rationale": "공정 입력 상태와 실제 작업 순서가 명시되어 있다. previousSteps는 후행 개념이 소유한다.",
+      "commonMistake": "previousSteps를 정방향 화살표처럼 해석해 소유자와 대상을 뒤집지 않는다."
+    },
+    {
+      "id": "editorial-next",
+      "judgment": "교육 편성 순서와 제조 순서 구분",
+      "sourcePath": "samsung/samsung_fab_01_wafer.md",
+      "sourceSha256": "1375defd2d8bdec0bbf745043f6e9a13dc774ff2646bb9b7ee487c05a9a99ac8",
+      "sourceLines": [
+        180
+      ],
+      "excerpt": "1: 오늘은 이 중 웨이퍼의 개념과 명칭, 생산 과정에 대해 알아봤습니다. 앞으로 반도체 8대 공정의 각 과정을 알기 쉽고 재미있게 소개할 예정이니 기대해 주세요!",
+      "keywords": [
+        "다음 시간",
+        "지난 시간",
+        "다음 편",
+        "지난 편",
+        "시리즈"
+      ],
+      "expected": {
+        "extract": {
+          "concepts": []
+        },
+        "relations": {
+          "inputCandidate": {
+            "candidateIndex": 0,
+            "ownerId": "wafer-polishing",
+            "field": "nextSteps",
+            "targetId": "photolithography"
+          },
+          "decisions": [
+            {
+              "candidateIndex": 0,
+              "supported": false,
+              "reason": "다음 교육 시간의 소개이며 이 문장만으로 제조 순서를 확정할 수 없다."
+            }
+          ]
+        }
+      },
+      "rationale": "이 발췌만 보면 교육 예고이다. 같은 문서의 실제 제조 순서 설명은 별도로 판단한다.",
+      "commonMistake": "빈 발췌의 concepts:[]를 다른 기술 내용이 있는 구간에까지 적용하지 않는다."
+    },
+    {
+      "id": "definition-not-demo",
+      "judgment": "짧은 정의와 분류, 없는 사례를 만들지 않기",
+      "sourcePath": "samsung/glossary/반도체-용어-사전-커패시터.md",
+      "sourceSha256": "37a1273b170a7574a68f2ec4546546a4b36505c53da083fb3294e6a2a5f89297",
+      "sourceLines": [
+        139,
+        140,
+        142
+      ],
+      "excerpt": "1: **커패시터**\n2: [Capacitor]\n3: 전자회로에서 전기를 일시적으로 저장하는 장치로, 콘덴서(Condenser) 혹은 축전기라고도 부른다.",
+      "keywords": [
+        "용어 사전",
+        "definition",
+        "glossary",
+        "소자이다",
+        "집적회로의 한 종류"
+      ],
+      "expected": {
+        "extract": {
+          "concepts": [
+            {
+              "id": "capacitor",
+              "title": "커패시터",
+              "engName": "Capacitor",
+              "domainFacet": "device",
+              "category": "수동 소자",
+              "scaleLevel": 2,
+              "classificationNote": "전하를 저장하는 전자회로 구성 소자이다.",
+              "summary": "전기를 일시적으로 저장하는 전자회로 장치로 콘덴서 또는 축전기라고도 부른다.",
+              "summaryEvidenceLine": 3,
+              "perspectiveCases": []
+            }
+          ]
+        },
+        "classification": {
+          "concepts": [
+            {
+              "conceptId": "capacitor",
+              "domainFacet": "device",
+              "category": "수동 소자",
+              "scaleLevel": 2,
+              "classificationNote": "전자회로에서 전기를 저장하는 구성 소자이다."
+            }
+          ]
+        }
+      },
+      "rationale": "대상 종류와 규모를 분리해 색인한다. 정의만 있는 이 발췌에는 회사별 사례·제조 레시피가 없다.",
+      "commonMistake": "발행처를 적용 회사로 바꾸거나 모든 용어를 단위 공정/Scale 3으로 분류하지 않는다."
+    },
+    {
+      "id": "equipment-states",
+      "judgment": "운영 상태·프로토콜 식별자를 공정이나 수치로 만들지 않기",
+      "sourcePath": "semi/semi_standards_and_smart_fab.md",
+      "sourceSha256": "440ee3981136b6c8b69e04be54f004e0bea7fd39c16be7420828faa1bafbb443",
+      "sourceLines": [
+        16,
+        17,
+        19,
+        20,
+        31
+      ],
+      "excerpt": "1: ### 1.1 SEMI E30 (GEM, Generic Equipment Model)\n2: - **정의**: 반도체 제조 장비가 팹 호스트(Factory Host) 시스템과 통신하고 원격 제어되기 위해 반드시 구현해야 하는 표준 동작 및 상태 모델(State Model).\n3:   1. **Control State Model**: Offline(호스트와 단절) vs Online(호스트 통신 활성: Local 모니터링 전용 vs Remote 원격 레시피/시작 제어).\n4:   2. **Processing State Model**: Idle(대기), Setting Up(셋업), Executing(가공 중), Paused(일시정지).\n5:   - `S1`: Equipment Status (S1F13/S1F14 Establish Communications, S1F3 Status Request).",
+      "keywords": [
+        "상태 모델",
+        "제어 모델",
+        "protocol",
+        "state model",
+        "SECS",
+        "GEM",
+        "SEMI E",
+        "호스트"
+      ],
+      "expected": {
+        "extract": {
+          "concepts": [
+            {
+              "id": "gem",
+              "title": "GEM",
+              "domainFacet": "operations",
+              "category": "장비 통신·제어",
+              "scaleLevel": 5,
+              "summary": "반도체 제조 장비와 팹 호스트 사이의 통신 및 원격 제어를 위한 표준 동작·상태 모델.",
+              "summaryEvidenceLine": 2,
+              "previousSteps": [],
+              "nextSteps": [],
+              "alternatives": [],
+              "perspectiveCases": []
+            }
+          ]
+        },
+        "classification": {
+          "concepts": [
+            {
+              "conceptId": "gem",
+              "domainFacet": "operations",
+              "category": "장비 통신·제어",
+              "scaleLevel": 5,
+              "classificationNote": "팹 호스트와 장비 사이의 통신·제어 표준이며 웨이퍼 가공 공정이 아니다."
+            }
+          ]
+        },
+        "relations": {
+          "inputCandidate": {
+            "candidateIndex": 0,
+            "ownerId": "idle",
+            "field": "nextSteps",
+            "targetId": "executing"
+          },
+          "decisions": [
+            {
+              "candidateIndex": 0,
+              "supported": false,
+              "reason": "장비 상태 목록은 웨이퍼 제조 공정의 선후 관계가 아니다."
+            }
+          ]
+        },
+        "parameters": {
+          "concepts": []
+        }
+      },
+      "rationale": "Offline/Online은 상태, S1F13은 메시지 식별자이다. 나열과 vs 표기만으로 기술 대안이나 제조 순서를 만들지 않는다.",
+      "commonMistake": "S1F13의 숫자를 파라미터로 추출하거나 상태 나열을 제조 파이프라인으로 연결하지 않는다."
+    },
+    {
+      "id": "company-bounds",
+      "judgment": "회사·제품별 사례와 수치의 귀속, 부등호·단위 보존",
+      "sourcePath": "research_institutes/tier1_landmark_02_memory_3dnand_hbm.md",
+      "sourceSha256": "c266f63a77734350d337cc99d1fce161f2a7b1afa899a0146234790d098f22ae",
+      "sourceLines": [
+        26,
+        28,
+        33,
+        34
+      ],
+      "excerpt": "1: ### [LM-07] 3D V-NAND 최초 상용 양산화: TCAT 실증 (2009 VLSI / 2013 IEDM)\n2: - **저자/기관**: J. Jang, H-S. Kim, W. Cho, H. Cho, J. Kim, et al. (삼성전자 반도체연구소 메모리사업부)\n3:   - 2D 낸드 대비 쓰기(Program) 속도 **2배 이상 향상**, 소비 전력 **50% 이상 절감**, 쓰기 내구성(Endurance) **10배 이상 향상(30,000회 이상)**.\n4: - **산업적 파급 효과**: 삼성전자가 2013년 8월 세계 최초로 1세대 24단 3D V-NAND 양산 출하에 성공하며 세계 최초의 3차원 메모리 상용화 시대를 개막함.",
+      "keywords": [
+        "양산",
+        "실증",
+        "적층",
+        "이상 향상",
+        "이상 절감",
+        "이상 줄",
+        "이하 해상도",
+        "수치",
+        "대역폭",
+        "나노미터",
+        "마이크로미터",
+        "layer",
+        "margin",
+        "performance"
+      ],
+      "expected": {
+        "parameters": {
+          "concepts": [
+            {
+              "id": "tcat",
+              "perspectiveCases": [
+                {
+                  "perspectiveTitle": "삼성전자 TCAT 3D V-NAND 실증",
+                  "perspectiveBadge": "3D V-NAND",
+                  "narrative": "삼성전자가 2013년 8월 1세대 24단 3D V-NAND를 양산 출하했다.",
+                  "evidenceLine": 4,
+                  "specifications": [
+                    {
+                      "parameter": "쓰기 속도 향상",
+                      "value": "2 이상",
+                      "unit": "배",
+                      "safetyMargin": null,
+                      "evidenceLine": 3,
+                      "fieldEvidenceLines": {
+                        "value": 3,
+                        "unit": 3,
+                        "safetyMargin": null
+                      }
+                    },
+                    {
+                      "parameter": "소비 전력 절감",
+                      "value": "50 이상",
+                      "unit": "%",
+                      "safetyMargin": null,
+                      "evidenceLine": 3,
+                      "fieldEvidenceLines": {
+                        "value": 3,
+                        "unit": 3,
+                        "safetyMargin": null
+                      }
+                    },
+                    {
+                      "parameter": "쓰기 내구성",
+                      "value": "30,000 이상",
+                      "unit": "회",
+                      "safetyMargin": null,
+                      "evidenceLine": 3,
+                      "fieldEvidenceLines": {
+                        "value": 3,
+                        "unit": 3,
+                        "safetyMargin": null
+                      }
+                    },
+                    {
+                      "parameter": "적층 단수",
+                      "value": "24",
+                      "unit": "단",
+                      "safetyMargin": null,
+                      "evidenceLine": 4,
+                      "fieldEvidenceLines": {
+                        "value": 4,
+                        "unit": 4,
+                        "safetyMargin": null
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "extract": {
+          "concepts": [
+            {
+              "id": "tcat",
+              "perspectiveCases": [
+                {
+                  "perspectiveTitle": "삼성전자 TCAT 3D V-NAND 실증",
+                  "perspectiveBadge": "3D V-NAND",
+                  "narrative": "삼성전자가 2013년 8월 1세대 24단 3D V-NAND를 양산 출하했다.",
+                  "evidenceLine": 4,
+                  "specifications": [
+                    {
+                      "parameter": "쓰기 속도 향상",
+                      "value": "2 이상",
+                      "unit": "배",
+                      "safetyMargin": null,
+                      "evidenceLine": 3,
+                      "fieldEvidenceLines": {
+                        "value": 3,
+                        "unit": 3,
+                        "safetyMargin": null
+                      }
+                    },
+                    {
+                      "parameter": "소비 전력 절감",
+                      "value": "50 이상",
+                      "unit": "%",
+                      "safetyMargin": null,
+                      "evidenceLine": 3,
+                      "fieldEvidenceLines": {
+                        "value": 3,
+                        "unit": 3,
+                        "safetyMargin": null
+                      }
+                    },
+                    {
+                      "parameter": "쓰기 내구성",
+                      "value": "30,000 이상",
+                      "unit": "회",
+                      "safetyMargin": null,
+                      "evidenceLine": 3,
+                      "fieldEvidenceLines": {
+                        "value": 3,
+                        "unit": 3,
+                        "safetyMargin": null
+                      }
+                    },
+                    {
+                      "parameter": "적층 단수",
+                      "value": "24",
+                      "unit": "단",
+                      "safetyMargin": null,
+                      "evidenceLine": 4,
+                      "fieldEvidenceLines": {
+                        "value": 4,
+                        "unit": 4,
+                        "safetyMargin": null
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "rationale": "이 수치는 로컬 아카이브의 해당 삼성전자 사례 주장이다. 연도는 맥락이며 성능 개선량은 안전 마진이 아니다. DOI 원 논문을 새로 검증했다는 뜻은 아니다.",
+      "commonMistake": "이 수치를 다른 회사·HBM·다른 낸드 사례에 복사하거나 2013을 공정 파라미터로 만들지 않는다."
+    },
+    {
+      "id": "illustrative-error",
+      "judgment": "설명용 오차와 물리적 안전 마진 구분",
+      "sourcePath": "skhynix/skhynix_ai_06_neuromorphic.md",
+      "sourceSha256": "887b133003c672577ac73c26dcda420915efea4f61a071ecde298241d0361eb8",
+      "sourceLines": [
+        39
+      ],
+      "excerpt": "1: <그림 3>을 살펴보자. 만약 위 순서도에서 N값이 정확히 구분되지 않고, ±(플러스마이너스) 0.1 정도의 오차가 있으면 어떻게 될까? 연산이 완료된 후에도 결괏값이 틀릴 뿐만 아니라 운이 없으면 아예 분기(조건문) 처리 자체가 망가져 버릴 수 있다. N값이 정수로 떨어지지 않으면, 프로그램이 멈추지 않고 계속 계산을 진행하고 있을 수도 있다. 결국 논리적인 구분의 값이 정확하지 않으면 더 이상 컴퓨터를 통해 초정밀 계산을 수행할 수 없게 된다. 이는 수십 nm(나노미터) 수준의 오차도 허용되지 않는 현대 산업에서는 매우 치명적일 것이다.",
+      "keywords": [
+        "오차",
+        "±",
+        "예를 들어",
+        "margin",
+        "tolerance",
+        "안전 마진",
+        "공차",
+        "가정"
+      ],
+      "expected": {
+        "extract": {
+          "concepts": []
+        },
+        "parameters": {
+          "concepts": []
+        }
+      },
+      "rationale": "조건문 계산 예시의 ±0.1은 제조 허용 공차나 회사 양산 레시피가 아니다. 이 발췌만으로 공정 사례를 생성하지 않는다.",
+      "commonMistake": "± 기호가 있다는 이유로 safetyMargin을 채우지 않는다. 명시된 실제 공차가 있다면 그 대상 사례에 원문 그대로 보존해야 한다."
+    },
+    {
+      "id": "title-not-evidence",
+      "judgment": "제목에만 있는 기술의 상세 설명을 보충하지 않기",
+      "sourcePath": "skhynix/skhynix_tech_tsv_mr_muf.md",
+      "sourceSha256": "fa947e79c613920825ed498615af995e0636e94b88e1a9907fd121474bd0c18b",
+      "sourceLines": [
+        9,
+        21
+      ],
+      "excerpt": "1: # [미래인재 CLASS] HBM의 진화: TSV와 MR-MUF\n2: 이날 특강은 HBM을 정의하는 것으로 문을 열었다. 신 교수는 “D램을 수직으로 쌓아 초당 전송 가능한 데이터양을 범용 D램보다 수백 배 늘린 제품”이라고 표현하며, “대한민국 반도체 산업의 최전선에서 이익을 창출하고 있다”고 설명했다.",
+      "keywords": [
+        "인터뷰",
+        "CLASS",
+        "특강"
+      ],
+      "expected": {
+        "extract": {
+          "concepts": [
+            {
+              "id": "hbm",
+              "title": "HBM",
+              "domainFacet": "device",
+              "scaleLevel": 2,
+              "summary": "D램을 수직으로 쌓아 초당 전송 가능한 데이터양을 범용 D램보다 수백 배 늘린 제품이다.",
+              "summaryEvidenceLine": 2
+            }
+          ]
+        },
+        "parameters": {
+          "concepts": []
+        }
+      },
+      "rationale": "본문에 정의된 HBM은 추출하지만 제목의 TSV/MR-MUF만으로 작동 원리·수치·사례를 만들지 않는다.",
+      "commonMistake": "사전 지식으로 원문 빈칸을 채우거나 수백배를 임의의 정확한 숫자로 바꾸지 않는다."
+    },
+    {
+      "id": "structure-not-association",
+      "judgment": "실제 구성과 단순 연결·활용 구분",
+      "sourcePath": "samsung/glossary/반도체-용어-사전-모바일-ap.md",
+      "sourceSha256": "abda93129f88752603727a1ba7a130ffb436889a8e33fd3718936c4b45c10f36",
+      "sourceLines": [
+        146
+      ],
+      "excerpt": "1: 모바일 AP의 주요 기능은 운영체제 실행, 웹 브라우징, 멀티 터치 스크린 입력 실행 등 스마트 기기의 핵심기능을 담당하는 CPU와 그래픽과 영상 데이터를 처리해 화면에 표시해주는 GPU 등이 있다.",
+      "keywords": [
+        "구성된다",
+        "구성되는",
+        "구성되며",
+        "포함한다",
+        "속에는",
+        "내부 구조",
+        "component",
+        "consist",
+        "composed"
+      ],
+      "expected": {
+        "extract": {
+          "concepts": [
+            {
+              "id": "gpu",
+              "title": "GPU",
+              "partOf": [
+                {
+                  "id": "mobile-ap",
+                  "name": "모바일 AP",
+                  "reason": "원문은 모바일 AP 안의 CPU·GPU 등 구성 기능을 설명한다.",
+                  "evidenceLine": 1
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "rationale": "이 발췌는 AP 내부 구성을 명시한다. 다른 문서의 함께 사용·외부 연결 문장은 내부 소속을 뜻하지 않는다.",
+      "commonMistake": "GPU와 연결한 메모리를 무조건 GPU의 partOf로 만들거나 공정이 사용한 장비를 공정의 상위 소속으로 만들지 않는다."
+    }
+  ]
+}

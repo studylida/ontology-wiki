@@ -101,6 +101,10 @@ class CacheManager:
             count += 1
         return count
 
+    async def flush_all(self) -> int:
+        """Flushes all cached entries."""
+        return await self.delete_prefix("")
+
     # JSON convenience aliases
     get_json = get
     set_json = set

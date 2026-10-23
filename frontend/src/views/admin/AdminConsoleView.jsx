@@ -5,9 +5,13 @@
  */
 
 import React from 'react';
-import { ShieldAlert, ShieldCheck, Users, CheckCircle2, AlertTriangle, X } from 'lucide-react';
+import { ShieldAlert, ShieldCheck, Users, CheckCircle2, AlertTriangle, X, FileText } from 'lucide-react';
 import { AccessRequestQueue } from './AccessRequestQueue';
 import { UserManagementTable } from './UserManagementTable';
+import { SourceIngestionTab } from './SourceIngestionTab';
+import { ExtractionProgressModal } from './ExtractionProgressModal';
+import { ExtractionConfirmModal } from './ExtractionConfirmModal';
+import { ExtractionPreviewModal } from './ExtractionPreviewModal';
 
 export function AdminConsoleView({
   activeSubTab = 'requests',
@@ -20,12 +24,45 @@ export function AdminConsoleView({
   notification = null,
   currentUser = null,
 
+  // 소스 인제스천 프롭스
+  sources = [],
+  sourceSummary = { totalCount: 0, succeededCount: 0, pendingCount: 0, modifiedCount: 0 },
+  selectedDocIds = new Set(),
+  isSourceLoading = false,
+  isExtracting = false,
+  isProgressModalOpen = false,
+  extractionConfirmation = null,
+  extractionRecovery = null,
+  extractionProgress = { current: 0, total: 0, currentTitle: '', currentPublisher: '', step: '대기 중' },
+  extractionLogs = [],
+  isExtractionFinished = false,
+  extractionError = null,
+  previewData = null,
+  isPreviewModalOpen = false,
+  isApplying = false,
+
   setActiveSubTab,
   setFilterStatus,
   handleApproveRequest,
   handleRejectRequest,
   handleUpdateUserLevel,
   handleToggleUserActive,
+  handleToggleSelectDoc,
+  handleSelectAllDocs,
+  handleClearDocSelection,
+  handleRunExtraction,
+  handleRunReextraction,
+  handleConfirmExtraction,
+  handleResumeExtraction,
+  cancelExtractionConfirmation,
+  handleOpenDocPreview,
+  openProgressModal,
+  handleOpenProgressPreview,
+  closeProgressModal,
+  closePreviewModal,
+  handleApplyWiki,
+  handleChangeClassification,
+  classificationError,
   clearNotification
 }) {
   return (
@@ -121,6 +158,17 @@ export function AdminConsoleView({
             <Users size={14} />
             <span>엔지니어 계정 및 권한 관리 ({users.length})</span>
           </button>
+          {currentUser?.level >= 4 && (
+            <button
+              type="button"
+              className={`sliding-tab-item ${activeSubTab === 'sources' ? 'active' : ''}`}
+              onClick={() => setActiveSubTab('sources')}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+            >
+              <FileText size={14} />
+              <span>원천 백서 지식 추출 ({sourceSummary?.totalCount || 0})</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -144,6 +192,54 @@ export function AdminConsoleView({
           onToggleActive={handleToggleUserActive}
         />
       )}
+
+      {activeSubTab === 'sources' && (
+        <SourceIngestionTab
+          documents={sources}
+          summary={sourceSummary}
+          selectedDocIds={selectedDocIds}
+          isLoading={isSourceLoading}
+          isExtracting={isExtracting}
+          hasExtractionResult={isExtractionFinished || !!extractionError}
+          extractionRecovery={extractionRecovery}
+          onResumeExtraction={handleResumeExtraction}
+          onOpenProgress={openProgressModal}
+          onToggleSelect={handleToggleSelectDoc}
+          onSelectAll={handleSelectAllDocs}
+          onClearSelection={handleClearDocSelection}
+          onRunExtraction={handleRunExtraction}
+          onRunReextraction={handleRunReextraction}
+          onOpenPreview={handleOpenDocPreview}
+        />
+      )}
+
+      <ExtractionConfirmModal
+        confirmation={extractionConfirmation}
+        onConfirm={handleConfirmExtraction}
+        onCancel={cancelExtractionConfirmation}
+      />
+
+      {/* ── 진행 모달 (SSE 스트림) ── */}
+      <ExtractionProgressModal
+        isOpen={isProgressModalOpen}
+        progress={extractionProgress}
+        logs={extractionLogs}
+        isFinished={isExtractionFinished}
+        error={extractionError}
+        onClose={closeProgressModal}
+        onOpenPreview={handleOpenProgressPreview}
+      />
+
+      {/* ── 변경 미리보기 및 위키 적용 모달 (Wiki DTO Diff) ── */}
+      <ExtractionPreviewModal
+        isOpen={isPreviewModalOpen}
+        previewData={previewData}
+        isApplying={isApplying}
+        onClose={closePreviewModal}
+        onApply={handleApplyWiki}
+        onChangeClassification={handleChangeClassification}
+        classificationError={classificationError}
+      />
     </div>
   );
 }

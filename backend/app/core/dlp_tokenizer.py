@@ -63,7 +63,7 @@ class RegimeAwareTokenizer:
             token_map[token] = f"{val_str}{unit}"
             return token
 
-        processed = re.sub(r'(\d+(?:\.\d+)?)\s*(N)', replace_force, processed)
+        processed = re.sub(r'(\d+(?:\.\d+)?)\s*(N)(?![A-Za-z])', replace_force, processed)
 
         # 3. 압력 (Pressure): e.g. 0.45MPa, 1.5 Torr, 2.4kPa
         def replace_pressure(match):

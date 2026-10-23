@@ -206,40 +206,23 @@ def require_min_level(min_level: int) -> Callable:
 # 4. Tier 3 대외비 데이터 마스킹 엔진 (Data Confidentiality Masking)
 # ---------------------------------------------------------------------------
 def mask_tier3_perspective(p_data: Dict[str, Any], can_view_confidential: bool = False) -> Dict[str, Any]:
-    """Masks Tier 3 sensitive manufacturing/yield metrics if can_view_confidential is False."""
+    """Preserve explicitly public source parameters and mask restricted/legacy data."""
     result = dict(p_data)
-
-    if not can_view_confidential:
-        result["isMasked"] = True
-        result["is_masked"] = True
-        result["maskReason"] = "Tier 3 양산 수율 및 결함 대외비 데이터 (열람 승인 필요)"
-        result["mask_reason"] = "Tier 3 양산 수율 및 결함 대외비 데이터 (열람 승인 필요)"
-        trend_text = (
-            "상대적 경향성(Relative Trend): 본딩 가압력(145N) 제어 시 마이크로범프 크랙율 0.05% 이하로 안정화되며, "
-            "피크 온도 상승에 따라 보이드 발생 위험이 지수 함수적으로 감소하는 양산 경향 확인됨."
-        )
-        result["relativeTrend"] = trend_text
-        result["relative_trend"] = trend_text
-        result["accessRequestCTA"] = "이 관점 상세 절대 수치 열람 권한 신청 ➔"
-        result["access_request_cta"] = "이 관점 상세 절대 수치 열람 권한 신청 ➔"
-
-        specs = result.get("specifications", [])
-        masked_specs = []
-        for s in specs:
-            s_copy = dict(s)
-            lbl = s_copy.get("label", "")
-            if any(k in lbl for k in ["온도", "압력", "하중", "시간", "수율", "보이드", "두께"]):
-                s_copy["value"] = "[🔒 대외비 마스킹]"
-                s_copy["criteria"] = "보안 등급 기준 충족"
-            masked_specs.append(s_copy)
-        result["specifications"] = masked_specs
-
-        narrative = result.get("context_narrative", "") or ""
+    specs = result.get("specifications") or []
+    restricted = [spec for spec in specs if spec.get("isConfidential", spec.get("is_confidential", True)) is not False]
+    masked = not can_view_confidential and (bool(restricted) or not specs and not p_data.get('is_public_case', False))
+    result["isMasked"] = result["is_masked"] = masked
+    if masked:
+        result["maskReason"] = result["mask_reason"] = "L3 열람 승인 필요"
+        result["relativeTrend"] = result["relative_trend"] = None
+        result["evidenceId"] = result["evidence_id"] = None
+        result["accessRequestCTA"] = result["access_request_cta"] = "이 사례의 L3 파라미터 열람 권한 신청"
+        result["specifications"] = [dict(spec) if spec not in restricted else {
+            **spec, "value": "***", "safetyMargin": None, "criteria": None,
+            "role": None, "tradeoff": None, "rationale": None, "isConfidential": True,
+            "evidenceQuote": None, "fieldEvidenceQuotes": {}, "evidenceIds": []
+        } for spec in specs]
         import re
-        narrative = re.sub(r'\d+(?:\.\d+)?\s*(?:°C|℃|N|%|Torr|MPa|ms|s)', '[🔒 마스킹]', narrative)
-        result["context_narrative"] = narrative
-    else:
-        result["isMasked"] = False
-        result["is_masked"] = False
-
+        for field in ("context_narrative", "caution"):
+            result[field] = re.sub(r"\d+(?:\.\d+)?", "[🔒 마스킹]", result.get(field) or "")
     return result

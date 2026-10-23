@@ -9,6 +9,7 @@ from typing import Optional, List, Dict, Any, Literal
 import re
 import json
 import logging
+import hashlib
 from fastapi import APIRouter, Depends, HTTPException, Query, status, Header
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, text
@@ -16,9 +17,8 @@ from sqlalchemy.orm import selectinload
 
 from backend.app.core.database import get_db
 from backend.app.core.cache import cache_manager
-from backend.app.core.security import mask_tier3_perspective, get_current_user_optional
+from backend.app.core.security import mask_tier3_perspective, get_current_user_optional, require_min_level
 from backend.app.services.auth_service import AccessControlService
-from backend.app.agents import explainer_agent
 from backend.app.models.entities import (
     ConceptModel,
     CausalEdgeModel,
@@ -33,6 +33,7 @@ from backend.app.schemas.ontology import (
     SubgraphEdge,
     CompensatingParamSchema,
     ContextualExplanationDTO,
+    ContextualExplanationRequest,
     ConceptTreeNode,
     ConceptTreeResponse
 )
@@ -40,6 +41,13 @@ from backend.app.schemas.review import (
     ConceptPlacementRecommendRequest,
     ConceptPlacementRecommendResponse
 )
+from backend.app.services.concept_service import (
+    concept_service, ContextualExplanationNotFound, ContextualExplanationRestricted,
+    ContextualExplanationUnavailable,
+)
+from backend.app.services.case_explanation_service import (case_explanation_service, CaseExplanationChanged, CaseExplanationUnavailable)
+from backend.app.services.placement_service import recommend_placement, PlacementRecommendationUnavailable
+from backend.app.repositories.concept_repo import concept_repo
 
 logger = logging.getLogger("ontology_wiki.concepts")
 
@@ -51,14 +59,18 @@ router = APIRouter(prefix="/concepts", tags=["Concepts & Causal Ontology"])
     response_model=ConceptPlacementRecommendResponse,
     response_model_by_alias=True,
     summary="신규 개념 온톨로지 편입 위치 AI 자동 추천 API (Concepts 별칭)",
-    description="엔지니어가 입력한 기술명과 개요를 바탕으로 온톨로지 지식 그래프를 스캔하여 최적의 패싯, 스케일 레벨, 공정군 및 상위 개념을 자동 추천합니다."
+    description="엔지니어가 입력한 기술명과 개요를 바탕으로 현재 위키 분류를 기준으로 소속 패싯, 물리적 규모, 세부 공정군을 추천합니다."
 )
 async def recommend_concept_placement_alias(
     body: ConceptPlacementRecommendRequest,
+    x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
+    x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
     db: AsyncSession = Depends(get_db)
 ):
-    from backend.app.api.review_tickets import recommend_concept_placement
-    return await recommend_concept_placement(body=body, db=db)
+    try:
+        return await recommend_placement(body, db, openai_key=x_openai_key, gemini_key=x_gemini_key)
+    except PlacementRecommendationUnavailable as error:
+        raise HTTPException(status_code=503, detail=str(error)) from error
 
 
 @router.get(
@@ -112,7 +124,9 @@ async def get_concept_tree(
 
     tree_nodes: List[ConceptTreeNode] = []
     for cat_name, cat_concepts in sorted(categories.items()):
-        cat_id = f"cat-{re.sub(r'[^a-zA-Z0-9]+', '-', cat_name.lower()).strip('-')}"
+        cat_slug = re.sub(r'[^a-zA-Z0-9가-힣]+', '-', cat_name.lower()).strip('-')
+        cat_hash = hashlib.md5(cat_name.encode('utf-8')).hexdigest()[:8]
+        cat_id = f"cat-{cat_slug}-{cat_hash}" if cat_slug else f"cat-{cat_hash}"
         children_nodes: List[ConceptTreeNode] = []
 
         for c in cat_concepts:
@@ -163,125 +177,35 @@ async def get_concept_detail(
     current_user: Optional[UserModel] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db)
 ):
-    # 🌟 5.4.1 & 7.4절 동적 L3 대외비 열람 인가 판정:
-    # 오직 Bearer JWT 로그인 유저의 권한 또는 승인 티켓으로만 판정 (Level 3 이상이거나 승인 티켓 보유)
-    can_view = False
-    if current_user:
-        can_view = await AccessControlService.can_view_confidential_l3(current_user, concept_id, db)
-
-    cache_key = f"concept:detail:{concept_id}:{'unmasked' if can_view else 'masked'}"
-    cached = await cache_manager.get(cache_key)
-    if cached:
-        return ConceptDetailResponse(**cached)
-
-    # 1. Concept 및 연관 Perspectives Eager Loading
-    stmt = (
-        select(ConceptModel)
-        .options(selectinload(ConceptModel.perspectives))
-        .where(ConceptModel.id == concept_id)
-    )
-    res = await db.execute(stmt)
-    concept = res.scalar_one_or_none()
-
-    if not concept:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Concept '{concept_id}' not found in ontology knowledge base."
-        )
-
-    # 2. 실무 사례 DTO 매핑 및 5.4절 Tier 3 마스킹 엔진 적용
-    perspectives_dto = []
-    for p in concept.perspectives:
-        raw_dict = {
-            "id": p.id,
-            "concept_id": p.concept_id,
-            "perspective_id": p.perspective_id,
-            "perspective_title": p.perspective_title,
-            "perspective_badge": p.perspective_badge,
-            "management_code": p.management_code,
-            "context_narrative": p.context_narrative,
-            "specifications": p.specifications if isinstance(p.specifications, list) else [],
-            "caution": p.caution,
-            "evidence_id": p.evidence_id,
-            "is_masked": False
-        }
-        processed = mask_tier3_perspective(raw_dict, can_view_confidential=can_view)
-        perspectives_dto.append(PerspectiveCaseDTO(**processed))
-
-    # 3. 0ms 팝오버를 위한 연관 개념 사전 적재 (Preloaded Explainers)
-    preloaded_explainers: Dict[str, ContextualExplanationDTO] = {}
-    rel_ids = set()
-    edge_mechanisms: Dict[str, str] = {}
-
-    # (1) relations JSON 필드 기반 연관 개념 수집 (전공정/후공정/소자 공통)
-    if isinstance(concept.relations, dict):
-        for key in ["causes", "causedBy", "competing", "children", "parents", "alternative_to"]:
-            items = concept.relations.get(key, [])
-            if isinstance(items, list):
-                for item in items:
-                    if isinstance(item, dict):
-                        cid = item.get("id") or item.get("targetId")
-                        if cid:
-                            rel_ids.add(cid)
-                    elif isinstance(item, str):
-                        rel_ids.add(item)
-
-    # (2) causal_edges 물리 테이블 기반 1-hop 연관 개념 및 메커니즘 수집
-    edge_stmt = select(CausalEdgeModel).where(
-        (CausalEdgeModel.source_concept_id == concept_id) |
-        (CausalEdgeModel.target_concept_id == concept_id)
-    )
-    edge_rows = (await db.execute(edge_stmt)).scalars().all()
-    for e in edge_rows:
-        other_id = e.target_concept_id if e.source_concept_id == concept_id else e.source_concept_id
-        rel_ids.add(other_id)
-        if e.mechanism_label:
-            edge_mechanisms[other_id] = e.mechanism_label
-
-    if rel_ids:
-        rel_stmt = select(ConceptModel).where(ConceptModel.id.in_(rel_ids))
-        rel_res = await db.execute(rel_stmt)
-        for rc in rel_res.scalars().all():
-            mech = edge_mechanisms.get(rc.id)
-            context_sentence = (
-                f"[{concept.title} ➔ {rc.title} 인과 메커니즘] {mech}"
-                if mech else f"{concept.title} 본문에서 참조되는 연관 개념 ({rc.process_category})."
-            )
-            preloaded_explainers[rc.id] = ContextualExplanationDTO(
-                child_concept_id=rc.id,
-                parent_concept_id=concept.id,
-                title=rc.title,
-                definition=rc.summary,
-                context_sentence=context_sentence,
-                cached=True,
-                source_evidence=None,
-                deep_link=f"/wiki?concept={rc.id}"
-            )
-
-    response_dto = ConceptDetailResponse(
-        id=concept.id,
-        title=concept.title,
-        eng_name=concept.eng_name,
-        aliases=concept.aliases if isinstance(concept.aliases, list) else [],
-        domain_facet=concept.domain_facet,
-        process_category=concept.process_category,
-        scale_level=concept.scale_level,
-        scale_name=concept.scale_name,
-        version=concept.version,
-        status=concept.status,
-        last_reviewed_at=concept.last_reviewed_at.isoformat() if concept.last_reviewed_at else None,
-        last_reviewed_by=concept.last_reviewed_by,
-        summary=concept.summary,
-        purpose=concept.purpose,
-        principles=concept.principles if isinstance(concept.principles, list) else [],
-        limitations=concept.limitations if isinstance(concept.limitations, list) else [],
-        relations=concept.relations if isinstance(concept.relations, dict) else {},
-        perspectives=perspectives_dto,
-        preloaded_explainers=preloaded_explainers
+    return await concept_service.get_enriched_concept_detail(
+        concept_id=concept_id,
+        current_user=current_user,
+        session=db
     )
 
-    await cache_manager.set(cache_key, response_dto.model_dump(by_alias=True), ttl_seconds=120)
-    return response_dto
+
+@router.post("/{concept_id}/perspectives/{case_id}/context-explanation",
+             response_model=PerspectiveCaseDTO, response_model_by_alias=True, response_model_exclude_none=True)
+async def generate_case_context_explanation(
+    concept_id: str, case_id: str,
+    current_user: UserModel = Depends(require_min_level(3)),
+    x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
+    x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
+    db: AsyncSession = Depends(get_db)
+):
+    await db.rollback()
+    try:
+        await case_explanation_service.generate(concept_id, case_id, gemini_key=x_gemini_key, openai_key=x_openai_key)
+    except LookupError as error:
+        raise HTTPException(404, str(error)) from error
+    except PermissionError as error:
+        raise HTTPException(403, str(error)) from error
+    except CaseExplanationChanged as error:
+        raise HTTPException(409, str(error)) from error
+    except CaseExplanationUnavailable as error:
+        raise HTTPException(502, str(error)) from error
+    detail = await concept_service.get_enriched_concept_detail(concept_id, None, db)
+    return next(case for case in detail.perspectives if case.id == case_id)
 
 
 @router.get(
@@ -296,20 +220,17 @@ async def get_causal_subgraph(
     concept_id: str,
     depth: int = Query(default=2, ge=1, le=3, description="인과 탐색 깊이 (1~3 hop)"),
     direction: Literal["out", "in", "both"] = Query(default="both", description="인과 탐색 방향 (out: 결과, in: 원인, both: 양방향)"),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: Optional[UserModel] = Depends(get_current_user_optional)
 ):
+    center_check = await concept_repo.get_by_id(db, concept_id)
+    if not center_check:
+        raise HTTPException(status_code=404, detail=f"Central concept '{concept_id}' not found.")
+    concept_id = center_check.id
     cache_key = f"concept:subgraph:{concept_id}:{depth}:{direction}"
     cached = await cache_manager.get(cache_key)
     if cached:
-        return CausalSubgraphResponse(**cached)
-
-    # 1. 중심 개념 존재 여부 확인
-    center_check = await db.get(ConceptModel, concept_id)
-    if not center_check:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Central concept '{concept_id}' not found."
-        )
+        return await concept_service.mask_subgraph_response(CausalSubgraphResponse(**cached), current_user, db)
 
     # 2. SQLite / PostgreSQL 공용 Recursive CTE 쿼리 실행
     # 방향에 따른 anchor 및 recursive 조건 세팅
@@ -349,7 +270,8 @@ async def get_causal_subgraph(
         INNER JOIN causal_network cn ON (
             (:dir = 'out' AND ce.source_concept_id = cn.target_concept_id) OR
             (:dir = 'in' AND ce.target_concept_id = cn.source_concept_id) OR
-            (:dir = 'both' AND (ce.source_concept_id = cn.target_concept_id OR ce.target_concept_id = cn.source_concept_id))
+            (:dir = 'both' AND (ce.source_concept_id IN (cn.source_concept_id, cn.target_concept_id)
+                               OR ce.target_concept_id IN (cn.source_concept_id, cn.target_concept_id)))
         )
         WHERE cn.hop < :max_depth AND ce.id != cn.id
     )
@@ -397,7 +319,7 @@ async def get_causal_subgraph(
             source=s_id,
             target=t_id,
             relation_type=row.relation_type,
-            polarity=row.polarity or "+",
+            polarity=row.polarity,
             weight=float(row.weight or 1.0),
             mechanism_label=row.mechanism_label,
             compensating_params=comp_params,
@@ -430,14 +352,16 @@ async def get_causal_subgraph(
                 SubgraphNode(
                     id=nid,
                     label=nid,
-                    category="인과 파라미터/결함",
-                    scale_level=3,
+                    category="미등록 개념",
+                    scale_level=None,
+                    is_registered=False,
                     is_center=(nid == concept_id)
                 )
             )
 
     response_dto = CausalSubgraphResponse(
         central_concept_id=concept_id,
+        has_relations=bool(await concept_repo.get_causal_edges_for_concept(db, concept_id)),
         graph={
             "nodes": [n.model_dump(by_alias=True) for n in nodes_dto],
             "edges": [e.model_dump(by_alias=True) for e in edge_map.values()]
@@ -445,7 +369,22 @@ async def get_causal_subgraph(
     )
 
     await cache_manager.set(cache_key, response_dto.model_dump(by_alias=True), ttl_seconds=120)
-    return response_dto
+    return await concept_service.mask_subgraph_response(response_dto, current_user, db)
+
+
+async def _explain_selection(concept_id, term_id, selection_context, db, **keys):
+    try:
+        return await concept_service.get_contextual_explanation(concept_id, term_id, selection_context, db, **keys)
+    except ContextualExplanationNotFound as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except ContextualExplanationRestricted as error:
+        raise HTTPException(status_code=403, detail=str(error)) from error
+    except ContextualExplanationUnavailable as error:
+        logger.warning("Contextual explanation generation failed: %s", type(error.__cause__).__name__)
+        raise HTTPException(status_code=503, detail=str(error)) from error
+    except Exception as error:
+        logger.warning("Contextual explanation request failed: %s", type(error).__name__)
+        raise HTTPException(status_code=500, detail="문맥 해설 요청을 처리하지 못했습니다.") from error
 
 
 @router.get(
@@ -453,58 +392,34 @@ async def get_causal_subgraph(
     response_model=ContextualExplanationDTO,
     response_model_by_alias=True,
     response_model_exclude_none=True,
-    summary="용어 호버 시 0ms 인라인 문맥 해설 조회 API",
-    description="위키 본문 용어에 마우스를 올렸을 때 인라인으로 띄워줄 공학적 정의와 부모 문맥 문장을 서빙합니다."
+    summary="선택한 표현의 뜻과 공개 문맥 해설 조회"
 )
 async def get_contextual_explainer(
     concept_id: str,
-    term_id: str = Query(..., description="마우스오버된 용어/하위 개념 식별자"),
-    perspective_id: Optional[str] = Query("default", description="현재 활성 관점"),
+    term_id: str = Query(..., description="실제 선택 문자열 또는 등록 개념 ID"),
+    perspective_id: Optional[str] = Query("default", description="호환용 관점 식별자"),
+    selection_context: str = Query("", max_length=600, description="선택 주변의 화면 문맥"),
     x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
     x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
     db: AsyncSession = Depends(get_db)
 ):
-    # 3.6절 Explainer Agent 호출 (가드레일 '현재 공정 맥락({parentName}):' 보장)
-    try:
-        explainer_resp = await explainer_agent.get_explanation(
-            child_id=term_id,
-            parent_id=concept_id,
-            perspective_id=perspective_id,
-            db=db,
-            gemini_key=x_gemini_key,
-            openai_key=x_openai_key
-        )
-        return ContextualExplanationDTO(
-            child_concept_id=explainer_resp.childConceptId,
-            parent_concept_id=explainer_resp.parentConceptId,
-            title=explainer_resp.childConceptName,
-            definition=explainer_resp.fallbackDefinition,
-            context_sentence=explainer_resp.contextualExplanation,
-            cached=True,
-            source_evidence={"evidenceIds": explainer_resp.evidenceIds},
-            deep_link=f"/wiki?concept={explainer_resp.childConceptId}"
-        )
-    except Exception as e:
-        logger.warning(f"Explainer agent error, falling back to deterministic: {e}")
-        child_concept = await db.get(ConceptModel, term_id)
-        parent_concept = await db.get(ConceptModel, concept_id)
-        p_name = parent_concept.title if parent_concept else concept_id
-        c_title = child_concept.title if child_concept else term_id
-        c_def = child_concept.summary if child_concept else f"{term_id} 정의"
+    return await _explain_selection(concept_id, term_id, selection_context, db,
+        gemini_key=x_gemini_key, openai_key=x_openai_key)
 
-        guardrail_prefix = f"현재 공정 맥락({p_name}):"
-        if not child_concept:
-            context_sentence = f"{guardrail_prefix} 해당 용어('{term_id}')는 온톨로지에 정식 등록되지 않은 미분류 용어입니다. {p_name} 공정과의 상세 인과 메커니즘은 신규 검토 티켓 발급이 필요합니다."
-        else:
-            context_sentence = f"{guardrail_prefix} {c_title} 개념은 등록되어 있으나, {p_name} 공정과의 구체적인 물리·화학적 인과 연계 메커니즘은 현재 심의 및 보완 중입니다."
 
-        return ContextualExplanationDTO(
-            child_concept_id=term_id,
-            parent_concept_id=concept_id,
-            title=c_title,
-            definition=c_def,
-            context_sentence=context_sentence,
-            cached=True,
-            source_evidence=None,
-            deep_link=f"/wiki?concept={term_id}"
-        )
+@router.post(
+    "/{concept_id}/contextual-explainer",
+    response_model=ContextualExplanationDTO,
+    response_model_by_alias=True,
+    response_model_exclude_none=True,
+    summary="선택 문맥을 URL에 노출하지 않는 표현 해설"
+)
+async def explain_selection(
+    concept_id: str,
+    body: ContextualExplanationRequest,
+    x_gemini_key: Optional[str] = Header(None, alias="X-Gemini-Key"),
+    x_openai_key: Optional[str] = Header(None, alias="X-OpenAI-Key"),
+    db: AsyncSession = Depends(get_db)
+):
+    return await _explain_selection(concept_id, body.term_id, body.selection_context, db,
+        gemini_key=x_gemini_key, openai_key=x_openai_key)

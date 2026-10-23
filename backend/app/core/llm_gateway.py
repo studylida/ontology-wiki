@@ -117,7 +117,8 @@ class LLMGateway:
                     response_text = await self._call_openai(tokenized_prompt, system_instruction, key, model=m_name, timeout=t_limit,
                         reasoning_effort=reasoning_effort if m_name == primary_model else None)
                 elif prov == "gemini":
-                    response_text = await self._call_gemini(tokenized_prompt, system_instruction, key, model=m_name, timeout=t_limit)
+                    response_text = await self._call_gemini(tokenized_prompt, system_instruction, key, model=m_name, timeout=t_limit,
+                        thinking_level=reasoning_effort if m_name == primary_model else None)
 
                 if response_text and response_text.strip():
                     used_meta = f"{prov}:{m_name}"
@@ -145,24 +146,27 @@ class LLMGateway:
             await circuit_breaker.record_call(success=False, duration_ms=duration_ms, slow_call_threshold_ms=slow_call_threshold_ms)
             return None
 
-    async def _call_gemini(self, prompt: str, system_prompt: Optional[str], api_key: str, model: str = "gemini-2.5-flash", timeout: float = 8.0) -> Optional[str]:
+    async def _call_gemini(self, prompt: str, system_prompt: Optional[str], api_key: str, model: str = "gemini-2.5-flash", timeout: float = 8.0,
+                           thinking_level: Optional[str] = None) -> Optional[str]:
         """Calls Google Gemini REST API."""
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
         payload: Dict[str, Any] = {
             "contents": [{"parts": [{"text": prompt}]}]
         }
         if system_prompt:
             payload["systemInstruction"] = {"parts": [{"text": system_prompt}]}
+        if thinking_level is not None:
+            payload["generationConfig"] = {"thinkingConfig": {"thinkingLevel": thinking_level}}
 
         async with httpx.AsyncClient(timeout=timeout) as client:
-            resp = await client.post(url, json=payload)
+            resp = await client.post(url, headers={"x-goog-api-key": api_key}, json=payload)
             if resp.status_code == 200:
                 data = resp.json()
                 candidates = data.get("candidates", [])
                 if candidates:
                     parts = candidates[0].get("content", {}).get("parts", [])
                     if parts:
-                        return parts[0].get("text", "")
+                        return "".join(part.get("text", "") for part in parts if not part.get("thought"))
             else:
                 logger.warning(f"Gemini API returned status {resp.status_code}: {resp.text[:200]}")
                 return None

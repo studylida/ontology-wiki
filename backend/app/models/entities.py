@@ -102,6 +102,7 @@ class PerspectiveCaseModel(Base):
     management_code = Column(String(64), nullable=True)
     context_narrative = Column(Text, nullable=False)
     specifications = Column(JSON, default=list, nullable=False)
+    context_explanation = Column(JSON, nullable=True)
     caution = Column(Text, nullable=False)
     evidence_id = Column(String(64), ForeignKey("evidence_sources.id", ondelete="SET NULL"), nullable=True)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
@@ -240,3 +241,28 @@ class AccessRequestModel(Base):
     reviewer = relationship("UserModel", foreign_keys=[reviewed_by])
 
 
+# ---------------------------------------------------------------------------
+# Section 8: Source Documents & Ingestion Tracking Entity (원천 백서 및 인제스천)
+# ---------------------------------------------------------------------------
+
+class SourceDocumentModel(Base):
+    """sources/ 디렉터리 내 원천 기술 백서 메타데이터 및 지식 추출 이력 테이블."""
+    __tablename__ = "source_documents"
+
+    doc_id = Column(String(64), primary_key=True)               # 서버 발급 고유 ID (예: 'doc-samsung-fab-05-etch')
+    file_path = Column(String(255), unique=True, nullable=False) # sources/ 기준 상대 경로
+    publisher = Column(String(64), nullable=False)               # 발행처 ('Samsung Semiconductor', 'SK hynix' 등)
+    title = Column(String(255), nullable=False)                  # 백서 제목
+    file_hash = Column(String(64), nullable=False)               # 현재 파일의 SHA-256 해시
+    last_succeeded_hash = Column(String(64), nullable=True)      # 마지막 성공 시점의 SHA-256 해시 (원문 변경 감지용)
+    last_succeeded_at = Column(DateTime(timezone=True), nullable=True) # 마지막 성공 일시 (미추출 시 NULL ➔ '-')
+    last_attempted_at = Column(DateTime(timezone=True), nullable=True) # 최근 시도 일시
+    attempt_status = Column(String(32), nullable=False, default="never_attempted") # never_attempted | success | failed | running
+    is_applied = Column(Boolean, nullable=False, default=False)  # 위키 적용 완료 여부
+    last_applied_at = Column(DateTime(timezone=True), nullable=True)   # 위키 최종 적용 일시
+    extracted_concepts_count = Column(Integer, default=0)        # 추출된 개념 수
+    extracted_relations_count = Column(Integer, default=0)       # 추출된 관계 엣지 수
+    last_preview_payload = Column(JSON, nullable=True)           # 추출된 위키 DTO 미리보기 페이로드
+    last_error_message = Column(Text, nullable=True)             # 실패 시 상세 에러 사유
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
+    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)

@@ -108,6 +108,7 @@ CREATE TABLE IF NOT EXISTS perspective_cases (
     management_code VARCHAR(64),                            -- 사내 관리 코드 (사내 레시피 ID, JEDEC 규격 등)
     context_narrative TEXT NOT NULL,                        -- 실무 적용 맥락 배경 서술 (2~3줄)
     specifications JSONB NOT NULL DEFAULT '[]'::jsonb,      -- 핵심 적용 기준 [{label, value, unit, criteria, role, evidenceId}]
+    context_explanation JSONB,                              -- 공개 사례의 저장형 보조 해설
     caution TEXT NOT NULL,                                  -- ⚠️ 현장 제약 및 트레이드오프 주의사항
     evidence_id VARCHAR(64) REFERENCES evidence_sources(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),

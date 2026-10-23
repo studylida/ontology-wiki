@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     # 2. 데이터베이스 설정 (Postgres vs SQLite 폴백)
     DB_ENGINE: Literal["postgres", "sqlite"] = "postgres"
     DATABASE_URL: str = "postgresql+asyncpg://ontology_user:ontology_secure_pass@localhost:5432/ontology_wiki"
-    SQLITE_DATABASE_URL: str = "sqlite+aiosqlite:///./data/ontology_wiki.db"
+    SQLITE_DATABASE_URL: str = "sqlite+aiosqlite:///./data/ontology_wiki_v2.db"
 
     @property
     def active_db_url(self) -> str:
@@ -58,6 +58,9 @@ class Settings(BaseSettings):
     TIER2_MODEL: str = "gpt-4o"
     RESEARCH_MODEL: str = "gpt-6.1-sol"
     RESEARCH_REASONING_EFFORT: Literal["low", "medium", "high"] = "medium"
+    SOURCE_EXTRACTION_MODEL: str = "gemini-3.8-flash"
+    SOURCE_EXTRACTION_PROVIDER: Literal["openai", "gemini"] = "gemini"
+    SOURCE_EXTRACTION_REASONING_EFFORT: Literal["low", "medium", "high"] = "medium"
     TIER3_LOCAL_URL: str = "http://localhost:11434/v1"
     TIER3_LOCAL_MODEL: str = "qwen2.5:7b"
     ENABLE_LOCAL_LLM: bool = False
