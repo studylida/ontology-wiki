@@ -13,10 +13,19 @@ export function SectionEvidences({ conceptDetail }) {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!conceptDetail) return;
+    let active = true;
+    setEvidences([]);
+    if (!conceptDetail) {
+      setIsLoading(false);
+      return;
+    }
 
     // 본문 전반(한계점, 실무 사례 등)에서 참조된 모든 공인 출처 ID 수집
-    const ids = new Set();
+    const ids = new Set(conceptDetail.evidenceIds || []);
+
+    (conceptDetail.principles || []).forEach((p) => {
+      (p.evidenceIds || []).forEach((eid) => ids.add(eid));
+    });
 
     (conceptDetail.limitations || []).forEach((l) => {
       (l.evidenceIds || []).forEach((eid) => ids.add(eid));
@@ -24,12 +33,12 @@ export function SectionEvidences({ conceptDetail }) {
 
     (conceptDetail.perspectives || []).forEach((p) => {
       if (p.evidenceId) ids.add(p.evidenceId);
+      (p.specifications || []).forEach((spec) => (spec.evidenceIds || []).forEach((id) => ids.add(id)));
     });
 
-    // 기본 시드 출처 폴백
-    if (ids.size === 0) {
-      ids.add('E-01');
-    }
+    Object.values(conceptDetail.enrichedRelations || {}).forEach((items) => {
+      (items || []).forEach((item) => (item.evidenceIds || []).forEach((eid) => ids.add(eid)));
+    });
 
     const fetchEvidences = async () => {
       setIsLoading(true);
@@ -41,15 +50,16 @@ export function SectionEvidences({ conceptDetail }) {
         const successful = results
           .filter((r) => r.status === 'fulfilled')
           .map((r) => r.value);
-        setEvidences(successful);
+        if (active) setEvidences(successful);
       } catch (err) {
-        console.warn('Failed to load evidence details:', err);
+        if (active) console.warn('Failed to load evidence details:', err);
       } finally {
-        setIsLoading(false);
+        if (active) setIsLoading(false);
       }
     };
 
     fetchEvidences();
+    return () => { active = false; };
   }, [conceptDetail]);
 
   if (!conceptDetail) return null;
@@ -67,9 +77,24 @@ export function SectionEvidences({ conceptDetail }) {
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <BookCheck size={20} style={{ color: 'var(--accent-primary)' }} />
-          <h2 style={{ fontSize: '1.125rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>
-            5. 공식 검증 출처 원문 (Evidence References)
+          <div
+            style={{
+              width: '24px',
+              height: '24px',
+              borderRadius: '6px',
+              background: 'var(--accent-primary-light)',
+              color: 'var(--accent-primary)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 700,
+              fontSize: '0.8125rem'
+            }}
+          >
+            6
+          </div>
+          <h2 style={{ fontSize: '1.125rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
+            공식 검증 출처 원문 (Evidence References)
           </h2>
         </div>
         <span
@@ -131,12 +156,12 @@ export function SectionEvidences({ conceptDetail }) {
                   </span>
                 </div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  발행: <strong>{ev.publisher || '공인 학회'}</strong> {ev.publishedDate && `(${ev.publishedDate})`}
+                  발행: <strong>{ev.publisher || '발행처 정보 없음'}</strong> {ev.publishedDate && `(${ev.publishedDate})`}
                 </div>
               </div>
 
               {/* 직접 인용구 박스 */}
-              {ev.verbatimQuote && (
+              {ev.quote && (
                 <div
                   style={{
                     background: 'var(--bg-surface)',
@@ -152,7 +177,7 @@ export function SectionEvidences({ conceptDetail }) {
                 >
                   <Quote size={16} style={{ color: 'var(--accent-primary)', flexShrink: 0, marginTop: '2px' }} />
                   <div>
-                    <div style={{ fontStyle: 'italic' }}>"{ev.verbatimQuote}"</div>
+                    <div style={{ fontStyle: 'italic' }}>"{ev.quote}"</div>
                     {ev.sectionContext && (
                       <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', marginTop: '4px' }}>
                         📍 {ev.sectionContext}

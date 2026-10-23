@@ -56,6 +56,20 @@ export const httpClient = {
       }
     }
 
+    // 브라우저 로컬 저장소 API Key 주입 (4-Tier AI Hybrid Gateway 연동)
+    try {
+      const openAiKey = localStorage.getItem('semicon_wiki_openai_key');
+      if (openAiKey && !headers.has('X-OpenAI-Key')) {
+        headers.set('X-OpenAI-Key', openAiKey);
+      }
+      const geminiKey = localStorage.getItem('semicon_wiki_gemini_key');
+      if (geminiKey && !headers.has('X-Gemini-Key')) {
+        headers.set('X-Gemini-Key', geminiKey);
+      }
+    } catch {
+      // localStorage 접근 불가 환경 무시
+    }
+
     try {
       const response = await fetch(url, {
         ...fetchOptions,

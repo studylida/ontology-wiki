@@ -9,16 +9,21 @@
  */
 
 import React, { useState } from 'react';
-import { ShieldCheck, Lock, Unlock, Clock, AlertCircle, CheckCircle2, XCircle } from 'lucide-react';
+import { CaseContextExplanation } from './CaseContextExplanation';
+import { ShieldCheck, Lock, Unlock, Clock, AlertCircle, CheckCircle2, XCircle, ChevronDown, ChevronUp, Info } from 'lucide-react';
 
 export function SectionPerspectives({
   perspectives = [],
   l3AccessStatus, // { hasAccess: boolean, requestStatus: 'none'|'pending'|'approved'|'rejected', request?: any }
   currentUser,
   onOpenAccessModal,
-  onCancelAccessRequest
+  onCancelAccessRequest,
+  explanationRequests = {},
+  onGenerateExplanation,
+  isPreview = false
 }) {
   const [activeTabIdx, setActiveTabIdx] = useState(0);
+  const [expandedSpecIdx, setExpandedSpecIdx] = useState(null);
 
   if (!perspectives || perspectives.length === 0) return null;
 
@@ -50,15 +55,15 @@ export function SectionPerspectives({
               fontSize: '0.8125rem'
             }}
           >
-            3
+            4
           </div>
           <h2 style={{ fontSize: '1.125rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
-            3. 적응형 실무 사례 및 파라미터 (Adaptive Perspectives & L3 Specs)
+            적용 사례와 주요 수치
           </h2>
         </div>
 
-        {/* L3 열람 인가 상태 종합 배지 */}
-        <div>
+        {/* 제한 파라미터가 있는 사례에만 L3 인가 상태를 표시한다. */}
+        {(currentPerspective.specifications || []).some((spec) => spec.isConfidential ?? currentPerspective.isMasked) && <div>
           {currentUser?.level >= 3 ? (
             <span
               style={{
@@ -128,7 +133,7 @@ export function SectionPerspectives({
               Tier 3 대외비 파라미터 포함
             </span>
           )}
-        </div>
+        </div>}
       </div>
 
       {/* 관점 선택 탭 스위처 */}
@@ -187,37 +192,44 @@ export function SectionPerspectives({
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
                   <th style={{ padding: '8px 10px', fontWeight: 600 }}>파라미터 항목</th>
-                  <th style={{ padding: '8px 10px', fontWeight: 600 }}>공정 기준값 (Value)</th>
+                  <th style={{ padding: '8px 10px', fontWeight: 600 }}>원문에 나온 값</th>
                   <th style={{ padding: '8px 10px', fontWeight: 600 }}>단위</th>
-                  <th style={{ padding: '8px 10px', fontWeight: 600 }}>물리 안전 마진</th>
+                  <th style={{ padding: '8px 10px', fontWeight: 600 }}>허용 오차·안전 여유</th>
                   <th style={{ padding: '8px 10px', fontWeight: 600 }}>보안 등급 및 인가 상태</th>
+                  <th style={{ padding: '8px 10px', fontWeight: 600, width: '40px', textAlign: 'center' }}>원문 설명</th>
                 </tr>
               </thead>
               <tbody>
                 {currentPerspective.specifications.map((spec, sIdx) => {
-                  const isConf = spec.isConfidential || currentPerspective.isMasked || spec.value.includes('***');
+                  const isConf = (spec.isConfidential ?? currentPerspective.isMasked) || String(spec.value ?? '').includes('***');
                   return (
-                    <tr
-                      key={sIdx}
-                      style={{
-                        borderBottom: '1px solid var(--border-color)',
-                        background: isConf && !l3AccessStatus.hasAccess ? 'rgba(239, 68, 68, 0.02)' : 'transparent'
-                      }}
-                    >
+                    <React.Fragment key={sIdx}>
+                      <tr
+                        onClick={() => setExpandedSpecIdx(expandedSpecIdx === sIdx ? null : sIdx)}
+                        style={{
+                          borderBottom: expandedSpecIdx === sIdx ? 'none' : '1px solid var(--border-color)',
+                          background: isConf && !l3AccessStatus.hasAccess ? 'rgba(239, 68, 68, 0.02)' : expandedSpecIdx === sIdx ? 'var(--bg-surface)' : 'transparent',
+                          cursor: 'pointer'
+                        }}
+                        title="클릭하여 공학적 배경 및 결함 트레이드오프 해설 보기"
+                      >
                       <td style={{ padding: '10px', fontWeight: 600, color: 'var(--text-primary)' }}>
-                        {spec.parameter}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span>{spec.parameter}</span>
+                          <Info size={12} style={{ color: 'var(--text-muted)' }} />
+                        </div>
                       </td>
                       <td style={{ padding: '10px', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
                         {/* 🌟 마스킹 여부에 따른 분기 */}
                         {isConf && !l3AccessStatus.hasAccess ? (
                           <span style={{ color: 'var(--accent-danger)', letterSpacing: '2px' }}>***</span>
                         ) : (
-                          <span style={{ color: 'var(--accent-primary)' }}>{spec.value}</span>
+                          <span style={{ color: 'var(--accent-primary)' }}>{spec.value ?? '확인된 값 없음'}</span>
                         )}
                       </td>
-                      <td style={{ padding: '10px', color: 'var(--text-muted)' }}>{spec.unit}</td>
+                      <td style={{ padding: '10px', color: 'var(--text-muted)' }}>{spec.unit ?? '별도 표기 없음'}</td>
                       <td style={{ padding: '10px', color: 'var(--text-secondary)' }}>
-                        {spec.safetyMargin || '-'}
+                        {spec.safetyMargin ?? '원문에 명시 없음'}
                       </td>
                       <td style={{ padding: '10px' }}>
                         {isConf ? (
@@ -320,8 +332,45 @@ export function SectionPerspectives({
                           <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>공개 파라미터</span>
                         )}
                       </td>
+                      <td style={{ padding: '10px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                        {expandedSpecIdx === sIdx ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                      </td>
                     </tr>
-                  );
+                    {expandedSpecIdx === sIdx && (
+                      <tr key={`desc-${sIdx}`} style={{ background: 'var(--bg-surface)' }}>
+                        <td colSpan={6} style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.75rem', lineHeight: 1.5 }}>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <span style={{ fontWeight: 700, color: 'var(--accent-primary)', flexShrink: 0 }}>🎯 공학적 제어 목적:</span>
+                              <span style={{ color: 'var(--text-primary)' }}>
+                                {spec.role || '확인된 제어 목적 설명 없음'}
+                              </span>
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <span style={{ fontWeight: 700, color: 'var(--accent-danger)', flexShrink: 0 }}>⚠️ 결함 트레이드오프:</span>
+                              <span style={{ color: 'var(--text-secondary)' }}>
+                                {spec.tradeoff || '확인된 트레이드오프 설명 없음'}
+                              </span>
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <span style={{ fontWeight: 700, color: 'var(--text-muted)', flexShrink: 0 }}>📐 마진 설정 근거:</span>
+                              <span style={{ color: 'var(--text-muted)' }}>
+                                {spec.rationale || '확인된 마진 설정 근거 없음'}
+                              </span>
+                            </div>
+                            {(!isConf || l3AccessStatus.hasAccess) && spec.evidenceQuote && (
+                              <details><summary>파라미터 원문 근거</summary>
+                                <blockquote>{spec.evidenceQuote}</blockquote>
+                                {Object.entries(spec.fieldEvidenceQuotes || {}).map(([field, quote]) => quote &&
+                                  <p key={field}>{field}: {quote}</p>)}
+                              </details>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
                 })}
               </tbody>
             </table>
@@ -347,6 +396,13 @@ export function SectionPerspectives({
             <span>{currentPerspective.caution}</span>
           </div>
         )}
+        <CaseContextExplanation
+          perspective={currentPerspective}
+          isPreview={isPreview}
+          canGenerate={!isPreview && currentUser?.level >= 3 && !!onGenerateExplanation}
+          request={explanationRequests[currentPerspective.id]}
+          onGenerate={() => onGenerateExplanation?.(currentPerspective.id)}
+        />
       </div>
     </section>
   );

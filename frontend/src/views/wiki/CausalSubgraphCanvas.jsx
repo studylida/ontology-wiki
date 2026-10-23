@@ -96,7 +96,7 @@ export function CausalSubgraphCanvas({
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <Network size={16} style={{ color: 'var(--accent-primary)' }} />
           <h3 style={{ fontSize: '0.875rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
-            2-Hop 인과 서브그래프 (Causal Subgraph)
+            {depth || 2}-Hop 지식 관계 서브그래프
           </h3>
         </div>
 
@@ -122,11 +122,12 @@ export function CausalSubgraphCanvas({
       </div>
 
       {/* 방향 제어 바 */}
+      {!isLoading && layoutEdges.length === 0 && <p>현재 조회 조건에 해당하는 관계가 없습니다.</p>}
       <div style={{ display: 'flex', gap: '4px', marginBottom: '10px' }}>
         {[
           { id: 'both', label: '양방향' },
-          { id: 'out', label: '결과(Out)' },
-          { id: 'in', label: '원인(In)' }
+          { id: 'out', label: '나가는 관계(Out)' },
+          { id: 'in', label: '들어오는 관계(In)' }
         ].map((d) => (
           <button
             key={d.id}
@@ -228,7 +229,7 @@ export function CausalSubgraphCanvas({
                 <g
                   key={n.id}
                   transform={`translate(${n.x}, ${n.y})`}
-                  onClick={() => onSelectConcept(n.id)}
+                  onClick={() => { if (n.isRegistered !== false) onSelectConcept(n.id); }}
                   style={{ cursor: 'pointer' }}
                 >
                   <circle

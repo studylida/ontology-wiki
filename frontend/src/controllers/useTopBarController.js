@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { conceptRepo } from '../repositories/conceptRepo';
 
 export const WORKSPACE_TABS = [
   { id: 'home', label: '대시보드', badge: null },
@@ -16,6 +17,33 @@ export const WORKSPACE_TABS = [
 export function useTopBarController({ initialTab = 'wiki', onTabChange } = {}) {
   const [activeTab, setActiveTabState] = useState(initialTab);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearchLoading, setIsSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState(null);
+  const [totalIndexed, setTotalIndexed] = useState(0);
+
+  useEffect(() => {
+    let current = true;
+    setSearchResults([]);
+    setSearchError(null);
+    setIsSearchLoading(isSearchOpen);
+    if (!isSearchOpen) return;
+    const timer = setTimeout(async () => {
+      try {
+        const response = await conceptRepo.search(searchTerm.trim());
+        if (current) {
+          setSearchResults(response.results);
+          setTotalIndexed(response.totalIndexed);
+        }
+      } catch (error) {
+        if (current) setSearchError('등록된 지식을 검색하지 못했습니다. 검색창을 다시 열어 시도해 주세요.');
+      } finally {
+        if (current) setIsSearchLoading(false);
+      }
+    }, searchTerm.trim() ? 200 : 0);
+    return () => { current = false; clearTimeout(timer); };
+  }, [isSearchOpen, searchTerm]);
 
   const setActiveTab = useCallback(
     (tabId) => {
@@ -33,6 +61,7 @@ export function useTopBarController({ initialTab = 'wiki', onTabChange } = {}) {
 
   const closeSearch = useCallback(() => {
     setIsSearchOpen(false);
+    setSearchTerm('');
   }, []);
 
   const toggleSearch = useCallback(() => {
@@ -61,6 +90,7 @@ export function useTopBarController({ initialTab = 'wiki', onTabChange } = {}) {
     activeTab,
     setActiveTab,
     isSearchOpen,
+    searchTerm, setSearchTerm, searchResults, isSearchLoading, searchError, totalIndexed,
     openSearch,
     closeSearch,
     toggleSearch

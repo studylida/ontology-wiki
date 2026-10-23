@@ -23,7 +23,6 @@ export const matrixHighlightService = {
    * @returns {boolean}
    */
   isGapValue(val) {
-    if (!val) return true;
-    return val.includes('미등록') || val.includes('Gap') || val.includes('null');
+    return val == null || ['', '미등록', '공개 근거 미확인', 'Gap', 'null'].includes(String(val).trim());
   }
 };

@@ -3,30 +3,30 @@
  * Tab 1 위키 브라우저 화면의 모든 반응형 상태와 사용자 액션을 캡슐화
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { conceptRepo } from '../repositories/conceptRepo';
 import { authRepo } from '../repositories/authRepo';
 import { reviewRepo } from '../repositories/reviewRepo';
 import { authService } from '../services/authService';
+import { createSelectionMatcher } from '../services/textSelectionService';
 
-export function useWikiController({ initialConceptId = 'concept-tcb', currentUser, myAccessRequests = [], onRefreshAuth } = {}) {
+export function useWikiController({ initialConceptId = null, currentUser, myAccessRequests = [], onRefreshAuth } = {}) {
   const [navMode, setNavMode] = useState('domain'); // 'domain' | 'scale'
   const [activeFacet, setActiveFacet] = useState('unit_process');
   const [activeScale, setActiveScale] = useState(3);
   const [activeConceptId, setActiveConceptId] = useState(initialConceptId);
+  const requestedConceptId = useRef(initialConceptId);
 
   // 데이터 상태
   const [treeData, setTreeData] = useState(null);
   const [conceptDetail, setConceptDetail] = useState(null);
-  const [subgraphData, setSubgraphData] = useState(null);
-  const [subgraphDepth, setSubgraphDepth] = useState(2);
-  const [subgraphDirection, setSubgraphDirection] = useState('both');
-  const [explainerCard, setExplainerCard] = useState(null);
+  const [explainerPopover, setExplainerPopover] = useState({ isOpen: false, position: null, data: null });
+  const explainerRequest = useRef(null);
+  const findSelectionRange = useMemo(() => createSelectionMatcher(conceptDetail?.selectionTerms || []), [conceptDetail?.selectionTerms]);
 
   // 로딩 & 에러
   const [isTreeLoading, setIsTreeLoading] = useState(false);
   const [isConceptLoading, setIsConceptLoading] = useState(false);
-  const [isSubgraphLoading, setIsSubgraphLoading] = useState(false);
   const [error, setError] = useState(null);
   const [notification, setNotification] = useState(null);
 
@@ -37,6 +37,13 @@ export function useWikiController({ initialConceptId = 'concept-tcb', currentUse
   const [newConceptInitialData, setNewConceptInitialData] = useState(null);
   const [isRecommendingPlacement, setIsRecommendingPlacement] = useState(false);
   const [placementRecommendation, setPlacementRecommendation] = useState(null);
+  const [placementRecommendationError, setPlacementRecommendationError] = useState(null);
+  const placementRequest = useRef(0);
+  const [caseExplanationRequests, setCaseExplanationRequests] = useState({});
+  const conceptRequest = useRef(0);
+  const detailRef = useRef(null);
+  const selectedConceptRef = useRef(initialConceptId);
+  const explanationRequests = useRef(new Set());
 
   /**
    * 온톨로지 네비게이션 트리 로드 (실무분야 또는 물리규모 필터 지원)
@@ -46,6 +53,7 @@ export function useWikiController({ initialConceptId = 'concept-tcb', currentUse
     try {
       const res = await conceptRepo.getTree(optionsOrFacet, expandedId);
       setTreeData(res);
+      return res;
     } catch (err) {
       console.error('Failed to load concept tree:', err);
     } finally {
@@ -54,38 +62,95 @@ export function useWikiController({ initialConceptId = 'concept-tcb', currentUse
   }, []);
 
   /**
-   * 인과 서브그래프 로드
-   */
-  const loadSubgraph = useCallback(async (conceptId, depth = 2, direction = 'both') => {
-    setIsSubgraphLoading(true);
-    try {
-      const res = await conceptRepo.getSubgraph(conceptId, depth, direction);
-      setSubgraphData(res);
-    } catch (err) {
-      console.error('Failed to load causal subgraph:', err);
-    } finally {
-      setIsSubgraphLoading(false);
-    }
-  }, []);
-
-  /**
    * 특정 개념 상세 로드
    */
   const loadConcept = useCallback(async (conceptId) => {
+    if (!conceptId) return;
+    requestedConceptId.current = conceptId;
+    const request = ++conceptRequest.current;
+    selectedConceptRef.current = conceptId;
+    setCaseExplanationRequests({});
+    explainerRequest.current = null;
+    setExplainerPopover({ isOpen: false, position: null, data: null });
     setIsConceptLoading(true);
     setError(null);
     try {
       const detail = await conceptRepo.getConceptDetail(conceptId);
+      if (request !== conceptRequest.current) return;
+      detailRef.current = detail;
       setConceptDetail(detail);
       setActiveConceptId(conceptId);
-      // 서브그래프 동시 적재
-      loadSubgraph(conceptId, subgraphDepth, subgraphDirection);
     } catch (err) {
-      setError(err.message || '개념 상세 정보를 불러올 수 없습니다.');
+      if (request === conceptRequest.current) setError(err.message || '개념 상세 정보를 불러올 수 없습니다.');
     } finally {
-      setIsConceptLoading(false);
+      if (request === conceptRequest.current) setIsConceptLoading(false);
     }
-  }, [loadSubgraph, subgraphDepth, subgraphDirection]);
+  }, []);
+
+  const generateCaseContextExplanation = useCallback(async (caseId) => {
+    const detail = detailRef.current;
+    const target = detail?.perspectives?.find(item => item.id === caseId);
+    if (!target || !(currentUser?.level >= 3) || selectedConceptRef.current !== detail.id) return;
+    const request = conceptRequest.current;
+    const key = `${request}:${caseId}`;
+    if (explanationRequests.current.has(key)) return;
+    const basisHash = target.contextExplanationBasisHash;
+    const isCurrent = () => request === conceptRequest.current && selectedConceptRef.current === detail.id &&
+      detailRef.current?.perspectives?.some(item => item.id === caseId && item.contextExplanationBasisHash === basisHash);
+    explanationRequests.current.add(key);
+    setCaseExplanationRequests(state => ({...state, [caseId]: {loading: true}}));
+    try {
+      await conceptRepo.generateCaseContextExplanation(detail.id, caseId);
+      if (!isCurrent()) return;
+      const updated = await conceptRepo.getConceptDetail(detail.id);
+      if (!isCurrent()) return;
+      detailRef.current = updated;
+      setConceptDetail(updated);
+      setCaseExplanationRequests(state => ({...state, [caseId]: {loading: false}}));
+    } catch (err) {
+      if (!isCurrent()) return;
+      setCaseExplanationRequests(state => ({...state, [caseId]: {
+        loading: false,
+        error: err.status === 409 ? '사례 내용이 변경되었습니다. 최신 내용을 다시 불러온 뒤 시도해 주세요.' : '쉬운 해설을 준비하지 못했습니다. 잠시 후 다시 시도해 주세요.'
+      }}));
+    } finally {
+      explanationRequests.current.delete(key);
+    }
+  }, [currentUser?.level]);
+
+  const generatingCases = (conceptDetail?.perspectives || [])
+    .filter(item => item.contextExplanationState === 'generating')
+    .map(item => `${item.id}:${item.contextExplanationBasisHash || ''}`).join('|');
+  useEffect(() => {
+    if (!generatingCases || isConceptLoading) return;
+    const request = conceptRequest.current;
+    const conceptId = conceptDetail.id;
+    let cancelled = false;
+    let timer;
+    let attempts = 0;
+    const poll = async () => {
+      try {
+        const updated = await conceptRepo.getConceptDetail(conceptId);
+        if (cancelled || request !== conceptRequest.current || selectedConceptRef.current !== conceptId) return;
+        const currentGenerating = (detailRef.current?.perspectives || [])
+          .filter(item => item.contextExplanationState === 'generating')
+          .map(item => `${item.id}:${item.contextExplanationBasisHash || ''}`).join('|');
+        if (currentGenerating !== generatingCases) return;
+        detailRef.current = updated;
+        setConceptDetail(updated);
+        // shortcut: 단일 페이지에서 1분까지만 재확인하며, 장시간 작업 알림이 필요할 때 확장한다.
+        if (updated.perspectives?.some(item => item.contextExplanationState === 'generating') && ++attempts < 20) {
+          timer = setTimeout(poll, 3000);
+        }
+      } catch {
+        // 원문 화면은 유지하고 다음 페이지 조회나 수동 재시도로 복구한다.
+      }
+    };
+    timer = setTimeout(poll, 3000);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [generatingCases, conceptDetail?.id, isConceptLoading]);
+
+  useEffect(() => () => { conceptRequest.current += 1; }, []);
 
   // 패싯(실무분야) 변경 액션
   const changeFacet = useCallback((facet) => {
@@ -116,50 +181,55 @@ export function useWikiController({ initialConceptId = 'concept-tcb', currentUse
     loadConcept(conceptId);
   }, [loadConcept]);
 
-  // 서브그래프 홉/방향 변경
-  const changeSubgraphDepth = useCallback((depth) => {
-    setSubgraphDepth(depth);
-    if (activeConceptId) {
-      loadSubgraph(activeConceptId, depth, subgraphDirection);
-    }
-  }, [activeConceptId, loadSubgraph, subgraphDirection]);
+  const closeExplainer = useCallback(() => {
+    explainerRequest.current = null;
+    setExplainerPopover({ isOpen: false, position: null, data: null });
+  }, []);
 
-  const changeSubgraphDirection = useCallback((dir) => {
-    setSubgraphDirection(dir);
-    if (activeConceptId) {
-      loadSubgraph(activeConceptId, subgraphDepth, dir);
-    }
-  }, [activeConceptId, loadSubgraph, subgraphDepth]);
-
-  // 0ms 인라인 문맥 해설 조회
-  const openExplainer = useCallback((termId) => {
+  const openExplainer = useCallback((text, position, continuation = false, context = '') => {
     if (!conceptDetail) return;
-
-    // 1. 사전 적재(Preloaded Explainers)에서 0ms 탐색
-    if (conceptDetail.preloadedExplainers && conceptDetail.preloadedExplainers[termId]) {
-      setExplainerCard(conceptDetail.preloadedExplainers[termId]);
+    const previous = explainerRequest.current;
+    if (continuation && previous?.parentId === conceptDetail.id && previous.text === text && previous.context === context) {
+      setExplainerPopover((current) => ({ ...current, position }));
       return;
     }
-
-    // 2. 캐시 미스 시 실시간 API 호출
-    conceptRepo.getContextualExplainer(conceptDetail.id, termId)
-      .then((data) => setExplainerCard(data))
-      .catch(() => {
-        setExplainerCard({
-          childConceptId: termId,
-          parentConceptId: conceptDetail.id,
-          title: termId,
-          definition: '온톨로지 인과 지식 그래프에 등록된 공학적 연관 개념입니다.',
-          contextSentence: `${conceptDetail.title}와의 인과 메커니즘을 공유합니다.`,
-          cached: false,
-          deepLink: `/wiki?concept=${termId}`
-        });
+    const request = { parentId: conceptDetail.id, text, context };
+    explainerRequest.current = request;
+    const pre = !context && conceptDetail.preloadedExplainers?.[text.toLowerCase()];
+    setExplainerPopover({ isOpen: true, position, data: {
+      title: pre?.title || text, term: text,
+      definition: pre?.definition,
+      contextSentence: pre?.contextSentence,
+      conceptId: pre?.childConceptId || pre?.targetConceptId || null, isLoading: !pre
+    } });
+    if (pre) return;
+    conceptRepo.getContextualExplainer(conceptDetail.id, text, 'default', context)
+      .then((res) => {
+        if (explainerRequest.current !== request) return;
+        setExplainerPopover({ isOpen: true, position, data: {
+          title: res.title || text, term: text, definition: res.definition,
+          contextSentence: res.contextSentence, conceptId: res.childConceptId || null, isLoading: false
+        } });
+      })
+      .catch((error) => {
+        if (explainerRequest.current !== request) return;
+        const message = {
+          0: '서버에 연결하지 못했습니다. 연결 상태를 확인해 주세요.',
+          401: '로그인이 만료되었습니다. 다시 로그인해 주세요.',
+          403: '비공개 내용은 문맥 해설에 사용할 수 없습니다.',
+          404: '설명할 위키를 찾을 수 없습니다. 문서를 다시 열어 주세요.',
+          405: '문맥 해설 API를 사용할 수 없습니다. 서버 버전을 확인해 주세요.',
+          422: '선택 내용 또는 문맥을 처리할 수 없습니다. 범위를 다시 선택해 주세요.',
+          503: '문맥 해설을 생성하지 못했습니다. 잠시 후 다시 선택해 주세요.'
+        }[error.status] || '문맥 해설 요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.';
+        setExplainerPopover({ isOpen: true, position, data: {
+          title: text, term: text, error: message,
+          conceptId: null, isLoading: false
+        } });
       });
   }, [conceptDetail]);
 
-  const closeExplainer = useCallback(() => {
-    setExplainerCard(null);
-  }, []);
+  useEffect(() => () => { explainerRequest.current = null; }, []);
 
   // L3 극비 파라미터 4단계 열람 인가 판정
   const l3AccessStatus = useMemo(() => {
@@ -209,14 +279,17 @@ export function useWikiController({ initialConceptId = 'concept-tcb', currentUse
 
   // AI 에이전트 온톨로지 편입 위치 추천 요청
   const requestPlacementRecommendation = useCallback(async (title, summary) => {
+    const request = ++placementRequest.current;
     setIsRecommendingPlacement(true);
+    setPlacementRecommendation(null);
+    setPlacementRecommendationError(null);
     try {
       const rec = await conceptRepo.recommendPlacement({ title, summary });
-      setPlacementRecommendation(rec);
+      if (request === placementRequest.current) setPlacementRecommendation(rec);
     } catch (err) {
-      console.error('Failed to get recommendation:', err);
+      if (request === placementRequest.current) setPlacementRecommendationError(err.message || '위치 추천에 실패했습니다. 세 분류 항목을 직접 입력해 주세요.');
     } finally {
-      setIsRecommendingPlacement(false);
+      if (request === placementRequest.current) setIsRecommendingPlacement(false);
     }
   }, []);
 
@@ -227,6 +300,9 @@ export function useWikiController({ initialConceptId = 'concept-tcb', currentUse
         ...newConceptPayload,
         isNewConcept: true
       });
+      placementRequest.current += 1;
+      setIsRecommendingPlacement(false);
+      setPlacementRecommendationError(null);
       setIsNewConceptModalOpen(false);
       setPlacementRecommendation(null);
       setNotification({ type: 'success', message: '신규 개념 편입 발의 티켓이 Tab 3 검토 대기열에 등록되었습니다.' });
@@ -237,8 +313,16 @@ export function useWikiController({ initialConceptId = 'concept-tcb', currentUse
 
   // 마운트 시 초기 트리 및 개념 로드
   useEffect(() => {
-    loadTree({ facet: activeFacet }, initialConceptId);
-    loadConcept(initialConceptId);
+    loadTree({ facet: activeFacet }, initialConceptId).then((tree) => {
+      if (requestedConceptId.current) return;
+      const nodes = [...(tree?.tree || [])];
+      while (nodes.length) {
+        const node = nodes.shift();
+        if (node.type === 'concept') { loadConcept(node.id); break; }
+        nodes.unshift(...(node.children || []));
+      }
+    });
+    if (initialConceptId) loadConcept(initialConceptId);
   }, []);
 
   // 🌟 사용자 로그인/인가 변경 시(Level 4 관리자 전환 등) 활성 문서 자동 재조회
@@ -255,13 +339,12 @@ export function useWikiController({ initialConceptId = 'concept-tcb', currentUse
     activeConceptId,
     treeData,
     conceptDetail,
-    subgraphData,
-    subgraphDepth,
-    subgraphDirection,
-    explainerCard,
+    explainerPopover,
+    findSelectionRange,
+    caseExplanationRequests,
+    generateCaseContextExplanation,
     isTreeLoading,
     isConceptLoading,
-    isSubgraphLoading,
     error,
     notification,
     l3AccessStatus,
@@ -271,12 +354,15 @@ export function useWikiController({ initialConceptId = 'concept-tcb', currentUse
     newConceptInitialData,
     isRecommendingPlacement,
     placementRecommendation,
+    placementRecommendationError,
     changeFacet,
     changeScale,
     changeNavMode,
     selectConcept,
-    changeSubgraphDepth,
-    changeSubgraphDirection,
+    refreshWiki: () => {
+      loadTree(navMode === 'scale' ? { scale: activeScale } : { facet: activeFacet }, activeConceptId);
+      if (activeConceptId) loadConcept(activeConceptId);
+    },
     openExplainer,
     closeExplainer,
     openAccessModal: () => setIsAccessModalOpen(true),
@@ -284,10 +370,17 @@ export function useWikiController({ initialConceptId = 'concept-tcb', currentUse
     openRevisionModal: () => setIsRevisionModalOpen(true),
     closeRevisionModal: () => setIsRevisionModalOpen(false),
     openNewConceptModal: (initialData = null) => {
+      placementRequest.current += 1;
+      setIsRecommendingPlacement(false);
+      setPlacementRecommendation(null);
+      setPlacementRecommendationError(null);
       setNewConceptInitialData(initialData);
       setIsNewConceptModalOpen(true);
     },
     closeNewConceptModal: () => {
+      placementRequest.current += 1;
+      setIsRecommendingPlacement(false);
+      setPlacementRecommendationError(null);
       setIsNewConceptModalOpen(false);
       setNewConceptInitialData(null);
       setPlacementRecommendation(null);

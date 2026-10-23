@@ -4,6 +4,8 @@
  * - 공식 폐기(allowCitationDeletion) 인가 여부 판별
  */
 
+import { citationService } from './citationService';
+
 export const citationIntegrityService = {
   /**
    * 텍스트 내 [E-xx] 각주 토큰 세트 추출
@@ -12,8 +14,7 @@ export const citationIntegrityService = {
    */
   extractCitations(text) {
     if (!text || typeof text !== 'string') return new Set();
-    const matches = text.match(/\[E-\d+\]/g) || [];
-    return new Set(matches);
+    return new Set(citationService.extractEvidenceTokens(text).map((id) => `[${id}]`));
   },
 
   /**

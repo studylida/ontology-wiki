@@ -2,20 +2,22 @@
  * [계층 1] Spotlight Search Modal View (Pure Dumb UI Component)
  * - Modern Web Guidance: <dialog closedby="any">
  * - transitions.dev 모달 트랜지션
- * - Phase 1: 스포트라이트 뼈대 및 단축키 연동 (Phase 2에서 실시간 검색 엔진 결합)
+ * - 기존 Spotlight API의 등록 개념 추천·검색 결과 표시
  */
 
-import React, { useRef, useEffect, useState } from 'react';
-import { Search, X, ArrowRight, CornerDownLeft, FileText, Cpu, GitCompare, ExternalLink } from 'lucide-react';
+import React, { useRef, useEffect } from 'react';
+import { Search, CornerDownLeft, FileText } from 'lucide-react';
+import { DOMAIN_FACET_LABELS } from '../types/concept.dto';
+import { relationService } from '../services/relationService';
 
 export function SpotlightModal({
   isOpen,
+  searchTerm = '', onSearchTermChange, results = [], isLoading = false, error, totalIndexed = 0,
   onClose,
   onSelectConcept
 }) {
   const dialogRef = useRef(null);
   const inputRef = useRef(null);
-  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -30,7 +32,6 @@ export function SpotlightModal({
       if (dialog.open) {
         dialog.close();
       }
-      setSearchTerm('');
     }
 
     const handleBackdropClick = (e) => {
@@ -56,7 +57,7 @@ export function SpotlightModal({
     <dialog
       ref={dialogRef}
       closedby="any"
-      aria-labelledby="spotlightDialogTitle"
+      aria-label="등록 지식 검색"
       className="native-modal-dialog"
       style={{ maxWidth: '640px' }}
       onClose={onClose}
@@ -77,8 +78,9 @@ export function SpotlightModal({
             ref={inputRef}
             type="text"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="공정 개념, 물리 원리, KaTeX 수식, L3 파라미터 검색..."
+            onChange={(e) => onSearchTermChange(e.target.value)}
+            aria-label="지식 검색어"
+            placeholder="등록된 개념명·약어·본문 요약 검색..."
             style={{
               flex: 1,
               border: 'none',
@@ -105,15 +107,15 @@ export function SpotlightModal({
         {/* 결과 또는 추천 키워드 영역 */}
         <div style={{ padding: '16px 20px', maxHeight: '360px', overflowY: 'auto' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '8px' }}>
-            ⚡ 추천 바로가기
+            {searchTerm.trim() ? '검색 결과' : '등록된 지식 바로가기'}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            {[
-              { id: 'concept-tcb', title: '열압착 본딩 (TCB: Thermo-Compression Bonding)', facet: '첨단 패키징', scale: '스케일 5' },
-              { id: 'concept-hybrid-bonding', title: '하이브리드 다이렉트 Cu-Cu 본딩', facet: '초고밀도 적층', scale: '스케일 4' },
-              { id: 'concept-cryo-etch', title: '극저온 원자층 식각 (Cryo-ALE)', facet: '단위 공정', scale: '스케일 2' }
-            ].map((item) => (
-              <div
+            {isLoading && <p role="status">등록된 지식을 불러오는 중입니다...</p>}
+            {error && <p role="alert">{error}</p>}
+            {!isLoading && !error && results.length === 0 && <p role="status">일치하는 등록 개념이 없습니다.</p>}
+            {!isLoading && !error && results.map((item) => (
+              <button
+                type="button"
                 key={item.id}
                 onClick={() => {
                   if (onSelectConcept) onSelectConcept(item.id);
@@ -127,6 +129,8 @@ export function SpotlightModal({
                   borderRadius: '6px',
                   cursor: 'pointer',
                   background: 'var(--bg-surface-2)',
+                  border: '1px solid var(--border-color)',
+                  textAlign: 'left',
                   transition: 'background 0.15s ease'
                 }}
               >
@@ -137,12 +141,12 @@ export function SpotlightModal({
                       {item.title}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                      {item.facet} · {item.scale}
+                      {DOMAIN_FACET_LABELS[item.domainFacet] || item.domainFacet} · {relationService.getScaleLabel(item.scaleLevel)}
                     </div>
                   </div>
                 </div>
                 <CornerDownLeft size={14} style={{ color: 'var(--text-muted)' }} />
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -160,8 +164,8 @@ export function SpotlightModal({
             color: 'var(--text-muted)'
           }}
         >
-          <span>Tip: 수식 기호나 DOI 번호로도 인과 지식을 검색할 수 있습니다.</span>
-          <span>Tab 1~4 실시간 색인</span>
+          <span>개념명·영문명·등록 약어로 검색할 수 있습니다.</span>
+          <span>등록 개념 {totalIndexed}개</span>
         </div>
       </div>
     </dialog>

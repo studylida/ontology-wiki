@@ -7,6 +7,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Search, ChevronDown, ChevronRight, PlusCircle, Layers, Cpu, Activity, Box, Sparkles } from 'lucide-react';
+import { relationService } from '../../services/relationService';
 
 const DOMAIN_FACETS = [
   { id: 'unit_process', label: '단위공정', icon: Layers },
@@ -15,13 +16,11 @@ const DOMAIN_FACETS = [
   { id: 'materials_infra', label: '소재 & 인프라', icon: Box }
 ];
 
-const SCALE_TABS = [
-  { scale: 5, label: 'Scale 5: 팹 인프라 & 환경 (100m~1km)', shortLabel: 'Scale 5 (팹/인프라)' },
-  { scale: 4, label: 'Scale 4: 장비 & 챔버 단위 (1m~10m)', shortLabel: 'Scale 4 (장비/챔버)' },
-  { scale: 3, label: 'Scale 3: 공정 & 레시피 (1cm~300mm)', shortLabel: 'Scale 3 (단위공정)' },
-  { scale: 2, label: 'Scale 2: 박막 & 소자 셀 (1nm~1μm)', shortLabel: 'Scale 2 (박막/셀)' },
-  { scale: 1, label: 'Scale 1: 원자 물성 & 계면 (0.1nm~1nm)', shortLabel: 'Scale 1 (원자/계면)' }
-];
+const SCALE_TABS = [5, 4, 3, 2, 1].map(scale => ({
+  scale,
+  label: relationService.getScaleLabel(scale),
+  shortLabel: relationService.getScaleLabel(scale)
+}));
 
 export function FacetTreeExplorer({
   navMode = 'domain',

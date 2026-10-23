@@ -1,3 +1,5 @@
+import { relationService } from './relationService';
+
 /**
  * [계층 3] Formatting & UI Domain Utility Service
  */
@@ -9,13 +11,14 @@ export const formatService = {
    */
   getScaleInfo(level) {
     const scales = {
-      1: { name: '원자/물성', label: 'L1 원자/물성', color: '#6366f1', bg: '#eef2ff' },
-      2: { name: '박막/식각 단위공정', label: 'L2 단위공정', color: '#0ea5e9', bg: '#f0f9ff' },
-      3: { name: '트랜지스터 소자', label: 'L3 소자', color: '#10b981', bg: '#ecfdf5' },
-      4: { name: '웨이퍼/다이 통합', label: 'L4 웨이퍼/다이', color: '#f59e0b', bg: '#fffbeb' },
-      5: { name: '첨단 패키징/모듈', label: 'L5 첨단 패키징', color: '#ec4899', bg: '#fdf2f8' }
+      1: { color: '#6366f1', bg: '#eef2ff' },
+      2: { color: '#0ea5e9', bg: '#f0f9ff' },
+      3: { color: '#10b981', bg: '#ecfdf5' },
+      4: { color: '#f59e0b', bg: '#fffbeb' },
+      5: { color: '#ec4899', bg: '#fdf2f8' }
     };
-    return scales[level] || { name: '공정 레벨', label: `L${level || 1}`, color: '#64748b', bg: '#f1f5f9' };
+    const label = relationService.getScaleLabel(level);
+    return { name: label, label, ...(scales[level] || { color: '#64748b', bg: '#f1f5f9' }) };
   },
 
   /**

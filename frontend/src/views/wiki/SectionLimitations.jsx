@@ -6,7 +6,6 @@
 
 import React from 'react';
 import { AlertTriangle, BookCheck, ExternalLink } from 'lucide-react';
-import { citationService } from '../../services/citationService';
 
 export function SectionLimitations({ limitations = [] }) {
   if (!limitations || limitations.length === 0) return null;
@@ -67,7 +66,6 @@ export function SectionLimitations({ limitations = [] }) {
               {lim.evidenceIds && lim.evidenceIds.length > 0 && (
                 <div style={{ display: 'flex', gap: '6px' }}>
                   {lim.evidenceIds.map((eid) => {
-                    const meta = citationService.getEvidenceMeta(eid);
                     return (
                       <span
                         key={eid}
@@ -84,7 +82,7 @@ export function SectionLimitations({ limitations = [] }) {
                           gap: '3px',
                           cursor: 'pointer'
                         }}
-                        title={`[${eid}] ${meta.title} (${meta.reliability}) - DOI: ${meta.doi}`}
+                        title={'출처 ' + eid + ' · 원문 정보는 아래 출처 목록에서 확인하세요.'}
                       >
                         <BookCheck size={11} />
                         [{eid}]

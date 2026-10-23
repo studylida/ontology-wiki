@@ -5,7 +5,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { MessageSquare, ArrowRight, X, Sparkles, BookOpen } from 'lucide-react';
+import { MessageSquare, ArrowRight, X, Sparkles } from 'lucide-react';
 
 export function ContextualPopover({
   isOpen,
@@ -18,7 +18,7 @@ export function ContextualPopover({
   useEffect(() => {
     if (!isOpen) return;
     const handleOutsideClick = (e) => {
-      if (!e.target.closest('.concept-popover')) {
+      if (!e.target.closest('.concept-popover, [data-wiki-article]')) {
         onClose();
       }
     };
@@ -82,10 +82,12 @@ export function ContextualPopover({
         </button>
       </div>
 
-      {/* 기본 정의 */}
-      <p style={{ fontSize: '0.75rem', lineHeight: 1.5, color: 'var(--text-secondary)', margin: 0 }}>
-        {data.definition || data.summary || '온톨로지 인과 지식 베이스에 등록된 반도체 공정·소자 핵심 개념입니다.'}
-      </p>
+      {data.isLoading && <p role="status">뜻과 문맥 해설을 불러오는 중입니다...</p>}
+      {data.error && <p role="alert">{data.error}</p>}
+      {/* 표현의 뜻 */}
+      {data.definition && <p style={{ fontSize: '0.75rem', lineHeight: 1.5, color: 'var(--text-secondary)', margin: 0 }}>
+        <strong>뜻:</strong> {data.definition}
+      </p>}
 
       {/* AI 문맥 맞춤 해설 */}
       {data.contextSentence && (
@@ -99,7 +101,7 @@ export function ContextualPopover({
             lineHeight: 1.4
           }}
         >
-          <strong>💡 문맥 맞춤 해설:</strong> {data.contextSentence}
+          <strong>이 문장에서:</strong> {data.contextSentence}
         </div>
       )}
 

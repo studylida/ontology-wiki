@@ -1,11 +1,10 @@
 /**
  * [계층 1] SectionPrinciples View (Pure Dumb UI Component)
- * - 2번 섹션: 반도체 물리 원리, 단계별 메커니즘
+ * - 2번 섹션: 반도체 물리 원리와 메커니즘 설명
  * - KaTeX 수식 블록 자동 렌더링
  */
 
 import React from 'react';
-import { Cpu, Zap } from 'lucide-react';
 import { formulaService } from '../../services/formulaService';
 
 export function SectionPrinciples({ principles = [] }) {
@@ -43,7 +42,7 @@ export function SectionPrinciples({ principles = [] }) {
         </h2>
       </div>
 
-      {/* 단계별 원리 카드 목록 */}
+      {/* 원리 설명 카드 목록 */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         {principles.map((p, idx) => {
           const formulaHtml = p.formula ? formulaService.renderFormula(p.formula, true) : null;
@@ -57,20 +56,8 @@ export function SectionPrinciples({ principles = [] }) {
                 padding: '16px 20px'
               }}
             >
-              {/* 스텝 번호 & 제목 */}
+              {/* 원리 제목: 여러 문헌의 독립 설명에 공통 순서를 부여하지 않는다 */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <span
-                  style={{
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    padding: '2px 6px',
-                    borderRadius: '4px',
-                    background: 'var(--accent-primary)',
-                    color: '#ffffff'
-                  }}
-                >
-                  Step {p.step || idx + 1}
-                </span>
                 <span style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                   {p.title}
                 </span>

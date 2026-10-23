@@ -7,12 +7,15 @@
 
 import React, { useRef, useEffect, useState } from 'react';
 import { PlusCircle, Sparkles, X, Send, Bot, RefreshCw } from 'lucide-react';
+import { DOMAIN_FACET_LABELS } from '../../types/concept.dto';
+import { relationService } from '../../services/relationService';
 
 export function NewConceptModal({
   isOpen,
   currentUser,
   isRecommending,
   placementRecommendation,
+  recommendationError,
   initialData,
   onClose,
   onRequestRecommendation,
@@ -25,10 +28,10 @@ export function NewConceptModal({
     engName: '',
     summary: '',
     purpose: '',
-    domainFacet: 'unit_process',
-    scaleLevel: 5,
-    processCategory: '첨단 패키징',
-    parentConceptId: 'concept-tcb',
+    domainFacet: '',
+    scaleLevel: '',
+    processCategory: '',
+    parentConceptId: null,
     reason: ''
   });
 
@@ -49,10 +52,10 @@ export function NewConceptModal({
     if (placementRecommendation) {
       setForm((prev) => ({
         ...prev,
-        domainFacet: placementRecommendation.suggestedFacet || prev.domainFacet,
-        scaleLevel: placementRecommendation.suggestedScaleLevel || prev.scaleLevel,
-        processCategory: placementRecommendation.suggestedProcessCategory || prev.processCategory,
-        parentConceptId: placementRecommendation.suggestedParentConceptId || prev.parentConceptId
+        domainFacet: placementRecommendation.domainFacet || prev.domainFacet,
+        scaleLevel: placementRecommendation.scaleLevel || prev.scaleLevel,
+        processCategory: placementRecommendation.processCategory || prev.processCategory,
+        parentConceptId: placementRecommendation.parentConceptId || prev.parentConceptId
       }));
     }
   }, [placementRecommendation]);
@@ -70,10 +73,10 @@ export function NewConceptModal({
         engName: '',
         summary: '',
         purpose: '',
-        domainFacet: 'unit_process',
-        scaleLevel: 5,
-        processCategory: '첨단 패키징',
-        parentConceptId: 'concept-tcb',
+        domainFacet: '',
+        scaleLevel: '',
+        processCategory: '',
+        parentConceptId: null,
         reason: ''
       });
     }
@@ -110,7 +113,7 @@ export function NewConceptModal({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!form.title.trim() || !form.summary.trim()) return;
+    if (!form.title.trim() || !form.summary.trim() || !form.domainFacet || !form.scaleLevel || !form.processCategory.trim()) return;
 
     onSubmit({
       title: form.title.trim(),
@@ -121,8 +124,8 @@ export function NewConceptModal({
       originType: 'human_engineer',
       domainFacet: form.domainFacet,
       scaleLevel: Number(form.scaleLevel),
-      scaleName: Number(form.scaleLevel) === 5 ? '첨단 패키징' : '단위 공정',
-      processCategory: form.processCategory,
+      scaleName: relationService.getScaleLabel(Number(form.scaleLevel)),
+      processCategory: form.processCategory.trim(),
       parentConceptId: form.parentConceptId,
       userNote: `[신규 개념 발의] ${form.summary}\n\n도입 목적: ${form.purpose}`,
       evidencePayload: {
@@ -157,6 +160,7 @@ export function NewConceptModal({
               <input
                 type="text"
                 name="title"
+                disabled={isRecommending}
                 value={form.title}
                 onChange={handleChange}
                 placeholder="예: 플라즈마 활성화 Cu-Cu 직접 접합"
@@ -187,6 +191,7 @@ export function NewConceptModal({
             <textarea
               rows={2}
               name="summary"
+              disabled={isRecommending}
               value={form.summary}
               onChange={handleChange}
               placeholder="예: 웨이퍼 표면을 플라즈마로 친수화하여 200°C 저온에서 구리-구리 계면을 직접 접합하는 초고밀도 적층 기술."
@@ -236,10 +241,15 @@ export function NewConceptModal({
 
             {placementRecommendation && (
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.5, background: 'var(--bg-surface)', padding: '8px', borderRadius: '6px' }}>
-                💡 <strong>추론 근거:</strong> {placementRecommendation.reasoning}
+                <div><strong>소속 패싯:</strong> {DOMAIN_FACET_LABELS[placementRecommendation.domainFacet]}</div>
+                <div><strong>공정 스케일:</strong> {relationService.getScaleLabel(placementRecommendation.scaleLevel)}</div>
+                <div><strong>세부 공정군:</strong> {placementRecommendation.processCategory}</div>
+                <div style={{ marginTop: '6px' }}><strong>추천 근거:</strong> {placementRecommendation.reasoning}</div>
               </div>
             )}
           </div>
+
+          {recommendationError && <p role="alert" style={{ margin: 0, color: 'var(--accent-danger, #dc2626)', fontSize: '0.8125rem' }}>{recommendationError}</p>}
 
           {/* 온톨로지 위치 지정 드롭다운 행 */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
@@ -249,14 +259,13 @@ export function NewConceptModal({
               </label>
               <select
                 name="domainFacet"
+                required
                 value={form.domainFacet}
                 onChange={handleChange}
                 style={{ width: '100%', padding: '7px 8px', borderRadius: '6px', border: '1px solid var(--border-color)', background: 'var(--bg-surface-2)', fontSize: '0.75rem' }}
               >
-                <option value="unit_process">단위 공정 (Unit Process)</option>
-                <option value="device">반도체 소자 (Device)</option>
-                <option value="operations">Fab 운영/수율 (Operations)</option>
-                <option value="materials_infra">소재/인프라 (Infra)</option>
+                <option value="">추천 또는 선택</option>
+                {Object.entries(DOMAIN_FACET_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
               </select>
             </div>
 
@@ -266,15 +275,13 @@ export function NewConceptModal({
               </label>
               <select
                 name="scaleLevel"
+                required
                 value={form.scaleLevel}
                 onChange={handleChange}
                 style={{ width: '100%', padding: '7px 8px', borderRadius: '6px', border: '1px solid var(--border-color)', background: 'var(--bg-surface-2)', fontSize: '0.75rem' }}
               >
-                <option value={1}>L1 원자/물성</option>
-                <option value={2}>L2 박막/식각</option>
-                <option value={3}>L3 소자 트랜지스터</option>
-                <option value={4}>L4 웨이퍼/다이</option>
-                <option value={5}>L5 첨단 패키징/모듈</option>
+                <option value="">추천 또는 선택</option>
+                {[1, 2, 3, 4, 5].map(level => <option key={level} value={level}>{relationService.getScaleLabel(level)}</option>)}
               </select>
             </div>
 
@@ -285,6 +292,9 @@ export function NewConceptModal({
               <input
                 type="text"
                 name="processCategory"
+                required
+                maxLength={64}
+                placeholder="추천 또는 직접 입력"
                 value={form.processCategory}
                 onChange={handleChange}
                 style={{ width: '100%', padding: '7px 8px', borderRadius: '6px', border: '1px solid var(--border-color)', background: 'var(--bg-surface-2)', fontSize: '0.75rem' }}

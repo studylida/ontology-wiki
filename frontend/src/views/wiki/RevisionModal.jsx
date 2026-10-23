@@ -106,7 +106,9 @@ export function RevisionModal({
               <option value="summary">1. 개요 및 기술 정의</option>
               <option value="principles">2. 작동 및 물리 원리 (KaTeX 수식)</option>
               <option value="limitations">3. 물리적 한계 및 트레이드오프</option>
-              <option value="specifications">4. 실무 사례 및 파라미터</option>
+              <option value="perspectives">4. 적응형 실무 사례 및 파라미터 (L3 규격)</option>
+              <option value="relations">5. 온톨로지 인과 관계망 및 규모별 계층</option>
+              <option value="evidences">6. 공식 검증 출처 원문</option>
             </select>
           </div>
 

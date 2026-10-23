@@ -27,6 +27,7 @@ import { FloatingChatbotButton } from './views/chatbot/FloatingChatbotButton';
 import { ChatbotDrawer } from './views/chatbot/ChatbotDrawer';
 import { AuthModal } from './views/AuthModal';
 import { SpotlightModal } from './views/SpotlightModal';
+import { SettingsModal } from './views/SettingsModal';
 
 import {
   GitCompare,
@@ -36,6 +37,7 @@ import {
 
 export default function App() {
   const [theme, setTheme] = useState('light');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -50,7 +52,7 @@ export default function App() {
   const topbar = useTopBarController({ initialTab: 'wiki' });
 
   const wiki = useWikiController({
-    initialConceptId: 'concept-tcb',
+    initialConceptId: window.location.hash.startsWith('#concept/') ? window.location.hash.slice(9).trim() : null,
     currentUser: auth.currentUser,
     myAccessRequests: auth.myAccessRequests,
     onRefreshAuth: auth.refreshSession
@@ -74,6 +76,7 @@ export default function App() {
     } else if (targetTab === 'research' && params?.query) {
       research.handleDiscover(params.query, params.comparisonContext || null);
     } else if (targetTab === 'review' && params?.ticketId) {
+      review.setStatusFilter('all');
       review.selectTicket(params.ticketId);
     }
     const hash = targetTab === 'wiki' && wiki.activeConceptId ? `#concept/${wiki.activeConceptId}` : `#${targetTab}`;
@@ -145,11 +148,12 @@ export default function App() {
   });
 
   const admin = useAdminController({
-    currentUser: auth.currentUser
+    currentUser: auth.currentUser,
+    onWikiApplied: wiki.refreshWiki
   });
 
   const chatbot = useChatbotController({
-    currentConceptId: wiki.selectedConceptId,
+    currentConceptId: wiki.activeConceptId,
     activeTab: topbar.activeTab,
     onNavigateToTab: (targetTab, params) => {
       navigateTab(targetTab, params);
@@ -178,6 +182,7 @@ export default function App() {
         onLogout={auth.logout}
         currentTheme={theme}
         onToggleTheme={toggleTheme}
+        onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
       {/* ── 메인 컨텐츠 영역 ── */}
@@ -195,11 +200,12 @@ export default function App() {
 
         {topbar.activeTab === 'wiki' && (
           <WikiView
-            wiki={wiki}
+            wiki={{ ...wiki, selectConcept: navigateConcept }}
             currentUser={auth.currentUser}
             onAskChatbot={(text) => {
               chatbot.sendWithText(`'${text}' 개념의 공정상 역할과 주요 인과 메커니즘을 설명해주세요.`);
             }}
+            onNavigateComparison={(tA, tB) => navigateTab('comparison', { targetA: tA, targetB: tB })}
           />
         )}
 
@@ -260,10 +266,22 @@ export default function App() {
       {/* ── 계층 1 View: 스포트라이트 검색 모달 ── */}
       <SpotlightModal
         isOpen={topbar.isSearchOpen}
+        searchTerm={topbar.searchTerm}
+        onSearchTermChange={topbar.setSearchTerm}
+        results={topbar.searchResults}
+        isLoading={topbar.isSearchLoading}
+        error={topbar.searchError}
+        totalIndexed={topbar.totalIndexed}
         onClose={topbar.closeSearch}
         onSelectConcept={(conceptId) => {
           navigateConcept(conceptId);
         }}
+      />
+
+      {/* ── 계층 1 View: AI 엔진 API 설정 모달 ── */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
       />
     </div>
   );

@@ -6,6 +6,10 @@
 import { httpClient } from './httpClient';
 
 export const conceptRepo = {
+  /** Registered concept suggestions and search results from the existing Spotlight API. */
+  async search(query = '') {
+    return httpClient.get(`/search/spotlight?${new URLSearchParams({q: query})}`);
+  },
   /**
    * 좌측 4축 계층형 온톨로지 네비게이션 트리 조회 (업무 분야 또는 물리 규모 필터 지원)
    * @param {string|{ facet?: string, scale?: number, expandedId?: string }} [facetOrOptions='unit_process']
@@ -37,6 +41,11 @@ export const conceptRepo = {
     return httpClient.get(`/concepts/${conceptId}`);
   },
 
+  /** @returns {Promise<import('../types/concept.dto').PerspectiveCaseDTO>} */
+  async generateCaseContextExplanation(conceptId, caseId) {
+    return httpClient.post(`/concepts/${encodeURIComponent(conceptId)}/perspectives/${encodeURIComponent(caseId)}/context-explanation`, {});
+  },
+
   /**
    * 1~2 hop 인과 서브그래프 및 보상 파라미터 조회 (0.65ms Recursive CTE)
    * @param {string} conceptId
@@ -59,12 +68,10 @@ export const conceptRepo = {
    * @param {string} [perspectiveId='default']
    * @returns {Promise<import('../types/concept.dto').ContextualExplanationDTO>}
    */
-  async getContextualExplainer(conceptId, termId, perspectiveId = 'default') {
-    const params = new URLSearchParams({
-      term_id: termId,
-      perspective_id: perspectiveId
+  async getContextualExplainer(conceptId, termId, perspectiveId = 'default', context = '') {
+    return httpClient.post(`/concepts/${conceptId}/contextual-explainer`, {
+      term_id: termId, perspective_id: perspectiveId, selection_context: context
     });
-    return httpClient.get(`/concepts/${conceptId}/contextual-explainer?${params.toString()}`);
   },
 
   /**

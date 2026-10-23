@@ -19,6 +19,14 @@ export const tokenService = {
   },
 
   /**
+   * getAccessToken 별칭 지원
+   * @returns {string|null}
+   */
+  getAccessToken() {
+    return this.getToken();
+  },
+
+  /**
    * 로컬 스토리지에 액세스 토큰 저장
    * @param {string} token
    */

@@ -20,7 +20,8 @@ export function TopBar({
   onOpenLogin,
   onLogout,
   currentTheme = 'light',
-  onToggleTheme
+  onToggleTheme,
+  onOpenSettings
 }) {
   return (
     <header className="topbar">
@@ -29,7 +30,8 @@ export function TopBar({
         <div
           className="brand-logo"
           style={{ cursor: 'pointer' }}
-          onClick={() => onSelectTab('wiki')}
+          onClick={() => onSelectTab('home')}
+          title="대시보드(Home)로 이동"
         >
           <div
             style={{
@@ -127,6 +129,43 @@ export function TopBar({
                 <span>관리자 콘솔</span>
               </>
             )}
+          </button>
+        )}
+
+        {/* AI 엔진 API Key 설정 모달 트리거 버튼 및 실시간 상태 알약 */}
+        {onOpenSettings && (
+          <button
+            type="button"
+            onClick={onOpenSettings}
+            aria-label="AI 엔진 및 시스템 상태 설정"
+            title="4-Tier AI 인과 추론 엔진 및 시스템 가동 상태 (클릭 시 설정 오픈)"
+            style={{
+              background: 'var(--bg-surface-2)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '20px',
+              padding: '4px 10px',
+              cursor: 'pointer',
+              color: 'var(--text-secondary)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '0.6875rem',
+              fontWeight: 700,
+              transition: 'all 0.15s ease'
+            }}
+          >
+            <span
+              style={{
+                width: '7px',
+                height: '7px',
+                borderRadius: '50%',
+                background: '#10b981',
+                boxShadow: '0 0 6px rgba(16, 185, 129, 0.6)',
+                display: 'inline-block'
+              }}
+            />
+            <span>Live AI</span>
+            <Settings size={12} style={{ color: 'var(--text-muted)' }} />
           </button>
         )}
 

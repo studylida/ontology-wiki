@@ -9,38 +9,8 @@ import { Target, BookOpen } from 'lucide-react';
 
 export function SectionOverview({
   summary,
-  purpose,
-  preloadedExplainers = {},
-  onOpenExplainer
+  purpose
 }) {
-  // 연관 용어 하이라이트 렌더링 헬퍼
-  const renderInteractiveText = (text) => {
-    if (!text) return null;
-    const terms = Object.keys(preloadedExplainers);
-    if (terms.length === 0) return text;
-
-    // 간단한 키워드 분할
-    const regex = new RegExp(`(${terms.map((t) => preloadedExplainers[t].title).join('|')})`, 'g');
-    const parts = text.split(regex);
-
-    return parts.map((part, i) => {
-      const matchedTermId = terms.find((t) => preloadedExplainers[t].title === part);
-      if (matchedTermId) {
-        return (
-          <span
-            key={i}
-            className="inline-concept-tag"
-            onClick={() => onOpenExplainer(matchedTermId)}
-            title="0ms 인라인 문맥 해설 보기"
-          >
-            {part}
-          </span>
-        );
-      }
-      return part;
-    });
-  };
-
   return (
     <section
       style={{
@@ -75,7 +45,7 @@ export function SectionOverview({
 
       {/* 개요 본문 */}
       <div style={{ fontSize: '0.9375rem', lineHeight: 1.7, color: 'var(--text-secondary)', marginBottom: '16px' }}>
-        {renderInteractiveText(summary)}
+        {summary}
       </div>
 
       {/* 도입 목적 박스 */}
@@ -97,7 +67,7 @@ export function SectionOverview({
               공학적 도입 목적 및 핵심 과제
             </div>
             <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-              {renderInteractiveText(purpose)}
+              {purpose}
             </div>
           </div>
         </div>

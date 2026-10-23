@@ -58,7 +58,7 @@ export function ConceptHeader({
               color: scale.color
             }}
           >
-            {scale.label} ({conceptDetail.scaleName || '공정'})
+            {scale.label}{conceptDetail.scaleName ? ` (${conceptDetail.scaleName})` : ''}
           </span>
 
           {/* 세맨틱 버전 */}
@@ -72,7 +72,7 @@ export function ConceptHeader({
               color: 'var(--accent-primary)'
             }}
           >
-            v{conceptDetail.version || '1.2.0'}
+            {conceptDetail.version || '버전 미등록'}
           </span>
 
           {/* 채택 상태 */}
@@ -90,7 +90,7 @@ export function ConceptHeader({
             }}
           >
             <CheckCircle2 size={12} />
-            공인 온톨로지 승인
+            {conceptDetail.status === 'adopted' ? '위키 채택' : conceptDetail.status === 'in_review' ? '검토 중' : conceptDetail.status === 'deprecated' ? '사용 중단' : '상태 미등록'}
           </span>
 
           {/* 최종 검토 일시 */}
