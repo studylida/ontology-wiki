@@ -49,4 +49,14 @@ postgres_data/
 redis_data/
 *.db
 *.sqlite3
+*.sqlite
+*.db-wal
+*.db-shm
+*.sqlite3-wal
+*.sqlite3-shm
+*.sqlite-wal
+*.sqlite-shm
+
+# Local diagnostic helpers
+/scratch/
 

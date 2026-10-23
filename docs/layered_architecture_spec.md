@@ -1983,6 +1983,9 @@ class ResearchCandidateRepository:
 
 ## 4.4 Service 계층 설계 (Business Logic Layer - 5대 전문 Service 전수)
 
+현재 탭4 검색 구현은 [문헌 조사 검색·관련성 설계](research_discovery_design.md)를 따른다. 기존 `ResearchService`·`ResearchRepository`와 조사 전용 `ResearchDiscoveryAgent`가 책임을 나누며, 아래 정규화 테이블·별도 Service 명칭은 현재 구현된 클래스·물리 구조를 뜻하지 않는다. 질문 해석과 문헌 평가·조사 상태 DTO 및 기존 JSON 세션 보존 계약을 우선한다.
+
+
 ### ① `ResearchSessionService` (날짜별 세션 생애주기 총괄)
 - **책임**:
   - `get_session_groups(user_id)`: KST 기준 세션 `created_at`을 판별하여 `today`, `yesterday`, `thisWeek`, `older` 4단으로 그룹화하고 `is_pinned` 세션을 각 그룹 최상단에 배치하여 `ResearchSessionListResponse` 반환.
@@ -2000,8 +2003,11 @@ class ResearchCandidateRepository:
   - 엔지니어가 체크박스를 끄거나 켤 때 `update_feed_selection(feed_id, is_selected)`를 통해 즉시 채택 상태 반영.
 
 ### ④ `ResearchSynthesisService` (심층 기술 분석 리포트 & 편입 후보 오케스트레이터)
+
+현재 실행 경로는 `ResearchService.synthesize()` → 기존 `llm_gateway`이며 조사실 전용 GPT 6.1 Sol medium을 사용한다. 이전 `deep_research_agent`는 가짜 문헌·고정 결론 생성 코드와 함께 제거했다. 신규 개념 후보는 기존 `/concept` 검토 패치로 전달하고 미확정 분류를 검토관이 승인 모달에서 확정한다. 아래 세부 서비스 명칭은 설계상 책임 구분이며 현재 별도 클래스가 존재한다는 뜻은 아니다.
+
 - **책임**:
-  - 엔지니어가 선별한(`is_selected == True`) 피드들만 수집하여 `deep_research_agent.synthesize` 호출.
+  - 엔지니어가 선별한(`is_selected == True`) 피드들만 수집하여 `research_service.synthesize`에서 선택 근거로 모델 호출.
   - LLM과 온톨로지 에지 추론기를 결합하여, **6대 심층 섹션(Executive Summary, KaTeX 메커니즘, 공정 마진 대조표, 트레이드오프, 사내 팹 권고안, 상세 각주)**을 충실한 볼륨의 엔지니어링 텍스트로 합성.
   - `ResearchSynthesisRepository`에 정규화 저장.
   - 사내 온톨로지 편입 제안 후보(`research_candidates`)를 자동 도출.
