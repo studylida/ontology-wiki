@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from copy import deepcopy
 from hashlib import sha256
 from html import unescape
+from itertools import zip_longest
 import json
 import re
 import uuid
@@ -156,9 +157,14 @@ class ResearchService:
                 [link.get("URL", "") for link in record.get("link", [])] +
                 [record.get("resource", {}).get("primary", {}).get("URL", "")]
                 if url.startswith("https://")))
-        # Keep external search results inside the candidate budget even with many local matches.
-        feed.sort(key=lambda e: score(e["sourceName"]) * 2 + score(e["quote"]), reverse=True)
-        return (registered_feed + external_feed + feed)[:30], search_ok
+        # Interleave ranked routes so one source pool cannot consume the whole budget.
+        routes = (registered_feed, external_feed, feed)
+        for route in routes:
+            route.sort(key=lambda e: (-(score(e["sourceName"]) * 2 + score(e["quote"])), e["id"]))
+        selected = [item for row in zip_longest(*routes) for item in row if item is not None][:30]
+        # Existing DOI merging must see registered IDs before their external copies.
+        selected.sort(key=lambda e: e["retrievalStatus"] != "registered_excerpt")
+        return selected, search_ok
 
     def merge_candidates(self, pool, batch, topic):
         identities = {self.identity(e): key for key, e in pool.items()}

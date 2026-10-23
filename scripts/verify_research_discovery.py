@@ -90,9 +90,85 @@ def fixtures():
     return stack
 
 
+async def candidate_selection_checks():
+    from backend.app.services.research_service import research_service
+    from backend.app.services.research_evidence import usable_research_evidence
+    rows = [EvidenceSourceModel(id=f"candidate-glossary-{i:02}", source_name=f"Hybrid glossary {i}",
+        source_type="academic_peer_reviewed", publisher="fixture", quote="generic glossary: hybrid means a mixture.",
+        external_url="https://example.org/shared", url_label="원문", credibility_tier="공개", referenced_concepts=[]) for i in range(40)]
+    rows += [EvidenceSourceModel(id=eid, source_name="HBM hybrid bonding yield defects", source_type="academic_peer_reviewed",
+        publisher="fixture", quote=quote, external_url=url, url_label="원문", credibility_tier="공개", referenced_concepts=[])
+        for eid, quote, url in [
+            ("candidate-relevant", "Particles cause hybrid bonding yield defects.", "https://example.org/shared"),
+            ("candidate-distinct", "Copper planarity affects hybrid bonding yield defects.", "https://example.org/shared"),
+            ("candidate-doi", RECORDS[0]["abstract"], "https://doi.org/10.fixture/particles")]]
+    documents = [(f"candidate/{i:02}.md", "# HBM hybrid bonding yield defects\n\n" + (
+        "fixture insufficient: HBM hybrid bonding topic only." if i == 0 else "Particles cause hybrid bonding yield defects.")) for i in range(40)]
+    async with async_session_factory() as db:
+        db.add_all(rows); await db.commit()
+        stored = await research_repo.evidences(db)
+        with patch.object(research_repo, "source_documents", side_effect=lambda: iter(documents)):
+            selected, ok = await research_service.gather(db, "HBM hybrid bonding yield defects", [], [])
+            assert ok and len(selected) == 30
+            counts = {kind: sum(e["retrievalStatus"] == kind for e in selected) for kind in ("registered_excerpt", "source_excerpt", "abstract", "metadata")}
+            assert counts == dict(registered_excerpt=13, source_excerpt=13, abstract=3, metadata=1), counts
+            assert {"candidate-relevant", "candidate-distinct", "candidate-doi"} <= {e["id"] for e in selected}
+            with patch.object(research_repo, "evidences", new=AsyncMock(return_value=list(reversed(stored)))):
+                reversed_selection, _ = await research_service.gather(db, "HBM hybrid bonding yield defects", [], [])
+            assert [e["id"] for e in selected] == [e["id"] for e in reversed_selection]
+            for external in (AsyncMock(return_value=[]), AsyncMock(side_effect=httpx.ConnectError("fixture"))):
+                with patch.object(research_repo, "crossref", new=external):
+                    warnings = []; kept, search_ok = await research_service.gather(db, "HBM hybrid bonding yield defects", [], warnings)
+                    assert len(kept) == 30 and sum(e["retrievalStatus"] == "registered_excerpt" for e in kept) == 15
+                    assert sum(e["retrievalStatus"] == "source_excerpt" for e in kept) == 15
+                    assert search_ok == (not warnings)
+            with patch.object(research_repo, "evidences", new=AsyncMock(return_value=[])):
+                kept, _ = await research_service.gather(db, "HBM hybrid bonding yield defects", [], [])
+                assert len(kept) == 30 and sum(e["retrievalStatus"] == "source_excerpt" for e in kept) == 26
+            with patch.object(research_repo, "source_documents", side_effect=lambda: iter([])):
+                kept, _ = await research_service.gather(db, "HBM hybrid bonding yield defects", [], [])
+                assert len(kept) == 30 and sum(e["retrievalStatus"] == "registered_excerpt" for e in kept) == 26
+    assessed = set()
+    original_assess = research_discovery_agent.assess
+    async def observe_assess(*args, **kwargs):
+        result = await original_assess(*args, **kwargs)
+        inputs = {e["id"]: " ".join(s["text"] for s in e["readSegments"]) for e in args[1]}
+        assessed.update(inputs)
+        for entry in result.assessments:
+            if "generic glossary" in inputs[entry.id]:
+                entry.assessment.decision = "excluded"
+            if "fixture insufficient" in inputs[entry.id]:
+                entry.assessment.decision = "deferred"
+        return result
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://fixture") as client:
+        with patch.object(research_repo, "source_documents", side_effect=lambda: iter(documents)), patch.object(research_discovery_agent, "assess", new=observe_assess):
+            response = await client.post("/api/v1/research/discover", json=dict(searchTopic=QUESTION))
+            assert response.status_code == 200, response.text
+            result = response.json(); feed = result["evidenceFeed"]
+            by_id = {e["id"]: e for e in feed}
+            assert "candidate-relevant" in assessed and any(eid.startswith("src-") for eid in assessed)
+            assert any(eid.startswith("doi-") for eid in assessed)
+            assert by_id["candidate-doi"]["quote"] == RECORDS[0]["abstract"]
+            assert sum(e["externalUrl"].endswith("10.fixture/particles") for e in feed) == 1
+            assert "candidate-relevant" in by_id and "candidate-distinct" in by_id
+            assert all(not usable_research_evidence(e) for e in feed if e["id"].startswith("candidate-glossary") or e["retrievalStatus"] == "metadata" or e.get("deferReason") == "insufficient_content")
+            blocked = next(e["id"] for e in feed if e["assessment"]["decision"] == "deferred")
+            assert (await client.post(f"/api/v1/research/sessions/{result['sessionId']}/synthesize", json=dict(selectedEvidenceIds=[blocked]))).status_code == 422
+            restored = (await client.get(f"/api/v1/research/sessions/{result['sessionId']}")).json()
+            continuation = await client.post(f"/api/v1/research/sessions/{result['sessionId']}/continue", json=dict(expectedUpdatedAt=restored["updatedAt"]))
+            assert continuation.status_code == 200, continuation.text
+            assert {e["id"] for e in continuation.json()["evidenceFeed"]} == set(by_id)
+    async with async_session_factory() as db:
+        for row in await research_repo.evidences(db):
+            await db.delete(row)
+        await db.commit()
+    print("PASS ranked/interleaved routes under registered flood, query-order independence, empty/failing routes, original IDs/quotes, same-URL separation, DOI merge and continuation guards")
+
+
 async def checks():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    await candidate_selection_checks()
     async with async_session_factory() as db:
         db.add(ResearchSessionModel(id="legacy-fixture", search_topic="과거 조사", evidence_feed=[dict(
             id="legacy-e", sourceName="과거 자료", sourceType="academic_paper", publisher="fixture", quote="과거에 확보한 본딩 발췌",
