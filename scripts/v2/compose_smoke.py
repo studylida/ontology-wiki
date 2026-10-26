@@ -139,10 +139,24 @@ class Stack:
                 value = self.request("GET", "/health")
                 if value.get("database") == "connected" and value.get("providerMode") == "fixture":
                     return value
-            except (SmokeFailure, URLError, TimeoutError):
+            except (SmokeFailure, URLError, TimeoutError, ConnectionError):
                 pass
             time.sleep(1)
         raise SmokeFailure("Fixture API did not become healthy")
+
+    def wait_web(self):
+        web_base = f"http://127.0.0.1:{self.state['webPort']}"
+        deadline = time.monotonic() + 30
+        while time.monotonic() < deadline:
+            try:
+                with OPENER.open(web_base, timeout=10) as response:
+                    html = response.read(100000).decode()
+                if 'id="root"' in html:
+                    return web_base
+            except (URLError, TimeoutError, ConnectionError):
+                pass
+            time.sleep(1)
+        raise SmokeFailure("Vite web container did not serve the application")
 
     def events(self, path):
         request = Request(f"http://127.0.0.1:{self.state['apiPort']}" + path,
@@ -192,19 +206,7 @@ def verify(stack):
         "SELECT json_build_object('postgres',current_setting('server_version'),'pgvector',(SELECT extversion FROM pg_extension WHERE extname='vector'))"))
     if not versions.get("pgvector"):
         raise SmokeFailure("pgvector extension was not installed by migration")
-    web_base = f"http://127.0.0.1:{stack.state['webPort']}"
-    deadline = time.monotonic() + 30
-    while True:
-        try:
-            with OPENER.open(web_base, timeout=10) as response:
-                html = response.read(100000).decode()
-            if 'id="root"' in html:
-                break
-        except (URLError, TimeoutError):
-            pass
-        if time.monotonic() >= deadline:
-            raise SmokeFailure("Vite web container did not serve the application")
-        time.sleep(1)
+    web_base = stack.wait_web()
     if stack.request("GET", "/api/v1/health", base=web_base).get("providerMode") != "fixture":
         raise SmokeFailure("Web-to-API Compose proxy failed")
     login = stack.request("POST", "/auth/login", {"username": stack.state["username"], "password": stack.state["password"]})
