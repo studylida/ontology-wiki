@@ -13,3 +13,4 @@ numpy==2.3.5
 pypdf==6.4.0
 beautifulsoup4==4.14.2
 PyYAML==6.0.3
+tzdata==2026.5; sys_platform == "win32"

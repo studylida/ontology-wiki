@@ -2,6 +2,7 @@
 import importlib.util
 from io import BytesIO
 import json
+import os
 from pathlib import Path
 import socket
 import stat
@@ -15,6 +16,7 @@ smoke = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(smoke)
 
 
+@pytest.mark.skipif(os.name == "nt", reason="Compose smoke requires Unix sockets and POSIX file permissions")
 def test_smoke_state_is_private_and_caller_credentials_are_not_inherited(tmp_path, monkeypatch):
     # A temporary socket only satisfies the file-type preflight; no daemon runs.
     endpoint = tmp_path / "fixture.sock"

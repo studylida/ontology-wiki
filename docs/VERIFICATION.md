@@ -7,6 +7,19 @@
 
 ## 1. 최종 결과
 
+### Windows 로컬 실행 추가 확인 (2026-10-26)
+
+인계 커밋 `3cb72d5`를 `C:\Users\BISTelligence\ontology-wiki-conversation`의 별도 worktree로 준비했습니다. 기존 `fix/wiki-knowledge-flow` 체크아웃과 8000·5432 서비스는 유지했습니다. Docker 실행 파일과 WSL 배포판이 없어 conda-forge 패키지의 PostgreSQL 16.15·pgvector 0.8.6을 `var/pgsql`에 별도로 설치하고 새 클러스터·개발 DB를 127.0.0.1:55432에 만들었습니다. 실행 방법은 [WINDOWS_LOCAL.md](WINDOWS_LOCAL.md)를 따릅니다.
+
+- Python 3.12.13·Node.js 24.19.0에서 고정 의존성을 설치했습니다. 프론트엔드 테스트 28개와 TypeScript/Vite 빌드가 통과했습니다.
+- 백엔드 전체 최초 실행은 203개 통과·2개 실패였습니다. Windows에 IANA 시간대 자료가 없어 일일 스케줄러가 실패한 문제는 Windows 조건부 `tzdata==2026.5`로 해결했습니다. Unix 소켓과 POSIX 파일 권한을 전제로 하는 Compose 검사 1개는 Windows에서 명시적으로 건너뜁니다. 수정 후 해당 Compose 검사 파일과 스케줄러 검사는 9개 통과·1개 건너뛰기였으며 통과한 나머지 전체 검사는 반복하지 않았습니다.
+- `windows_dev.ps1`의 최초 기동·중복 기동·상태 확인·전체 종료·재기동을 실제 확인했습니다. `Start-Process -Wait`가 PostgreSQL 자식까지 기다리던 문제와 JSON의 생성시각 자동 DateTime 변환 문제를 수정한 뒤 관련 수명주기를 재검증했습니다. API 8001·작업자·Vite 5173·DB 55432를 유지하고 있습니다. 독립 읽기 전용 검토에서도 추가 오류를 찾지 못했습니다.
+- 제공 ZIP의 전체 해시와 선택 원문의 manifest 해시를 대조했습니다. 대표 3개 문헌만 등록·개발용 승인·실제 임베딩했고, 각 판본의 `approved/ready`, 활성 판본 일치, 색인 작업 3개 성공과 11개 구간을 확인했습니다. 직접 1536차원 프로필이며 이전 평가 캐시는 반입하지 않았습니다.
+- 실제 `gpt-6-luna`·`medium`으로 온톨로지 추출 3건, 위키 답변 1건, 개인 위키 정리 1건이 성공했습니다. 대표 실행 ID는 `run_c8177e93762f4076a8da0840e097438c`이며 `completed`입니다. 저장된 개념 15개·관계 9개는 기계 추출 결과이고 전문가 의미 검토를 뜻하지 않습니다.
+- 브라우저에서 로그인·빈 대화·위키/Extended OFF 기본값·설정 전환 중 초안/문헌 유지·실제 위키 답변·관계 펼침·원문 패널·개인 위키 본문과 연결 원문을 확인했습니다. 새로고침 후 메시지·초안·분석/Extended 설정도 복원됐습니다. 설정 변경 전송 전에는 answer/retrieval run이 모두 0이었고, 첫 질문 이후 펼침·이동·새로고침 뒤에도 각각 1개로 유지됐습니다.
+
+Windows에서 분석 표·Extended 실탐색·외부 조사 왕복·생성 중 취소/재시도는 추가 유료 호출로 반복하지 않았습니다. 전체 129개 재임베딩과 Compose smoke도 실행하지 않았습니다. 실행 당시 npm audit는 개발 도구 Vite/Vitest 계열 6건(critical 2·high 1·moderate 3)을 보고했습니다. 주요 버전 변경이 필요한 자동 수정은 이번 실행 범위에 포함하지 않았으며 서버는 loopback에만 열었습니다. 공급자 사용량은 저장되지만 이번 작업에서 요율·청구 총액을 독립 검증하지 않았습니다.
+
 | 구분 | 실행 결과 | 해석 가능한 범위 | 증거 |
 | --- | --- | --- | --- |
 | 백엔드 | **205 passed, 48.54s** | PostgreSQL의 격리 스키마, 명시적 fixture/HTTP mock 기반 계약·상태·권한·경쟁 조건 | [backend-tests.xml](verification/backend-tests.xml) |

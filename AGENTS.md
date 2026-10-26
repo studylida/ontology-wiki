@@ -63,6 +63,8 @@ motion and keyboard interaction, and never manufacture progress or typing delays
 
 ## Handoff
 
+Windows process management belongs to `scripts/v2/windows_dev.ps1`; it starts the existing API/worker/Vite entry points and manages only its recorded local processes. See `docs/WINDOWS_LOCAL.md` for this environment; application layer boundaries remain unchanged.
+
 Update API/schema migrations and relevant docs when contracts change. Keep frozen
 applied migrations immutable; add a new migration. Explain what changed, why,
 verified behavior and remaining limits. Keep a stable runId/debugging path. Do not

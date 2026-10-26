@@ -55,6 +55,8 @@ python3 -m venv .venv
 
 계정 비밀번호는 프롬프트에서 입력합니다. 서버가 기본 계정을 자동 생성하지 않습니다. 이미 별도 PostgreSQL이 있다면 `.env`의 `OW_DATABASE_URL`을 그 개발 DB로 설정하고 DB 컨테이너 단계는 생략합니다. 기존 운영 DB를 지정하지 마세요.
 
+Windows 네이티브 실행과 이번 로컬 환경의 접속·종료·재시작 방법은 [Windows 로컬 실행 안내](docs/WINDOWS_LOCAL.md)를 따릅니다.
+
 화면·상태 검증은 `.env`의 `OW_PROVIDER_MODE=fixture`를 명시적으로 설정합니다. 테스트용 임베딩·응답이며 외부 모델을 호출하지 않습니다. 실제 실행은 `OW_PROVIDER_MODE=live`, `OW_GENERATION_MODEL=gpt-6-luna`, `OW_GENERATION_EFFORT=medium`, 서버의 `OPENAI_API_KEY`를 설정합니다. 키는 예제·브라우저·Git에 넣지 않습니다.
 
 각 터미널에서 실행합니다.
