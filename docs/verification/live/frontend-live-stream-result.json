@@ -1,0 +1,400 @@
+{
+  "scope": "One user-requested GPT-6 Luna verification using only the three provided public Samsung/SK hynix documents. No private attachments, prior conversation, automatic wiki or Extended; no second generation.",
+  "publicSourceUrls": [
+    "https://news.skhynix.co.kr/future-talents-class-ep1/",
+    "https://news.skhynix.co.kr/ambassador-hypidia-2/",
+    "https://news.samsungsemiconductor.com/kr/반도체-8대-공정-9탄-외부환경으로부터-반도체를-보호/"
+  ],
+  "steps": [
+    "One live request delivers actual text into the rendered answer.",
+    "Reload restores the same running answer and unsent draft without a second generation request.",
+    "Cancellation is durable, the partial answer remains labeled cancelled, and reload does not duplicate or regenerate it."
+  ],
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations/conv_da344c28af3f41399723b23dbdc8862e",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations/conv_da344c28af3f41399723b23dbdc8862e",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations/conv_da344c28af3f41399723b23dbdc8862e",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents/revisions/rev_3110b923f0ec562f97b08530e3f8c559",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents/revisions/rev_fd762c77475c594ca18c89be5f21f0a5",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents/revisions/rev_50f8f8ea11d6546a8d2fb81cc812df01",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/me",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/me",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/me",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations/conv_da344c28af3f41399723b23dbdc8862e",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations/conv_da344c28af3f41399723b23dbdc8862e",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health",
+      "query": ""
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/answer-runs",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/answer-runs/run_2dc031286f0a4f709aa40b675520b5f7/events",
+      "query": "?after=0"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/answer-runs/run_2dc031286f0a4f709aa40b675520b5f7/client-metrics",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/answer-runs/run_2dc031286f0a4f709aa40b675520b5f7",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/me",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/me",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations/conv_da344c28af3f41399723b23dbdc8862e",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations/conv_da344c28af3f41399723b23dbdc8862e",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/answer-runs/run_2dc031286f0a4f709aa40b675520b5f7",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/answer-runs/run_2dc031286f0a4f709aa40b675520b5f7/events",
+      "query": "?after=60"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/answer-runs/run_2dc031286f0a4f709aa40b675520b5f7",
+      "query": ""
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/answer-runs/run_2dc031286f0a4f709aa40b675520b5f7/cancel",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/answer-runs/run_2dc031286f0a4f709aa40b675520b5f7",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/answer-runs/run_2dc031286f0a4f709aa40b675520b5f7",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/answer-runs/run_2dc031286f0a4f709aa40b675520b5f7",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/me",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/me",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations/conv_da344c28af3f41399723b23dbdc8862e",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations/conv_da344c28af3f41399723b23dbdc8862e",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/answer-runs/run_2dc031286f0a4f709aa40b675520b5f7",
+      "query": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/answer-runs/run_2dc031286f0a4f709aa40b675520b5f7",
+      "query": ""
+    }
+  ],
+  "blockedWrites": [],
+  "errors": [],
+  "screenshots": [
+    "frontend-live-10-streaming-before-reload.png",
+    "frontend-live-11-restored-stream.png",
+    "frontend-live-12-final-partial-restoration.png"
+  ],
+  "generationPosts": 1,
+  "accepted": {
+    "runId": "run_2dc031286f0a4f709aa40b675520b5f7",
+    "conversationId": "conv_da344c28af3f41399723b23dbdc8862e",
+    "messageId": "msg_23cf3e3b55c34dc8a0fe3f049dc9b769",
+    "status": "queued",
+    "eventsUrl": "/api/v1/answer-runs/run_2dc031286f0a4f709aa40b675520b5f7/events"
+  },
+  "initial": {
+    "status": "running",
+    "lastSeq": 18,
+    "contentLength": 2,
+    "generationConfig": {
+      "model": "gpt-6-luna",
+      "effort": "medium",
+      "providerMode": "live"
+    },
+    "metrics": {
+      "totalMs": null,
+      "firstTextMs": 4990.26,
+      "retrievalMs": 527.69,
+      "generationMs": null,
+      "providerEventMs": 1035.63,
+      "promptCharacters": 11802,
+      "groundingCharacters": 10795
+    }
+  },
+  "resumed": {
+    "status": "running",
+    "lastSeq": 60,
+    "contentLength": 84
+  },
+  "cancelOutcome": "cancelled",
+  "final": {
+    "status": "cancelled",
+    "lastSeq": 146,
+    "contentLength": 229,
+    "usage": {
+      "calls": 2,
+      "model": "multiple",
+      "source": "provider",
+      "costUsd": null,
+      "provider": "multiple",
+      "components": [
+        {
+          "calls": 1,
+          "model": "text-embedding-3-large",
+          "source": "provider",
+          "costUsd": 1.1700000000000001e-05,
+          "provider": "openai",
+          "operation": "query_embedding",
+          "costStatus": "estimated",
+          "inputTokens": 90,
+          "pricingDate": "2026-10-26",
+          "totalTokens": 90,
+          "fixtureCalls": 0,
+          "outputTokens": null,
+          "pricingSource": "https://developers.openai.com/api/docs/pricing",
+          "embeddingProfile": "openai:text-embedding-3-large:api3072:stored1536:prefix_l2:v1",
+          "inputUsdPerMillion": 0.13
+        },
+        {
+          "calls": 1,
+          "model": "gpt-6-luna",
+          "source": "provider",
+          "costUsd": null,
+          "provider": null,
+          "operation": "answer_generation",
+          "costStatus": "unknown",
+          "inputTokens": null,
+          "pricingDate": null,
+          "totalTokens": null,
+          "fixtureCalls": 0,
+          "outputTokens": null
+        }
+      ],
+      "costStatus": "unknown",
+      "inputTokens": null,
+      "pricingDate": "multiple",
+      "serviceTier": null,
+      "totalTokens": null,
+      "fixtureCalls": 0,
+      "knownCostUsd": 1.1700000000000001e-05,
+      "outputTokens": null,
+      "effectiveEffort": null,
+      "requestedEffort": null,
+      "unknownCostCalls": 1,
+      "requestedServiceTier": null
+    },
+    "metrics": {
+      "totalMs": 6164.78,
+      "firstTextMs": 4990.26,
+      "retrievalMs": 527.69,
+      "generationMs": 5586.13,
+      "providerEventMs": 1035.63,
+      "promptCharacters": 11802,
+      "clientTimingSource": "browser_untrusted",
+      "groundingCharacters": 10795,
+      "clientFirstVisibleTextMs": 5107.800000000745
+    },
+    "generationConfig": {
+      "model": "gpt-6-luna",
+      "effort": "medium",
+      "providerMode": "live"
+    }
+  },
+  "metricPosts": 1,
+  "status": "passed",
+  "publicRecord": {
+    "excludedProviderFields": [
+      "raw",
+      "requestId",
+      "responseId",
+      "responseMetadata"
+    ],
+    "containsCredentials": false,
+    "screenshotNote": "frontend-live-10/11/12 precede the final body-follow scroll fix; frontend-live-13 confirms final saved-partial restoration without another model call."
+  }
+}

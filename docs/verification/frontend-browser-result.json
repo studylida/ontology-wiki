@@ -1,0 +1,179 @@
+{
+  "scope": "Actual local fixture backend. No external model invocation.",
+  "steps": [
+    "actual authentication and empty conversation",
+    "mode and Extended toggle preserve draft with zero requests",
+    "research roundtrip preserves original draft and next response mode",
+    "first-question publisher scopes use actual source metadata and generate zero requests when selected",
+    "first DOM text observation is stored once by authenticated client-metrics endpoint",
+    "persisted real fixture stream, five wiki sections, fixture label",
+    "source panel reads current-authorized stored original",
+    "reload restores persisted messages and browser draft/mode without new generation",
+    "mobile navigation/no horizontal overflow; actual approved document review preview",
+    "explicit new conversation resets wiki/off and starts with an empty composer"
+  ],
+  "errors": [],
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/answer-runs"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/answer-runs/run_1ca6005968924d2d8c5894e537840020/events"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/answer-runs/run_1ca6005968924d2d8c5894e537840020"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/answer-runs/run_1ca6005968924d2d8c5894e537840020/client-metrics"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/answer-runs/run_1ca6005968924d2d8c5894e537840020"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents/revisions/rev_64f7e231f7a2564eb637ecb56da9943d"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/me"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/me"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations/conv_7ac431c8354e48cb9ce10a19203c1700"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations/conv_7ac431c8354e48cb9ce10a19203c1700"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/answer-runs/run_1ca6005968924d2d8c5894e537840020"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/jobs"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/jobs"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/jobs"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents/revisions/rev_3110b923f0ec562f97b08530e3f8c559"
+    }
+  ],
+  "screenshots": [
+    "frontend-01-login-desktop.png",
+    "frontend-02-empty-desktop.png",
+    "frontend-09-publisher-scope.png",
+    "frontend-03-wiki-answer-desktop.png",
+    "frontend-04-source-panel.png",
+    "frontend-05-mobile-answer.png",
+    "frontend-06-mobile-navigation.png",
+    "frontend-07-mobile-personal-wiki.png",
+    "frontend-08-document-review.png"
+  ],
+  "firstVisibleClientMs": 331.9000000022352,
+  "storedGroupCoverage": [
+    {
+      "status": "available",
+      "groupId": "publisher:samsung_semiconductor",
+      "hitCount": 1,
+      "missingAspects": []
+    },
+    {
+      "status": "available",
+      "groupId": "publisher:skhynixnewsroom",
+      "hitCount": 7,
+      "missingAspects": []
+    }
+  ],
+  "answerTextLength": 8380,
+  "citationCount": 8,
+  "status": "passed",
+  "visualReview": {
+    "method": "Direct original-size image inspection",
+    "desktopViewport": [
+      1440,
+      960
+    ],
+    "mobileViewport": [
+      390,
+      844
+    ],
+    "result": "No blocking overflow, clipped controls, overlapping layout or missing fixture notice in the final captures."
+  }
+}

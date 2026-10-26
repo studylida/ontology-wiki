@@ -1,0 +1,13 @@
+:root {
+  --canvas: #f7f9fc;
+  --surface: #fff;
+  --subtle: #f1f5fb;
+  --text: #263a56;
+  --muted: #64748b;
+  --border: #dce5f1;
+  --blue: #3975d6;
+  --blue-dark: #2862c1;
+  --focus: #8bb7ff;
+  --t-duration: 180ms;
+  --t-easing: cubic-bezier(0.2, 0.7, 0.2, 1);
+}

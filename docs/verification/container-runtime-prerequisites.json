@@ -1,0 +1,94 @@
+{
+  "operation": "container_runtime_prerequisites",
+  "checkedAt": "2026-10-26T04:57:50.440151+00:00",
+  "uid": 0,
+  "tools": {
+    "docker": false,
+    "dockerd": false,
+    "podman": false,
+    "containerd": false,
+    "nerdctl": false,
+    "runc": false,
+    "rootlesskit": false,
+    "newuidmap": false,
+    "newgidmap": false,
+    "slirp4netns": false,
+    "fuse-overlayfs": false,
+    "unshare": true
+  },
+  "knownSockets": {
+    "/var/run/docker.sock": false,
+    "/run/docker.sock": false,
+    "/run/podman/podman.sock": false,
+    "/run/containerd/containerd.sock": false
+  },
+  "capabilities": {
+    "CAP_SYS_ADMIN": false,
+    "CAP_NET_ADMIN": false,
+    "CAP_SETUID": true,
+    "CAP_SETGID": true
+  },
+  "subordinateIds": {
+    "/etc/subuid": {
+      "readable": true,
+      "hasConfigured65536Range": true
+    },
+    "/etc/subgid": {
+      "readable": true,
+      "hasConfigured65536Range": true
+    }
+  },
+  "namespaces": {
+    "user": {
+      "status": "available",
+      "exitCode": 0,
+      "reason": null
+    },
+    "mount": {
+      "status": "available",
+      "exitCode": 0,
+      "reason": null
+    },
+    "network": {
+      "status": "available",
+      "exitCode": 0,
+      "reason": null
+    },
+    "pid": {
+      "status": "available",
+      "exitCode": 0,
+      "reason": null
+    }
+  },
+  "compose": {
+    "yamlParsed": true,
+    "services": [
+      "api",
+      "db",
+      "web",
+      "worker"
+    ],
+    "buildFilesPresent": {
+      "api": true,
+      "worker": true,
+      "web": true
+    },
+    "dockerComposeConfigExecuted": false,
+    "imageBuildExecuted": false,
+    "containerStartupExecuted": false
+  },
+  "status": "blocked_missing_runtime",
+  "missingRootlessTools": [
+    "docker",
+    "dockerd",
+    "rootlesskit",
+    "newuidmap",
+    "newgidmap",
+    "slirp4netns"
+  ],
+  "note": "Namespace support does not prove a rootless Docker daemon is installed or Compose works. No daemon installation or system configuration change was attempted.",
+  "officialPrerequisites": "https://docs.docker.com/engine/security/rootless/",
+  "systemConfigurationChanged": false,
+  "databaseConnections": 0,
+  "modelCalls": 0
+}

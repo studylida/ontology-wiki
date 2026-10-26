@@ -1,0 +1,200 @@
+[
+  {
+    "id": "job_6fed5f8f4b7646fdaba5eac1d32c71ac",
+    "status": "succeeded",
+    "result": {
+      "action": "add",
+      "pageId": "pw_8a39721d668341f0b48e0f768d08bc09",
+      "status": "succeeded",
+      "version": 1,
+      "messageId": "msg_7b5b007502284d029378de786c05a3e5"
+    },
+    "usage": {
+      "raw": {
+        "input_tokens": 7736,
+        "total_tokens": 9278,
+        "output_tokens": 1542,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 7733,
+          "cache_write_tokens_details": {
+            "ttl_12h_tokens": 0,
+            "ttl_30m_tokens": 7733
+          }
+        },
+        "output_tokens_details": {
+          "reasoning_tokens": 169
+        }
+      },
+      "calls": 1,
+      "model": "gpt-6-luna",
+      "effort": "medium",
+      "source": "provider",
+      "costUsd": 0.001737925,
+      "provider": "openai",
+      "requestId": "req_812cd292b2024ba682a08334cd675749",
+      "costStatus": "estimated",
+      "responseId": "resp_00c8cad6b9972b0e016adedf8111a887d08351b78ab2e830bc",
+      "inputTokens": 7736,
+      "modelSource": "provider",
+      "pricingDate": "2026-10-26",
+      "serviceTier": "default",
+      "totalTokens": 9278,
+      "effortSource": "request",
+      "fixtureCalls": 0,
+      "outputTokens": 1542,
+      "pricingBasis": "published_standard_text_rates",
+      "costBreakdown": {
+        "output": {
+          "tokens": 1542,
+          "costUsd": 0.000771,
+          "usdPerMillion": 0.5
+        },
+        "cachedInput": {
+          "tokens": 0,
+          "costUsd": 0.0,
+          "usdPerMillion": 0.01
+        },
+        "cacheWrite12h": {
+          "tokens": 0,
+          "costUsd": 0.0,
+          "usdPerMillion": 0.25
+        },
+        "cacheWrite30m": {
+          "tokens": 7733,
+          "costUsd": 0.000966625,
+          "usdPerMillion": 0.125
+        },
+        "ordinaryInput": {
+          "tokens": 3,
+          "costUsd": 3e-07,
+          "usdPerMillion": 0.1
+        }
+      },
+      "pricingSource": "https://developers.openai.com/api/docs/models/gpt-6-luna",
+      "requestedModel": "gpt-6-luna",
+      "effectiveEffort": "medium",
+      "requestedEffort": "medium",
+      "responseMetadata": {
+        "model": "gpt-6-luna",
+        "reasoning": {
+          "mode": "standard",
+          "effort": "medium",
+          "context": "all_turns",
+          "summary": null
+        },
+        "service_tier": "default",
+        "prompt_cache_options": {
+          "ttl": "30m",
+          "mode": "implicit"
+        }
+      },
+      "cachePricingSource": "https://developers.openai.com/api/docs/guides/prompt-caching",
+      "longContextPricing": false,
+      "requestedServiceTier": "default",
+      "returnedPromptCacheTtl": "30m",
+      "requestedPromptCacheTtl": "30m",
+      "cacheWriteLifetimeSource": "provider_usage"
+    },
+    "error": null
+  },
+  {
+    "id": "job_cb840e1044514a5282bf6b6ccdd05512",
+    "status": "succeeded",
+    "result": {
+      "action": "merge",
+      "pageId": "pw_8a39721d668341f0b48e0f768d08bc09",
+      "status": "succeeded",
+      "version": 2,
+      "messageId": "msg_53486a29d01144b69bcc843ab5d12418"
+    },
+    "usage": {
+      "raw": {
+        "input_tokens": 12004,
+        "total_tokens": 13761,
+        "output_tokens": 1757,
+        "input_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 12001,
+          "cache_write_tokens_details": {
+            "ttl_12h_tokens": 0,
+            "ttl_30m_tokens": 12001
+          }
+        },
+        "output_tokens_details": {
+          "reasoning_tokens": 234
+        }
+      },
+      "calls": 1,
+      "model": "gpt-6-luna",
+      "effort": "medium",
+      "source": "provider",
+      "costUsd": 0.002378925,
+      "provider": "openai",
+      "requestId": "req_becd50ceee8e4d9aae1ea2b04ad7ca97",
+      "costStatus": "estimated",
+      "responseId": "resp_0664a2485bc2b27d016adedfdc1ec087d096c252ea4e18fb81",
+      "inputTokens": 12004,
+      "modelSource": "provider",
+      "pricingDate": "2026-10-26",
+      "serviceTier": "default",
+      "totalTokens": 13761,
+      "effortSource": "request",
+      "fixtureCalls": 0,
+      "outputTokens": 1757,
+      "pricingBasis": "published_standard_text_rates",
+      "costBreakdown": {
+        "output": {
+          "tokens": 1757,
+          "costUsd": 0.0008785,
+          "usdPerMillion": 0.5
+        },
+        "cachedInput": {
+          "tokens": 0,
+          "costUsd": 0.0,
+          "usdPerMillion": 0.01
+        },
+        "cacheWrite12h": {
+          "tokens": 0,
+          "costUsd": 0.0,
+          "usdPerMillion": 0.25
+        },
+        "cacheWrite30m": {
+          "tokens": 12001,
+          "costUsd": 0.001500125,
+          "usdPerMillion": 0.125
+        },
+        "ordinaryInput": {
+          "tokens": 3,
+          "costUsd": 3e-07,
+          "usdPerMillion": 0.1
+        }
+      },
+      "pricingSource": "https://developers.openai.com/api/docs/models/gpt-6-luna",
+      "requestedModel": "gpt-6-luna",
+      "effectiveEffort": "medium",
+      "requestedEffort": "medium",
+      "responseMetadata": {
+        "model": "gpt-6-luna",
+        "reasoning": {
+          "mode": "standard",
+          "effort": "medium",
+          "context": "all_turns",
+          "summary": null
+        },
+        "service_tier": "default",
+        "prompt_cache_options": {
+          "ttl": "30m",
+          "mode": "implicit"
+        }
+      },
+      "cachePricingSource": "https://developers.openai.com/api/docs/guides/prompt-caching",
+      "longContextPricing": false,
+      "requestedServiceTier": "default",
+      "returnedPromptCacheTtl": "30m",
+      "requestedPromptCacheTtl": "30m",
+      "cacheWriteLifetimeSource": "provider_usage"
+    },
+    "error": null
+  }
+]

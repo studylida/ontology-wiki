@@ -1,17 +1,15 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 3000,
+    host: "127.0.0.1",
+    port: 5173,
+    strictPort: true,
     proxy: {
-      '/api': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
-      '/healthz': {
-        target: 'http://localhost:8000',
+      "/api": {
+        target: process.env.OW_API_PROXY_TARGET || "http://127.0.0.1:8000",
         changeOrigin: true,
       },
     },

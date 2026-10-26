@@ -1,0 +1,66 @@
+# New, isolated development environment. Does not mount a legacy database/volume.
+name: ontology-wiki-redesign-dev
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: ontology_dev
+      POSTGRES_DB: ontology_wiki_dev
+      POSTGRES_PASSWORD: ${OW_DEV_DB_PASSWORD:?Generate a private .env file first}
+    ports:
+      - "127.0.0.1:${OW_DEV_DB_PORT:-55432}:5432"
+    volumes:
+      - v2_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ontology_dev -d ontology_wiki_dev"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+  api:
+    build:
+      context: .
+      dockerfile: infra/dev/backend.Dockerfile
+    environment: &app-env
+      OW_DATABASE_URL: postgresql+asyncpg://ontology_dev:${OW_DEV_DB_PASSWORD}@db:5432/ontology_wiki_dev
+      OW_AUTH_SECRET: ${OW_AUTH_SECRET:?Set an authentication signing secret}
+      OW_PROVIDER_MODE: ${OW_PROVIDER_MODE:-disabled}
+      OW_GENERATION_MODEL: ${OW_GENERATION_MODEL:-gpt-6-luna}
+      OW_GENERATION_EFFORT: ${OW_GENERATION_EFFORT:-medium}
+      OW_EMBEDDING_MODEL: ${OW_EMBEDDING_MODEL:-text-embedding-3-large}
+      OW_EMBEDDING_DIMENSIONS: 1536
+      OW_EMBEDDING_API_DIMENSIONS: ${OW_EMBEDDING_API_DIMENSIONS:-1536}
+      OW_EMBEDDING_TRANSFORM: ${OW_EMBEDDING_TRANSFORM:-native}
+      OW_STORAGE_PATH: /app/var/raw
+      OW_RESEARCH_NETWORK_MODE: ${OW_RESEARCH_NETWORK_MODE:-system}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    ports:
+      - "127.0.0.1:${OW_DEV_API_PORT:-8000}:8000"
+    volumes:
+      - v2_raw_sources:/app/var/raw
+    depends_on:
+      db:
+        condition: service_healthy
+  worker:
+    build:
+      context: .
+      dockerfile: infra/dev/backend.Dockerfile
+    command: ["python", "-m", "knowledge.cli", "worker"]
+    environment: *app-env
+    volumes:
+      - v2_raw_sources:/app/var/raw
+    depends_on:
+      db:
+        condition: service_healthy
+  web:
+    build:
+      context: .
+      dockerfile: infra/dev/frontend.Dockerfile
+    environment:
+      OW_API_PROXY_TARGET: http://api:8000
+    ports:
+      - "127.0.0.1:${OW_DEV_WEB_PORT:-5173}:5173"
+    depends_on:
+      - api
+volumes:
+  v2_pg_data:
+  v2_raw_sources:

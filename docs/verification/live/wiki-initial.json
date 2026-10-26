@@ -1,0 +1,895 @@
+{
+  "checkedAt": "2026-10-26T05:01:16.046775+00:00",
+  "scope": "explicit_live_development_run",
+  "question": "TSV와 HBM의 관계를 설명해 줘. 패키징의 목적, TSV 연결 원리, 적층 시 조건과 한계를 정리하고 삼성과 SK하이닉스 문헌이 각각 설명하는 범위를 구분해 줘. 자료에 없는 정량 성능이나 공식 입장은 만들지 마.",
+  "responseMode": "wiki",
+  "extended": false,
+  "automaticRetry": false,
+  "request": {
+    "clientRequestId": "6ff1e827-43e7-4f55-a191-bfb8167aa1fc",
+    "conversationId": "conv_5626b07bd71b460b87be06d1a04197c6",
+    "message": "TSV와 HBM의 관계를 설명해 줘. 패키징의 목적, TSV 연결 원리, 적층 시 조건과 한계를 정리하고 삼성과 SK하이닉스 문헌이 각각 설명하는 범위를 구분해 줘. 자료에 없는 정량 성능이나 공식 입장은 만들지 마.",
+    "responseMode": "wiki",
+    "extended": false,
+    "sourceRevisionIds": [
+      "rev_3110b923f0ec562f97b08530e3f8c559",
+      "rev_fd762c77475c594ca18c89be5f21f0a5",
+      "rev_50f8f8ea11d6546a8d2fb81cc812df01"
+    ],
+    "conceptIds": [
+      "concept_0424b716b44f475bb6cd3b4d395d3b62",
+      "concept_3340f13c4c024968af91d09cade00a0f"
+    ],
+    "sourceGroups": [
+      {
+        "groupId": "publisher:skhynixnewsroom",
+        "publisherId": "skhynixnewsroom"
+      },
+      {
+        "groupId": "publisher:samsung_semiconductor",
+        "publisherId": "samsung_semiconductor"
+      }
+    ],
+    "attachmentIds": []
+  },
+  "runId": "run_03014fdd1ce1477a83c60a3e1229f922",
+  "conversationId": "conv_5626b07bd71b460b87be06d1a04197c6",
+  "final": {
+    "runId": "run_03014fdd1ce1477a83c60a3e1229f922",
+    "conversationId": "conv_5626b07bd71b460b87be06d1a04197c6",
+    "messageId": "msg_7b5b007502284d029378de786c05a3e5",
+    "status": "completed",
+    "eventsUrl": "/api/v1/answer-runs/run_03014fdd1ce1477a83c60a3e1229f922/events",
+    "lastSeq": 1255,
+    "message": {
+      "id": "msg_7b5b007502284d029378de786c05a3e5",
+      "role": "assistant",
+      "content": "## 핵심 설명\n\nTSV는 실리콘 칩을 수직으로 관통하는 연결 구조로, 적층된 칩 사이에 신호를 직접 전달하는 패키지 기술입니다. SK하이닉스 문헌은 HBM을 D램을 수직으로 쌓은 제품으로 설명하고, TSV가 층간 연결과 데이터 전달을 뒷받침한다고 설명합니다. 따라서 두 기술의 관계는 **HBM의 적층 구조에서 칩 간 수직 신호 연결을 TSV가 담당한다**는 것으로 정리할 수 있습니다. [출처: psg_1a9ad59fccbf5bcabf92140e7714088f] [출처: psg_2f954d4daeb853efa630179b99f39b2f]\n\n## 목적·원리\n\n패키징의 일반적인 목적은 칩이 외부와 전기 신호를 주고받도록 연결 경로를 마련하고, 외부 환경으로부터 칩을 보호하는 것입니다. 삼성전자 반도체의 교육 자료는 패키징의 보호 대상 환경으로 고온·고습·화학약품·진동·충격을 들고 있습니다. [출처: psg_ce2e431716c752cda00cc58ff072ac28]\n\nTSV는 칩 바깥으로 나간 선을 통해 연결하는 와이어 본딩과 달리, 칩 내부를 수직으로 관통하는 구멍을 통해 칩과 칩을 직접 연결합니다. SK하이닉스 문헌은 이 경로가 층간 신호 전달을 위한 짧은 경로가 되어 신호 지연과 전력 소모를 줄이고, HBM의 초고속·저전력 성능을 뒷받침한다고 설명합니다. 이는 해당 문헌의 기술 설명이며, 제공 자료에는 성능 향상의 정량 수치가 없습니다. [출처: psg_249fa90c0ac4558190ecdc5173f2bcd1] [출처: psg_1a9ad59fccbf5bcabf92140e7714088f]\n\n## 사례·조건\n\n- **적층 조건과 한계:** SK하이닉스 문헌은 TSV로 칩을 수직 적층하는 과정에서 층수가 높아질수록 휨(warpage)이 심해질 수 있고, 밀집 구조에서 발열 문제가 생길 수 있다고 설명합니다. 이를 제어하기 위해 신규 소재와 공법을 개발하고 수율·신뢰성을 확보해야 한다고 덧붙입니다. [출처: psg_249fa90c0ac4558190ecdc5173f2bcd1]\n- **자료의 범위:** 제공 자료는 이런 문제의 방향과 대응 과제를 제시하지만, 허용 적층 수, 휨·온도 기준, 소재·공법의 구체 조건이나 정량 성능은 제시하지 않습니다. 따라서 실제 적층 설계의 조건이나 한계를 수치로 판단할 수는 없습니다. [출처: psg_249fa90c0ac4558190ecdc5173f2bcd1]\n- **삼성 자료와의 구분:** 삼성 자료는 일반 패키징에서 다이와 기판·외부 회로를 연결하는 와이어 본딩과 플립칩을 설명하고, 플립칩은 범프로 직접 연결하는 방식이라고 소개합니다. 그러나 이 자료에서 HBM 적층이나 TSV의 구조·조건을 설명하지는 않습니다. 와이어 본딩·플립칩 설명을 TSV 적층 조건으로 확대해 해석해서는 안 됩니다. [출처: psg_ce2e431716c752cda00cc58ff072ac28]\n\n## 관계\n\n문헌별 설명 범위는 다릅니다.\n\n- **SK하이닉스:** 하이피디아 문헌은 TSV의 수직 관통 구조, 와이어 본딩과의 경로 차이, HBM에서의 기능, 적층에 따른 휨·발열 문제와 대응 과제를 설명합니다. [출처: psg_1a9ad59fccbf5bcabf92140e7714088f] [출처: psg_249fa90c0ac4558190ecdc5173f2bcd1] 별도의 ‘미래인재 CLASS’ 문헌은 HBM을 수직 적층된 D램 제품으로 소개하지만, 제공된 해당 구간만으로는 TSV의 세부 원리나 공정 조건을 추가로 확인할 수 없습니다. [출처: psg_cdb48092522e51ed85580c964f28a3cd] [출처: psg_2f954d4daeb853efa630179b99f39b2f]\n- **삼성전자 반도체:** 패키징의 연결·보호 목적과 일반적인 와이어 본딩·플립칩 사례를 설명합니다. 제공 자료에는 TSV나 HBM 적층에 관한 설명이 없어, 이 주제에서 SK하이닉스 문헌과 동등한 범위의 비교는 할 수 없습니다. [출처: psg_ce2e431716c752cda00cc58ff072ac28]\n\n## 출처·부족한 부분\n\n근거는 SK하이닉스 뉴스룸의 기술 설명·교육성 문헌과 삼성전자 반도체의 패키징 교육 자료입니다. 각 문헌의 설명 범위는 위와 같이 구분했으며, 뉴스룸 자료의 기술 설명을 기업 전체의 공식 입장으로 일반화하지 않았습니다. 제공 자료만으로는 TSV의 수치 성능, 구체적인 적층 설계 기준, 공정별 허용 한계 또는 삼성의 TSV·HBM 관련 설명을 확인할 수 없습니다.",
+      "responseMode": "wiki",
+      "extended": false,
+      "runId": "run_03014fdd1ce1477a83c60a3e1229f922",
+      "status": "completed",
+      "createdAt": "2026-10-26T05:01:16.255430+00:00",
+      "citations": [
+        {
+          "id": "psg_1a9ad59fccbf5bcabf92140e7714088f",
+          "url": "https://news.skhynix.co.kr/ambassador-hypidia-2/",
+          "title": "[하이피디아] HBM 핵심 패키지 기술 초고속 엘리베이터 TSV",
+          "author": null,
+          "excerpt": "하이피디아는 SK하이닉스의 직무별 핵심 키워드를 하나씩 뽑아 알기 쉽게 풀이하는 시리즈다. 낯선 용어 속에 담긴 직무의 역할과 산업의 작동 원리를 명쾌하게 정리해, 반도체 산업에 대한 쉬운 이해를 돕는다. 2화에서는 HBM의 압도적 성능을 완성한 핵심 패키지 기술 ‘TSV’와 이를 완성한 PKG개발 직무의 역할을 소개한다.\r\n\r\n방대한 데이터를 빠르게 처리해야 하는 AI 시대. 메모리 반도체 성능에 대한 기대는 계속 높아지고 있으나, 회로 선폭을 좁혀 성능을 높이는 미세 공정은 물리적 한계에 다다랐다. 이 간극을 극복하기 위해 반도체 산업의 패러다임은 이제 ‘패키지 기술’로 향하고 있다.\r\n\r\nTSV(Through-Silicon Via)는 AI 시대를 선도하는 HBM의 압도적인 성능을 완성한 패키지 기술 중 하나다. 반도체 칩 자체에 수천 개의 수직 관통 구멍을 뚫어 층간 신호를 직접 전달하는 TSV는 기존 배선 방식이 가진 물리적 제약을 극복하며 HBM이 요구하는 초고속 · 저전력 성능을 뒷받침한다.",
+          "locator": "[하이피디아] HBM 핵심 패키지 기술 초고속 엘리베이터 TSV",
+          "passageId": "psg_1a9ad59fccbf5bcabf92140e7714088f",
+          "publisher": "SK hynix Newsroom",
+          "readScope": "full",
+          "sourceType": "official_technical_column",
+          "publishedAt": null,
+          "publisherId": "skhynixnewsroom",
+          "attributedTo": null,
+          "metadataVersion": 1,
+          "attributionBasis": "provided_metadata_unverified",
+          "sourceRevisionId": "rev_fd762c77475c594ca18c89be5f21f0a5"
+        },
+        {
+          "id": "psg_7967d57162135d39ab4cb4a8957a227b",
+          "url": "https://news.samsungsemiconductor.com/kr/반도체-8대-공정-9탄-외부환경으로부터-반도체를-보호/",
+          "title": "[반도체 8대 공정] 9탄, 외부환경으로부터 반도체를 보호하는 패키징 (Packaging) 공정",
+          "author": null,
+          "excerpt": "폼팩터(Form Factor) 구현을 가능하게 합니다. 범프의 소재로는 주로 금(Au) 또는 솔더(Solder, 주석/납/은 화합물)가 사용됩니다.\r\n\r\n**4) 성형(Molding) 공정**\r\n\r\n▲ 반도체 칩을 화학 수지로 밀봉하는 성형(Molding) 공정\r\n\r\n금속 연결 공정까지 끝나면 열, 습기 등의 물리적인 환경으로부터 반도체 집적회로를 보호하고, 원하는 형태의 패키지로 만들기 위한 성형(Molding) 공정을 거칩니다. 금선 연결까지 끝난 반도체 칩을 화학 수지로 밀봉하는 공정을 거치면 우리가 흔히 보는 반도체가 됩니다.",
+          "locator": "[반도체 8대 공정] 9탄, 외부환경으로부터 반도체를 보호하는 패키징 (Packaging) 공정 > 반도체를 외부환경으로부터 보호하고, 전기적으로 연결해주는 패키징 (Packaging) 공정",
+          "passageId": "psg_7967d57162135d39ab4cb4a8957a227b",
+          "publisher": "Samsung Semiconductor",
+          "readScope": "full",
+          "sourceType": "official_educational_series",
+          "publishedAt": null,
+          "publisherId": "samsung_semiconductor",
+          "attributedTo": null,
+          "metadataVersion": 1,
+          "attributionBasis": "provided_metadata_unverified",
+          "sourceRevisionId": "rev_50f8f8ea11d6546a8d2fb81cc812df01"
+        },
+        {
+          "id": "psg_ea4cb03778465af68c0a203e4846e465",
+          "url": "https://news.samsungsemiconductor.com/kr/반도체-8대-공정-9탄-외부환경으로부터-반도체를-보호/",
+          "title": "[반도체 8대 공정] 9탄, 외부환경으로부터 반도체를 보호하는 패키징 (Packaging) 공정",
+          "author": null,
+          "excerpt": "▲ 패키징 공정을 마친 반도체 칩. 완성된 반도체는 최종 테스트 과정을 거쳐 우리 삶의 다양한 곳에 쓰인다\r\n\r\n드디어 일상 생활 속에서 만나볼 수 있는 반도체의 모습이 완성되었습니다. 패키징 공정이 완료되면 반도체 제품의 최종 불량유무를 선별하는 패키지 테스트(Package Test)를 시행합니다. 이 테스트는 완제품 형태를 갖춘 후에 검사를 진행하기 때문에 ‘파이널 테스트(Final Test)’라고도 하는데요.\r\n\r\n패키지 테스트는 반도체를 검사장비(Tester)에 넣고 다양한 조건의 전압이나 전기신호, 온도, 습도 등을 가해 제품의 전기적 특성, 기능적 특성, 동작 속도 등을 측정합니다. 또한, 테스트 데이터를 분석해 제조공정이나 조립공정에 피드백함으로써 제품의 질을 개선하는 역할도 합니다.\r\n\r\n‘8대공정’, ‘8대 공정’\r\n\r\n지금까지 반도체가 탄생하기까지의 주요한 8대 공정을 살펴보았습니다. 실리콘 잉곳을 잘라 만든 원판형 웨이퍼가 손톱보다 작은 크기의 반도체가 되어 우리 생활에 쓰이기까지 복잡하고 세밀한 공정을 거친다는 것을 알 수 있었습니다.\r\n\r\n보이지는 않지만 우리 삶 곳곳에 있는 반도체! 우리 삶을 더욱 풍요롭게 해줄 반도체 기술의 무궁무진한 발전을 기대해주세요.",
+          "locator": "[반도체 8대 공정] 9탄, 외부환경으로부터 반도체를 보호하는 패키징 (Packaging) 공정 > 완벽한 반도체 제품을 위한 최종 관문, 패키지 테스트(Package Test)",
+          "passageId": "psg_ea4cb03778465af68c0a203e4846e465",
+          "publisher": "Samsung Semiconductor",
+          "readScope": "full",
+          "sourceType": "official_educational_series",
+          "publishedAt": null,
+          "publisherId": "samsung_semiconductor",
+          "attributedTo": null,
+          "metadataVersion": 1,
+          "attributionBasis": "provided_metadata_unverified",
+          "sourceRevisionId": "rev_50f8f8ea11d6546a8d2fb81cc812df01"
+        },
+        {
+          "id": "psg_249fa90c0ac4558190ecdc5173f2bcd1",
+          "url": "https://news.skhynix.co.kr/ambassador-hypidia-2/",
+          "title": "[하이피디아] HBM 핵심 패키지 기술 초고속 엘리베이터 TSV",
+          "author": null,
+          "excerpt": "반도체 칩 사이를 연결하는 전통적인 방식은 ‘와이어 본딩(Wire Bonding)’이다. 칩 바깥으로 가느다란 금속 선을 뽑아 연결하는 이 구조에서 데이터는 외부로 우회한 뒤 다시 다른 칩으로 진입하게 된다. 층수가 늘어날수록 경로도 길어지고, 신호 전달 속도는 느려지며 전력 소모도 커진다. 마치 고층 건물을 오르내릴 때마다 건물 밖 비상계단을 빙빙 돌아야 하는 셈이다.\r\n\r\nTSV는 이 구조를 근본적으로 바꿨다. 칩 내부를 수직으로 관통하는 미세한 구멍을 뚫어, 칩과 칩을 직접 연결해 최단 경로를 구축한다. 마치 건물 한가운데 초고속 엘리베이터를 설치한 것과 같다. 이를 통해 신호 지연을 최소화하여 고대역 데이터의 고속 전송을 구현하고, 전력 소모를 대폭 줄여 저전력 · 고효율을 동시에 달성한다.\r\n\r\nTSV는 단일 칩의 한계를 넘어 어드밴스드 패키징(Advanced Packaging) 혁신을 이끄는 핵심 인터커넥션 기술이다. 그러나 TSV를 활용해 칩을 수직으로 높이 쌓아 올리는 과정은 결코 단순하지 않다. 층이 높아질수록 심화되는 휨 현상(Warpage)이나 밀집 구조로 인한 발열 등의 물리적 난제가 계속해서 발생하기 때문이다. 따라서 TSV와 같은 혁신 기술 개발뿐만 아니라, 이를 제어하기 위한 신규 소재와 공법을 개발하여 최적의 수율과 신뢰성을 확보하는 것까지 모두 PKG개발 직무의 역할이다.\r\n\r\nAI 시대를 선도하는 패키지 기술의 정수, TSV. 이에 대한 대학생 앰버서더들의 쉽고 명쾌한 설명은 아래 ‘하이피디아’ 숏폼 영상에서 확인할 수 있다.",
+          "locator": "[하이피디아] HBM 핵심 패키지 기술 초고속 엘리베이터 TSV > 외부 우회에서 수직 직통으로, 연결 방식이 가른 성능 차이",
+          "passageId": "psg_249fa90c0ac4558190ecdc5173f2bcd1",
+          "publisher": "SK hynix Newsroom",
+          "readScope": "full",
+          "sourceType": "official_technical_column",
+          "publishedAt": null,
+          "publisherId": "skhynixnewsroom",
+          "attributedTo": null,
+          "metadataVersion": 1,
+          "attributionBasis": "provided_metadata_unverified",
+          "sourceRevisionId": "rev_fd762c77475c594ca18c89be5f21f0a5"
+        },
+        {
+          "id": "psg_d58a3ee098f65a14b28daaeacf406afb",
+          "url": "https://news.skhynix.co.kr/future-talents-class-ep1/",
+          "title": "[미래인재 CLASS] HBM의 진화: TSV와 MR-MUF",
+          "author": null,
+          "excerpt": "---\r\ntitle: \"[미래인재 CLASS] HBM의 진화: TSV와 MR-MUF\"\r\nsource_url: \"https://news.skhynix.co.kr/future-talents-class-ep1/\"\r\npublisher: \"SK hynix Newsroom\"\r\nsource_id: \"skhynix_tech_tsv_mr_muf\"\r\ntype: \"official_technical_column\"\r\n---",
+          "locator": "본문",
+          "passageId": "psg_d58a3ee098f65a14b28daaeacf406afb",
+          "publisher": "SK hynix Newsroom",
+          "readScope": "full",
+          "sourceType": "official_technical_column",
+          "publishedAt": null,
+          "publisherId": "skhynixnewsroom",
+          "attributedTo": null,
+          "metadataVersion": 1,
+          "attributionBasis": "provided_metadata_unverified",
+          "sourceRevisionId": "rev_3110b923f0ec562f97b08530e3f8c559"
+        },
+        {
+          "id": "psg_c75b6338075059d8bb4b05f12845bba1",
+          "url": "https://news.skhynix.co.kr/ambassador-hypidia-2/",
+          "title": "[하이피디아] HBM 핵심 패키지 기술 초고속 엘리베이터 TSV",
+          "author": null,
+          "excerpt": "---\r\ntitle: \"[하이피디아] HBM 핵심 패키지 기술 초고속 엘리베이터 TSV\"\r\nsource_url: \"https://news.skhynix.co.kr/ambassador-hypidia-2/\"\r\npublisher: \"SK hynix Newsroom\"\r\nsource_id: \"skhynix_hypidia_tsv\"\r\ntype: \"official_technical_column\"\r\n---",
+          "locator": "본문",
+          "passageId": "psg_c75b6338075059d8bb4b05f12845bba1",
+          "publisher": "SK hynix Newsroom",
+          "readScope": "full",
+          "sourceType": "official_technical_column",
+          "publishedAt": null,
+          "publisherId": "skhynixnewsroom",
+          "attributedTo": null,
+          "metadataVersion": 1,
+          "attributionBasis": "provided_metadata_unverified",
+          "sourceRevisionId": "rev_fd762c77475c594ca18c89be5f21f0a5"
+        },
+        {
+          "id": "psg_cdb48092522e51ed85580c964f28a3cd",
+          "url": "https://news.skhynix.co.kr/future-talents-class-ep1/",
+          "title": "[미래인재 CLASS] HBM의 진화: TSV와 MR-MUF",
+          "author": null,
+          "excerpt": "반도체의 경쟁력은 사람에서 나온다. 뉴스룸은 인공지능(AI) 및 반도체 산업을 이끌 미래인재를 양성하는 데 힘을 더하기 위해 [미래인재 CLASS]를 시작한다. 이번 시리즈에서는 SK하이닉스 대학생 앰버서더와 반도체 기술의 정점에 있는 석학이 만나 AI와 반도체의 본질을 깊이 있게 탐구한다. AI 반도체의 마스터 클래스, 첫 편에서는 HBM을 다룬다.\r\n\r\nAI 기술 발전은 HBM(High Bandwidth Memory)과 떼 놓고 이야기할 수 없다. HBM은 수년 전부터 AI 산업을 지탱해 온 제품으로, 그 역할은 앞으로도 막중하다. 특히 세대를 거듭하며 새로운 형태로 진화하고 있어, 계속해서 AI 혁명의 중심에 설 것으로 기대된다.\r\n\r\nAI 산업의 핵심 메모리, HBM의 주요 기술과 미래 경쟁력을 모색하기 위해 SK하이닉스 대학생 앰버서더(이하 앰버서더)가 고려대학교 신창환 교수를 만났다. 이 자리에서 앰버서더와 신 교수는 HBM이 무엇인지, 어떤 기술이 HBM을 가능하게 했는지, 앞으로는 어디까지 진화할 것인지 깊이 있게 이야기 나눴다.",
+          "locator": "[미래인재 CLASS] HBM의 진화: TSV와 MR-MUF",
+          "passageId": "psg_cdb48092522e51ed85580c964f28a3cd",
+          "publisher": "SK hynix Newsroom",
+          "readScope": "full",
+          "sourceType": "official_technical_column",
+          "publishedAt": null,
+          "publisherId": "skhynixnewsroom",
+          "attributedTo": null,
+          "metadataVersion": 1,
+          "attributionBasis": "provided_metadata_unverified",
+          "sourceRevisionId": "rev_3110b923f0ec562f97b08530e3f8c559"
+        },
+        {
+          "id": "psg_2f954d4daeb853efa630179b99f39b2f",
+          "url": "https://news.skhynix.co.kr/future-talents-class-ep1/",
+          "title": "[미래인재 CLASS] HBM의 진화: TSV와 MR-MUF",
+          "author": null,
+          "excerpt": "**“대한민국 반도체 산업의 첨병으로서 AI 시대에 가장 많은 이익을 가져다 주는 D램의 파생 제품이 바로 HBM입니다.”**\r\n\r\n이날 특강은 HBM을 정의하는 것으로 문을 열었다. 신 교수는 “D램을 수직으로 쌓아 초당 전송 가능한 데이터양을 범용 D램보다 수백 배 늘린 제품”이라고 표현하며, “대한민국 반도체 산업의 최전선에서 이익을 창출하고 있다”고 설명했다.\r\n\r\n▲ 차승민 SK하이닉스 대학생 앰버서더\r\n\r\n▲ 곽정은 SK하이닉스 대학생 앰버서더\r\n\r\n▲ 유동현 SK하이닉스 대학생 앰버서더\r\n\r\n▲ 김대현 SK하이닉스 대학생 앰버서더",
+          "locator": "[미래인재 CLASS] HBM의 진화: TSV와 MR-MUF > HBM이 갑자기 부상한 이유는?",
+          "passageId": "psg_2f954d4daeb853efa630179b99f39b2f",
+          "publisher": "SK hynix Newsroom",
+          "readScope": "full",
+          "sourceType": "official_technical_column",
+          "publishedAt": null,
+          "publisherId": "skhynixnewsroom",
+          "attributedTo": null,
+          "metadataVersion": 1,
+          "attributionBasis": "provided_metadata_unverified",
+          "sourceRevisionId": "rev_3110b923f0ec562f97b08530e3f8c559"
+        },
+        {
+          "id": "psg_d1c5b5e1f0e25573abb2b8945c9308df",
+          "url": "https://news.samsungsemiconductor.com/kr/반도체-8대-공정-9탄-외부환경으로부터-반도체를-보호/",
+          "title": "[반도체 8대 공정] 9탄, 외부환경으로부터 반도체를 보호하는 패키징 (Packaging) 공정",
+          "author": null,
+          "excerpt": "[반도체 8대 공정] 9탄, 외부환경으로부터 반도체를 보호하는 패키징 (Packaging) 공정\r\n\r\n2018.10.12\r\n\r\n공유 레이어 열기\r\n인쇄하기\r\n\r\n-\r\n페이스북\r\n\r\n-\r\nX\r\n\r\n-\r\n카카오톡\r\n\r\n-\r\n이메일\r\n\r\n현재 페이지 주소\r\n\r\n주소복사\r\n\r\n-\r\n\r\n-\r\n\r\n-\r\n\r\n-\r\n\r\n-\r\n\r\n반도체 칩은 제품으로 출하되기 전 양품, 불량품을 선별하기 위한 테스트를 거치게 됩니다. 지난 시간에는 웨이퍼 완성 단계에서 이루어지는 테스트 ‘EDS 공정(Electrical Die Sorting)’에 대해 알아 봤는데요. 반도체 8대 공정 시리즈의 마지막으로 완벽한 반도체 제품으로 태어나기 위한 단계 ‘패키징(Packaging) 공정’에 대해 알아보겠습니다.",
+          "locator": "[반도체 8대 공정] 9탄, 외부환경으로부터 반도체를 보호하는 패키징 (Packaging) 공정",
+          "passageId": "psg_d1c5b5e1f0e25573abb2b8945c9308df",
+          "publisher": "Samsung Semiconductor",
+          "readScope": "full",
+          "sourceType": "official_educational_series",
+          "publishedAt": null,
+          "publisherId": "samsung_semiconductor",
+          "attributedTo": null,
+          "metadataVersion": 1,
+          "attributionBasis": "provided_metadata_unverified",
+          "sourceRevisionId": "rev_50f8f8ea11d6546a8d2fb81cc812df01"
+        },
+        {
+          "id": "psg_ce2e431716c752cda00cc58ff072ac28",
+          "url": "https://news.samsungsemiconductor.com/kr/반도체-8대-공정-9탄-외부환경으로부터-반도체를-보호/",
+          "title": "[반도체 8대 공정] 9탄, 외부환경으로부터 반도체를 보호하는 패키징 (Packaging) 공정",
+          "author": null,
+          "excerpt": "전공정을 통해 완성된 웨이퍼의 반도체 칩은 낱개로 하나하나 잘라내는데, 이렇게 잘린 칩을 베어칩(bare chip) 또는 다이(die)라고 합니다. 그러나 이 상태의 칩은 외부와 전기신호를 주고받을 수 없으며, 외부 충격에 의해 손상되기 쉬운데요. 반도체 칩, 즉 집적회로(IC)가 기판이나 전자기기에 장착되기 위해선 그에 맞는 포장이 필요합니다. 이와 같이 반도체 칩이 외부와 신호를 주고 받을 수 있도록 길을 만들어주고 다양한 외부환경으로부터 안전하게 보호받는 형태로 만드는 과정을 ‘패키징(Packaging)’이라고 합니다.\r\n\r\n패키징은 집적회로와 전자기기를 연결하고 고온, 고습, 화학약품, 진동/충격 등의 외부환경으로부터 회로를 보호하기 위한 공정입니다. 그렇다면 이렇게 중요한 패키지 공정의 단계에 대해 알아볼까요?\r\n\r\n**1) 웨이퍼 절단**\r\n\r\n▲ 개별 절단된 칩\r\n\r\n먼저, 웨이퍼를 낱개의 칩으로 분리해야 합니다. 웨이퍼에는 수백 개의 칩이 촘촘히 배열되어 있고, 각 칩은 스크라이브 라인(Scribe Line)으로 구분되어있는데요. 이 스크라이브 라인을 따라 웨이퍼를 다이아몬드 톱이나 레이저 광선을 이용해 절단합니다. 웨이퍼 절단 작업은 웨이퍼를 톱질하고 잘라낸다는 의미에서 ‘웨이퍼 소잉(Wafer Sawing)’이나, ‘다이싱(Dicing)’이라 불립니다.\r\n\r\n**2) 칩 접착(Die attach)**\r\n\r\n▲ 칩의 지지대 역할을 하는 리드프레임\r\n\r\n절단된 칩들은 리드프레임(Lead Frame) 또는 PCB(Printed Circuit Board) 위에 옮겨집니다. 리드프레임은 반도체 칩과 외부 회로 간 전기신호를 전달하고, 외부 환경으로부터 칩을 보호, 지지해주는 골격 역할을 합니다.\r\n\r\n**3) 금선 연결**\r\n\r\n반도체의 전기적 특성을 위해 기판 위에 올려진 반도체 칩의 접점과 기판의 접점을 가는 금선을 사용하여 연결하는 공정을 와이어본딩(Wire Bonding)이라고 합니다.\r\n\r\n▲ 와이어 방식과 플립칩 방식 비교\r\n\r\n전통적인 와이어본딩 방식 외에 반도체의 속도를 향상시키기 위해 칩의 회로와 기판을 직접 볼 형태의 범프(Bump, 돌기)로 연결하는 패키징 방식도 있는데요. 플립칩(Flip Chip) 패키지라고 불리는 이 기술은 와이어본딩보다 전기 저항이 작고 속도가 빠르며, 작은 폼팩터(Form Factor) 구현을 가능하게 합니다. 범프의 소재로는 주로 금(Au) 또는 솔더(Solder, 주석/납/은 화합물)가 사용됩니다.\r\n\r\n**4) 성형(Molding) 공정**\r\n\r\n▲ 반도체 칩을 화학 수지로 밀봉하는 성형(Molding) 공정",
+          "locator": "[반도체 8대 공정] 9탄, 외부환경으로부터 반도체를 보호하는 패키징 (Packaging) 공정 > 반도체를 외부환경으로부터 보호하고, 전기적으로 연결해주는 패키징 (Packaging) 공정",
+          "passageId": "psg_ce2e431716c752cda00cc58ff072ac28",
+          "publisher": "Samsung Semiconductor",
+          "readScope": "full",
+          "sourceType": "official_educational_series",
+          "publishedAt": null,
+          "publisherId": "samsung_semiconductor",
+          "attributedTo": null,
+          "metadataVersion": 1,
+          "attributionBasis": "provided_metadata_unverified",
+          "sourceRevisionId": "rev_50f8f8ea11d6546a8d2fb81cc812df01"
+        }
+      ],
+      "relations": [
+        {
+          "id": "rel_8086ab59aeb34f449b27c32398b37a77",
+          "type": "precedes",
+          "status": "machine_extracted",
+          "toName": "패키지 테스트",
+          "summary": "패키징 공정이 완료된 뒤 제품의 최종 불량 여부를 선별하는 패키지 테스트를 시행한다.",
+          "evidence": [
+            {
+              "id": "psg_ea4cb03778465af68c0a203e4846e465",
+              "url": "https://news.samsungsemiconductor.com/kr/반도체-8대-공정-9탄-외부환경으로부터-반도체를-보호/",
+              "title": "[반도체 8대 공정] 9탄, 외부환경으로부터 반도체를 보호하는 패키징 (Packaging) 공정",
+              "author": null,
+              "excerpt": "▲ 패키징 공정을 마친 반도체 칩. 완성된 반도체는 최종 테스트 과정을 거쳐 우리 삶의 다양한 곳에 쓰인다\r\n\r\n드디어 일상 생활 속에서 만나볼 수 있는 반도체의 모습이 완성되었습니다. 패키징 공정이 완료되면 반도체 제품의 최종 불량유무를 선별하는 패키지 테스트(Package Test)를 시행합니다. 이 테스트는 완제품 형태를 갖춘 후에 검사를 진행하기 때문에 ‘파이널 테스트(Final Test)’라고도 하는데요.\r\n\r\n패키지 테스트는 반도체를 검사장비(Tester)에 넣고 다양한 조건의 전압이나 전기신호, 온도, 습도 등을 가해 제품의 전기적 특성, 기능적 특성, 동작 속도 등을 측정합니다. 또한, 테스트 데이터를 분석해 제조공정이나 조립공정에 피드백함으로써 제품의 질을 개선하는 역할도 합니다.\r\n\r\n‘8대공정’, ‘8대 공정’\r\n\r\n지금까지 반도체가 탄생하기까지의 주요한 8대 공정을 살펴보았습니다. 실리콘 잉곳을 잘라 만든 원판형 웨이퍼가 손톱보다 작은 크기의 반도체가 되어 우리 생활에 쓰이기까지 복잡하고 세밀한 공정을 거친다는 것을 알 수 있었습니다.\r\n\r\n보이지는 않지만 우리 삶 곳곳에 있는 반도체! 우리 삶을 더욱 풍요롭게 해줄 반도체 기술의 무궁무진한 발전을 기대해주세요.",
+              "locator": "[반도체 8대 공정] 9탄, 외부환경으로부터 반도체를 보호하는 패키징 (Packaging) 공정 > 완벽한 반도체 제품을 위한 최종 관문, 패키지 테스트(Package Test)",
+              "passageId": "psg_ea4cb03778465af68c0a203e4846e465",
+              "publisher": "Samsung Semiconductor",
+              "readScope": "full",
+              "sourceType": "official_educational_series",
+              "publishedAt": null,
+              "publisherId": "samsung_semiconductor",
+              "attributedTo": null,
+              "metadataVersion": 1,
+              "attributionBasis": "provided_metadata_unverified",
+              "sourceRevisionId": "rev_50f8f8ea11d6546a8d2fb81cc812df01"
+            }
+          ],
+          "fromName": "패키징 공정",
+          "conditions": "완제품 형태를 갖춘 뒤 검사한다.",
+          "toConceptId": "concept_95483d331e444188a67bdb93ec84c0e3",
+          "fromConceptId": "concept_3340f13c4c024968af91d09cade00a0f"
+        },
+        {
+          "id": "rel_6b18d8309929451a8572cb98c93df8c5",
+          "type": "is_a",
+          "status": "machine_extracted",
+          "toName": "패키지 기술",
+          "summary": "TSV는 패키지 기술 중 하나로 제시된다.",
+          "evidence": [
+            {
+              "id": "psg_1a9ad59fccbf5bcabf92140e7714088f",
+              "url": "https://news.skhynix.co.kr/ambassador-hypidia-2/",
+              "title": "[하이피디아] HBM 핵심 패키지 기술 초고속 엘리베이터 TSV",
+              "author": null,
+              "excerpt": "하이피디아는 SK하이닉스의 직무별 핵심 키워드를 하나씩 뽑아 알기 쉽게 풀이하는 시리즈다. 낯선 용어 속에 담긴 직무의 역할과 산업의 작동 원리를 명쾌하게 정리해, 반도체 산업에 대한 쉬운 이해를 돕는다. 2화에서는 HBM의 압도적 성능을 완성한 핵심 패키지 기술 ‘TSV’와 이를 완성한 PKG개발 직무의 역할을 소개한다.\r\n\r\n방대한 데이터를 빠르게 처리해야 하는 AI 시대. 메모리 반도체 성능에 대한 기대는 계속 높아지고 있으나, 회로 선폭을 좁혀 성능을 높이는 미세 공정은 물리적 한계에 다다랐다. 이 간극을 극복하기 위해 반도체 산업의 패러다임은 이제 ‘패키지 기술’로 향하고 있다.\r\n\r\nTSV(Through-Silicon Via)는 AI 시대를 선도하는 HBM의 압도적인 성능을 완성한 패키지 기술 중 하나다. 반도체 칩 자체에 수천 개의 수직 관통 구멍을 뚫어 층간 신호를 직접 전달하는 TSV는 기존 배선 방식이 가진 물리적 제약을 극복하며 HBM이 요구하는 초고속 · 저전력 성능을 뒷받침한다.",
+              "locator": "[하이피디아] HBM 핵심 패키지 기술 초고속 엘리베이터 TSV",
+              "passageId": "psg_1a9ad59fccbf5bcabf92140e7714088f",
+              "publisher": "SK hynix Newsroom",
+              "readScope": "full",
+              "sourceType": "official_technical_column",
+              "publishedAt": null,
+              "publisherId": "skhynixnewsroom",
+              "attributedTo": null,
+              "metadataVersion": 1,
+              "attributionBasis": "provided_metadata_unverified",
+              "sourceRevisionId": "rev_fd762c77475c594ca18c89be5f21f0a5"
+            }
+          ],
+          "fromName": "TSV (Through-Silicon Via)",
+          "conditions": null,
+          "toConceptId": "concept_f2af2f58b2df4a14a239bc3974898379",
+          "fromConceptId": "concept_0424b716b44f475bb6cd3b4d395d3b62"
+        },
+        {
+          "id": "rel_c64d0975275a400f856cdcb3c7a73be4",
+          "type": "is_a",
+          "status": "machine_extracted",
+          "toName": "인터커넥션 기술",
+          "summary": "TSV는 어드밴스드 패키징 혁신을 이끄는 핵심 인터커넥션 기술로 설명된다.",
+          "evidence": [
+            {
+              "id": "psg_249fa90c0ac4558190ecdc5173f2bcd1",
+              "url": "https://news.skhynix.co.kr/ambassador-hypidia-2/",
+              "title": "[하이피디아] HBM 핵심 패키지 기술 초고속 엘리베이터 TSV",
+              "author": null,
+              "excerpt": "반도체 칩 사이를 연결하는 전통적인 방식은 ‘와이어 본딩(Wire Bonding)’이다. 칩 바깥으로 가느다란 금속 선을 뽑아 연결하는 이 구조에서 데이터는 외부로 우회한 뒤 다시 다른 칩으로 진입하게 된다. 층수가 늘어날수록 경로도 길어지고, 신호 전달 속도는 느려지며 전력 소모도 커진다. 마치 고층 건물을 오르내릴 때마다 건물 밖 비상계단을 빙빙 돌아야 하는 셈이다.\r\n\r\nTSV는 이 구조를 근본적으로 바꿨다. 칩 내부를 수직으로 관통하는 미세한 구멍을 뚫어, 칩과 칩을 직접 연결해 최단 경로를 구축한다. 마치 건물 한가운데 초고속 엘리베이터를 설치한 것과 같다. 이를 통해 신호 지연을 최소화하여 고대역 데이터의 고속 전송을 구현하고, 전력 소모를 대폭 줄여 저전력 · 고효율을 동시에 달성한다.\r\n\r\nTSV는 단일 칩의 한계를 넘어 어드밴스드 패키징(Advanced Packaging) 혁신을 이끄는 핵심 인터커넥션 기술이다. 그러나 TSV를 활용해 칩을 수직으로 높이 쌓아 올리는 과정은 결코 단순하지 않다. 층이 높아질수록 심화되는 휨 현상(Warpage)이나 밀집 구조로 인한 발열 등의 물리적 난제가 계속해서 발생하기 때문이다. 따라서 TSV와 같은 혁신 기술 개발뿐만 아니라, 이를 제어하기 위한 신규 소재와 공법을 개발하여 최적의 수율과 신뢰성을 확보하는 것까지 모두 PKG개발 직무의 역할이다.\r\n\r\nAI 시대를 선도하는 패키지 기술의 정수, TSV. 이에 대한 대학생 앰버서더들의 쉽고 명쾌한 설명은 아래 ‘하이피디아’ 숏폼 영상에서 확인할 수 있다.",
+              "locator": "[하이피디아] HBM 핵심 패키지 기술 초고속 엘리베이터 TSV > 외부 우회에서 수직 직통으로, 연결 방식이 가른 성능 차이",
+              "passageId": "psg_249fa90c0ac4558190ecdc5173f2bcd1",
+              "publisher": "SK hynix Newsroom",
+              "readScope": "full",
+              "sourceType": "official_technical_column",
+              "publishedAt": null,
+              "publisherId": "skhynixnewsroom",
+              "attributedTo": null,
+              "metadataVersion": 1,
+              "attributionBasis": "provided_metadata_unverified",
+              "sourceRevisionId": "rev_fd762c77475c594ca18c89be5f21f0a5"
+            }
+          ],
+          "fromName": "TSV (Through-Silicon Via)",
+          "conditions": null,
+          "toConceptId": "concept_a11b4a8247024cd6a0f0a6cf9f309b53",
+          "fromConceptId": "concept_0424b716b44f475bb6cd3b4d395d3b62"
+        },
+        {
+          "id": "rel_2937d7e13c6747c7a2d40ac8c50235cf",
+          "type": "alternative_to",
+          "status": "machine_extracted",
+          "toName": "와이어 본딩 (Wire Bonding)",
+          "summary": "두 기술은 칩 사이 연결 구조를 대조하여 설명한다. 와이어 본딩은 칩 외부로 우회하는 방식이고, TSV는 칩 내부를 수직으로 관통해 직접 연결하는 방식이다.",
+          "evidence": [
+            {
+              "id": "psg_249fa90c0ac4558190ecdc5173f2bcd1",
+              "url": "https://news.skhynix.co.kr/ambassador-hypidia-2/",
+              "title": "[하이피디아] HBM 핵심 패키지 기술 초고속 엘리베이터 TSV",
+              "author": null,
+              "excerpt": "반도체 칩 사이를 연결하는 전통적인 방식은 ‘와이어 본딩(Wire Bonding)’이다. 칩 바깥으로 가느다란 금속 선을 뽑아 연결하는 이 구조에서 데이터는 외부로 우회한 뒤 다시 다른 칩으로 진입하게 된다. 층수가 늘어날수록 경로도 길어지고, 신호 전달 속도는 느려지며 전력 소모도 커진다. 마치 고층 건물을 오르내릴 때마다 건물 밖 비상계단을 빙빙 돌아야 하는 셈이다.\r\n\r\nTSV는 이 구조를 근본적으로 바꿨다. 칩 내부를 수직으로 관통하는 미세한 구멍을 뚫어, 칩과 칩을 직접 연결해 최단 경로를 구축한다. 마치 건물 한가운데 초고속 엘리베이터를 설치한 것과 같다. 이를 통해 신호 지연을 최소화하여 고대역 데이터의 고속 전송을 구현하고, 전력 소모를 대폭 줄여 저전력 · 고효율을 동시에 달성한다.\r\n\r\nTSV는 단일 칩의 한계를 넘어 어드밴스드 패키징(Advanced Packaging) 혁신을 이끄는 핵심 인터커넥션 기술이다. 그러나 TSV를 활용해 칩을 수직으로 높이 쌓아 올리는 과정은 결코 단순하지 않다. 층이 높아질수록 심화되는 휨 현상(Warpage)이나 밀집 구조로 인한 발열 등의 물리적 난제가 계속해서 발생하기 때문이다. 따라서 TSV와 같은 혁신 기술 개발뿐만 아니라, 이를 제어하기 위한 신규 소재와 공법을 개발하여 최적의 수율과 신뢰성을 확보하는 것까지 모두 PKG개발 직무의 역할이다.\r\n\r\nAI 시대를 선도하는 패키지 기술의 정수, TSV. 이에 대한 대학생 앰버서더들의 쉽고 명쾌한 설명은 아래 ‘하이피디아’ 숏폼 영상에서 확인할 수 있다.",
+              "locator": "[하이피디아] HBM 핵심 패키지 기술 초고속 엘리베이터 TSV > 외부 우회에서 수직 직통으로, 연결 방식이 가른 성능 차이",
+              "passageId": "psg_249fa90c0ac4558190ecdc5173f2bcd1",
+              "publisher": "SK hynix Newsroom",
+              "readScope": "full",
+              "sourceType": "official_technical_column",
+              "publishedAt": null,
+              "publisherId": "skhynixnewsroom",
+              "attributedTo": null,
+              "metadataVersion": 1,
+              "attributionBasis": "provided_metadata_unverified",
+              "sourceRevisionId": "rev_fd762c77475c594ca18c89be5f21f0a5"
+            }
+          ],
+          "fromName": "TSV (Through-Silicon Via)",
+          "conditions": null,
+          "toConceptId": "concept_769d875a52e742c796e9c6d887bbfddc",
+          "fromConceptId": "concept_0424b716b44f475bb6cd3b4d395d3b62"
+        }
+      ],
+      "sourceViews": [
+        {
+          "id": "view_8663280bd79047468b565030bd6db00f",
+          "aspect": "definition",
+          "author": null,
+          "status": "machine_extracted",
+          "summary": "전공정이 끝난 웨이퍼에서 분리한 칩을 외부와 전기적으로 연결하고, 외부환경으로부터 보호되는 형태로 만드는 과정이다.",
+          "evidence": [
+            {
+              "id": "psg_d1c5b5e1f0e25573abb2b8945c9308df",
+              "url": "https://news.samsungsemiconductor.com/kr/반도체-8대-공정-9탄-외부환경으로부터-반도체를-보호/",
+              "title": "[반도체 8대 공정] 9탄, 외부환경으로부터 반도체를 보호하는 패키징 (Packaging) 공정",
+              "author": null,
+              "excerpt": "[반도체 8대 공정] 9탄, 외부환경으로부터 반도체를 보호하는 패키징 (Packaging) 공정\r\n\r\n2018.10.12\r\n\r\n공유 레이어 열기\r\n인쇄하기\r\n\r\n-\r\n페이스북\r\n\r\n-\r\nX\r\n\r\n-\r\n카카오톡\r\n\r\n-\r\n이메일\r\n\r\n현재 페이지 주소\r\n\r\n주소복사\r\n\r\n-\r\n\r\n-\r\n\r\n-\r\n\r\n-\r\n\r\n-\r\n\r\n반도체 칩은 제품으로 출하되기 전 양품, 불량품을 선별하기 위한 테스트를 거치게 됩니다. 지난 시간에는 웨이퍼 완성 단계에서 이루어지는 테스트 ‘EDS 공정(Electrical Die Sorting)’에 대해 알아 봤는데요. 반도체 8대 공정 시리즈의 마지막으로 완벽한 반도체 제품으로 태어나기 위한 단계 ‘패키징(Packaging) 공정’에 대해 알아보겠습니다.",
+              "locator": "[반도체 8대 공정] 9탄, 외부환경으로부터 반도체를 보호하는 패키징 (Packaging) 공정",
+              "passageId": "psg_d1c5b5e1f0e25573abb2b8945c9308df",
+              "publisher": "Samsung Semiconductor",
+              "readScope": "full",
+              "sourceType": "official_educational_series",
+              "publishedAt": null,
+              "publisherId": "samsung_semiconductor",
+              "attributedTo": null,
+              "metadataVersion": 1,
+              "attributionBasis": "provided_metadata_unverified",
+              "sourceRevisionId": "rev_50f8f8ea11d6546a8d2fb81cc812df01"
+            },
+            {
+              "id": "psg_ce2e431716c752cda00cc58ff072ac28",
+              "url": "https://news.samsungsemiconductor.com/kr/반도체-8대-공정-9탄-외부환경으로부터-반도체를-보호/",
+              "title": "[반도체 8대 공정] 9탄, 외부환경으로부터 반도체를 보호하는 패키징 (Packaging) 공정",
+              "author": null,
+              "excerpt": "전공정을 통해 완성된 웨이퍼의 반도체 칩은 낱개로 하나하나 잘라내는데, 이렇게 잘린 칩을 베어칩(bare chip) 또는 다이(die)라고 합니다. 그러나 이 상태의 칩은 외부와 전기신호를 주고받을 수 없으며, 외부 충격에 의해 손상되기 쉬운데요. 반도체 칩, 즉 집적회로(IC)가 기판이나 전자기기에 장착되기 위해선 그에 맞는 포장이 필요합니다. 이와 같이 반도체 칩이 외부와 신호를 주고 받을 수 있도록 길을 만들어주고 다양한 외부환경으로부터 안전하게 보호받는 형태로 만드는 과정을 ‘패키징(Packaging)’이라고 합니다.\r\n\r\n패키징은 집적회로와 전자기기를 연결하고 고온, 고습, 화학약품, 진동/충격 등의 외부환경으로부터 회로를 보호하기 위한 공정입니다. 그렇다면 이렇게 중요한 패키지 공정의 단계에 대해 알아볼까요?\r\n\r\n**1) 웨이퍼 절단**\r\n\r\n▲ 개별 절단된 칩\r\n\r\n먼저, 웨이퍼를 낱개의 칩으로 분리해야 합니다. 웨이퍼에는 수백 개의 칩이 촘촘히 배열되어 있고, 각 칩은 스크라이브 라인(Scribe Line)으로 구분되어있는데요. 이 스크라이브 라인을 따라 웨이퍼를 다이아몬드 톱이나 레이저 광선을 이용해 절단합니다. 웨이퍼 절단 작업은 웨이퍼를 톱질하고 잘라낸다는 의미에서 ‘웨이퍼 소잉(Wafer Sawing)’이나, ‘다이싱(Dicing)’이라 불립니다.\r\n\r\n**2) 칩 접착(Die attach)**\r\n\r\n▲ 칩의 지지대 역할을 하는 리드프레임\r\n\r\n절단된 칩들은 리드프레임(Lead Frame) 또는 PCB(Printed Circuit Board) 위에 옮겨집니다. 리드프레임은 반도체 칩과 외부 회로 간 전기신호를 전달하고, 외부 환경으로부터 칩을 보호, 지지해주는 골격 역할을 합니다.\r\n\r\n**3) 금선 연결**\r\n\r\n반도체의 전기적 특성을 위해 기판 위에 올려진 반도체 칩의 접점과 기판의 접점을 가는 금선을 사용하여 연결하는 공정을 와이어본딩(Wire Bonding)이라고 합니다.\r\n\r\n▲ 와이어 방식과 플립칩 방식 비교\r\n\r\n전통적인 와이어본딩 방식 외에 반도체의 속도를 향상시키기 위해 칩의 회로와 기판을 직접 볼 형태의 범프(Bump, 돌기)로 연결하는 패키징 방식도 있는데요. 플립칩(Flip Chip) 패키지라고 불리는 이 기술은 와이어본딩보다 전기 저항이 작고 속도가 빠르며, 작은 폼팩터(Form Factor) 구현을 가능하게 합니다. 범프의 소재로는 주로 금(Au) 또는 솔더(Solder, 주석/납/은 화합물)가 사용됩니다.\r\n\r\n**4) 성형(Molding) 공정**\r\n\r\n▲ 반도체 칩을 화학 수지로 밀봉하는 성형(Molding) 공정",
+              "locator": "[반도체 8대 공정] 9탄, 외부환경으로부터 반도체를 보호하는 패키징 (Packaging) 공정 > 반도체를 외부환경으로부터 보호하고, 전기적으로 연결해주는 패키징 (Packaging) 공정",
+              "passageId": "psg_ce2e431716c752cda00cc58ff072ac28",
+              "publisher": "Samsung Semiconductor",
+              "readScope": "full",
+              "sourceType": "official_educational_series",
+              "publishedAt": null,
+              "publisherId": "samsung_semiconductor",
+              "attributedTo": null,
+              "metadataVersion": 1,
+              "attributionBasis": "provided_metadata_unverified",
+              "sourceRevisionId": "rev_50f8f8ea11d6546a8d2fb81cc812df01"
+            }
+          ],
+          "conceptId": "concept_3340f13c4c024968af91d09cade00a0f",
+          "extractor": {
+            "model": "gpt-6-luna",
+            "policy": "source-extract-v1",
+            "readScope": "first_16_passages"
+          },
+          "publisher": "Samsung Semiconductor",
+          "conditions": null,
+          "sourceType": "official_educational_series",
+          "extractedAt": "2026-10-26T04:57:40.580170+00:00",
+          "publishedAt": null,
+          "publisherId": "samsung_semiconductor",
+          "attributedTo": null,
+          "metadataVersion": 1,
+          "attributionBasis": "provided_metadata_unverified",
+          "sourceRevisionId": "rev_50f8f8ea11d6546a8d2fb81cc812df01"
+        },
+        {
+          "id": "view_a3ca27481e444d1ea0c115344b38002e",
+          "aspect": "구조와 기능",
+          "author": null,
+          "status": "machine_extracted",
+          "summary": "반도체 칩 자체에 수직 관통 구멍을 만들어 칩과 칩을 직접 연결하고 층간 신호를 전달하는 기술이다. 신호 지연과 전력 소모를 줄여 HBM의 초고속·저전력 성능을 뒷받침한다.",
+          "evidence": [
+            {
+              "id": "psg_1a9ad59fccbf5bcabf92140e7714088f",
+              "url": "https://news.skhynix.co.kr/ambassador-hypidia-2/",
+              "title": "[하이피디아] HBM 핵심 패키지 기술 초고속 엘리베이터 TSV",
+              "author": null,
+              "excerpt": "하이피디아는 SK하이닉스의 직무별 핵심 키워드를 하나씩 뽑아 알기 쉽게 풀이하는 시리즈다. 낯선 용어 속에 담긴 직무의 역할과 산업의 작동 원리를 명쾌하게 정리해, 반도체 산업에 대한 쉬운 이해를 돕는다. 2화에서는 HBM의 압도적 성능을 완성한 핵심 패키지 기술 ‘TSV’와 이를 완성한 PKG개발 직무의 역할을 소개한다.\r\n\r\n방대한 데이터를 빠르게 처리해야 하는 AI 시대. 메모리 반도체 성능에 대한 기대는 계속 높아지고 있으나, 회로 선폭을 좁혀 성능을 높이는 미세 공정은 물리적 한계에 다다랐다. 이 간극을 극복하기 위해 반도체 산업의 패러다임은 이제 ‘패키지 기술’로 향하고 있다.\r\n\r\nTSV(Through-Silicon Via)는 AI 시대를 선도하는 HBM의 압도적인 성능을 완성한 패키지 기술 중 하나다. 반도체 칩 자체에 수천 개의 수직 관통 구멍을 뚫어 층간 신호를 직접 전달하는 TSV는 기존 배선 방식이 가진 물리적 제약을 극복하며 HBM이 요구하는 초고속 · 저전력 성능을 뒷받침한다.",
+              "locator": "[하이피디아] HBM 핵심 패키지 기술 초고속 엘리베이터 TSV",
+              "passageId": "psg_1a9ad59fccbf5bcabf92140e7714088f",
+              "publisher": "SK hynix Newsroom",
+              "readScope": "full",
+              "sourceType": "official_technical_column",
+              "publishedAt": null,
+              "publisherId": "skhynixnewsroom",
+              "attributedTo": null,
+              "metadataVersion": 1,
+              "attributionBasis": "provided_metadata_unverified",
+              "sourceRevisionId": "rev_fd762c77475c594ca18c89be5f21f0a5"
+            },
+            {
+              "id": "psg_249fa90c0ac4558190ecdc5173f2bcd1",
+              "url": "https://news.skhynix.co.kr/ambassador-hypidia-2/",
+              "title": "[하이피디아] HBM 핵심 패키지 기술 초고속 엘리베이터 TSV",
+              "author": null,
+              "excerpt": "반도체 칩 사이를 연결하는 전통적인 방식은 ‘와이어 본딩(Wire Bonding)’이다. 칩 바깥으로 가느다란 금속 선을 뽑아 연결하는 이 구조에서 데이터는 외부로 우회한 뒤 다시 다른 칩으로 진입하게 된다. 층수가 늘어날수록 경로도 길어지고, 신호 전달 속도는 느려지며 전력 소모도 커진다. 마치 고층 건물을 오르내릴 때마다 건물 밖 비상계단을 빙빙 돌아야 하는 셈이다.\r\n\r\nTSV는 이 구조를 근본적으로 바꿨다. 칩 내부를 수직으로 관통하는 미세한 구멍을 뚫어, 칩과 칩을 직접 연결해 최단 경로를 구축한다. 마치 건물 한가운데 초고속 엘리베이터를 설치한 것과 같다. 이를 통해 신호 지연을 최소화하여 고대역 데이터의 고속 전송을 구현하고, 전력 소모를 대폭 줄여 저전력 · 고효율을 동시에 달성한다.\r\n\r\nTSV는 단일 칩의 한계를 넘어 어드밴스드 패키징(Advanced Packaging) 혁신을 이끄는 핵심 인터커넥션 기술이다. 그러나 TSV를 활용해 칩을 수직으로 높이 쌓아 올리는 과정은 결코 단순하지 않다. 층이 높아질수록 심화되는 휨 현상(Warpage)이나 밀집 구조로 인한 발열 등의 물리적 난제가 계속해서 발생하기 때문이다. 따라서 TSV와 같은 혁신 기술 개발뿐만 아니라, 이를 제어하기 위한 신규 소재와 공법을 개발하여 최적의 수율과 신뢰성을 확보하는 것까지 모두 PKG개발 직무의 역할이다.\r\n\r\nAI 시대를 선도하는 패키지 기술의 정수, TSV. 이에 대한 대학생 앰버서더들의 쉽고 명쾌한 설명은 아래 ‘하이피디아’ 숏폼 영상에서 확인할 수 있다.",
+              "locator": "[하이피디아] HBM 핵심 패키지 기술 초고속 엘리베이터 TSV > 외부 우회에서 수직 직통으로, 연결 방식이 가른 성능 차이",
+              "passageId": "psg_249fa90c0ac4558190ecdc5173f2bcd1",
+              "publisher": "SK hynix Newsroom",
+              "readScope": "full",
+              "sourceType": "official_technical_column",
+              "publishedAt": null,
+              "publisherId": "skhynixnewsroom",
+              "attributedTo": null,
+              "metadataVersion": 1,
+              "attributionBasis": "provided_metadata_unverified",
+              "sourceRevisionId": "rev_fd762c77475c594ca18c89be5f21f0a5"
+            }
+          ],
+          "conceptId": "concept_0424b716b44f475bb6cd3b4d395d3b62",
+          "extractor": {
+            "model": "gpt-6-luna",
+            "policy": "source-extract-v1",
+            "readScope": "first_16_passages"
+          },
+          "publisher": "SK hynix Newsroom",
+          "conditions": null,
+          "sourceType": "official_technical_column",
+          "extractedAt": "2026-10-26T04:57:54.434998+00:00",
+          "publishedAt": null,
+          "publisherId": "skhynixnewsroom",
+          "attributedTo": null,
+          "metadataVersion": 1,
+          "attributionBasis": "provided_metadata_unverified",
+          "sourceRevisionId": "rev_fd762c77475c594ca18c89be5f21f0a5"
+        }
+      ],
+      "warnings": [],
+      "usage": {
+        "calls": 2,
+        "model": "multiple",
+        "source": "provider",
+        "costUsd": 0.001747475,
+        "provider": "openai",
+        "components": [
+          {
+            "raw": {
+              "total_tokens": 110,
+              "prompt_tokens": 110
+            },
+            "calls": 1,
+            "model": "text-embedding-3-large",
+            "source": "provider",
+            "costUsd": 1.43e-05,
+            "provider": "openai",
+            "operation": "query_embedding",
+            "requestId": "req_eb07e2bde7ea447098942bc9eae2ede8",
+            "costStatus": "estimated",
+            "inputTokens": 110,
+            "pricingDate": "2026-10-26",
+            "totalTokens": 110,
+            "fixtureCalls": 0,
+            "outputTokens": null,
+            "pricingSource": "https://developers.openai.com/api/docs/pricing",
+            "embeddingProfile": "openai:text-embedding-3-large:api3072:stored1536:prefix_l2:v1",
+            "inputUsdPerMillion": 0.13
+          },
+          {
+            "raw": {
+              "input_tokens": 7066,
+              "total_tokens": 8766,
+              "output_tokens": 1700,
+              "input_tokens_details": {
+                "cached_tokens": 0,
+                "cache_write_tokens": 7063,
+                "cache_write_tokens_details": {
+                  "ttl_12h_tokens": 0,
+                  "ttl_30m_tokens": 7063
+                }
+              },
+              "output_tokens_details": {
+                "reasoning_tokens": 428
+              }
+            },
+            "calls": 1,
+            "model": "gpt-6-luna",
+            "effort": "medium",
+            "source": "provider",
+            "costUsd": 0.001733175,
+            "provider": "openai",
+            "operation": "answer_generation",
+            "requestId": "req_08ba0d68f81f43d1a7277f2a64f0763e",
+            "costStatus": "estimated",
+            "responseId": "resp_07f699df6b89da45016adede9d3c1087d0932dfbf03b9f31af",
+            "inputTokens": 7066,
+            "modelSource": "provider",
+            "pricingDate": "2026-10-26",
+            "serviceTier": "default",
+            "totalTokens": 8766,
+            "effortSource": "request",
+            "fixtureCalls": 0,
+            "outputTokens": 1700,
+            "pricingBasis": "published_standard_text_rates",
+            "costBreakdown": {
+              "output": {
+                "tokens": 1700,
+                "costUsd": 0.00085,
+                "usdPerMillion": 0.5
+              },
+              "cachedInput": {
+                "tokens": 0,
+                "costUsd": 0.0,
+                "usdPerMillion": 0.01
+              },
+              "cacheWrite12h": {
+                "tokens": 0,
+                "costUsd": 0.0,
+                "usdPerMillion": 0.25
+              },
+              "cacheWrite30m": {
+                "tokens": 7063,
+                "costUsd": 0.000882875,
+                "usdPerMillion": 0.125
+              },
+              "ordinaryInput": {
+                "tokens": 3,
+                "costUsd": 3e-07,
+                "usdPerMillion": 0.1
+              }
+            },
+            "pricingSource": "https://developers.openai.com/api/docs/models/gpt-6-luna",
+            "requestedModel": "gpt-6-luna",
+            "effectiveEffort": "medium",
+            "requestedEffort": "medium",
+            "responseMetadata": {
+              "model": "gpt-6-luna",
+              "reasoning": {
+                "mode": "standard",
+                "effort": "medium",
+                "context": "all_turns",
+                "summary": null
+              },
+              "service_tier": "default",
+              "prompt_cache_options": {
+                "ttl": "30m",
+                "mode": "implicit"
+              }
+            },
+            "cachePricingSource": "https://developers.openai.com/api/docs/guides/prompt-caching",
+            "longContextPricing": false,
+            "requestedServiceTier": "default",
+            "returnedPromptCacheTtl": "30m",
+            "requestedPromptCacheTtl": "30m",
+            "cacheWriteLifetimeSource": "provider_usage"
+          }
+        ],
+        "costStatus": "estimated",
+        "inputTokens": 7176,
+        "pricingDate": "2026-10-26",
+        "serviceTier": "default",
+        "totalTokens": 8876,
+        "fixtureCalls": 0,
+        "knownCostUsd": 0.001747475,
+        "outputTokens": null,
+        "effectiveEffort": "medium",
+        "requestedEffort": "medium",
+        "unknownCostCalls": 0,
+        "requestedServiceTier": "default"
+      }
+    },
+    "request": {
+      "aspect": null,
+      "message": "TSV와 HBM의 관계를 설명해 줘. 패키징의 목적, TSV 연결 원리, 적층 시 조건과 한계를 정리하고 삼성과 SK하이닉스 문헌이 각각 설명하는 범위를 구분해 줘. 자료에 없는 정량 성능이나 공식 입장은 만들지 마.",
+      "extended": false,
+      "conceptIds": [
+        "concept_0424b716b44f475bb6cd3b4d395d3b62",
+        "concept_3340f13c4c024968af91d09cade00a0f"
+      ],
+      "responseMode": "wiki",
+      "retryOfRunId": null,
+      "sourceGroups": [
+        {
+          "groupId": "publisher:skhynixnewsroom",
+          "sourceType": null,
+          "publisherId": "skhynixnewsroom"
+        },
+        {
+          "groupId": "publisher:samsung_semiconductor",
+          "sourceType": null,
+          "publisherId": "samsung_semiconductor"
+        }
+      ],
+      "attachmentIds": [],
+      "conversationId": "conv_5626b07bd71b460b87be06d1a04197c6",
+      "clientRequestId": "6ff1e827-43e7-4f55-a191-bfb8167aa1fc",
+      "sourceRevisionIds": [
+        "rev_3110b923f0ec562f97b08530e3f8c559",
+        "rev_fd762c77475c594ca18c89be5f21f0a5",
+        "rev_50f8f8ea11d6546a8d2fb81cc812df01"
+      ],
+      "documentContextIds": []
+    },
+    "error": null,
+    "usage": {
+      "calls": 2,
+      "model": "multiple",
+      "source": "provider",
+      "costUsd": 0.001747475,
+      "provider": "openai",
+      "components": [
+        {
+          "raw": {
+            "total_tokens": 110,
+            "prompt_tokens": 110
+          },
+          "calls": 1,
+          "model": "text-embedding-3-large",
+          "source": "provider",
+          "costUsd": 1.43e-05,
+          "provider": "openai",
+          "operation": "query_embedding",
+          "requestId": "req_eb07e2bde7ea447098942bc9eae2ede8",
+          "costStatus": "estimated",
+          "inputTokens": 110,
+          "pricingDate": "2026-10-26",
+          "totalTokens": 110,
+          "fixtureCalls": 0,
+          "outputTokens": null,
+          "pricingSource": "https://developers.openai.com/api/docs/pricing",
+          "embeddingProfile": "openai:text-embedding-3-large:api3072:stored1536:prefix_l2:v1",
+          "inputUsdPerMillion": 0.13
+        },
+        {
+          "raw": {
+            "input_tokens": 7066,
+            "total_tokens": 8766,
+            "output_tokens": 1700,
+            "input_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 7063,
+              "cache_write_tokens_details": {
+                "ttl_12h_tokens": 0,
+                "ttl_30m_tokens": 7063
+              }
+            },
+            "output_tokens_details": {
+              "reasoning_tokens": 428
+            }
+          },
+          "calls": 1,
+          "model": "gpt-6-luna",
+          "effort": "medium",
+          "source": "provider",
+          "costUsd": 0.001733175,
+          "provider": "openai",
+          "operation": "answer_generation",
+          "requestId": "req_08ba0d68f81f43d1a7277f2a64f0763e",
+          "costStatus": "estimated",
+          "responseId": "resp_07f699df6b89da45016adede9d3c1087d0932dfbf03b9f31af",
+          "inputTokens": 7066,
+          "modelSource": "provider",
+          "pricingDate": "2026-10-26",
+          "serviceTier": "default",
+          "totalTokens": 8766,
+          "effortSource": "request",
+          "fixtureCalls": 0,
+          "outputTokens": 1700,
+          "pricingBasis": "published_standard_text_rates",
+          "costBreakdown": {
+            "output": {
+              "tokens": 1700,
+              "costUsd": 0.00085,
+              "usdPerMillion": 0.5
+            },
+            "cachedInput": {
+              "tokens": 0,
+              "costUsd": 0.0,
+              "usdPerMillion": 0.01
+            },
+            "cacheWrite12h": {
+              "tokens": 0,
+              "costUsd": 0.0,
+              "usdPerMillion": 0.25
+            },
+            "cacheWrite30m": {
+              "tokens": 7063,
+              "costUsd": 0.000882875,
+              "usdPerMillion": 0.125
+            },
+            "ordinaryInput": {
+              "tokens": 3,
+              "costUsd": 3e-07,
+              "usdPerMillion": 0.1
+            }
+          },
+          "pricingSource": "https://developers.openai.com/api/docs/models/gpt-6-luna",
+          "requestedModel": "gpt-6-luna",
+          "effectiveEffort": "medium",
+          "requestedEffort": "medium",
+          "responseMetadata": {
+            "model": "gpt-6-luna",
+            "reasoning": {
+              "mode": "standard",
+              "effort": "medium",
+              "context": "all_turns",
+              "summary": null
+            },
+            "service_tier": "default",
+            "prompt_cache_options": {
+              "ttl": "30m",
+              "mode": "implicit"
+            }
+          },
+          "cachePricingSource": "https://developers.openai.com/api/docs/guides/prompt-caching",
+          "longContextPricing": false,
+          "requestedServiceTier": "default",
+          "returnedPromptCacheTtl": "30m",
+          "requestedPromptCacheTtl": "30m",
+          "cacheWriteLifetimeSource": "provider_usage"
+        }
+      ],
+      "costStatus": "estimated",
+      "inputTokens": 7176,
+      "pricingDate": "2026-10-26",
+      "serviceTier": "default",
+      "totalTokens": 8876,
+      "fixtureCalls": 0,
+      "knownCostUsd": 0.001747475,
+      "outputTokens": null,
+      "effectiveEffort": "medium",
+      "requestedEffort": "medium",
+      "unknownCostCalls": 0,
+      "requestedServiceTier": "default"
+    },
+    "warnings": [],
+    "metrics": {
+      "totalMs": 27998.11,
+      "firstTextMs": 11912.31,
+      "retrievalMs": 653.16,
+      "generationMs": 27239.68,
+      "providerEventMs": 1307.57,
+      "promptCharacters": 15417,
+      "groundingCharacters": 14147
+    },
+    "generationConfig": {
+      "model": "gpt-6-luna",
+      "effort": "medium",
+      "providerMode": "live"
+    },
+    "retrievalRunId": "ret_0b3ca76c9c9d45f086b0e7ee96a4c4f3",
+    "retryOfRunId": null,
+    "createdAt": "2026-10-26T05:01:16.260036+00:00",
+    "startedAt": "2026-10-26T05:01:16.301101+00:00",
+    "finishedAt": "2026-10-26T05:01:44.278175+00:00",
+    "retrievalSummary": {
+      "groupCoverage": [
+        {
+          "status": "available",
+          "groupId": "publisher:skhynixnewsroom",
+          "hitCount": 6,
+          "missingAspects": []
+        },
+        {
+          "status": "available",
+          "groupId": "publisher:samsung_semiconductor",
+          "hitCount": 4,
+          "missingAspects": []
+        }
+      ],
+      "indexSnapshotId": "idx-80576b0f87fd827109ed444c",
+      "stopReason": "basic_search_completed",
+      "requirementCoverage": [
+        {
+          "id": "purpose",
+          "aspect": "목적",
+          "status": "evidence_found",
+          "assessment": "literal_aspect_signal_only",
+          "evidencePassageIds": [
+            "psg_ce2e431716c752cda00cc58ff072ac28"
+          ]
+        },
+        {
+          "id": "principle",
+          "aspect": "원리",
+          "status": "evidence_found",
+          "assessment": "literal_aspect_signal_only",
+          "evidencePassageIds": [
+            "psg_1a9ad59fccbf5bcabf92140e7714088f",
+            "psg_ea4cb03778465af68c0a203e4846e465"
+          ]
+        },
+        {
+          "id": "conditions",
+          "aspect": "적용 조건",
+          "status": "evidence_found",
+          "assessment": "literal_aspect_signal_only",
+          "evidencePassageIds": [
+            "psg_7967d57162135d39ab4cb4a8957a227b",
+            "psg_ea4cb03778465af68c0a203e4846e465",
+            "psg_d1c5b5e1f0e25573abb2b8945c9308df",
+            "psg_ce2e431716c752cda00cc58ff072ac28"
+          ]
+        },
+        {
+          "id": "limits",
+          "aspect": "한계",
+          "status": "evidence_found",
+          "assessment": "literal_aspect_signal_only",
+          "evidencePassageIds": [
+            "psg_1a9ad59fccbf5bcabf92140e7714088f",
+            "psg_249fa90c0ac4558190ecdc5173f2bcd1"
+          ]
+        }
+      ],
+      "semanticSufficiency": "not_evaluated",
+      "exploration": {
+        "planner": "bounded_aspect_rules_v1",
+        "grounding": {
+          "relations": 0,
+          "sourceViews": 0,
+          "groundingCharacters": 14147,
+          "oneHopEvidenceCandidates": 5
+        },
+        "queryBudget": 3,
+        "extraQueries": 0,
+        "secondsBudget": 15.0,
+        "contextCharacters": 5150,
+        "contextCharacterBudget": 24000
+      }
+    }
+  },
+  "stream": {
+    "eventCounts": {
+      "run.started": 1,
+      "retrieval.status": 4,
+      "citation.add": 10,
+      "relation.add": 4,
+      "source_view.add": 2,
+      "text.delta": 1233,
+      "run.completed": 1
+    },
+    "firstTextObservedMs": 11955.133419000049,
+    "elapsedMs": 28088.510939996922,
+    "strictlyIncreasingSequence": true,
+    "terminal": "run.completed",
+    "text": "## 핵심 설명\n\nTSV는 실리콘 칩을 수직으로 관통하는 연결 구조로, 적층된 칩 사이에 신호를 직접 전달하는 패키지 기술입니다. SK하이닉스 문헌은 HBM을 D램을 수직으로 쌓은 제품으로 설명하고, TSV가 층간 연결과 데이터 전달을 뒷받침한다고 설명합니다. 따라서 두 기술의 관계는 **HBM의 적층 구조에서 칩 간 수직 신호 연결을 TSV가 담당한다**는 것으로 정리할 수 있습니다. [출처: psg_1a9ad59fccbf5bcabf92140e7714088f] [출처: psg_2f954d4daeb853efa630179b99f39b2f]\n\n## 목적·원리\n\n패키징의 일반적인 목적은 칩이 외부와 전기 신호를 주고받도록 연결 경로를 마련하고, 외부 환경으로부터 칩을 보호하는 것입니다. 삼성전자 반도체의 교육 자료는 패키징의 보호 대상 환경으로 고온·고습·화학약품·진동·충격을 들고 있습니다. [출처: psg_ce2e431716c752cda00cc58ff072ac28]\n\nTSV는 칩 바깥으로 나간 선을 통해 연결하는 와이어 본딩과 달리, 칩 내부를 수직으로 관통하는 구멍을 통해 칩과 칩을 직접 연결합니다. SK하이닉스 문헌은 이 경로가 층간 신호 전달을 위한 짧은 경로가 되어 신호 지연과 전력 소모를 줄이고, HBM의 초고속·저전력 성능을 뒷받침한다고 설명합니다. 이는 해당 문헌의 기술 설명이며, 제공 자료에는 성능 향상의 정량 수치가 없습니다. [출처: psg_249fa90c0ac4558190ecdc5173f2bcd1] [출처: psg_1a9ad59fccbf5bcabf92140e7714088f]\n\n## 사례·조건\n\n- **적층 조건과 한계:** SK하이닉스 문헌은 TSV로 칩을 수직 적층하는 과정에서 층수가 높아질수록 휨(warpage)이 심해질 수 있고, 밀집 구조에서 발열 문제가 생길 수 있다고 설명합니다. 이를 제어하기 위해 신규 소재와 공법을 개발하고 수율·신뢰성을 확보해야 한다고 덧붙입니다. [출처: psg_249fa90c0ac4558190ecdc5173f2bcd1]\n- **자료의 범위:** 제공 자료는 이런 문제의 방향과 대응 과제를 제시하지만, 허용 적층 수, 휨·온도 기준, 소재·공법의 구체 조건이나 정량 성능은 제시하지 않습니다. 따라서 실제 적층 설계의 조건이나 한계를 수치로 판단할 수는 없습니다. [출처: psg_249fa90c0ac4558190ecdc5173f2bcd1]\n- **삼성 자료와의 구분:** 삼성 자료는 일반 패키징에서 다이와 기판·외부 회로를 연결하는 와이어 본딩과 플립칩을 설명하고, 플립칩은 범프로 직접 연결하는 방식이라고 소개합니다. 그러나 이 자료에서 HBM 적층이나 TSV의 구조·조건을 설명하지는 않습니다. 와이어 본딩·플립칩 설명을 TSV 적층 조건으로 확대해 해석해서는 안 됩니다. [출처: psg_ce2e431716c752cda00cc58ff072ac28]\n\n## 관계\n\n문헌별 설명 범위는 다릅니다.\n\n- **SK하이닉스:** 하이피디아 문헌은 TSV의 수직 관통 구조, 와이어 본딩과의 경로 차이, HBM에서의 기능, 적층에 따른 휨·발열 문제와 대응 과제를 설명합니다. [출처: psg_1a9ad59fccbf5bcabf92140e7714088f] [출처: psg_249fa90c0ac4558190ecdc5173f2bcd1] 별도의 ‘미래인재 CLASS’ 문헌은 HBM을 수직 적층된 D램 제품으로 소개하지만, 제공된 해당 구간만으로는 TSV의 세부 원리나 공정 조건을 추가로 확인할 수 없습니다. [출처: psg_cdb48092522e51ed85580c964f28a3cd] [출처: psg_2f954d4daeb853efa630179b99f39b2f]\n- **삼성전자 반도체:** 패키징의 연결·보호 목적과 일반적인 와이어 본딩·플립칩 사례를 설명합니다. 제공 자료에는 TSV나 HBM 적층에 관한 설명이 없어, 이 주제에서 SK하이닉스 문헌과 동등한 범위의 비교는 할 수 없습니다. [출처: psg_ce2e431716c752cda00cc58ff072ac28]\n\n## 출처·부족한 부분\n\n근거는 SK하이닉스 뉴스룸의 기술 설명·교육성 문헌과 삼성전자 반도체의 패키징 교육 자료입니다. 각 문헌의 설명 범위는 위와 같이 구분했으며, 뉴스룸 자료의 기술 설명을 기업 전체의 공식 입장으로 일반화하지 않았습니다. 제공 자료만으로는 TSV의 수치 성능, 구체적인 적층 설계 기준, 공정별 허용 한계 또는 삼성의 TSV·HBM 관련 설명을 확인할 수 없습니다."
+  }
+}

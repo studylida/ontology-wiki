@@ -1,0 +1,395 @@
+{
+  "scope": "GET-only verification of previously completed live model records. No generation, embedding, research or private-wiki model calls from this browser pass.",
+  "target": {
+    "conversationId": "conv_5626b07bd71b460b87be06d1a04197c6",
+    "runId": "run_03014fdd1ce1477a83c60a3e1229f922",
+    "pageId": "pw_8a39721d668341f0b48e0f768d08bc09"
+  },
+  "steps": [
+    "Persisted live text deltas reconstruct the stored answer and cursor replay returns the expected tail without regeneration.",
+    "Stored live model body and run metadata restore with zero generation calls and no fixture labeling.",
+    "A real citation opens the stored original under current authorization.",
+    "A real relation expands locally and prepares a separate followup without replacing the draft or generating.",
+    "Actual source attribution/evidence cards prepare a comparison followup without changing the existing answer.",
+    "Reload restores the live answer exactly once together with the unsent draft and next response mode.",
+    "The restored live answer has no horizontal viewport overflow at 390px.",
+    "The same restored conversation contains the real wiki and analysis answers without rewriting their response formats.",
+    "A real saved personal-wiki page restores its content, version and source/message links without reorganizing.",
+    "The saved cancelled body restores directly in the reading viewport, ahead of supplementary source cards, without regeneration."
+  ],
+  "unavailable": [],
+  "errors": [],
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations/conv_5626b07bd71b460b87be06d1a04197c6"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations/conv_5626b07bd71b460b87be06d1a04197c6"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/answer-runs/run_ae8a3d833ac14b6388151d54a702ad7a"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/answer-runs/run_03014fdd1ce1477a83c60a3e1229f922"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/answer-runs/run_03014fdd1ce1477a83c60a3e1229f922/events"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/answer-runs/run_03014fdd1ce1477a83c60a3e1229f922/events"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/answer-runs/run_03014fdd1ce1477a83c60a3e1229f922"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents/revisions/rev_fd762c77475c594ca18c89be5f21f0a5"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/me"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/me"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations/conv_5626b07bd71b460b87be06d1a04197c6"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations/conv_5626b07bd71b460b87be06d1a04197c6"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/health"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/answer-runs/run_ae8a3d833ac14b6388151d54a702ad7a"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/answer-runs/run_cc0e35d48d4d40ce8508541a3517aea2"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/personal-wiki/pw_8a39721d668341f0b48e0f768d08bc09"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/jobs"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/personal-wiki/pw_8a39721d668341f0b48e0f768d08bc09"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/personal-wiki"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/answer-runs/run_2dc031286f0a4f709aa40b675520b5f7"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/conversations/conv_da344c28af3f41399723b23dbdc8862e"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/answer-runs/run_2dc031286f0a4f709aa40b675520b5f7"
+    }
+  ],
+  "blockedWrites": [],
+  "screenshots": [
+    "frontend-live-01-conversation-desktop.png",
+    "frontend-live-02-run-metrics.png",
+    "frontend-live-02b-call-components.png",
+    "frontend-live-03-original-source.png",
+    "frontend-live-04-relation-expanded.png",
+    "frontend-live-05-followup-preserves-draft.png",
+    "frontend-live-06-source-view.png",
+    "frontend-live-07-source-view-followup.png",
+    "frontend-live-08-conversation-mobile.png",
+    "frontend-live-09b-analysis-same-conversation.png",
+    "frontend-live-09-personal-wiki.png",
+    "frontend-live-13-partial-body-in-view.png"
+  ],
+  "run": {
+    "status": "completed",
+    "generationConfig": {
+      "model": "gpt-6-luna",
+      "effort": "medium",
+      "providerMode": "live"
+    },
+    "messageId": "msg_7b5b007502284d029378de786c05a3e5",
+    "contentLength": 2202,
+    "contentSha256": "621a1b70b41c1981c6c03f0c2d907ad6dcea14df588013e67c52c839e158189e",
+    "citations": 10,
+    "relations": 4,
+    "sourceViews": 2,
+    "metrics": {
+      "totalMs": 27998.11,
+      "firstTextMs": 11912.31,
+      "retrievalMs": 653.16,
+      "generationMs": 27239.68,
+      "providerEventMs": 1307.57,
+      "promptCharacters": 15417,
+      "groundingCharacters": 14147
+    },
+    "usage": {
+      "calls": 2,
+      "model": "multiple",
+      "source": "provider",
+      "costUsd": 0.001747475,
+      "provider": "openai",
+      "components": [
+        {
+          "calls": 1,
+          "model": "text-embedding-3-large",
+          "source": "provider",
+          "costUsd": 1.43e-05,
+          "provider": "openai",
+          "operation": "query_embedding",
+          "costStatus": "estimated",
+          "inputTokens": 110,
+          "pricingDate": "2026-10-26",
+          "totalTokens": 110,
+          "fixtureCalls": 0,
+          "outputTokens": null,
+          "pricingSource": "https://developers.openai.com/api/docs/pricing",
+          "embeddingProfile": "openai:text-embedding-3-large:api3072:stored1536:prefix_l2:v1",
+          "inputUsdPerMillion": 0.13
+        },
+        {
+          "calls": 1,
+          "model": "gpt-6-luna",
+          "effort": "medium",
+          "source": "provider",
+          "costUsd": 0.001733175,
+          "provider": "openai",
+          "operation": "answer_generation",
+          "costStatus": "estimated",
+          "inputTokens": 7066,
+          "modelSource": "provider",
+          "pricingDate": "2026-10-26",
+          "serviceTier": "default",
+          "totalTokens": 8766,
+          "effortSource": "request",
+          "fixtureCalls": 0,
+          "outputTokens": 1700,
+          "pricingBasis": "published_standard_text_rates",
+          "costBreakdown": {
+            "output": {
+              "tokens": 1700,
+              "costUsd": 0.00085,
+              "usdPerMillion": 0.5
+            },
+            "cachedInput": {
+              "tokens": 0,
+              "costUsd": 0,
+              "usdPerMillion": 0.01
+            },
+            "cacheWrite12h": {
+              "tokens": 0,
+              "costUsd": 0,
+              "usdPerMillion": 0.25
+            },
+            "cacheWrite30m": {
+              "tokens": 7063,
+              "costUsd": 0.000882875,
+              "usdPerMillion": 0.125
+            },
+            "ordinaryInput": {
+              "tokens": 3,
+              "costUsd": 3e-07,
+              "usdPerMillion": 0.1
+            }
+          },
+          "pricingSource": "https://developers.openai.com/api/docs/models/gpt-6-luna",
+          "requestedModel": "gpt-6-luna",
+          "effectiveEffort": "medium",
+          "requestedEffort": "medium",
+          "cachePricingSource": "https://developers.openai.com/api/docs/guides/prompt-caching",
+          "longContextPricing": false,
+          "requestedServiceTier": "default",
+          "returnedPromptCacheTtl": "30m",
+          "requestedPromptCacheTtl": "30m",
+          "cacheWriteLifetimeSource": "provider_usage"
+        }
+      ],
+      "costStatus": "estimated",
+      "inputTokens": 7176,
+      "pricingDate": "2026-10-26",
+      "serviceTier": "default",
+      "totalTokens": 8876,
+      "fixtureCalls": 0,
+      "knownCostUsd": 0.001747475,
+      "outputTokens": null,
+      "effectiveEffort": "medium",
+      "requestedEffort": "medium",
+      "unknownCostCalls": 0,
+      "requestedServiceTier": "default"
+    },
+    "retrievalSummary": {
+      "groupCoverage": [
+        {
+          "status": "available",
+          "groupId": "publisher:skhynixnewsroom",
+          "hitCount": 6,
+          "missingAspects": []
+        },
+        {
+          "status": "available",
+          "groupId": "publisher:samsung_semiconductor",
+          "hitCount": 4,
+          "missingAspects": []
+        }
+      ],
+      "indexSnapshotId": "idx-80576b0f87fd827109ed444c",
+      "stopReason": "basic_search_completed",
+      "requirementCoverage": [
+        {
+          "id": "purpose",
+          "aspect": "목적",
+          "status": "evidence_found",
+          "assessment": "literal_aspect_signal_only",
+          "evidencePassageIds": [
+            "psg_ce2e431716c752cda00cc58ff072ac28"
+          ]
+        },
+        {
+          "id": "principle",
+          "aspect": "원리",
+          "status": "evidence_found",
+          "assessment": "literal_aspect_signal_only",
+          "evidencePassageIds": [
+            "psg_1a9ad59fccbf5bcabf92140e7714088f",
+            "psg_ea4cb03778465af68c0a203e4846e465"
+          ]
+        },
+        {
+          "id": "conditions",
+          "aspect": "적용 조건",
+          "status": "evidence_found",
+          "assessment": "literal_aspect_signal_only",
+          "evidencePassageIds": [
+            "psg_7967d57162135d39ab4cb4a8957a227b",
+            "psg_ea4cb03778465af68c0a203e4846e465",
+            "psg_d1c5b5e1f0e25573abb2b8945c9308df",
+            "psg_ce2e431716c752cda00cc58ff072ac28"
+          ]
+        },
+        {
+          "id": "limits",
+          "aspect": "한계",
+          "status": "evidence_found",
+          "assessment": "literal_aspect_signal_only",
+          "evidencePassageIds": [
+            "psg_1a9ad59fccbf5bcabf92140e7714088f",
+            "psg_249fa90c0ac4558190ecdc5173f2bcd1"
+          ]
+        }
+      ],
+      "semanticSufficiency": "not_evaluated",
+      "exploration": {
+        "planner": "bounded_aspect_rules_v1",
+        "grounding": {
+          "relations": 0,
+          "sourceViews": 0,
+          "groundingCharacters": 14147,
+          "oneHopEvidenceCandidates": 5
+        },
+        "queryBudget": 3,
+        "extraQueries": 0,
+        "secondsBudget": 15,
+        "contextCharacters": 5150,
+        "contextCharacterBudget": 24000
+      }
+    }
+  },
+  "persistedStream": {
+    "events": 1255,
+    "textDeltaEvents": 1233,
+    "cursor": 628,
+    "tailEvents": 627,
+    "terminal": "run.completed"
+  },
+  "selectedViewpoints": 2,
+  "analysis": {
+    "runId": "run_cc0e35d48d4d40ce8508541a3517aea2",
+    "messageId": "msg_53486a29d01144b69bcc843ab5d12418",
+    "contentLength": 2468,
+    "generationConfig": {
+      "model": "gpt-6-luna",
+      "effort": "medium",
+      "providerMode": "live"
+    }
+  },
+  "personalWiki": {
+    "pageId": "pw_8a39721d668341f0b48e0f768d08bc09",
+    "version": 2,
+    "status": "saved",
+    "origins": 2,
+    "citations": 3,
+    "contentLength": 1676
+  },
+  "cancelledRestore": {
+    "runId": "run_2dc031286f0a4f709aa40b675520b5f7",
+    "status": "cancelled",
+    "contentLength": 229,
+    "bodyVisibleInViewport": true
+  },
+  "status": "passed",
+  "publicRecord": {
+    "excludedProviderFields": [
+      "raw",
+      "requestId",
+      "responseId",
+      "responseMetadata"
+    ],
+    "containsCredentials": false,
+    "screenshotNote": "frontend-live-10/11/12 precede the final body-follow scroll fix; frontend-live-13 confirms final saved-partial restoration without another model call."
+  }
+}

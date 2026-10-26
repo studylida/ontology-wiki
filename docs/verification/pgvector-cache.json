@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "queryCount": 28,
+  "corpusPassages": 806,
+  "topK": 10,
+  "tolerance": 1e-05,
+  "maximumCosineDistanceDifference": 1.8492246212087338e-07,
+  "profile": "openai:text-embedding-3-large:api3072:stored1536:prefix_l2:v1",
+  "violations": [],
+  "apiCalls": 0,
+  "limitation": "Exact cosine storage/search verification; not an independent quality holdout."
+}
