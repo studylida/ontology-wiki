@@ -1,0 +1,113 @@
+{
+  "observedVia": "GitHub connector workflow run, job steps and decoded job logs (read-only)",
+  "run": {
+    "id": 40274989231,
+    "url": "https://github.com/studylida/ontology-wiki/actions/runs/40274989231",
+    "name": "Isolated Compose smoke",
+    "headSha": "cab8519953136d89df9d7a19379b9c576b3b0662",
+    "headBranch": "feat/conversation-rag-redesign-20261026",
+    "treeId": "cc6eb238d961d5042fe34c742a6cd3774a52844f",
+    "event": "push",
+    "attempt": 1,
+    "status": "completed",
+    "conclusion": "success",
+    "createdAt": "2026-10-26T05:34:55Z",
+    "updatedAt": "2026-10-26T05:35:57Z"
+  },
+  "jobId": 121415730796,
+  "steps": [
+    {
+      "name": "Set up job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 1
+    },
+    {
+      "name": "Run actions/checkout@v6.0.3",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 2
+    },
+    {
+      "name": "Build and verify isolated fixture stack",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 3
+    },
+    {
+      "name": "Remove only the smoke project's containers and volumes",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 4
+    },
+    {
+      "name": "Post Run actions/checkout@v6.0.3",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 8
+    },
+    {
+      "name": "Complete job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 9
+    }
+  ],
+  "result": {
+    "status": "passed",
+    "scope": "container_execution_with_fixture_provider",
+    "database": {
+      "postgres": "16.15 (Debian 16.15-1.pgdg12+2)",
+      "pgvector": "0.8.7"
+    },
+    "health": {
+      "status": "ok",
+      "database": "connected",
+      "providerMode": "fixture",
+      "generationModel": "fixture-generation",
+      "generationStatus": "fixture",
+      "embeddingProfile": "fixture:sha256:1536:v1",
+      "autoWikiDefaultIsAssumption": true
+    },
+    "webServed": true,
+    "webApiProxy": true,
+    "documentApprovedAndIndexed": true,
+    "sourceRevisionReadable": true,
+    "sseEventCount": 13,
+    "sseReplayAfterApiRestart": true,
+    "conversationRestoredAfterApiRestart": true,
+    "idempotentSubmission": true,
+    "externalModelCalls": 0,
+    "semanticQualityEvaluated": false,
+    "structuredFixtureJobs": {
+      "ontology_extract": {
+        "status": "failed",
+        "errorCode": "structured_output_invalid"
+      },
+      "personal_wiki": {
+        "status": "failed",
+        "errorCode": "structured_output_invalid"
+      }
+    },
+    "structuredGenerationSuccessVerified": false,
+    "checkedAt": "2026-10-26T05:35:44.578779+00:00"
+  },
+  "priorRun": {
+    "id": 40274683723,
+    "url": "https://github.com/studylida/ontology-wiki/actions/runs/40274683723",
+    "headSha": "d0edf15226c263d44e843e7a458a1db5f0dd76b3",
+    "conclusion": "failure",
+    "errorType": "ConnectionResetError",
+    "message": "[Errno 104] Connection reset by peer",
+    "cleanupConclusion": "success",
+    "cause": "Initial readiness GET did not handle a direct startup connection reset.",
+    "fix": "Bounded API/web readiness retries ConnectionError; readiness requirements and deadlines retained. Mutating API and SSE calls are not automatically retried.",
+    "targetedLocalTestsPassed": 9,
+    "newReadinessRegressionTests": 5
+  },
+  "limitations": [
+    "Actual isolated container execution with fixture providers; not a live model semantic evaluation.",
+    "Expected ontology_extract and personal_wiki structured fixture failures are preserved, not treated as generation success.",
+    "No production database migration, deployment or traffic verification."
+  ]
+}

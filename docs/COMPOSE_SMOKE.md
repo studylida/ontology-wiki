@@ -1,8 +1,12 @@
 # 격리 Compose smoke 검증
 
-`.github/workflows/compose-smoke.yml`은 개발용 `compose.dev.yml`을 실제 Docker 환경에서 검증합니다. `feat/conversation-rag-redesign-20261026` 브랜치의 push와 `workflow_dispatch`에 연결했으며, 표준 `ubuntu-latest` 러너 한 개와 최대 15분을 사용합니다. GitHub 토큰 권한은 `contents: read`이고 checkout 자격증명을 지속 저장하지 않습니다. 배포·이미지 게시·저장소 push는 수행하지 않습니다.
+`.github/workflows/compose-smoke.yml`은 개발용 `compose.dev.yml`을 실제 Docker 환경에서 검증합니다. `feat/conversation-rag-redesign-20261026` 브랜치의 코드 push와 `workflow_dispatch`에 연결했으며, 표준 `ubuntu-latest` 러너 한 개와 최대 15분을 사용합니다. `docs/**`와 `README.md`만 바뀌는 기록 갱신은 새 실행을 만들지 않습니다. GitHub 토큰 권한은 `contents: read`이고 checkout 자격증명을 지속 저장하지 않습니다. 배포·이미지 게시·저장소 push는 수행하지 않습니다.
 
-이 문서를 추가한 로컬 환경에는 Docker CLI·daemon이 없으므로 로컬에서는 컨테이너 실행을 검증하지 못했습니다. **워크플로 파일 작성·스크립트 구문 검사·격리 가드 테스트와 실제 Actions 실행 성공은 별개입니다.** 해당 커밋의 Actions 결과가 확인되기 전에는 Compose 검증 완료로 표시하지 않습니다.
+**2026-10-26 GitHub Actions의 실제 Compose 실행이 통과했습니다.** 이 로컬 환경에는 Docker CLI·daemon이 없어 컨테이너 검증은 GitHub의 별도 Ubuntu 러너에서 수행했습니다. [실행 40274989231](https://github.com/studylida/ontology-wiki/actions/runs/40274989231)의 검증 코드 커밋은 `cab8519953136d89df9d7a19379b9c576b3b0662`이며 최종 상태는 `completed/success`입니다. 컨테이너·볼륨 정리를 포함한 여섯 단계가 모두 성공했습니다. 상세 집계는 [compose-ci.json](verification/compose-ci.json)에 있습니다.
+
+실제 PostgreSQL 16.15/pgvector 0.8.7, web/API 연결, 문헌 승인·색인, SSE 13개 이벤트, 같은 요청의 멱등성, API 컨테이너 재시작 후 대화·SSE 복원을 확인했습니다. 이 실행은 fixture 전용이고 외부 모델 호출은 0회입니다. 실제 GPT-6 Luna의 별도 검증은 [LIVE_VERIFICATION.md](LIVE_VERIFICATION.md)를 참고합니다.
+
+첫 [실행 40274683723](https://github.com/studylida/ontology-wiki/actions/runs/40274683723)은 이미지 빌드·DB 초기화 뒤 시작 준비 GET의 `ConnectionResetError`를 처리하지 못해 실패했습니다. API 60초·web 30초의 준비 GET만 제한적으로 재시도하도록 수정했고, 정상 조건·제한시간·POST 무재시도를 확인하는 회귀 5개를 추가한 후 위 새 실행에서 전체 흐름을 통과했습니다. 초기 실패는 성공으로 덮지 않고 기록에 남겼습니다.
 
 ## 실제로 확인하는 흐름
 

@@ -157,10 +157,10 @@ usage 집계의 `calls=2`는 답변 생성 요청 두 번을 뜻하지 않는다
 
 | 검증 종류 | 이 문서 작성 시점의 상태 | 해석 |
 |---|---|---|
-| 백엔드 회귀 | [backend-tests.xml](verification/backend-tests.xml): **200개 통과**, 실패·오류·건너뜀 0 | 격리 PostgreSQL 스키마의 계약·권한·상태·회귀 검증. 실제 모델의 의미 품질 점수가 아니다. |
+| 백엔드 회귀 | [backend-tests.xml](verification/backend-tests.xml): **205개 통과**, 실패·오류·건너뜀 0 | 격리 PostgreSQL 스키마의 계약·권한·상태·회귀 검증. 실제 모델의 의미 품질 점수가 아니다. |
 | 실제 Luna 브라우저 스트림·복원·취소 | 위 6절의 실행 성공 | 공개 문헌 3건으로 제한한 한 실제 생성의 브라우저 확인. |
 | 프런트엔드 최종 회귀·빌드 | **7개 파일·28개 테스트 통과**, TypeScript/Vite build 성공, 최종 GET 브라우저 검증 통과 | [frontend-verification.md](verification/live/frontend-verification.md). 취소 검증 후 스크롤 수정은 DOM 회귀와 저장된 실제 부분 답변의 GET 복원으로 확인했으며 유료 스트림을 다시 실행하지 않았다. |
-| Docker Compose | 로컬 Docker runtime 부재. GitHub Actions smoke 작성, push 후 실행 결과 확인 예정 | YAML·보호 검사·스크립트 작성과 실제 Compose 기동을 구분한다. [COMPOSE_SMOKE.md](COMPOSE_SMOKE.md) 참조. |
+| Docker Compose | **GitHub Actions 실행 40274989231 통과**, cleanup까지 6단계 모두 success | 검증 코드 `cab851995…`, 실제 PG·web·문헌 색인·SSE·API 재시작 복원. fixture 전용·외부 모델 0회이며 실제 생성 품질과 구분한다. [COMPOSE_SMOKE.md](COMPOSE_SMOKE.md), [실행 기록](verification/compose-ci.json). |
 | 운영 이전·배포 | 미수행 | 운영 DB·운영 부하·전환·롤백 실증을 완료했다고 주장하지 않는다. |
 
 fixture 모드는 네트워크 모델 호출 없이 계약과 실패 처리를 확인하는 별도 경로다. 이 문서의 actual/live 기록과 합쳐서 호출 성공 횟수나 모델 응답 품질을 계산하지 않는다. 특히 fixture의 구조화 생성 실패를 실제 개인 위키·관계 생성 성공으로 간주하지 않는다.

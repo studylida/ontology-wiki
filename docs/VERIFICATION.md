@@ -9,7 +9,7 @@
 
 | 구분 | 실행 결과 | 해석 가능한 범위 | 증거 |
 | --- | --- | --- | --- |
-| 백엔드 | **200 passed, 44.51s** | PostgreSQL의 격리 스키마, 명시적 fixture/HTTP mock 기반 계약·상태·권한·경쟁 조건 | [backend-tests.xml](verification/backend-tests.xml) |
+| 백엔드 | **205 passed, 48.54s** | PostgreSQL의 격리 스키마, 명시적 fixture/HTTP mock 기반 계약·상태·권한·경쟁 조건 | [backend-tests.xml](verification/backend-tests.xml) |
 | 프론트엔드 | **28개 테스트 통과**, TypeScript/Vite production build 성공 | 스트림 파싱, reducer, 출처 그룹, 인용 표시와 화면 계약 | [frontend-tests.json](verification/frontend-tests.json), [frontend.md](frontend.md) |
 | 실제 브라우저 | fixture 대표 흐름 및 실제 GPT-6 Luna 대화 복원·스트림 재연결·취소 통과 | 새 생성 1회로 부분 응답을 받은 뒤 같은 run을 복원·중단·재복원. GET 검증은 새 모델 호출 없음 | [LIVE_VERIFICATION.md](LIVE_VERIFICATION.md), [기존 fixture 기록](verification/frontend-browser-result.json) |
 | pgvector small | 28개 질문·806개 구간·top 10, 최대 코사인 거리 차이 `1.3834569256854223e-07` | 기존 캐시와 실제 PostgreSQL exact cosine의 일치 | [pgvector-cache-small.json](verification/pgvector-cache-small.json) |
@@ -18,7 +18,7 @@
 | 실제 외부 검색 | Crossref 명시적 단일 검색 200, 문헌 2개 | 서지 메타데이터 확보. 본문을 읽었다고 판단하지 않음 | [research-smoke.json](verification/research-smoke.json) |
 | 실제 URL 본문 확보 | 공개 Lam Research 문헌 **200**, 30,371자 부분 텍스트 확보·대화 전송·근거 답변 완료 | 명시적으로 설정한 DoH/egress 경로. 시스템 DNS 기본 경로의 실패도 보존. HTML 동적 내용·표·이미지 완전성은 보장하지 않음 | [research-roundtrip.json](verification/live/research-roundtrip.json), [NETWORK.md](NETWORK.md) |
 | 실제 생성 API | **GPT-6 Luna 17회 호출**, 임베딩 8회 추가 | 대화·개인 위키·온톨로지·외부 문헌 설명·취소. 초기 오류 관측과 재검증을 포함하며 모든 호출이 품질 성공이라는 뜻은 아님 | [usage-ledger.json](verification/live/usage-ledger.json), [의미 검토](verification/live/semantic-review.md) |
-| Docker / 운영 전환 | 컨테이너 smoke는 GitHub Actions에서 별도 확인, 운영 전환 미실행 | CI 결과는 [COMPOSE_SMOKE.md](COMPOSE_SMOKE.md)에 기록. 운영 DB·원문 저장소 export 미제공 | [MIGRATION.md](MIGRATION.md) |
+| Docker / 운영 전환 | **GitHub Actions Compose smoke 통과**, 운영 전환 미실행 | 새 컨테이너·DB·문헌 색인·SSE·API 재시작 복원 및 cleanup 성공. 운영 DB·원문 저장소 export 미제공 | [compose-ci.json](verification/compose-ci.json), [MIGRATION.md](MIGRATION.md) |
 
 검증 런타임은 Python 3.12, PostgreSQL 16.15, pgvector 0.8.7, Node.js 24.22.1과 Chromium을 사용했습니다. 공개 개발 DB의 문헌·대화는 통합 테스트의 임시 스키마와 분리했습니다. fixture를 실제 외부 호출이나 무료 운영 모델로 표시하지 않습니다.
 
