@@ -65,6 +65,8 @@ motion and keyboard interaction, and never manufacture progress or typing delays
 
 Windows process management belongs to `scripts/v2/windows_dev.ps1`; it starts the existing API/worker/Vite entry points and manages only its recorded local processes. See `docs/WINDOWS_LOCAL.md` for this environment; application layer boundaries remain unchanged.
 
+Offline corpus review uses `scripts/v2/curate_existing_corpus.py` with a hash-checked input manifest and private run-specific rules under `var/corpus-quality/`. It writes only a fresh review run and does not register, approve, or index product data. See `docs/CORPUS_QUALITY_REPORT_20261027.md` for the run and its limitations.
+
 Update API/schema migrations and relevant docs when contracts change. Keep frozen
 applied migrations immutable; add a new migration. Explain what changed, why,
 verified behavior and remaining limits. Keep a stable runId/debugging path. Do not
