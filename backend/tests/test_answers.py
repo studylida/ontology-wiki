@@ -61,6 +61,50 @@ def test_usage_never_turns_an_unobserved_charge_into_zero():
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("interrupted", [True, False])
+async def test_invalid_or_interrupted_citation_keeps_text_usage_and_never_completes(client, app, auth_headers, interrupted):
+    class Provider:
+        model = "test-citation-provider"
+        async def stream(self, messages, **kwargs):
+            yield ProviderDelta(text="받은 본문 [출처: E" if interrupted else "받은 본문 [출처: E999]")
+            yield ProviderDelta(usage={"calls": 1, "costUsd": .01, "source": "provider"})
+            if interrupted:
+                raise RuntimeError("injected test interruption")
+    replace_provider(app, Provider())
+    response = await client.post("/api/v1/answer-runs", json={"clientRequestId": f"citation-{interrupted}",
+        "message": "근거를 설명해 주세요."}, headers=auth_headers)
+    handle = response.json()
+    await wait_finished(app.state.services.answers, handle)
+    detail = (await client.get(f"/api/v1/answer-runs/{handle['runId']}", headers=auth_headers)).json()
+    assert detail["status"] == "failed"
+    assert detail["message"]["content"] == ("받은 본문 [출처: E" if interrupted else "받은 본문 [출처: E999]")
+    assert detail["usage"]["knownCostUsd"] == .01
+    if not interrupted:
+        assert detail["error"]["code"] == "SOURCE_REFERENCE_INVALID"
+
+
+@pytest.mark.asyncio
+async def test_cancelled_provider_delta_keeps_observed_cost_without_late_citation(client, app, auth_headers):
+    class Provider:
+        model = "test-cancel-cost-provider"
+        async def stream(self, messages, *, cancel_event=None, **kwargs):
+            yield ProviderDelta(text="받은 본문 [출처: E")
+            cancel_event.set()
+            yield ProviderDelta(text="취소 후 본문 [출처: E", model=self.model,
+                                usage={"calls": 1, "costUsd": .01, "source": "provider"})
+    replace_provider(app, Provider())
+    handle = (await client.post("/api/v1/answer-runs", json={"clientRequestId": "cancel-cost",
+        "message": "근거를 설명해 주세요."}, headers=auth_headers)).json()
+    await wait_finished(app.state.services.answers, handle)
+    detail = (await client.get(f"/api/v1/answer-runs/{handle['runId']}", headers=auth_headers)).json()
+    assert detail["status"] == "cancelled"
+    assert detail["message"]["content"] == "받은 본문 [출처: E"
+    assert detail["usage"]["knownCostUsd"] == .01
+    assert detail["usage"]["unknownCostCalls"] == 0
+    assert detail["generationConfig"]["model"] == Provider.model
+
+
+@pytest.mark.asyncio
 async def test_answer_persist_replay_and_idempotency(client, app, auth_headers, sessions, principal):
     provider = ControlledGeneration()
     replace_provider(app, provider)

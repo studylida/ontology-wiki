@@ -113,7 +113,7 @@ async def _canonical_evidence(documents, principal, evidence):
                 "excerpt": revision.content[:2000], "referenceStatus": "document_only",
                 "publisher": meta.get("publisher"), "author": meta.get("author"),
                 "url": meta.get("url"), "sourceType": meta.get("sourceType", "unknown"),
-                "documentForm": meta.get("documentForm")}
+                "documentForm": meta.get("documentForm"), "lineageKey": meta.get("lineageKey")}
     return result
 
 

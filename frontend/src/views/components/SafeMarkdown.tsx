@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Citation } from "../../types/contracts";
 import { safeUrl } from "../../services/display";
+import { citationIdsFromLabel } from "../../services/citationService";
 
 type MarkdownNode = {
   type: string;
@@ -24,18 +25,26 @@ function citationPlugin(citations: Citation[], found?: Set<string>) {
           let last = 0;
           let match: RegExpExecArray | null;
           while ((match = pattern.exec(text))) {
-            const citationId = match[1].replace(/^출처\s*:\s*/, "").trim();
-            if (!ids.has(citationId)) continue;
-            found?.add(citationId);
+            const citationIds = citationIdsFromLabel(match[1]);
+            if (!citationIds.some((id) => ids.has(id))) continue;
+            const sourcePrefix = /^출처\s*:/.test(match[1].trim()) ? "출처: " : "";
             if (match.index > last)
               children.push({
                 type: "text",
                 value: text.slice(last, match.index),
               });
-            children.push({
-              type: "link",
-              url: `citation:${encodeURIComponent(citationId)}`,
-              children: [{ type: "text", value: citationId }],
+            citationIds.forEach((citationId, index) => {
+              if (index) children.push({ type: "text", value: " " });
+              if (ids.has(citationId)) {
+                found?.add(citationId);
+                children.push({
+                  type: "link",
+                  url: `citation:${encodeURIComponent(citationId)}`,
+                  children: [{ type: "text", value: citationId }],
+                });
+              } else {
+                children.push({ type: "text", value: `[${sourcePrefix}${citationId}]` });
+              }
             });
             last = match.index + match[0].length;
           }

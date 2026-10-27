@@ -37,5 +37,5 @@ def group_matches(hit: dict, group: dict) -> bool:
 def citation(hit: dict) -> dict:
     fields = ("id", "passageId", "sourceRevisionId", "title", "locator", "excerpt", "publisher",
               "publisherId", "author", "attributedTo", "attributionBasis", "sourceType", "documentForm", "url", "publishedAt",
-              "readScope", "metadataVersion", "contextTruncated")
+              "readScope", "metadataVersion", "contextTruncated", "lineageKey")
     return {key: hit[key] for key in fields if key in hit}

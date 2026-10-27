@@ -32,6 +32,10 @@ def dump(path: Path, data):
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def usage_components(usage: dict | None) -> list[dict]:
+    return usage.get("components", [usage]) if usage else []
+
+
 def validate_manifest(current: list[dict], frozen: list[dict]) -> list[dict]:
     current_by_id = {item["revisionId"]: item for item in current}
     ids = [item["revisionId"] for item in frozen]
@@ -62,6 +66,7 @@ async def evaluate(args, code_revision):
     from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
     from knowledge.registry import load_entities
     from knowledge.core.config import Settings
+    from knowledge.core.errors import AppError
     from knowledge.core.usage import summarize_usage, unknown_usage
     from knowledge.documents.entities import Document, DocumentRevision
     from knowledge.documents.repository import DocumentRepository
@@ -72,6 +77,12 @@ async def evaluate(args, code_revision):
     from knowledge.rag.dto import AnswerRequest
     from knowledge.answers.prompt import build_messages
     import knowledge
+    try:
+        from knowledge.answers.citations import CitationTextDecoder, citation_aliases, decode_citation_deltas
+    except ModuleNotFoundError as exc:
+        if not args.baseline_ref or exc.name != "knowledge.answers.citations":
+            raise
+        CitationTextDecoder = None  # Archived baseline code used original IDs directly.
 
     load_entities()
     settings = Settings()
@@ -109,7 +120,12 @@ async def evaluate(args, code_revision):
         code_root = Path(knowledge.__file__).resolve().parent
         code_files = {path.relative_to(code_root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
                       for path in sorted(code_root.rglob("*.py"))}
+        questions = [question for question in QUESTIONS if not args.question or question["id"] in args.question]
         run = {"label": args.label, "codeRevision": code_revision, "baselineFromGit": bool(args.baseline_ref),
+               "questionIds": [question["id"] for question in questions],
+               "harnessHash": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+               "citationDecoding": "short_keys_to_original_ids" if CitationTextDecoder else "legacy_source_ids",
+               "runtimeConfig": args.runtime_config_record,
                "codeFiles": code_files,
                "codeHash": hashlib.sha256(json.dumps(code_files, sort_keys=True).encode()).hexdigest(),
                "provenance": "explicit_developer_evaluation_as_existing_active_user", "owner": args.owner,
@@ -118,10 +134,12 @@ async def evaluate(args, code_revision):
                "effort": settings.generation_effort, "embeddingProfile": embedding.profile_id,
                "pipelineConfig": {name: getattr(settings, name, None) for name in (
                    "reranker_mode", "reranker_model_revision", "reranker_device", "reranker_max_length",
-                   "reranker_batch_size", "retrieval_candidate_limit", "retrieval_graph_mode")},
+                   "reranker_batch_size", "retrieval_candidate_limit", "retrieval_graph_mode",
+                   "retrieval_limit", "extended_max_queries", "extended_seconds",
+                   "context_max_characters", "prompt_max_characters")},
                "extended": True, "results": []}
         dump(args.output / "results.json", run)
-        for question in QUESTIONS:
+        for question in questions:
             request = AnswerRequest(message=question["query"], response_mode=question["mode"], extended=True,
                                     source_revision_ids=[item["revisionId"] for item in manifest],
                                     client_request_id=f"eval-{args.label}-{question['id']}")
@@ -130,6 +148,7 @@ async def evaluate(args, code_revision):
             run["results"].append(result)
             started = perf_counter()
             generation_usage, generation_started = None, False
+            decoder = None
             try:
                 validate_manifest(await current_manifest(principal), manifest)
                 found = await retrieval.search(principal, request, for_answer=True)
@@ -142,7 +161,13 @@ async def evaluate(args, code_revision):
                 result["promptHash"] = hashlib.sha256(json.dumps(messages, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
                 generation_start, first_delta = perf_counter(), None
                 generation_started = True
-                async for delta in generation.stream(messages, effort=settings.generation_effort):
+                stream = generation.stream(messages, effort=settings.generation_effort)
+                decoder = None
+                if CitationTextDecoder:
+                    result["citationAliases"] = citation_aliases(found)
+                    decoder = CitationTextDecoder(result["citationAliases"])
+                    stream = decode_citation_deltas(stream, found, decoder=decoder)
+                async for delta in stream:
                     if delta.text:
                         if first_delta is None:
                             first_delta = perf_counter()
@@ -150,6 +175,11 @@ async def evaluate(args, code_revision):
                     if delta.usage is not None:
                         generation_usage = delta.usage
                 result["generationUsage"] = generation_usage
+                if decoder and decoder.unknown_references:
+                    result["unknownCitationReferences"] = sorted(decoder.unknown_references)
+                    error = AppError(502, "SOURCE_REFERENCE_INVALID", "Generated source reference is outside the supplied evidence set.")
+                    error.usage = generation_usage
+                    raise error
                 parts = list(found["usage"]["components"])
                 parts.append({**(generation_usage or unknown_usage("answer_generation", settings.generation_model)), "operation": "answer_generation"})
                 result["usage"] = summarize_usage(parts)
@@ -158,17 +188,19 @@ async def evaluate(args, code_revision):
                                      "firstTextMs": round((first_delta - started) * 1000, 2) if first_delta else None,
                                      "totalMs": round((perf_counter() - started) * 1000, 2)}
                 result["citedIds"] = sorted({item.strip() for group in re.findall(r"\[출처:\s*([^\]]+)\]", result["response"])
-                                             for item in group.split(",") if item.strip()})
+                                             for item in re.split(r"[,;]", group) if item.strip()})
                 result["status"] = "completed"
             except Exception as exc:
+                if decoder is not None:
+                    result["response"] += decoder.finish()
                 result["status"] = "failed"
                 result["errorCode"] = getattr(exc, "code", type(exc).__name__)
                 result["failureUsage"] = getattr(exc, "usage", None)
                 parts = list(result.get("retrieval", {}).get("usage", {}).get("components", []))
                 if generation_started:
-                    parts.append(getattr(exc, "usage", None) or generation_usage or unknown_usage("answer_generation", settings.generation_model))
+                    parts.extend(usage_components(getattr(exc, "usage", None) or generation_usage or unknown_usage("answer_generation", settings.generation_model)))
                 elif getattr(exc, "usage", None):
-                    parts.append(exc.usage)
+                    parts.extend(usage_components(exc.usage))
                 result["usage"] = summarize_usage(parts)
                 result["timings"] = {"totalMs": round((perf_counter() - started) * 1000, 2)}
             dump(args.output / "results.json", run)
@@ -188,6 +220,11 @@ def main():
     parser.add_argument("--owner", default="my-reviewer")
     parser.add_argument("--baseline-ref")
     parser.add_argument("--manifest")
+    parser.add_argument("--question", action="append", choices=[question["id"] for question in QUESTIONS],
+                        help="Run only this regression question for a bounded diagnostic; omitted runs both.")
+    parser.add_argument("--graph-mode", choices=["disabled", "lightrag"],
+                        help="Explicit graph ablation override applied after the runtime configuration.")
+    parser.add_argument("--runtime-config", type=Path, help="Optional non-secret RAG runtime settings; generation/identity settings are excluded.")
     args = parser.parse_args()
     args.output = args.output.resolve()
     if (args.output / "results.json").exists():
@@ -197,6 +234,16 @@ def main():
     for key, value in dotenv_values(ROOT / ".env").items():
         if value is not None:
             os.environ.setdefault(key, value)
+    args.runtime_config_record = None
+    if args.runtime_config:
+        config_file = args.runtime_config.resolve(strict=True)
+        config = {key: value for key, value in dotenv_values(config_file, encoding="utf-8-sig").items()
+                  if value is not None and key.startswith(("OW_RERANKER_", "OW_RETRIEVAL_", "OW_LIGHTRAG_"))}
+        os.environ.update(config)
+        args.runtime_config_record = {"path": str(config_file), "sha256": hashlib.sha256(config_file.read_bytes()).hexdigest(),
+                                      "loadedKeys": sorted(config)}
+    if args.graph_mode:
+        os.environ["OW_RETRIEVAL_GRAPH_MODE"] = args.graph_mode
     sys.path.insert(0, str(code))
     asyncio.run(evaluate(args, revision))
 

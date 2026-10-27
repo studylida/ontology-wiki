@@ -8,10 +8,10 @@ Run from the repository root with the application virtual environment:
 
 ```powershell
 .\.venv\Scripts\python.exe scripts\v2\evaluate_rag_pipeline.py --label baseline --baseline-ref HEAD --output var\rag-evaluation\RUN\baseline
-.\.venv\Scripts\python.exe scripts\v2\evaluate_rag_pipeline.py --label after --manifest var\rag-evaluation\RUN\baseline\corpus-manifest.json --output var\rag-evaluation\RUN\after
+.\.venv\Scripts\python.exe scripts\v2\evaluate_rag_pipeline.py --label after --manifest var\rag-evaluation\RUN\baseline\corpus-manifest.json --runtime-config .env.rag.local --output var\rag-evaluation\RUN\after
 ```
 
-Select the after-run retrieval configuration through the existing `OW_RERANKER_*` and `OW_LIGHTRAG_*` settings. Wait for the graph index and local model to be ready. `pipelineConfig` records the request configuration; each result's `retrieval.pipeline` records whether each stage actually succeeded or fell back. A changed manifest fails the comparison. Code hashes and generated prompt messages are recorded for new runs, while a baseline from Git also retains its extracted backend snapshot.
+Select the after-run retrieval configuration through the existing `OW_RERANKER_*` and `OW_LIGHTRAG_*` settings. `--runtime-config` loads only `OW_RERANKER_*`, `OW_RETRIEVAL_*`, and `OW_LIGHTRAG_*`, matching the service's retrieval runtime overlay without changing generation or identity settings. Wait for the graph index and local model to be ready. `pipelineConfig` records the request configuration; each result's `retrieval.pipeline` records whether each stage actually succeeded or fell back. A changed manifest fails the comparison. Code hashes and generated prompt messages are recorded for new runs, while a baseline from Git also retains its extracted backend snapshot.
 
 RAGChecker runs in a separate environment so its research dependencies do not alter the application environment:
 

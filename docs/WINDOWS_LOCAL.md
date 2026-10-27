@@ -33,6 +33,18 @@ pwsh -NoProfile -File .\scripts\v2\windows_dev.ps1 -Action start
 
 DB를 별도 명령으로 이미 시작했다면 helper는 이를 재사용하고 `status`에 `외부 시작 DB 재사용, stop 대상 아님`으로 표시합니다. 이 경우 helper의 `stop` 후에도 DB가 유지됩니다. DB까지 helper로 관리하려면 먼저 해당 클러스터를 기존 방법으로 정상 종료하고 helper의 `start`를 실행하세요. 다른 PostgreSQL 서비스나 데이터 디렉터리에는 종료 명령을 사용하지 않습니다.
 
+## RAG 실행 설정
+
+API 코드만 갱신할 때는 답변 실행이 끝난 것을 확인하고 `pwsh -NoProfile -File scripts/v2/windows_dev.ps1 -Action restart-api`를 사용합니다. 기록된 API 프로세스 트리만 교체하므로 문헌 처리 작업자·DB·웹과 진행 중 그래프 구축은 유지합니다. 실행 중 답변은 API 재시작으로 중단될 수 있습니다.
+
+작업자만 교체할 때는 `-Action restart-worker`, 인증 장애 등으로 반복 요청을 멈출 때는 `-Action stop-worker`를 사용합니다. 진행 중 작업은 중단될 수 있으므로 작업 ID·사용량을 먼저 보존하고, 복구 후 해당 실패만 기존 작업 재시도 기능으로 재개합니다. 두 동작 모두 API·DB·웹을 종료하지 않습니다.
+
+로컬 `scripts/v2/dev.py serve|worker`는 비밀값 파일 `.env` 다음에 `.env.rag.local`의 문서 처리·검색 설정만 적용합니다. 이 파일에는 키·비밀번호를 넣지 않으며, 생성·인증·DB 설정은 덮어쓸 수 없습니다. 테스트와 일반 CLI는 이 파일을 자동 적용하지 않습니다. 실제 평가기는 명시적인 `--runtime-config .env.rag.local`로 같은 검색 설정을 사용합니다.
+
+이번 로컬 설정은 Docling 2.143.0, BGE reranker v2 m3의 고정 판본(CUDA FP16, batch 2, 1,024 토큰, 후보 60개), Extended의 LightRAG를 사용합니다. 모델·런타임은 별도 `var/runtimes`, `var/models`에 두며 네트워크 없는 추론을 수행합니다. Docling PDF 변환은 최대 100쪽·300,000자·480초이며 공용 URL 다운로드의 5MB 한도는 유지합니다. 검증한 Cu 원문의 전체 페이지 OCR은 해당 로컬 반입 과정에서 명시적으로 적용했습니다. 향후 PDF의 OCR 기본값은 `OW_DOCLING_OCR`로 설정하고 추출 범위·수식·그림의 미확인 부분을 확인한 뒤 승인합니다.
+
+원문 변환과 벡터 색인, 그래프 구축은 별도 과정입니다. 기존 임베딩은 입력 해시가 같으면 재사용하며 새 그래프는 승인된 판본과 메타데이터가 일치하고 전체 구축이 끝날 때 활성화합니다. 자료가 추가·정정되어 그래프 snapshot이 달라지면 관계 검색 불가를 명시하고 기존 벡터·문자 검색을 사용합니다. 자세한 보존·실패·재개 계약은 [Docling](DOCLING_INTEGRATION.md), [LightRAG](LIGHTRAG_INTEGRATION.md)를 따릅니다.
+
 ## 로그와 실패 확인
 
 `var\windows-dev.json`은 helper가 소유한 PID와 생성시각 기록이며 `var\windows-dev.lock`은 동시에 helper를 실행하지 않게 하는 잠금 파일입니다. 실행 중에는 PID 기록을 삭제하거나 수정하지 마세요. 오래된 PID가 다른 프로세스로 재사용되었다면 생성시각·실행파일 검사가 일치하지 않아 종료하지 않습니다. 시작 중 일부 프로세스만 성공해도 실행 상태와 기록을 남기므로 원인을 수정하고 `start`를 다시 실행하거나 `stop`으로 정리할 수 있습니다.

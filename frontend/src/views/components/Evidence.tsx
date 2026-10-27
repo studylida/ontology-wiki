@@ -88,24 +88,29 @@ export function CitationList({
 }) {
   if (!citations.length) return null;
   const indexed = citations.map((citation, index) => ({ citation, number: index + 1 }));
-  const groupCount = new Set(citations.map((citation) => citation.sourceRevisionId || citation.id)).size;
+  const groupKey = (citation: Citation) => citation.lineageKey
+    ? `lineage:${citation.lineageKey}`
+    : `revision:${citation.sourceRevisionId || citation.id}`;
+  const groupCount = new Set(citations.map(groupKey)).size;
+  const revisionCount = new Set(citations.map((citation) => citation.sourceRevisionId || citation.id)).size;
   const renderGroups = (items: typeof indexed) => {
     const groups = new Map<string, typeof indexed>();
     items.forEach((item) => {
-      const key = item.citation.sourceRevisionId || item.citation.id;
+      const key = groupKey(item.citation);
       const entries = groups.get(key) || [];
       entries.push(item);
       groups.set(key, entries);
     });
     return [...groups.entries()].map(([key, entries]) => {
         const first = entries[0].citation;
+        const versions = new Set(entries.map(({ citation }) => citation.sourceRevisionId || citation.id)).size;
         return (
           <details className="citation-group" key={key}>
             <summary>
               <strong>{first.title || "제목 미확인 문헌"}</strong>
               <span>
                 {first.historicalMetadata ? "과거 등록 정보 · " : ""}
-                {documentFormLabel(first.documentForm, first.sourceType)} · {""}
+                {versions > 1 ? `자료 판본 ${versions}개` : documentFormLabel(first.documentForm, first.sourceType)} · {""}
                 {first.publisher ? `${first.publisher} · ` : ""}{entries.length}개 구간
               </span>
             </summary>
@@ -120,6 +125,7 @@ export function CitationList({
                   <span className="citation-number">{number}</span>
                   <span>
                     <strong>{citation.locator || "위치 미확인"}</strong>
+                    {versions > 1 && <small>{citation.title || "제목 미확인 문헌"} · {documentFormLabel(citation.documentForm, citation.sourceType)}</small>}
                     {citation.contextOrigin === "earlier_answer" && <small>이전 답변의 출처</small>}
                     {!compact && citation.excerpt && (
                       <span className="citation-excerpt">{citation.excerpt}</span>
@@ -137,7 +143,7 @@ export function CitationList({
   const other = citedIds ? indexed.filter(({ citation }) => !citedIds.has(citation.id)) : [];
   return (
     <div className={`citation-list ${compact ? "compact" : ""}`}>
-      <p className="fine-print">자료 판본 {groupCount}개 · 근거 구간 {citations.length}개</p>
+      <p className="fine-print">출처 묶음 {groupCount}개 · 자료 판본 {revisionCount}개 · 근거 구간 {citations.length}개</p>
       {citedIds && cited.length > 0 && <strong>답변에 인용한 자료</strong>}
       {citedIds && !cited.length && <p className="fine-print">답변 본문에 연결된 인용을 확인하지 못했습니다.</p>}
       {renderGroups(cited)}

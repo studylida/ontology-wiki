@@ -69,6 +69,8 @@ Offline corpus review uses `scripts/v2/curate_existing_corpus.py` with a hash-ch
 
 The authorized RAG integrations are an unfinished checkpoint; read `docs/RAG_IMPLEMENTATION_CHECKPOINT_20261027.md` before enabling them. Docling owns structured extraction, the retrieval service merges candidates and invokes one CrossEncoder pass, LightRAG contributes only currently authorized source-passage IDs, and RAGChecker runs offline. Original sources and immutable revisions remain owned by the document service. Explicit local parser/reranker runtimes are authorized for this work; they are not silent generation or embedding fallbacks.
 
+The latest user instruction limits LightRAG work to a small comparison reusing existing results and indexes, without large rebuilds. The 199-document build was stopped at 52 completed documents and the old active50 is stale. See `docs/RAG_LIGHTRAG_COMPARISON_20261027.md`; do not automatically resume graph construction or treat the integration checkpoint as fully validated.
+
 Update API/schema migrations and relevant docs when contracts change. Keep frozen
 applied migrations immutable; add a new migration. Explain what changed, why,
 verified behavior and remaining limits. Keep a stable runId/debugging path. Do not

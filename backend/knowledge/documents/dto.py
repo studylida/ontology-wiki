@@ -29,6 +29,7 @@ class NewRevision(DTO):
 
 
 class MetadataPatch(DTO):
+    lineage_key: str | None = Field(None, min_length=1, max_length=500)
     publisher: str | None = Field(None, max_length=500)
     publisher_id: str | None = Field(None, max_length=100)
     author: str | None = Field(None, max_length=500)

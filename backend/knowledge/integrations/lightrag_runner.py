@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+from collections import Counter
 import hashlib
 import json
 import logging
@@ -41,6 +42,16 @@ def configure_database(database_name: str, workspace: str) -> None:
     os.environ.update(values)
 
 
+async def shutdown_model_queues(rag, *, graceful: bool) -> bool:
+    """Pinned SDK storage finalization does not stop its provider worker queues."""
+    functions = list(getattr(rag, "role_llm_funcs", {}).values())
+    functions.append(getattr(getattr(rag, "embedding_func", None), "func", None))
+    shutdowns = [function.shutdown(graceful=graceful, timeout=10)
+                 for function in dict.fromkeys(functions) if callable(getattr(function, "shutdown", None))]
+    outcomes = await asyncio.gather(*shutdowns, return_exceptions=True)
+    return not any(isinstance(outcome, BaseException) for outcome in outcomes)
+
+
 async def execute(request: dict) -> dict:
     # Suppress upstream connection/prompt logs; only sanitized results leave this process.
     logging.disable(logging.CRITICAL)
@@ -66,6 +77,9 @@ async def execute(request: dict) -> dict:
     parts = _read_usage(usage_path, interrupted=True)["components"] if action == "build" else []
     started_calls = sum(part.get("calls", 1) for part in parts)
     max_calls = int(request.get("maxModelCalls", 1000 if action == "build" else 12))
+    generation_concurrency = int(index.get("generationMaxAsync", 2))
+    if not 1 <= generation_concurrency <= 8:
+        raise ValueError("Graph generation concurrency must be between 1 and 8")
     generation = OpenAIGenerationClient(index["generationModel"], max_output_tokens=12000)
     embedding = OpenAIEmbeddingClient(index["embeddingModel"], index["embeddingDimensions"],
         index["embeddingApiDimensions"], index["embeddingTransform"])
@@ -75,7 +89,15 @@ async def execute(request: dict) -> dict:
         raise ValueError("Model provider configuration missing")
 
     def save_usage():
-        write_json(usage_path, {**summarize_usage(parts), "startedCalls": started_calls})
+        write_json(usage_path, {**summarize_usage(parts), "startedCalls": started_calls,
+            "generationMaxAsync": generation_concurrency,
+            "callErrors": dict(Counter(part["errorCode"] for part in parts if part.get("errorCode")))})
+
+    def failed_usage(exc, observed, operation, model):
+        details = getattr(exc, "details", None) or {}
+        return {**(getattr(exc, "usage", None) or observed or unknown_usage(operation, model)),
+            "operation": operation, "errorCode": getattr(exc, "code", type(exc).__name__),
+            "upstreamStatus": details.get("upstreamStatus")}
 
     def reserve_call():
         nonlocal started_calls
@@ -96,8 +118,7 @@ async def execute(request: dict) -> dict:
                 if delta.usage:
                     usage = delta.usage
         except BaseException as exc:
-            parts.append({**(getattr(exc, "usage", None) or usage or unknown_usage(operation, generation.model)),
-                "operation": operation})
+            parts.append(failed_usage(exc, usage, operation, generation.model))
             save_usage()
             raise
         parts.append({**(usage or unknown_usage(operation, generation.model)), "operation": operation})
@@ -112,7 +133,7 @@ async def execute(request: dict) -> dict:
         try:
             result = await embedding.embed(texts)
         except BaseException as exc:
-            parts.append({**getattr(exc, "usage", unknown_usage(operation, embedding.model)), "operation": operation})
+            parts.append(failed_usage(exc, None, operation, embedding.model))
             save_usage()
             raise
         parts.append({**result.usage, "operation": operation, "inputCount": len(texts)})
@@ -127,7 +148,8 @@ async def execute(request: dict) -> dict:
         llm_model_func=llm, llm_model_name=index["generationModel"],
         embedding_func=EmbeddingFunc(embedding_dim=index["embeddingDimensions"], func=embed,
             model_name=index["embeddingModel"], max_token_size=8000),
-        entity_extract_max_gleaning=0, llm_model_max_async=2, embedding_func_max_async=2,
+        entity_extract_max_gleaning=0, llm_model_max_async=generation_concurrency,
+        max_parallel_insert=1, embedding_func_max_async=2,
         embedding_batch_num=32, enable_llm_cache=action == "build",
         enable_llm_cache_for_entity_extract=action == "build",
         addon_params={"language": "Korean"})
@@ -181,20 +203,32 @@ async def execute(request: dict) -> dict:
         result = {"status": "failed", "reason": getattr(exc, "code", type(exc).__name__),
             "elapsedSeconds": round(time.monotonic() - started, 3), "usage": summarize_usage(parts)}
     finally:
-        save_usage()
+        queues_closed = await shutdown_model_queues(rag, graceful=result is not None and result["status"] == "ready")
+        if not queues_closed:
+            result = {"status": "failed", "reason": "model_queue_shutdown_failed"}
         try:
             await rag.finalize_storages()
         except Exception:
             # Do not activate an index whose durable storage cleanup was incomplete.
             result = {"status": "failed", "reason": "storage_finalize_failed",
                 "elapsedSeconds": round(time.monotonic() - started, 3), "usage": summarize_usage(parts)}
+        # Provider workers may record charges during queue shutdown, after the
+        # first extraction/merge error has already built the provisional result.
+        save_usage()
+        result["usage"] = summarize_usage(parts)
+        result["elapsedSeconds"] = round(time.monotonic() - started, 3)
     return result
 
 
 if __name__ == "__main__":
+    request = None
     try:
-        result = asyncio.run(execute(json.load(sys.stdin)))
+        request = json.load(sys.stdin)
+        result = asyncio.run(execute(request))
     except Exception as exc:
         result = {"status": "failed", "reason": type(exc).__name__}
+    if isinstance(request, dict) and request.get("usagePath"):
+        from .lightrag import _read_usage
+        result["usage"] = _read_usage(Path(request["usagePath"]), interrupted=True)
     print(json.dumps(result, ensure_ascii=False))
     raise SystemExit(0 if result.get("status") == "ready" else 1)

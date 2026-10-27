@@ -9,7 +9,7 @@ def encoded(value):
 
 def project_hit(hit):
     keys = ("id", "passageId", "sourceRevisionId", "title", "locator", "text", "publisher", "publisherId",
-            "author", "attributedTo", "attributionBasis", "sourceType", "documentForm", "readScope", "metadataVersion", "contextTruncated")
+            "author", "attributedTo", "attributionBasis", "sourceType", "documentForm", "lineageKey", "readScope", "metadataVersion", "contextTruncated")
     return {key: hit[key] for key in keys if key in hit}
 
 

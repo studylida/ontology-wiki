@@ -124,6 +124,18 @@ describe("answer citation grouping", () => {
     content: "실제 인용 [출처: C2]\n\n`[C1]`\n\n[C1](https://example.org)\n\n```text\n[C3]\n```",
     createdAt: "2026-10-26T12:00:00Z", citations, relations: [], sourceViews: [], warnings: [],
   };
+  it("keeps each multi-ID citation in the cited list and only uncited evidence behind the extra-source fold", () => {
+    render(<MessageCard message={{ ...message, content: "두 근거 [출처: C1, C2; missing]" }} onOpen={vi.fn()} onRelation={vi.fn()}
+      onCompare={vi.fn()} onOrganize={vi.fn()} onRetry={vi.fn()} onFirstVisible={vi.fn()} />);
+    expect(screen.getByRole("button", { name: "출처 1: 자료 C1" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "출처 2: 자료 C2" })).toBeTruthy();
+    expect(screen.getByText("자료 C1")).toBeTruthy();
+    expect(screen.getByText("자료 C2")).toBeTruthy();
+    const extra = screen.getByText("본문에 인용되지 않은 다른 근거 · 1개 구간").closest("details")!;
+    expect(within(extra).getByText("자료 C3")).toBeTruthy();
+    expect(within(extra).queryByText("자료 C1")).toBeNull();
+    expect(within(extra).queryByText("자료 C2")).toBeNull();
+  });
   it.each(["analysis", "wiki"] as const)("prioritizes actual %s citations, retaining numbered uncited and prior sources", (responseMode) => {
     const onOpen = vi.fn();
     render(<MessageCard message={{ ...message, responseMode }} onOpen={onOpen} onRelation={vi.fn()} onCompare={vi.fn()} onOrganize={vi.fn()} onRetry={vi.fn()} onFirstVisible={vi.fn()} />);

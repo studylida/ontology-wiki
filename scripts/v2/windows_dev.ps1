@@ -1,6 +1,6 @@
 #Requires -Version 7.0
 [CmdletBinding()]
-param([ValidateSet('start', 'stop', 'status')][string]$Action = 'status')
+param([ValidateSet('start', 'stop', 'status', 'restart-api', 'restart-worker', 'stop-worker')][string]$Action = 'status')
 
 $ErrorActionPreference = 'Stop'
 $root = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
@@ -152,6 +152,30 @@ try {
             -not (Test-Endpoint 'http://127.0.0.1:5173/')) {
             throw '30초 안에 HTTP 준비를 확인하지 못했습니다. 시작된 프로세스는 유지됩니다. status와 로그를 확인하세요.'
         }
+    } elseif ($Action -in @('restart-api', 'restart-worker', 'stop-worker')) {
+        $serviceName = if ($Action -eq 'restart-api') { 'api' } else { 'worker' }
+        $process = Get-OwnedProcess $serviceName
+        if ($null -ne $process) {
+            & "$env:SystemRoot\System32\taskkill.exe" /PID $process.Id /T /F | Out-Null
+            if ($LASTEXITCODE -ne 0 -and $null -ne (Get-OwnedProcess $serviceName)) { throw "$serviceName 종료에 실패했습니다." }
+        }
+        $state.Remove($serviceName)
+        Save-State
+        if ($Action -eq 'stop-worker') { Show-Status; exit 0 }
+        $previousEncoding = $env:PYTHONIOENCODING
+        try {
+            $env:PYTHONIOENCODING = 'utf-8'
+            $arguments = if ($serviceName -eq 'api') { @('scripts\v2\dev.py', 'serve', '--port', '8001') }
+                         else { @('scripts\v2\dev.py', 'worker') }
+            Start-ServiceProcess $serviceName $arguments $root
+        } finally { $env:PYTHONIOENCODING = $previousEncoding }
+        $deadline = [DateTime]::UtcNow.AddSeconds(30)
+        do {
+            if (Test-Endpoint 'http://127.0.0.1:8001/api/v1/health') { break }
+            Start-Sleep -Milliseconds 500
+        } while ([DateTime]::UtcNow -lt $deadline)
+        if (-not (Test-Endpoint 'http://127.0.0.1:8001/api/v1/health')) { throw 'API 재시작 뒤 HTTP 준비를 확인하지 못했습니다.' }
+        Show-Status
     } elseif ($Action -eq 'stop') {
         foreach ($name in @('web', 'api', 'worker')) {
             $process = Get-OwnedProcess $name

@@ -30,7 +30,7 @@
 - 개인 위키 자동 정리 작업, 검색·판본·사용자 수정·삭제·되돌리기·재생성 제외 기록.
 - 다른 프로젝트를 위한 개념·관계·출처별 설명·검색·답변 API와 별도 서비스 계정 권한.
 
-일반 파일 등록은 2MB 이하 Markdown·텍스트입니다. 공개 URL 가져오기는 HTML·PDF·텍스트를 제한적으로 읽습니다. PDF 업로드, Office 문서, OCR·표/그림 해석까지 구현했다는 뜻은 아닙니다. 실제 생성 품질, 공개 URL 본문 확보, 운영 이전·배포의 검증 범위는 [VERIFICATION.md](docs/VERIFICATION.md)를 확인하세요.
+일반 파일 등록은 2MB 이하 Markdown·텍스트입니다. 공개 URL 가져오기는 HTML·PDF·텍스트를 제한적으로 읽습니다. 선택한 Docling 런타임은 PDF의 구조·표·페이지 위치와 OCR을 처리하고 원본 및 추출 판본을 보존합니다. 일반 웹 PDF 업로드와 Office 입력은 지원하지 않습니다. 실행 설정과 실제 범위는 [Windows 안내](docs/WINDOWS_LOCAL.md), [Docling](docs/DOCLING_INTEGRATION.md), [LightRAG](docs/LIGHTRAG_INTEGRATION.md)를 확인하세요.
 
 ## 실행 전제
 

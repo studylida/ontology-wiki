@@ -23,7 +23,9 @@ from knowledge.core.config import Settings
 from knowledge.documents.entities import Document, DocumentRevision
 from knowledge.documents.repository import public_scope
 from knowledge.integrations.lightrag_manifest import capture_graph_snapshot
-from knowledge.integrations.lightrag import activate_index, _read_usage
+from knowledge.integrations.lightrag import (
+    activate_index, _read_usage, load_build_request, prepare_build_extension, save_build_extension,
+)
 from knowledge.integrations.lightrag_runner import write_json
 from knowledge.integrations.providers import get_embedding_client
 from knowledge.registry import load_entities
@@ -77,13 +79,33 @@ async def main(args):
     settings = Settings()
     if settings.provider_mode != "live":
         raise ValueError("An explicitly configured live provider is required")
+    if args.max_model_calls is not None and args.max_model_calls <= 0:
+        raise ValueError("Model call budget must be positive")
+    if args.generation_concurrency is not None and not 1 <= args.generation_concurrency <= 8:
+        raise ValueError("Graph generation concurrency must be between 1 and 8")
     index_root = args.index_path.resolve()
+    if (args.extend or args.request_file) and not args.resume:
+        raise ValueError("Build extension/request selection requires --resume")
+    extension_audit = None
     if args.resume:
         run_path = args.resume.resolve()
-        request = json.loads((run_path / "build-request.json").read_text(encoding="utf-8"))
-        manifest, _ = await export_sources(settings, args.source_manifest)
-        if manifest["fingerprint"] != request["index"]["snapshot"]["fingerprint"]:
+        if run_path.parent != index_root / "builds":
+            raise ValueError("Resume build must belong to the selected index path")
+        request_path = (args.request_file or run_path / "build-request.json").resolve()
+        if request_path.parent != run_path:
+            raise ValueError("Resume request must belong to its build directory")
+        request = load_build_request(request_path)
+        manifest, documents = await export_sources(settings, args.source_manifest)
+        if args.extend:
+            active_path = index_root / "active.json"
+            active = json.loads(active_path.read_text(encoding="utf-8")) if active_path.exists() else None
+            request, extension_audit = prepare_build_extension(request, manifest, documents, active)
+        elif manifest["fingerprint"] != request["index"]["snapshot"]["fingerprint"]:
             raise ValueError("Cannot resume a changed source snapshot")
+        if args.max_model_calls is not None:
+            request["maxModelCalls"] = args.max_model_calls
+        if args.generation_concurrency is not None:
+            request["index"]["generationMaxAsync"] = args.generation_concurrency
     else:
         manifest, documents = await export_sources(settings, args.source_manifest)
         if args.include_title:
@@ -99,22 +121,33 @@ async def main(args):
             "indexedRevisionIds": [doc["sourceRevisionId"] for doc in documents],
             "sourceForms": {doc["sourceRevisionId"]: doc["documentForm"] for doc in documents},
             "generationModel": settings.generation_model, "generationEffort": settings.generation_effort,
+            "generationMaxAsync": args.generation_concurrency or 2,
             "embeddingModel": settings.embedding_model, "embeddingDimensions": settings.embedding_dimensions,
             "embeddingApiDimensions": settings.embedding_api_dimensions, "embeddingTransform": settings.embedding_transform}
         request = {"action": "build", "index": index, "documents": documents,
-            "maxModelCalls": args.max_model_calls, "workingDirectory": str(run_path / "runtime"),
+            "maxModelCalls": args.max_model_calls or 1000, "workingDirectory": str(run_path / "runtime"),
             "usagePath": str(run_path / "usage.json"), "progressPath": str(run_path / "progress.json")}
-        write_json(run_path / "build-request.json", request)
+        request_path = run_path / "build-request.json"
+        write_json(request_path, request)
+    if extension_audit is not None:
+        request_path = save_build_extension(run_path, request_path, request, extension_audit)
     brief = {"runPath": str(run_path), "snapshotFingerprint": request["index"]["snapshot"]["fingerprint"],
         "snapshotRevisions": len(request["index"]["snapshot"]["revisions"]),
         "indexedRevisions": len(request["documents"]),
         "passages": sum(len(doc["passages"]) for doc in request["documents"]),
         "characters": sum(len(p["embeddingText"]) for doc in request["documents"] for p in doc["passages"]),
-        "maxModelCalls": request["maxModelCalls"]}
+        "maxModelCalls": request["maxModelCalls"],
+        "generationMaxAsync": request["index"].get("generationMaxAsync", 2),
+        "resumeRequestFile": str(request_path)}
     write_json(run_path / "summary.json", brief)
     print(json.dumps({"status": "prepared", **brief}, ensure_ascii=False), flush=True)
     if args.export_only:
         return
+    active_path = index_root / "active.json"
+    if active_path.exists():
+        active = json.loads(active_path.read_text(encoding="utf-8"))
+        if active.get("workspace") == request["index"]["workspace"]:
+            raise ValueError("Cannot build into the active graph workspace")
     await ensure_database(settings, request["index"]["databaseName"])
     env = {**os.environ, "PYTHONPATH": str(ROOT / "backend"), "PYTHONIOENCODING": "utf-8"}
     process = subprocess.Popen([str(args.runtime_python), "-m", "knowledge.integrations.lightrag_runner"],
@@ -144,7 +177,8 @@ async def main(args):
         raise SystemExit(1)
     activate_index(index_root, result, current)
     print(json.dumps({"status": "ready", **brief, "elapsedSeconds": result["elapsedSeconds"],
-        "usage": result["usage"]}, ensure_ascii=False))
+        "usage": {field: result["usage"][field] for field in (
+            "calls", "costUsd", "knownCostUsd", "unknownCostCalls", "inputTokens", "outputTokens", "totalTokens")}}, ensure_ascii=False))
 
 
 if __name__ == "__main__":
@@ -154,9 +188,12 @@ if __name__ == "__main__":
     parser.add_argument("--database-name", default="ontology_lightrag_dev")
     parser.add_argument("--source-manifest", type=Path)
     parser.add_argument("--include-title", action="append", default=[])
-    parser.add_argument("--max-model-calls", type=int, default=1000)
+    parser.add_argument("--max-model-calls", type=int)
+    parser.add_argument("--generation-concurrency", type=int)
     parser.add_argument("--timeout-seconds", type=float, default=3600)
     parser.add_argument("--resume", type=Path)
+    parser.add_argument("--request-file", type=Path)
+    parser.add_argument("--extend", action="store_true")
     parser.add_argument("--export-only", action="store_true")
     try:
         asyncio.run(main(parser.parse_args()))

@@ -43,11 +43,14 @@ async def test_structured_source_keeps_original_and_old_provenance_on_manual_rev
     docs = DocumentService(sessions, settings)
     created = await docs.create(principal,
         NewDocument(title="실험", content=content, documentForm="text_extraction"),
-        raw_bytes=original, media_type="application/pdf", passage_records=[record(content)],
+        raw_bytes=original, media_type="application/pdf", read_scope_value="partial", passage_records=[record(content)],
         processing_metadata={"parserProfile": {"engine": "docling", "version": "test"},
-                             "preparedPassagesArtifact": "prepared-reference", "sourceMapArtifact": "map-reference"})
+                             "preparedPassagesArtifact": "prepared-reference", "sourceMapArtifact": "map-reference",
+                             "totalPages": 10, "pagesRead": 10, "sourceSha256": "original-hash", "rawPath": "original-path",
+                             "processing": {"elapsedMs": 123}})
     previous_id = created["currentRevisionId"]
-    changed = await docs.add_revision(principal, created["id"], NewRevision(content=content + "\n편집 설명"))
+    changed = await docs.add_revision(principal, created["id"],
+        NewRevision(content="---\ndocument_form: original\n---\n" + content + "\n편집 설명"))
     async with sessions() as session:
         old = await session.get(DocumentRevision, previous_id)
         new = await session.get(DocumentRevision, changed["currentRevisionId"])
@@ -60,5 +63,25 @@ async def test_structured_source_keeps_original_and_old_provenance_on_manual_rev
     assert old.metadata_json["documentForm"] == "text_extraction"
     assert new.metadata_json["derivedFromRevisionId"] == previous_id
     assert new.metadata_json["documentForm"] == "edited_derivative"
+    assert new.read_scope == old.read_scope == "partial"
+    assert old.metadata_json["processing"]["elapsedMs"] == 123
+    assert not {"totalPages", "pagesRead", "sourceSha256", "rawPath", "processing"}.intersection(new.metadata_json)
     assert "sourceMapArtifact" not in new.metadata_json
     assert "parserProfile" not in new.metadata_json
+
+
+@pytest.mark.asyncio
+async def test_editorial_revision_updates_hash_without_reusing_old_review_or_file(sessions, settings, principal):
+    docs = DocumentService(sessions, settings)
+    created = await docs.create(principal, NewDocument(title="편집본", content="이전 본문", documentForm="editorial_summary"),
+        processing_metadata={"editorialSha256": digest("이전 본문"), "editorialFile": "old.md",
+                             "reviewScope": "이전 본문 검토", "editorialCorrections": ["이전 교정"], "originalSha256": "original"})
+    changed = await docs.add_revision(principal, created["id"], NewRevision(content="새 본문"))
+    async with sessions() as session:
+        new = await session.get(DocumentRevision, changed["currentRevisionId"])
+        old = await session.get(DocumentRevision, created["currentRevisionId"])
+    assert new.metadata_json["editorialSha256"] == digest("새 본문")
+    assert not {"editorialFile", "reviewScope", "editorialCorrections"}.intersection(new.metadata_json)
+    assert new.metadata_json["originalSha256"] == "original"
+    assert new.metadata_json["derivedFromRevisionId"] == old.id
+    assert old.metadata_json["editorialFile"] == "old.md"

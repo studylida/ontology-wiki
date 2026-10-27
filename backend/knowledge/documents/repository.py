@@ -66,7 +66,7 @@ def select_ranked_hits(hits: list[dict], source_groups: list[dict] | None = None
     def add(hit):
         chosen.append(hit)
         seen.add(hit["passageId"])
-        per_doc[hit.get("documentId", hit["sourceRevisionId"])] += 1
+        per_doc[hit.get("lineageKey") or hit.get("documentId", hit["sourceRevisionId"])] += 1
 
     # Requested groups retain an opportunity even when they share a document.
     for group in groups:
@@ -77,7 +77,7 @@ def select_ranked_hits(hits: list[dict], source_groups: list[dict] | None = None
     for hit in hits:
         if len(chosen) >= limit:
             break
-        doc_id = hit.get("documentId", hit["sourceRevisionId"])
+        doc_id = hit.get("lineageKey") or hit.get("documentId", hit["sourceRevisionId"])
         if hit["passageId"] not in seen and (per_document_limit is None or per_doc[doc_id] < per_document_limit):
             add(hit)
     coverage = [{"groupId": group["groupId"], "hitCount": sum(group_match(h, group) for h in chosen),
@@ -93,6 +93,7 @@ def citation_dict(passage: Passage, revision: DocumentRevision, document: Docume
             "author": meta.get("author"), "attributedTo": meta.get("attributedTo"),
             "attributionBasis": meta.get("attributionBasis", "unknown"),
             "sourceType": meta.get("sourceType", "unknown"), "documentForm": meta.get("documentForm"), "url": meta.get("url"),
+            "lineageKey": meta.get("lineageKey"),
             "publishedAt": meta.get("publishedAt"), "readScope": revision.read_scope,
             "metadataVersion": revision.metadata_version}
 

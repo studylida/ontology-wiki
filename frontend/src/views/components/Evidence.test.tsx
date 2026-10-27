@@ -52,7 +52,7 @@ describe("relation exploration boundaries", () => {
     const other = { ...citation, id: "C2", passageId: "p2", sourceRevisionId: "r2", title: "다른 판본" };
     const previous = { ...citation, id: "C3", passageId: "p3", locator: "결과", sourceType: "editorial_summary", contextOrigin: "earlier_answer" };
     render(<CitationList citations={[citation, other, previous]} onOpen={onOpen} />);
-    expect(screen.getByText("자료 판본 2개 · 근거 구간 3개")).toBeTruthy();
+    expect(screen.getByText("출처 묶음 2개 · 자료 판본 2개 · 근거 구간 3개")).toBeTruthy();
     const group = screen.getByText("Fixture source · test only").closest("details")!;
     expect(group.textContent).toContain("2개 구간");
     expect(group.open).toBe(false);
@@ -65,6 +65,31 @@ describe("relation exploration boundaries", () => {
     expect(otherGroup.open).toBe(false);
     fireEvent.click(screen.getByText("다른 판본"));
     expect(screen.getByRole("button", { name: /출처 2:.*다른 판본/ })).toBeTruthy();
+  });
+  it("groups explicit lineage across editions while keeping each edition and citation action", () => {
+    const onOpen = vi.fn();
+    const summary: Citation = { ...citation, lineageKey: "paper-a", documentForm: "editorial_summary" };
+    const extraction: Citation = { ...citation, id: "C2", passageId: "p2", sourceRevisionId: "r2",
+      title: "원문 추출 판본", lineageKey: "paper-a", documentForm: "text_extraction" };
+    const { container } = render(<CitationList citations={[summary, extraction]} onOpen={onOpen} />);
+    expect(screen.getByText("출처 묶음 1개 · 자료 판본 2개 · 근거 구간 2개")).toBeTruthy();
+    const groups = container.querySelectorAll<HTMLDetailsElement>("details.citation-group");
+    expect(groups).toHaveLength(1);
+    expect(groups[0].open).toBe(false);
+    fireEvent.click(groups[0].querySelector("summary")!);
+    const first = screen.getByRole("button", { name: /출처 1:/ });
+    const second = screen.getByRole("button", { name: /출처 2:/ });
+    expect(first.textContent).toContain("편집 요약");
+    expect(second.textContent).toContain("원문 추출 판본");
+    expect(second.textContent).toContain("텍스트 추출");
+    fireEvent.click(second);
+    expect(onOpen).toHaveBeenCalledWith(extraction);
+  });
+  it("does not infer shared lineage from matching titles or URLs", () => {
+    const second = { ...citation, id: "C2", passageId: "p2", sourceRevisionId: "r2", url: "https://example.org/paper" };
+    const { container } = render(<CitationList citations={[{ ...citation, url: second.url }, second]} onOpen={vi.fn()} />);
+    expect(container.querySelectorAll("details.citation-group")).toHaveLength(2);
+    expect(screen.getByText("출처 묶음 2개 · 자료 판본 2개 · 근거 구간 2개")).toBeTruthy();
   });
   it.each([
     ["is_a", "상위 개념"],
@@ -197,6 +222,22 @@ describe("source viewpoint filters", () => {
   });
 });
 describe("untrusted markdown", () => {
+  it("links each known ID in a mixed citation and reports the same IDs for source filtering", () => {
+    const onOpen = vi.fn();
+    const onCitationsFound = vi.fn();
+    const second = { ...citation, id: "C2", passageId: "p2", sourceRevisionId: "r2", title: "두 번째 출처" };
+    const { container } = render(<SafeMarkdown content="비교 [출처: C1, C2; missing]" citations={[citation, second]}
+      onCitation={onOpen} onCitationsFound={onCitationsFound} />);
+    const firstLink = screen.getByRole("button", { name: "출처 1: Fixture source · test only" });
+    const secondLink = screen.getByRole("button", { name: "출처 2: 두 번째 출처" });
+    expect(firstLink.textContent).toBe("1");
+    expect(secondLink.textContent).toBe("2");
+    expect(container.textContent).toContain("[출처: missing]");
+    expect(screen.queryByRole("button", { name: /missing/ })).toBeNull();
+    fireEvent.click(secondLink);
+    expect(onOpen).toHaveBeenCalledWith(second);
+    expect(onCitationsFound).toHaveBeenCalledWith(["C1", "C2"]);
+  });
   it("recognizes the provider's [출처: id] contract only for known IDs and leaves code untouched", () => {
     const onOpen = vi.fn();
     const { container } = render(

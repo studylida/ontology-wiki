@@ -2249,6 +2249,19 @@
       },
       "MetadataPatch": {
         "properties": {
+          "lineageKey": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lineagekey"
+          },
           "publisher": {
             "anyOf": [
               {
@@ -2320,6 +2333,24 @@
               }
             ],
             "title": "Sourcetype"
+          },
+          "documentForm": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "original",
+                  "editorial_summary",
+                  "edited_derivative",
+                  "text_extraction",
+                  "unknown"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Documentform"
           },
           "publishedAt": {
             "anyOf": [
@@ -2432,6 +2463,24 @@
             "maxLength": 80,
             "title": "Sourcetype",
             "default": "unknown"
+          },
+          "documentForm": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "original",
+                  "editorial_summary",
+                  "edited_derivative",
+                  "text_extraction",
+                  "unknown"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Documentform"
           },
           "publishedAt": {
             "anyOf": [

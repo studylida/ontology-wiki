@@ -8,6 +8,7 @@ from ..documents.repository import DocumentRepository
 from ..rag.context import citation
 from .prompt import build_messages
 from .repository import AnswerRepository
+from .citations import CitationTextDecoder, citation_aliases, decode_citation_deltas
 
 
 class AnswerExecutor:
@@ -96,6 +97,14 @@ class AnswerExecutor:
         usages, generation_usage = [], None
         generation_started = None
         generation_attempted = False
+        decoder = None
+
+        async def preserve_citation_tail():
+            if decoder is not None:
+                pending = decoder.finish()
+                if pending:
+                    runtime.content += pending
+                    await runtime.emit("text.delta", {"text": pending})
         try:
             await self.verify_access(runtime)
             if runtime.cancel_event.is_set():
@@ -149,9 +158,9 @@ class AnswerExecutor:
             generation_started = monotonic()
             generation_attempted = True
             # No SQL session/transaction is held while awaiting provider output.
-            async for delta in self.provider_deltas(runtime, messages):
-                if runtime.cancel_event.is_set() or runtime.finished:
-                    raise asyncio.CancelledError()
+            decoder = CitationTextDecoder(citation_aliases(result))
+            async for delta in decode_citation_deltas(self.provider_deltas(runtime, messages), result,
+                                                      decoder=decoder, cancel_event=runtime.cancel_event):
                 if delta.model:
                     runtime.generation_config["model"] = delta.model
                 if getattr(delta, "provider_event_type", None) and runtime.metrics["providerEventMs"] is None:
@@ -159,19 +168,24 @@ class AnswerExecutor:
                 if delta.usage is not None:
                     generation_usage = {**delta.usage, "operation": "answer_generation"}
                     runtime.usage = summarize_usage(usages + [generation_usage])
+                if runtime.cancel_event.is_set() or runtime.finished:
+                    raise asyncio.CancelledError()
                 if delta.text:
                     if runtime.metrics["firstTextMs"] is None:
                         runtime.metrics["firstTextMs"] = round((monotonic() - runtime.started_clock) * 1000, 2)
                     runtime.content += delta.text
-                    # Forward each real provider delta without post-hoc fake typing.
+                    # Only reference-key fragments are buffered; prose remains the received provider text.
                     await runtime.emit("text.delta", {"text": delta.text})
                 await self.flush(runtime)
             runtime.metrics["generationMs"] = round((monotonic() - generation_started) * 1000, 2)
             runtime.usage = summarize_usage(usages + [generation_usage or unknown_usage("answer_generation", runtime.generation_config["model"])])
+            if decoder.unknown_references:
+                raise AppError(502, "SOURCE_REFERENCE_INVALID", "답변의 일부 출처 참조를 확인하지 못했습니다. 다시 시도해 주세요.", retryable=True)
             if not runtime.content.strip():
                 raise AppError(502, "EMPTY_PROVIDER_ANSWER", "공급자가 실제 답변 본문을 보내지 않았습니다.", retryable=True)
             await self.finish(runtime, "completed")
         except asyncio.CancelledError as exc:
+            await preserve_citation_tail()
             if getattr(exc, "usage", None):
                 usages.extend(exc.usage.get("components", []))
             if generation_started:
@@ -182,6 +196,7 @@ class AnswerExecutor:
             error = {"code": "PROCESS_INTERRUPTED", "message": "서버 종료로 답변이 중단되었습니다.", "retryable": True} if runtime.cancel_kind == "interrupted" else None
             await self.finish(runtime, runtime.cancel_kind, error)
         except Exception as exc:
+            await preserve_citation_tail()
             if generation_started:
                 runtime.metrics["generationMs"] = round((monotonic() - generation_started) * 1000, 2)
             observed = getattr(exc, "usage", None)

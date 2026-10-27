@@ -5,6 +5,7 @@ import pytest
 from knowledge.rag.grounding import compose_grounding, encoded
 from knowledge.rag.dto import AnswerRequest
 from knowledge.answers.prompt import build_messages
+from knowledge.answers.citations import alias_grounding
 
 
 def test_relation_and_source_view_evidence_share_one_deduplicated_budget():
@@ -51,8 +52,10 @@ def test_readable_answer_prompt_preserves_question_and_source_provenance(mode, q
     user_question, payload = messages[-1]["content"].split("\n\nEVIDENCE_JSON\n", 1)
     evidence_text, coverage_text = payload.split("\nCOVERAGE_JSON\n", 1)
     assert user_question == question
-    assert json.loads(evidence_text) == evidence
-    assert json.loads(coverage_text)["semanticSufficiency"] == "not_evaluated"
+    assert json.loads(evidence_text) == alias_grounding(retrieval)
+    assert json.loads(evidence_text)["passages"][0]["id"] == "E1"
+    assert evidence["passages"][0]["id"] == "p1"
+    assert json.loads(coverage_text) == {"groups": []}
 
 
 def test_ranked_direct_evidence_has_priority_over_graph_expansion():

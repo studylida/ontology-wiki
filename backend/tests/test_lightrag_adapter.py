@@ -9,6 +9,7 @@ import pytest
 
 from knowledge.integrations.lightrag import (
     LightRAGSearchAdapter, activate_index, mapped_passages, snapshot_manifest, validate_index,
+    prepare_build_extension, save_build_extension, load_build_request,
 )
 
 
@@ -25,6 +26,70 @@ def ready_index():
         "snapshot": snapshot(), "indexedRevisionIds": ["r1"],
         "chunkMap": {"c1": [{"passageId": "p1", "sourceRevisionId": "r1",
             "textHash": hashlib.sha256("조건이 있는 원문 구간".encode()).hexdigest()}]}}
+
+
+def extension_inputs():
+    document = {"documentId": "d1", "sourceRevisionId": "r1", "title": "original",
+        "documentForm": "edited_summary", "content": "original body", "passages": [
+            {"passageId": "p1", "text": "body", "embeddingText": "original body", "locator": "section 1"}]}
+    request = {"action": "build", "index": {**ready_index(), "status": "building"}, "documents": [document]}
+    second_row = {**snapshot()["revisions"][0], "sourceRevisionId": "r2", "activeRevisionId": "r2"}
+    current = snapshot_manifest([snapshot()["revisions"][0], second_row], "embedding-v1")
+    second_document = {**copy.deepcopy(document), "documentId": "d2", "sourceRevisionId": "r2", "title": "new source"}
+    second_document["passages"][0]["passageId"] = "p2"
+    return request, current, [document, second_document]
+
+
+def test_inactive_build_extension_adds_only_new_sources_and_preserves_audit(tmp_path):
+    request, current, documents = extension_inputs()
+    original = copy.deepcopy(request)
+    expanded, audit = prepare_build_extension(request, current, documents, {"workspace": "other_active"})
+    assert request == original
+    assert expanded["index"]["workspace"] == request["index"]["workspace"]
+    assert expanded["documents"][0] == request["documents"][0]
+    assert expanded["index"]["indexedRevisionIds"] == ["r1", "r2"]
+    assert audit["addedSourceRevisionIds"] == ["r2"]
+    path = tmp_path / "build-request.json"
+    path.write_text(json.dumps(request), encoding="utf-8")
+    original_bytes = path.read_bytes()
+    extended_path = save_build_extension(tmp_path, path, expanded, audit)
+    stored = json.loads(extended_path.read_text(encoding="utf-8"))
+    assert path.read_bytes() == original_bytes
+    assert stored["audit"]["originalRequestSha256"] == hashlib.sha256(original_bytes).hexdigest()
+    assert stored["audit"]["oldFingerprint"] == request["index"]["snapshot"]["fingerprint"]
+    assert stored["audit"]["newFingerprint"] == current["fingerprint"]
+    assert load_build_request(extended_path) == expanded
+    stored["request"]["documents"][0]["content"] = "tampered"
+    extended_path.write_text(json.dumps(stored), encoding="utf-8")
+    with pytest.raises(ValueError, match="audit_hash_mismatch"):
+        load_build_request(extended_path)
+
+
+@pytest.mark.parametrize("field,value", [
+    ("contentHash", "changed"), ("metadataHash", "changed"), ("metadataVersion", 2),
+    ("parserProfile", "new-parser"), ("chunkProfile", "new-chunker"), ("passagesHash", "changed"),
+])
+def test_build_extension_rejects_changes_to_existing_rows(field, value):
+    request, current, documents = extension_inputs()
+    current["revisions"][0][field] = value
+    current = snapshot_manifest(current["revisions"], current["embeddingProfileId"])
+    with pytest.raises(ValueError, match="changed_existing_revision"):
+        prepare_build_extension(request, current, documents, None)
+
+
+def test_build_extension_rejects_removed_rows_profile_changes_and_active_workspace():
+    request, current, documents = extension_inputs()
+    removed = snapshot_manifest([current["revisions"][1]], "embedding-v1")
+    with pytest.raises(ValueError, match="removed_revisions"):
+        prepare_build_extension(request, removed, documents[1:], None)
+    changed_profile = snapshot_manifest(current["revisions"], "embedding-v2")
+    with pytest.raises(ValueError, match="profile_changed"):
+        prepare_build_extension(request, changed_profile, documents, None)
+    with pytest.raises(ValueError, match="cannot_extend_active_workspace"):
+        prepare_build_extension(request, current, documents, ready_index())
+    documents[0] = {**documents[0], "content": "changed without hash update"}
+    with pytest.raises(ValueError, match="changed_existing_document"):
+        prepare_build_extension(request, current, documents, None)
 
 
 @pytest.mark.parametrize("field,value", [
@@ -142,28 +207,59 @@ async def test_manifest_rechecks_public_active_approval_and_passage_exclusions(s
 
 
 @pytest.mark.asyncio
-async def test_query_disables_shared_prompt_cache_and_retains_observed_usage_on_cancel(tmp_path, monkeypatch):
+@pytest.mark.parametrize("failure", ["cancel", "rate_limit", "parallel_failure"])
+async def test_query_disables_shared_prompt_cache_and_records_failed_call_usage(tmp_path, monkeypatch, failure):
     """Exercise the runtime callback without installing LightRAG or calling a provider."""
     import importlib.metadata
     import types
     import dotenv
     from knowledge.integrations import lightrag_runner, providers
+    from knowledge.core.errors import AppError
     options = {}
+    started_calls = 0
+    all_started = asyncio.Event()
     class FakeRAG:
         def __init__(self, **kwargs):
             options.update(kwargs)
+            self.pending = []
+            async def queue():
+                pass
+            queue.shutdown = self.shutdown
+            self.role_llm_funcs = {"extract": queue}
+        async def shutdown(self, *, graceful, timeout):
+            for task in self.pending:
+                if not task.done():
+                    task.cancel()
+            await asyncio.gather(*self.pending, return_exceptions=True)
         async def initialize_storages(self):
             pass
         async def finalize_storages(self):
             pass
         async def aquery_data(self, query, param):
+            if failure == "parallel_failure":
+                self.pending = [asyncio.create_task(options["llm_model_func"](str(index))) for index in range(8)]
+                await all_started.wait()
+                await self.pending[0]
+                return
             await options["llm_model_func"](query)
     class FakeGeneration:
         def __init__(self, model, **kwargs):
             self.model = model
         async def stream(self, messages, **kwargs):
+            nonlocal started_calls
+            if failure == "rate_limit":
+                raise AppError(502, "provider_rate_limit", "fixture", details={"upstreamStatus": 429}, retryable=True)
+            if failure == "parallel_failure":
+                started_calls += 1
+                if started_calls == 8:
+                    all_started.set()
+                await all_started.wait()
+                if messages[-1]["content"] != "0":
+                    await asyncio.Event().wait()
             yield types.SimpleNamespace(text="", usage={"calls": 1, "costUsd": 0.02,
                 "inputTokens": 20, "outputTokens": 2, "totalTokens": 22})
+            if failure == "parallel_failure":
+                raise AppError(502, "provider_error", "fixture", details={"upstreamStatus": 500}, retryable=True)
             raise asyncio.CancelledError()
     class FakeEmbedding:
         profile_id = "embedding-v1"
@@ -184,11 +280,21 @@ async def test_query_disables_shared_prompt_cache_and_retains_observed_usage_on_
     result = await lightrag_runner.execute({"action": "query", "query": "private question",
         "usagePath": str(tmp_path / "usage.json"), "workingDirectory": str(tmp_path / "runtime"),
         "index": {"databaseName": "ontology_lightrag_dev", "workspace": "test",
-            "snapshot": {"embeddingProfileId": "embedding-v1"}, "generationModel": "fixture-generation",
-            "generationEffort": "medium", "embeddingModel": "fixture-embedding", "embeddingDimensions": 2,
+            "generationMaxAsync": 8,
+            "snapshot": {"embeddingProfileId": "embedding-v1"}, "generationModel": "test-generation",
+            "generationEffort": "medium", "embeddingModel": "test-embedding", "embeddingDimensions": 2,
             "embeddingApiDimensions": 2, "embeddingTransform": "direct"}})
     assert options["enable_llm_cache"] is False
     assert options["enable_llm_cache_for_entity_extract"] is False
+    assert options["llm_model_max_async"] == 8
+    assert options["max_parallel_insert"] == 1
     assert result["status"] == "failed"
-    assert result["usage"]["knownCostUsd"] == 0.02
-    assert result["usage"]["unknownCostCalls"] == 0
+    assert result["usage"]["knownCostUsd"] == (0 if failure == "rate_limit" else 0.02)
+    assert result["usage"]["unknownCostCalls"] == {"cancel": 0, "rate_limit": 1, "parallel_failure": 7}[failure]
+    ledger = json.loads((tmp_path / "usage.json").read_text())
+    assert ledger["generationMaxAsync"] == 8
+    assert ledger["callErrors"] == ({"provider_error": 1, "CancelledError": 7} if failure == "parallel_failure"
+        else {"CancelledError" if failure == "cancel" else "provider_rate_limit": 1})
+    assert result["usage"]["calls"] == ledger["calls"] == (8 if failure == "parallel_failure" else 1)
+    if failure == "rate_limit":
+        assert ledger["components"][0]["upstreamStatus"] == 429

@@ -48,17 +48,25 @@ class DocumentService:
             if previous.content_hash == digest(request.content):
                 return document_dict(doc, previous)
             metadata = dict(previous.metadata_json)
+            if metadata.get("editorialSha256"):
+                metadata["derivedFromRevisionId"] = previous.id
+                metadata["editorialSha256"] = digest(request.content)
+                for field in ("editorialFile", "reviewScope", "editorialCorrections"):
+                    metadata.pop(field, None)
             if metadata.get("parserProfile"):
                 metadata["derivedFromRevisionId"] = previous.id
                 for field in ("parserProfile", "chunkProfile", "preparedPassagesArtifact", "sourceMapArtifact", "structuredArtifact",
-                              "sourceMapPath", "structuredDocumentPath", "extractedTextPath", "conversionKey"):
+                              "sourceMapPath", "structuredDocumentPath", "extractedTextPath", "conversionKey", "rawPath",
+                              "sourceSha256", "totalPages", "pagesRead", "pagesWithoutExtractedText", "conversionStatus",
+                              "tableCount", "pictureCount", "processing"):
                     metadata.pop(field, None)
                 metadata["documentForm"] = "edited_derivative"
             declared_form = declared_document_form(request.content)
-            if declared_form is not None and declared_form != declared_document_form(previous.content):
+            if not metadata.get("derivedFromRevisionId") and declared_form is not None and declared_form != declared_document_form(previous.content):
                 metadata["documentForm"] = declared_form
             rev = DocumentRevision(id=new_id("rev"), document_id=doc.id, revision=previous.revision + 1,
                 content=request.content, content_hash=digest(request.content), raw_path=raw_path,
+                read_scope=previous.read_scope,
                 metadata_json=metadata, metadata_hash=metadata_digest(metadata),
                 review_status="private" if doc.visibility == "private" else "pending")
             session.add(rev)

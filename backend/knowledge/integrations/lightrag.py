@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import asyncio
+from copy import deepcopy
+from datetime import datetime, timezone
 import hashlib
 import json
 import os
@@ -82,6 +84,89 @@ def activate_index(index_path: Path, index: dict, current_snapshot: dict) -> Non
     temporary = index_path / f"active-{uuid4().hex}.tmp"
     temporary.write_text(json.dumps(index, ensure_ascii=False, indent=2), encoding="utf-8")
     temporary.replace(index_path / "active.json")
+
+
+def prepare_build_extension(request: dict, current: dict, documents: list[dict], active: dict | None) -> tuple[dict, dict]:
+    """Append only new approved revisions to an inactive, unchanged build scope."""
+    index = request["index"]
+    if request.get("action") != "build" or index.get("storage") != "postgresql" or not index.get("workspace"):
+        raise ValueError("invalid_extension_build")
+    if active is not None:
+        if not isinstance(active, dict) or not active.get("workspace"):
+            raise ValueError("invalid_active_index")
+        if active["workspace"] == index["workspace"]:
+            raise ValueError("cannot_extend_active_workspace")
+    previous = index["snapshot"]
+    if previous.get("schemaVersion") != current.get("schemaVersion") or previous.get("embeddingProfileId") != current.get("embeddingProfileId"):
+        raise ValueError("extension_profile_changed")
+    for manifest in (previous, current):
+        calculated = snapshot_manifest(manifest["revisions"], manifest["embeddingProfileId"])
+        if calculated["fingerprint"] != manifest.get("fingerprint"):
+            raise ValueError("invalid_extension_fingerprint")
+    old_rows = {row["sourceRevisionId"]: row for row in previous["revisions"]}
+    new_rows = {row["sourceRevisionId"]: row for row in current["revisions"]}
+    if not old_rows.keys() <= new_rows.keys():
+        raise ValueError("extension_removed_revisions")
+    if any(row != new_rows[revision_id] for revision_id, row in old_rows.items()):
+        raise ValueError("extension_changed_existing_revision")
+    added = sorted(new_rows.keys() - old_rows.keys())
+    if not added:
+        raise ValueError("extension_requires_additions")
+    old_docs = {doc["sourceRevisionId"]: doc for doc in request["documents"]}
+    new_docs = {doc["sourceRevisionId"]: doc for doc in documents}
+    if (set(old_docs) != set(old_rows) or set(index["indexedRevisionIds"]) != set(old_rows)
+            or len(old_docs) != len(request["documents"]) or set(new_docs) != set(new_rows)
+            or len(new_docs) != len(documents)):
+        raise ValueError("extension_document_scope_mismatch")
+    if any(doc != new_docs[revision_id] for revision_id, doc in old_docs.items()):
+        raise ValueError("extension_changed_existing_document")
+    expanded = deepcopy(request)
+    expanded["index"]["snapshot"] = deepcopy(current)
+    expanded["index"]["indexedRevisionIds"] = list(index["indexedRevisionIds"]) + added
+    expanded["index"]["sourceForms"] = {revision_id: doc.get("documentForm", "unknown") for revision_id, doc in new_docs.items()}
+    expanded["documents"] += [deepcopy(new_docs[revision_id]) for revision_id in added]
+    audit = {"workspace": index["workspace"], "oldFingerprint": previous["fingerprint"],
+        "newFingerprint": current["fingerprint"], "addedSourceRevisionIds": added,
+        "previousRevisionCount": len(old_rows), "expandedRevisionCount": len(new_rows)}
+    return expanded, audit
+
+
+def _request_hash(request: dict) -> str:
+    return hashlib.sha256(json.dumps(request, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def save_build_extension(run_path: Path, base_path: Path, request: dict, audit: dict) -> Path:
+    """Atomically persist a separate request+audit envelope; original stays intact."""
+    original = run_path / "build-request.json"
+    if base_path.resolve().parent != run_path.resolve():
+        raise ValueError("extension_request_outside_build")
+    record = {"request": request, "audit": {**audit,
+        "recordedAt": datetime.now(timezone.utc).isoformat(),
+        "originalRequestSha256": hashlib.sha256(original.read_bytes()).hexdigest(),
+        "baseRequestFile": base_path.name, "baseRequestSha256": hashlib.sha256(base_path.read_bytes()).hexdigest(),
+        "extendedRequestSha256": _request_hash(request)}}
+    target = run_path / f"extension-{uuid4().hex}.json"
+    temporary = target.with_suffix(".tmp")
+    temporary.write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
+    temporary.replace(target)
+    return target
+
+
+def load_build_request(path: Path) -> dict:
+    stored = json.loads(path.read_text(encoding="utf-8"))
+    if "audit" not in stored:
+        return stored
+    request, audit = stored["request"], stored["audit"]
+    base_name = audit["baseRequestFile"]
+    if Path(base_name).name != base_name:
+        raise ValueError("invalid_extension_base_path")
+    if (hashlib.sha256((path.parent / "build-request.json").read_bytes()).hexdigest() != audit["originalRequestSha256"]
+            or hashlib.sha256((path.parent / base_name).read_bytes()).hexdigest() != audit["baseRequestSha256"]
+            or _request_hash(request) != audit["extendedRequestSha256"]):
+        raise ValueError("extension_audit_hash_mismatch")
+    if request["index"]["snapshot"]["fingerprint"] != audit["newFingerprint"]:
+        raise ValueError("extension_audit_snapshot_mismatch")
+    return request
 
 
 class LightRAGSearchAdapter:

@@ -21,6 +21,7 @@ ASPECTS = (
 # Concrete parameters in the question take priority over broad words such as
 # "conditions". These rules choose search queries; they do not verify values.
 PARAMETERS = (
+    ("power", "소비 전력·비트당 에너지의 수치와 측정·비교 조건", r"전력|소비.?에너지|비트당.?에너지|\bpower\b|\benergy\b"),
     ("temperature", "온도 조건·수치와 측정 범위", r"온도|\btemperatures?\b"),
     ("pressure", "압력 조건·수치와 측정 범위", r"압력|\bpressures?\b"),
     ("warpage", "휨의 허용치·측정 조건", r"휨|\bwarpage\b"),
@@ -58,6 +59,16 @@ def coverage(plan, hits):
                        "evidencePassageIds": evidence_ids,
                        "assessment": "literal_aspect_signal_only"})
     return result
+
+
+def reranking_query(query, plan):
+    if not re.search(r"수치|정량|측정값|얼마|\bnumerical\b|\bquantitative\b|how much", query, re.I):
+        return query
+    parameter_ids = {row[0] for row in PARAMETERS}
+    focus = [item["aspect"] for item in plan if item["id"] in parameter_ids]
+    if not focus:
+        return query
+    return query + "\n중점 확인: " + "; ".join(focus) + ". 실제 수치 비교와 측정 조건을 우선 확인."
 
 
 def context_characters(hits):

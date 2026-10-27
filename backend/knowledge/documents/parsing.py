@@ -20,6 +20,12 @@ def metadata_digest(value: dict) -> str:
     return digest(json.dumps(value, sort_keys=True, ensure_ascii=False, default=str))
 
 
+def model_source_metadata(metadata: dict) -> dict:
+    return {key: metadata[key] for key in (
+        "publisher", "publisherId", "author", "attributedTo", "attributionBasis", "sourceType",
+        "documentForm", "publishedAt", "url") if key in metadata}
+
+
 @dataclass(frozen=True)
 class ParsedPassage:
     ordinal: int

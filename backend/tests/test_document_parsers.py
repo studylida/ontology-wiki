@@ -77,6 +77,7 @@ def test_incremental_key_changes_only_with_input_or_conversion_profile():
     assert conversion_key(b"changed-pdf", **options) != key
     assert conversion_key(b"pdf", **(options | {"max_pages": 30})) != key
     assert conversion_key(b"pdf", **(options | {"model_artifacts_hash": "model-v2"})) != key
+    assert conversion_key(b"pdf", **(options | {"ocr": True})) != key
 
 
 @pytest.mark.asyncio
@@ -84,7 +85,7 @@ async def test_docling_cache_avoids_worker_and_saves_prepared_passages(tmp_path,
     body = b"original-pdf"
     calls = []
     async def worker(*args, **kwargs):
-        calls.append(kwargs)
+        calls.append({**kwargs, "args": args})
         assert kwargs["memory_bytes"] > 512 * 1024 * 1024
         assert Path(kwargs["env"]["USERPROFILE"]).is_dir()
         return json.dumps(sample_result(body)).encode()
@@ -99,6 +100,11 @@ async def test_docling_cache_avoids_worker_and_saves_prepared_passages(tmp_path,
     assert first["preparedPassages"] == second["preparedPassages"]
     assert second["metadata"]["processing"]["cacheHit"]
     assert not Path(calls[0]["env"]["USERPROFILE"]).exists()
+    ocr = await public_fetch.parse_download(body, "application/pdf", **options, ocr=True)
+    assert len(calls) == 2
+    assert "--ocr" not in calls[0]["args"][2]
+    assert "--ocr" in calls[1]["args"][2]
+    assert ocr["metadata"]["conversionKey"] != first["metadata"]["conversionKey"]
 
 
 @pytest.mark.asyncio

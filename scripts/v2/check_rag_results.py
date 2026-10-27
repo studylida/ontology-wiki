@@ -92,7 +92,7 @@ class ResponsesJudge:
                 except Exception as exc:
                     record["status"] = "failed"
                     record["elapsedMs"] = round((perf_counter() - started) * 1000, 2)
-                    record["usage"] = getattr(exc, "usage", record["usage"])
+                    record["usage"] = getattr(exc, "usage", None) or record["usage"]
                     record["errorCode"] = getattr(exc, "code", type(exc).__name__)
                     if response:
                         write_json(self.cache / f"{key}.failed.json", {"response": response, **record})
@@ -155,6 +155,8 @@ def main():
     data = RAGResults.from_dict({"results": results})
     started = perf_counter()
     outcome = {"sourceFile": str(args.input.resolve()), "corpusHash": source["corpusHash"],
+               "referenceHash": hashlib.sha256(args.reference.read_bytes()).hexdigest(),
+               "evaluatorHash": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                "sourceLabel": source["label"], "evaluationSplit": "user_regression_not_holdout",
                "ragcheckerVersion": importlib.metadata.version("ragchecker"),
                "refcheckerVersion": importlib.metadata.version("refchecker"),

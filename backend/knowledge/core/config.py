@@ -44,9 +44,10 @@ class Settings(BaseSettings):
     pdf_parser: Literal["legacy", "docling"] = "legacy"
     docling_python_path: str = ""
     docling_artifacts_path: str = "./var/docling-artifacts"
+    docling_ocr: bool = False
     docling_max_pages: int = Field(100, ge=1, le=500)
     docling_max_characters: int = Field(300000, ge=1000, le=2000000)
-    docling_timeout_seconds: float = Field(180.0, gt=0, le=900)
+    docling_timeout_seconds: float = Field(480.0, gt=0, le=900)
     extended_max_queries: int = Field(3, ge=0, le=12)
     extended_seconds: float = Field(15.0, gt=0)
     context_max_characters: int = Field(24000, ge=1000)

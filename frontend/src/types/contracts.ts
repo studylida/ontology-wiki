@@ -61,6 +61,7 @@ export interface Citation {
   author?: string | null;
   sourceType?: string | null;
   documentForm?: DocumentForm | null;
+  lineageKey?: string | null;
   url?: string | null;
   contextOrigin?: string | null;
   historicalMetadata?: boolean;

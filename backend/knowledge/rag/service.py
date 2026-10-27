@@ -9,7 +9,7 @@ from ..documents.repository import DocumentRepository, select_ranked_hits
 from .candidates import merge_candidates
 from .context import group_matches, select_context
 from .entities import RetrievalRun
-from .planning import context_characters, coverage, plan_requirements
+from .planning import context_characters, coverage, plan_requirements, reranking_query
 from .grounding import compose_grounding
 
 
@@ -187,11 +187,15 @@ class RetrievalService:
                 seen = {hit["passageId"] for hit in hits}
                 hits += [{key: value for key, value in h.items() if key != "neighborOf"}
                          for h in neighbors if h["passageId"] not in seen]
-            extended_elapsed = round((monotonic() - extended_start) * 1000, 2) if extended_start else None
             if enhanced:
                 if graph_manifest is not None:
                     await report("graph", "관련 개념과 관계를 따라 근거를 찾습니다.")
-                    graph_result = await self.graph_search.search(query, graph_manifest)
+                    try:
+                        graph_result = await self.graph_search.search(query, graph_manifest)
+                    except (Exception, asyncio.CancelledError) as exc:
+                        usages.extend(getattr(exc, "usage", {}).get("components", []))
+                        pipeline["graph"] = {"status": "cancelled" if isinstance(exc, asyncio.CancelledError) else "failed"}
+                        raise
                     usages.extend(graph_result.get("usage", {}).get("components", []))
                     pipeline["graph"] = {key: value for key, value in graph_result.items()
                                          if key not in ("passageIds", "usage")}
@@ -207,11 +211,13 @@ class RetrievalService:
                 pipeline["candidateCount"] = len(candidates)
                 if self.reranker is not None and candidates:
                     await report("reranking", "질문과 근거의 관련도를 다시 확인합니다.")
-                    reranked = await self.reranker.rerank(query, candidates)
+                    ranked_query = reranking_query(query, plan)
+                    reranked = await self.reranker.rerank(ranked_query, candidates)
                     candidates = reranked["hits"]
                     pipeline["reranking"] = {"status": "completed", **{key: value for key, value in reranked.items() if key != "hits"}}
+                    pipeline["reranking"]["query"] = ranked_query
                 direct_hits = select_ranked_hits(candidates, groups,
-                    max(self.settings.retrieval_limit, len(groups)))["hits"]
+                    max(self.settings.retrieval_limit, len(groups)), per_document_limit=2)["hits"]
                 async with self.session_factory() as session:
                     neighbors = await DocumentRepository(session).get_neighbors(principal,
                         [hit["passageId"] for hit in direct_hits], source_revision_ids=snapshot, source_groups=groups)
@@ -229,6 +235,7 @@ class RetrievalService:
                             raise AppError(409, "SOURCE_SNAPSHOT_CHANGED", "검색 도중 문헌 정보가 변경되었습니다. 다시 질문해 주세요.") from exc
                     if current["fingerprint"] != graph_manifest["fingerprint"]:
                         raise AppError(409, "SOURCE_SNAPSHOT_CHANGED", "검색 도중 문헌 정보가 변경되었습니다. 다시 질문해 주세요.")
+            extended_elapsed = round((monotonic() - extended_start) * 1000, 2) if extended_start else None
             await report("context", "근거의 조건·출처와 문맥 범위를 구성합니다.")
             selected = select_context(hits, self.settings.context_max_characters)
             if context_characters(hits) > self.settings.context_max_characters:
@@ -250,7 +257,8 @@ class RetrievalService:
                     and all(any(group_matches(evidence, group) for group in groups) for evidence in relation["evidence"])]
             if request.aspect:
                 source_views = [v for v in source_views if v.get("aspect") == request.aspect]
-            selected, grounding, grounding_stats = compose_grounding(hits, context.get("relations", []), source_views,
+            # Stored source views remain available through their API; generation uses source passages.
+            selected, grounding, grounding_stats = compose_grounding(hits, context.get("relations", []), [],
                                                                      self.settings.context_max_characters, groups=groups)
             async with self.session_factory() as session:
                 if not await DocumentRepository(session).ensure_readable(principal, [h["sourceRevisionId"] for h in selected]):

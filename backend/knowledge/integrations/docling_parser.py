@@ -84,6 +84,7 @@ def document_blocks(document, artifacts: Path, title: str) -> list[dict]:
         context = chunker.contextualize(chunk=chunk)
         # Headings/captions often carry the experiment condition: keep them in cited text too.
         blocks.append({"text": context, "label": ",".join(labels), "locator": locator,
+                       "headings": list(chunk.meta.headings or []),
                        "documentRefs": refs, "provenance": provenance,
                        "embeddingText": f"{title}\n\n{context}" if title else context})
     return blocks

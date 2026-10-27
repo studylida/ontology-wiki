@@ -8,6 +8,7 @@ from knowledge.integrations.providers import ProviderDelta
 from knowledge.jobs.entities import Job
 from knowledge.ontology.entities import ConceptRelation, ConceptSourceView
 from knowledge.ontology.extraction import process_ontology_job
+from knowledge.documents.parsing import model_source_metadata
 from test_rag_contract import indexed_source
 
 
@@ -31,6 +32,15 @@ class SourceContractGenerator:
         yield ProviderDelta(text=json.dumps(result, ensure_ascii=False), model=self.model)
         yield ProviderDelta(usage={"provider": "fixture", "model": self.model, "source": "fixture", "calls": 0,
             "fixtureCalls": 1, "costUsd": None, "costStatus": "fixture", "totalTokens": None})
+
+
+def test_model_metadata_excludes_old_corrections_and_local_artifact_paths():
+    stored = {"publisher": "원자료 발행처", "documentForm": "edited_derivative", "url": "https://example.org/source",
+              "editorialCorrections": ["오류였던 과거 주장"], "originalFile": "C:/private/source.md",
+              "sourceMapPath": "internal.bin", "reviewScope": "검토자용 기록"}
+    supplied = model_source_metadata(stored)
+    assert set(supplied) == {"publisher", "documentForm", "url"}
+    assert stored["editorialCorrections"] == ["오류였던 과거 주장"]
 
 
 async def setup_job(sessions, settings, principal, reviewer, embedding_client):

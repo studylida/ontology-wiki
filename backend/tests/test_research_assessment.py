@@ -42,6 +42,25 @@ def source_fakes(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_configured_pdf_ocr_is_forwarded_and_provenance_is_preserved(sessions, settings, principal, monkeypatch):
+    import knowledge.research.service as module
+    async def fetch(url, **kwargs):
+        return ORIGINAL, "application/pdf", url
+    async def parse(raw, media_type, **options):
+        assert raw == ORIGINAL and media_type == "application/pdf"
+        assert options["parser"] == "docling" and options["ocr"] is True
+        return {"title": "OCR 원문", "content": "250°C에서 관찰한 결과", "readScope": "full",
+                "metadata": {"parserProfile": {"name": "docling", "ocr": True}}, "limitations": []}
+    monkeypatch.setattr(module, "fetch_public", fetch)
+    monkeypatch.setattr(module, "parse_download", parse)
+    configured = settings.model_copy(update={"pdf_parser": "docling", "docling_ocr": True})
+    result = await ResearchService(sessions, configured, AssessmentClient({})).fetch(principal,
+        FetchRequest(url="https://example.org/source.pdf"))
+    assert result["documentForm"] == "text_extraction"
+    assert result["parserProfile"]["ocr"] is True
+
+
+@pytest.mark.asyncio
 async def test_single_sentence_limitation_is_one_item_and_effort_is_forwarded(sessions, settings, principal, monkeypatch):
     source_fakes(monkeypatch)
     sentence = "읽은 범위는 용어 정의이며 실제 공정 조건과 수율을 판단하기에는 부족합니다."

@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import case, select
 from sqlalchemy.dialects.postgresql import insert
 
 from knowledge.core.ids import new_id, utcnow
@@ -18,7 +18,8 @@ class JobRepository:
 
     async def claim(self):
         job = await self.session.scalar(select(Job).where(Job.status == "pending", Job.available_at <= utcnow())
-            .order_by(Job.available_at, Job.created_at).with_for_update(skip_locked=True).limit(1))
+            .order_by(case((Job.kind == "index", 0), else_=1), Job.available_at, Job.created_at)
+            .with_for_update(skip_locked=True).limit(1))
         if job:
             job.status, job.started_at = "running", utcnow()
             job.attempts += 1
