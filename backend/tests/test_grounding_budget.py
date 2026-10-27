@@ -70,6 +70,18 @@ def test_ranked_direct_evidence_has_priority_over_graph_expansion():
     assert len(encoded(grounding)) <= 2600
 
 
+def test_source_discrepancy_is_called_out_using_only_included_citation_aliases():
+    request = AnswerRequest(clientRequestId="discrepancy", message="실험 조건은?")
+    evidence = {"passages": [
+        {"id": "p1", "passageId": "p1", "sourceRevisionId": "r1", "text": "측정 결과"},
+        {"id": "p2", "passageId": "p2", "sourceRevisionId": "r1", "text": "원문 내부 유량 불일치: 20 sccm, 50 sccm"}],
+        "relations": [], "sourceViews": []}
+    content = build_messages(request, {"grounding": evidence}, [])[-1]["content"]
+    assert "수치 대조가 필요한 근거: E2" in content
+    assert "서로 다른 실험이면 구분" in content
+    assert "수치 대조가 필요한 근거" not in build_messages(request, {"grounding": {"passages": evidence["passages"][:1]}}, [])[-1]["content"]
+
+
 def test_graph_does_not_shrink_budget_for_direct_search_passages():
     hits = [{"id": f"p{i}", "passageId": f"p{i}", "sourceRevisionId": f"r{i}", "text": "a" * 300} for i in range(4)]
     reference = {"id": "g", "passageId": "g", "sourceRevisionId": "gr", "excerpt": "b" * 300}

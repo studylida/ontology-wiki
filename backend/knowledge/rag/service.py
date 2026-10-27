@@ -7,10 +7,42 @@ from ..core.ids import new_id
 from ..core.usage import summarize_usage, unknown_usage
 from ..documents.repository import DocumentRepository, select_ranked_hits
 from .candidates import merge_candidates
-from .context import group_matches, select_context
+from .context import conflict_companions, experiment_companions, group_matches, prioritize_conflict_notes, select_context
 from .entities import RetrievalRun
 from .planning import context_characters, coverage, plan_requirements, reranking_query
 from .grounding import compose_grounding
+
+
+async def relevant_relations(reranker, query, anchors, relations):
+    """Compare relation evidence with direct search evidence; preserve stored relations."""
+    considered = relations
+    direct_ids = {h["passageId"] for h in anchors}
+    scoring = []
+    seen = set()
+    for hit in anchors:
+        if hit["passageId"] not in seen and len(scoring) < 5:
+            scoring.append(hit)
+            seen.add(hit["passageId"])
+    for card in considered:
+        for ref in card.get("evidence", []):
+            if ref["passageId"] not in seen and len(scoring) < 80 and ref.get("excerpt"):
+                scoring.append({**ref, "text": ref["excerpt"]})
+                seen.add(ref["passageId"])
+    eligible = set(direct_ids)
+    ranked = None
+    if anchors and reranker is not None and any(hit["passageId"] not in direct_ids for hit in scoring):
+        # shortcut: rank only the first 4,000 characters; re-chunk long evidence if this omits relevant context.
+        ranked = await reranker.rerank(query, [{**hit, "text": hit["text"][:4000]} for hit in scoring])
+        eligible.update(hit["passageId"] for hit in ranked["hits"][:max(2, min(5, len(anchors)))])
+    kept = [card for card in considered if card.get("evidence") and
+            all(ref["passageId"] in eligible for ref in card["evidence"])]
+    reference_ids = {ref["passageId"] for card in considered for ref in card.get("evidence", [])}
+    stats = {"status": "ranked" if ranked is not None else "direct_evidence_only",
+             "considered": len(considered), "kept": len(kept),
+             "unscoredEvidence": len(reference_ids - seen - direct_ids)}
+    if ranked is not None:
+        stats["elapsedMs"] = ranked.get("elapsedMs")
+    return kept, stats
 
 
 class RetrievalService:
@@ -187,12 +219,17 @@ class RetrievalService:
                     pipeline["reranking"]["query"] = ranked_query
                 direct_hits = select_ranked_hits(candidates, groups,
                     max(self.settings.retrieval_limit, len(groups)), per_document_limit=2)["hits"]
+                companions = experiment_companions(candidates, direct_hits)
+                pipeline["experimentCompanions"] = {"count": len(companions)}
+                conflict_notes = conflict_companions(candidates, direct_hits + companions)
+                pipeline["sourceDiscrepancyNotes"] = {"count": len(conflict_notes)}
                 async with self.session_factory() as session:
                     neighbors = await DocumentRepository(session).get_neighbors(principal,
                         [hit["passageId"] for hit in direct_hits], source_revision_ids=snapshot, source_groups=groups)
                 order = {hit["passageId"]: index for index, hit in enumerate(direct_hits)}
                 neighbors.sort(key=lambda hit: min(order[origin] for origin in hit["neighborOf"]))
-                hits = private_context + direct_hits
+                neighbors = prioritize_conflict_notes(neighbors)
+                hits = private_context + direct_hits + companions + conflict_notes
                 seen = {hit["passageId"] for hit in hits}
                 hits += [{key: value for key, value in hit.items() if key != "neighborOf"}
                          for hit in neighbors if hit["passageId"] not in seen]
@@ -218,6 +255,9 @@ class RetrievalService:
                     and all(any(group_matches(evidence, group) for group in groups) for evidence in relation["evidence"])]
             if request.aspect:
                 source_views = [v for v in source_views if v.get("aspect") == request.aspect]
+            anchors = private_context + direct_hits + (companions if enhanced else [])
+            context["relations"], pipeline["relationRelevance"] = await relevant_relations(
+                self.reranker, query, anchors, context.get("relations", []))
             # Stored source views remain available through their API; generation uses source passages.
             selected, grounding, grounding_stats = compose_grounding(hits, context.get("relations", []), [],
                                                                      self.settings.context_max_characters, groups=groups)

@@ -1,5 +1,6 @@
 import json
 from ..core.errors import AppError
+from ..rag.context import numeric_conflict_note
 from .citations import alias_grounding
 
 
@@ -35,6 +36,11 @@ def build_messages(request, retrieval, history, *, max_characters=64000):
         "조건 → 결과와 그 의미 순서입니다. 수치는 무엇을 잰 값인지 풀어 주세요. "
         "이해에 꼭 필요한 전문 용어는 현재 근거가 뒷받침하는 쉬운 뜻을 붙이고, 불필요한 시편 코드나 장비 세부사항은 생략하세요. "
         "일반 지식과 특정 실험의 결과는 각각 문단을 나누고 전환을 밝히세요. 관찰 결과와 그 원인에 대한 연구의 해석을 구분하세요.\n"
+        "[조건과 수치 대조] 제시할 실험 결과는 같은 실험의 시편·공정·측정 조건과 함께 설명하세요. "
+        "질문에 중요한 같은 연구의 같은 조건·변수에 관해 근거가 서로 다른 값을 제시하면 각 값과 위치를 함께 밝히고 "
+        "확인되지 않은 이유는 미확인으로 남기세요. 서로 다른 시편·시간·단위·실측과 예측은 조건별로 구분하여 설명하세요. "
+        "답에 사용하는 실험의 공정 조건에 대해 원문 내부에서 수치가 다르다고 지적한 근거가 있으면 각 값과 원문의 위치를 짧게 밝히고 어느 값이 맞는지 미확인이라고 쓰세요. "
+        "정량 비교는 제시할 값과 그 비교에 필요한 조건을 중심으로 설명하고, 다른 실험은 질문과 직접 연결될 때만 해당 항목에서 설명하세요.\n"
         "[한계의 위치] 설명을 바꾸는 핵심 한계만 해당 결과 바로 뒤에 짧게 한 번 쓰세요. "
         "사용자가 정량 비교를 요청하면 먼저 비교 가능한 수치를 제시하고, 필요한 비교 조건의 미확인 부분은 표 아래 한 문단에서만 설명하세요. "
         "그 밖의 항목은 확인된 정성적 차이로 답하세요. 수치를 요청하지 않은 항목의 수치 부재, 사용하지 않은 연구·지표, "
@@ -50,9 +56,15 @@ def build_messages(request, retrieval, history, *, max_characters=64000):
     )
     evidence = alias_grounding(retrieval)
     coverage = {"groups": retrieval.get("groupCoverage", [])}
+    discrepancy_ids = [passage["id"] for passage in evidence.get("passages", [])
+                       if passage.get("id") and numeric_conflict_note(passage)]
+    review = ("\n\n수치 대조가 필요한 근거: " + ", ".join(discrepancy_ids) + ". "
+              "이 근거가 답변에서 설명하는 실험의 조건에 해당하면 두 값과 원문 위치, 미확인 상태를 "
+              "조건 바로 뒤에 한 문장으로 설명하고 해당 근거를 인용하세요. 서로 다른 실험이면 구분하세요."
+              if discrepancy_ids else "")
     current = {"role": "user", "content": request.message + "\n\nEVIDENCE_JSON\n" +
         json.dumps(evidence, ensure_ascii=False, separators=(",", ":")) + "\nCOVERAGE_JSON\n" +
-        json.dumps(coverage, ensure_ascii=False, separators=(",", ":"))}
+        json.dumps(coverage, ensure_ascii=False, separators=(",", ":")) + review}
     used = len(system) + len(current["content"])
     if used > max_characters:
         raise AppError(422, "INPUT_CONTEXT_TOO_LARGE", "질문과 근거가 입력 문맥 한도를 넘었습니다. 질문이나 선택 범위를 줄여 주세요.")
