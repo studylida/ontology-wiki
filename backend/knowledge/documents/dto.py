@@ -4,6 +4,8 @@ from pydantic import Field
 
 from knowledge.core.dto import DTO
 
+DocumentForm = Literal["original", "editorial_summary", "edited_derivative", "text_extraction", "unknown"]
+
 
 class NewDocument(DTO):
     title: str = Field(min_length=1, max_length=500)
@@ -16,6 +18,7 @@ class NewDocument(DTO):
     attributed_to: str | None = Field(None, max_length=500)
     attribution_basis: str = Field("unknown", max_length=500)
     source_type: str = Field("unknown", max_length=80)
+    document_form: DocumentForm | None = None
     published_at: str | None = Field(None, max_length=40)
     visibility: Literal["private", "shared_candidate"] = "private"
 
@@ -32,6 +35,7 @@ class MetadataPatch(DTO):
     attributed_to: str | None = Field(None, max_length=500)
     attribution_basis: str | None = Field(None, max_length=500)
     source_type: str | None = Field(None, max_length=80)
+    document_form: DocumentForm | None = None
     published_at: str | None = Field(None, max_length=40)
 
 

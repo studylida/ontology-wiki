@@ -131,6 +131,8 @@ GET·카드 펼침은 모델을 호출하지 않습니다. 출처가 철회됐�
 | POST /jobs/{id}/cancel | 진행/대기 작업의 명시적 취소 |
 | POST /jobs/{id}/retry | 실패/취소 작업의 명시적 재시도 |
 
+문헌 생성·메타데이터 정정의 선택 필드 `documentForm`은 저장된 자료의 형태(`original`, `editorial_summary`, `edited_derivative`, `text_extraction`, `unknown`)를 표시합니다. 원자료의 분류인 `sourceType`과는 별개이며 인용과 관점에도 전달됩니다. 생성 시 선택하지 않았다면 Markdown front matter의 허용된 `document_form` 선언 또는 `editorial_derivative: true`를 표시용으로 읽고, 선언이나 선택이 없으면 미확인으로 둡니다. 이 선언은 내용·권리의 검증이나 승인을 뜻하지 않습니다. 이전 자료의 `sourceType`이 `editorial_summary` 또는 `research_article_text_extraction`인 경우 화면은 이전 값으로 형태를 표시합니다.
+
 원문과 벡터 자체를 편집하는 위키 목차 UI는 없습니다. 리뷰어 역할과 시스템 관리자 역할을 구분합니다. `documents:review`가 문헌 검토를, `jobs:manage`가 공용 색인 작업을 허용합니다.
 
 ## 외부 조사와 개인 위키

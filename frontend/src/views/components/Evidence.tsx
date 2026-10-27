@@ -15,7 +15,7 @@ import type {
   SourceView,
 } from "../../types/contracts";
 import { useSourceViewsController } from "../../controllers/useSourceController";
-import { formatDate } from "../../services/display";
+import { documentFormLabel, formatDate } from "../../services/display";
 import { Badge, ErrorNotice, Loading } from "./Primitives";
 
 export function GroupCoverageList({
@@ -104,7 +104,8 @@ export function CitationList({
             <summary>
               <strong>{first.title || "제목 미확인 문헌"}</strong>
               <span>
-                {first.sourceType === "editorial_summary" ? "편집 요약 · " : ""}
+                {first.historicalMetadata ? "과거 등록 정보 · " : ""}
+                {documentFormLabel(first.documentForm, first.sourceType)} · {""}
                 {first.publisher ? `${first.publisher} · ` : ""}{entries.length}개 구간
               </span>
             </summary>
@@ -376,7 +377,7 @@ export function SourceViewCards({
           <p className="view-byline">
             발행처 {view.publisher || "미확인"}
             {view.author ? ` · 저자 ${view.author}` : " · 저자 미확인"} ·{" "}
-            {formatDate(view.publishedAt)}
+            {formatDate(view.publishedAt)} · {documentFormLabel(view.documentForm, view.sourceType)}
           </p>
           <p>{view.summary}</p>
           {view.conditions && (

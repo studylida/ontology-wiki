@@ -39,6 +39,14 @@ const relation: Relation = {
 };
 
 describe("relation exploration boundaries", () => {
+  it("shows stored document form separately from original source type", () => {
+    render(<CitationList citations={[{ ...citation, sourceType: "manufacturer_glossary", documentForm: "edited_derivative" }]} onOpen={vi.fn()} />);
+    expect(screen.getByText(/편집본 · 테스트 발행처/)).toBeTruthy();
+  });
+  it("identifies source form from historical metadata", () => {
+    render(<CitationList citations={[{ ...citation, sourceType: "editorial_summary", historicalMetadata: true }]} onOpen={vi.fn()} />);
+    expect(screen.getByText(/과거 등록 정보 · 편집 요약/)).toBeTruthy();
+  });
   it("groups passages by revision while preserving inline citation numbers and earlier-answer provenance", () => {
     const onOpen = vi.fn();
     const other = { ...citation, id: "C2", passageId: "p2", sourceRevisionId: "r2", title: "다른 판본" };
@@ -134,6 +142,7 @@ describe("source viewpoint filters", () => {
       attributedTo: "외부 저자",
       attributionBasis: "author_byline",
       sourceType: "column",
+      documentForm: "edited_derivative",
       aspect: "조건",
       summary: "첫 관점",
       status: "supported",
@@ -162,6 +171,7 @@ describe("source viewpoint filters", () => {
     expect(section?.open).toBe(false);
     fireEvent.click(screen.getByText("자료에서 정리한 관점"));
     expect(section?.open).toBe(true);
+    expect(screen.getAllByText(/편집본/).length).toBeGreaterThan(0);
     expect(screen.getByText(/출처와 항목을 기준으로 비교 질문 초안을 준비합니다/)).toBeTruthy();
     fireEvent.change(screen.getByRole("combobox", { name: "발행처 필터" }), {
       target: { value: "p1" },

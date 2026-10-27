@@ -87,6 +87,8 @@ class RetrievalService:
                 await report("extended", "부족한 측면과 주변 구간을 추가 확인합니다.")
                 extended_start = monotonic()
                 stop_reason = "query_budget"
+                initial_hit_count = len(hits)
+                found_new = False
 
                 async def within_budget(operation):
                     remaining = self.settings.extended_seconds - (monotonic() - extended_start)
@@ -100,14 +102,15 @@ class RetrievalService:
                         return await DocumentRepository(session).get_neighbors(principal,
                             [h["passageId"] for h in hits], source_revision_ids=snapshot, source_groups=groups)
 
+                neighbor_hits = []
                 try:
                     if context_characters(hits) < self.settings.context_max_characters:
-                        hits += [{key: value for key, value in h.items() if key != "neighborOf"}
-                                 for h in await within_budget(neighbors)]
+                        neighbor_hits = [{key: value for key, value in h.items() if key != "neighborOf"}
+                                         for h in await within_budget(neighbors)]
                     # Literal mentions do not establish answerable conditions or
                     # numbers. Prioritize missing signals, but do not skip the
                     # remaining queries or claim sufficiency from word matches.
-                    states = {state["id"]: state for state in coverage(plan, hits)}
+                    states = {state["id"]: state for state in coverage(plan, hits + neighbor_hits)}
                     search_plan = sorted(plan, key=lambda item: states[item["id"]]["status"] != "unknown")
                     for item in search_plan:
                         if context_characters(hits) >= self.settings.context_max_characters:
@@ -119,20 +122,25 @@ class RetrievalService:
                         if not snapshot:
                             stop_reason = "no_searchable_sources"
                             break
-                        old_ids = {h["passageId"] for h in hits}
+                        old_ids = {h["passageId"] for h in hits + neighbor_hits}
                         extra_count += 1
                         extra_result = await within_budget(lambda: execute_query(item["query"], item["id"]))
                         hits += extra_result["hits"]
-                        if not any(h["passageId"] not in old_ids for h in extra_result["hits"]):
-                            stop_reason = "no_new_evidence"
-                            break
+                        found_new |= any(h["passageId"] not in old_ids for h in extra_result["hits"])
                     else:
-                        stop_reason = "planned_queries_exhausted"
+                        stop_reason = "planned_queries_exhausted" if found_new or not extra_count else "no_new_evidence"
                 except TimeoutError:
                     stop_reason = "time_budget"
                     warnings.append("추가 탐색 시간 예산이 끝나 이미 확보한 근거로 답변합니다.")
                     if query_log and query_log[-1]["status"] == "interrupted":
                         query_log[-1]["status"] = "time_budget"
+                # Let follow-up results and neighboring conditions share the remaining context.
+                extra_hits, hits = hits[initial_hit_count:], hits[:initial_hit_count]
+                for i in range(max(len(extra_hits), len(neighbor_hits))):
+                    if i < len(extra_hits):
+                        hits.append(extra_hits[i])
+                    if i < len(neighbor_hits):
+                        hits.append(neighbor_hits[i])
             else:
                 async with self.session_factory() as session:
                     neighbors = await DocumentRepository(session).get_neighbors(principal,

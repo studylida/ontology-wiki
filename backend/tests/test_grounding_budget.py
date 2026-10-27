@@ -10,13 +10,14 @@ def test_relation_and_source_view_evidence_share_one_deduplicated_budget():
     relations = [{"id": f"rel{i}", "fromConceptId": "A", "toConceptId": f"B{i}", "type": "alternative_to",
                   "summary": "특정 조건에서의 대안", "conditions": "온도와 장비가 같은 경우", "evidence": [hits[i], hits[i + 1]]}
                  for i in range(12)]
-    views = [{"id": f"view{i}", "conceptId": "A", "sourceRevisionId": f"r{i}", "summary": "작성자의 해석",
+    views = [{"id": f"view{i}", "conceptId": "A", "sourceRevisionId": f"r{i}", "summary": "작성자의 해석", "documentForm": "edited_derivative",
               "conditions": "문헌에 명시된 범위", "evidence": [hits[i]]} for i in range(16)]
     selected, grounding, stats = compose_grounding(hits[:4], relations, views, 12000)
     assert len(encoded(grounding)) <= 12000
     assert len({h["passageId"] for h in selected}) == len(selected)
     assert any("relation_evidence" in hit.get("methods", []) for hit in selected)
     assert stats["relations"] > 0 or stats["sourceViews"] > 0
+    assert all(view["documentForm"] == "edited_derivative" for view in grounding["sourceViews"])
     assert all("evidence" not in card for card in grounding["relations"] + grounding["sourceViews"])
     ids = {hit["passageId"] for hit in selected}
     assert all(ref["passageId"] in ids for card in grounding["relations"] + grounding["sourceViews"] for ref in card["evidenceRefs"])

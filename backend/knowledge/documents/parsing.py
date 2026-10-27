@@ -42,6 +42,16 @@ def frontmatter(text: str) -> dict:
         return {}
 
 
+def declared_document_form(text: str) -> str | None:
+    data = frontmatter(text)
+    value = data.get("document_form")
+    if isinstance(value, str) and value in {
+        "original", "editorial_summary", "edited_derivative", "text_extraction", "unknown"
+    }:
+        return value
+    return "edited_derivative" if data.get("editorial_derivative") is True else None
+
+
 def segment(text: str, title: str, *, max_chars: int = 1400, overlap: int = 150) -> list[ParsedPassage]:
     # CRLF front matter is recognized without normalizing the source body/offsets.
     front = re.match(r"\A---\r?\n.*?\r?\n---(?:\r?\n|$)", text, re.S)

@@ -3,7 +3,7 @@ from sqlalchemy import select, update
 from knowledge.core.errors import AppError
 from knowledge.core.ids import new_id, utcnow
 from knowledge.documents.entities import Document, DocumentAttachment, DocumentRevision, MetadataHistory, Passage, ReviewDecision
-from knowledge.documents.parsing import digest, metadata_digest, save_raw, segment
+from knowledge.documents.parsing import declared_document_form, digest, metadata_digest, save_raw, segment
 from knowledge.documents.repository import DocumentRepository, is_reviewer, read_scope
 from knowledge.jobs.repository import JobRepository
 
@@ -45,9 +45,13 @@ class DocumentService:
             previous = await session.get(DocumentRevision, doc.current_revision_id)
             if previous.content_hash == digest(request.content):
                 return document_dict(doc, previous)
+            metadata = dict(previous.metadata_json)
+            declared_form = declared_document_form(request.content)
+            if declared_form is not None and declared_form != declared_document_form(previous.content):
+                metadata["documentForm"] = declared_form
             rev = DocumentRevision(id=new_id("rev"), document_id=doc.id, revision=previous.revision + 1,
                 content=request.content, content_hash=digest(request.content), raw_path=raw_path,
-                metadata_json=previous.metadata_json, metadata_hash=previous.metadata_hash,
+                metadata_json=metadata, metadata_hash=metadata_digest(metadata),
                 review_status="private" if doc.visibility == "private" else "pending")
             session.add(rev)
             await session.flush()

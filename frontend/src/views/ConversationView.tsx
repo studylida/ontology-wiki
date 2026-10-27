@@ -348,7 +348,7 @@ export function ConversationView({
                   key={id}
                   title={
                     state.draft.documentContextIds.includes(id)
-                      ? "현재 대화에서 읽는 원문 · 공용 색인 반영과 별개"
+                      ? "현재 대화에서 읽는 자료 · 공용 색인 반영과 별개"
                       : "공용 검색 범위를 좁히는 자료"
                   }
                 >

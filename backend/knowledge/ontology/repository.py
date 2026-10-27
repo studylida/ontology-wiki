@@ -159,7 +159,7 @@ class OntologyRepository:
                 continue
             attribution = {k: view.attribution.get(k) for k in ("publisher", "publisherId", "author", "attributedTo", "attributionBasis", "sourceType")}
             result.append({"id": view.id, "conceptId": view.concept_id, "sourceRevisionId": rev.id,
-                **attribution, "aspect": view.aspect, "summary": view.summary,
+                **attribution, "documentForm": rev.metadata_json.get("documentForm"), "aspect": view.aspect, "summary": view.summary,
                 "conditions": view.conditions, "publishedAt": rev.metadata_json.get("publishedAt"),
                 "status": view.extraction_status, "evidence": evidence,
                 "metadataVersion": view.metadata_version, "extractedAt": view.created_at.isoformat(),

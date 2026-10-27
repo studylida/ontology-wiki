@@ -127,9 +127,9 @@ export function useReviewController(active: boolean) {
     setBusy(true);
     setError(null);
     try {
-      const { publisher, publisherId, author, attributedTo, attributionBasis, sourceType, publishedAt } = metadata;
+      const { publisher, publisherId, author, attributedTo, attributionBasis, sourceType, documentForm, publishedAt } = metadata;
       await documentRepository.metadata(revision.id, {
-        publisher, publisherId, author, attributedTo, attributionBasis, sourceType, publishedAt,
+        publisher, publisherId, author, attributedTo, attributionBasis, sourceType, documentForm, publishedAt,
       });
       const latest = await documentRepository.revision(revision.id);
       setRevision(latest);

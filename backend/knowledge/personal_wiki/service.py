@@ -112,7 +112,8 @@ async def _canonical_evidence(documents, principal, evidence):
                 "title": document.title, "locator": "문헌 단위 근거 · 구간 참조 미확인",
                 "excerpt": revision.content[:2000], "referenceStatus": "document_only",
                 "publisher": meta.get("publisher"), "author": meta.get("author"),
-                "url": meta.get("url"), "sourceType": meta.get("sourceType", "unknown")}
+                "url": meta.get("url"), "sourceType": meta.get("sourceType", "unknown"),
+                "documentForm": meta.get("documentForm")}
     return result
 
 

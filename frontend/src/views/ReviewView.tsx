@@ -13,9 +13,9 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
-import type { DocumentMetadata, ReviewStatus } from "../types/contracts";
+import type { DocumentForm, DocumentMetadata, ReviewStatus } from "../types/contracts";
 import type { useReviewController } from "../controllers/useReviewController";
-import { indexLabel, reviewLabel } from "../services/display";
+import { documentFormLabels, indexLabel, reviewLabel } from "../services/display";
 import {
   Badge,
   EmptyState,
@@ -313,6 +313,14 @@ export function ReviewView({
                     {metadataField("author", "저자")}
                     {metadataField("attributedTo", "관점 귀속 주체")}
                     {metadataField("sourceType", "출처 유형")}
+                    <label className="field">
+                      저장된 자료의 형태
+                      <select value={review.metadata.documentForm || "unknown"} onChange={(event) =>
+                        review.setMetadata({ ...review.metadata, documentForm: event.target.value as DocumentForm })}>
+                        {Object.entries(documentFormLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                      </select>
+                      <small>원자료의 출처 유형과 구분해 선택합니다.</small>
+                    </label>
                     {metadataField(
                       "publishedAt",
                       "발행 날짜",

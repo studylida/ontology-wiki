@@ -7,13 +7,41 @@ from knowledge.core.errors import AppError
 from knowledge.core.ids import new_id
 from knowledge.documents.dto import MetadataPatch, NewDocument, NewRevision, ReviewRequest
 from knowledge.documents.entities import Document, DocumentRevision, EmbeddingRecord, Passage
-from knowledge.documents.repository import DocumentRepository
+from knowledge.documents.repository import DocumentRepository, citation_dict
 from knowledge.documents.service import DocumentService
 from knowledge.jobs.entities import Job
 from knowledge.jobs.indexing import enqueue_index, process_index_job, schedule_daily
 from knowledge.integrations.providers import FixtureEmbeddingClient
 from knowledge.ontology.entities import Concept, ConceptSourceView
 from knowledge.ontology.repository import OntologyRepository
+
+
+@pytest.mark.asyncio
+async def test_document_form_survives_ingestion_citation_and_revision(sessions, settings, reviewer):
+    service = DocumentService(sessions, settings)
+    text = '---\ndocument_form: edited_derivative\n---\n# 편집본\n수정한 내용'
+    doc = await service.create(reviewer, NewDocument(title="편집본", content=text, sourceType="manufacturer_glossary"))
+    revision_id = doc["currentRevisionId"]
+    async with sessions() as session:
+        repo = DocumentRepository(session)
+        rev, document = await repo.revision(reviewer, revision_id)
+        passage = await session.scalar(select(Passage).where(Passage.source_revision_id == revision_id))
+        cite = citation_dict(passage, rev, document)
+        assert cite["sourceType"] == "manufacturer_glossary"
+        assert cite["documentForm"] == "edited_derivative"
+    await service.patch_metadata(reviewer, revision_id, MetadataPatch(documentForm="editorial_summary"))
+    assert (await service.detail(reviewer, revision_id))["metadata"]["documentForm"] == "editorial_summary"
+    explicit = await service.create(reviewer, NewDocument(title="명시적 유형", content=text, documentForm="unknown"))
+    assert (await service.detail(reviewer, explicit["currentRevisionId"]))["metadata"]["documentForm"] == "unknown"
+    invalid = await service.create(reviewer, NewDocument(title="미확인 유형", content="---\ndocument_form: [not, valid]\n---\n본문"))
+    assert (await service.detail(reviewer, invalid["currentRevisionId"]))["metadata"]["documentForm"] is None
+    legacy = await service.create(reviewer, NewDocument(title="HDD 편집본", content="---\nsource_type: manufacturer_glossary\neditorial_derivative: true\n---\n본문"))
+    assert (await service.detail(reviewer, legacy["currentRevisionId"]))["metadata"]["documentForm"] == "edited_derivative"
+    non_boolean = await service.create(reviewer, NewDocument(title="문자 선언", content='---\neditorial_derivative: "true"\n---\n본문'))
+    assert (await service.detail(reviewer, non_boolean["currentRevisionId"]))["metadata"]["documentForm"] is None
+    new = await service.add_revision(reviewer, doc["id"], NewRevision(content=text + "\n새 판본"))
+    assert (await service.detail(reviewer, new["currentRevisionId"]))["metadata"]["documentForm"] == "editorial_summary"
+    assert (await service.detail(reviewer, revision_id))["metadata"]["documentForm"] == "editorial_summary"
 
 
 async def approve_and_queue(sessions, settings, reviewer, embedding, *, publisher="test_publisher", content="테스트용 공정 원문. 식각은 조건에 따라 재료를 제거한다."):

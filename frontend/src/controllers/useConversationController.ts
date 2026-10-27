@@ -409,7 +409,7 @@ export function useConversationController(
       },
     });
     setNotice(
-      "문헌을 다음 질문의 자료로 추가했습니다. 질문을 보내면 이 원문을 함께 확인합니다.",
+      "문헌을 다음 질문의 자료로 추가했습니다. 질문을 보내면 이 자료를 함께 확인합니다.",
     );
   }, []);
   const attachResearch = useCallback(

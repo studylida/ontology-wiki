@@ -18,12 +18,13 @@ import {
 import { useSettingsController } from "../controllers/useSettingsController";
 import type {
   Concept,
+  DocumentForm,
   DocumentSummary,
   GenerationConfig,
   SourceGroup,
   User,
 } from "../types/contracts";
-import { indexLabel, reviewLabel } from "../services/display";
+import { documentFormLabels, indexLabel, reviewLabel } from "../services/display";
 import {
   publisherOptions,
   setPublisherGroup,
@@ -317,13 +318,13 @@ export function UploadDialog({
   return (
     <Modal
       title="문헌 등록"
-      eyebrow="원문부터 시작하기"
+      eyebrow="자료 등록"
       onClose={onClose}
       className="wide-modal"
     >
       <div className="modal-body">
         <p className="muted">
-          텍스트 또는 Markdown 원문을 등록합니다. 저장 후 현재 대화에 바로
+          텍스트 또는 Markdown 자료를 등록합니다. 저장 후 현재 대화에 바로
           추가할 수 있습니다.
         </p>
         <label className="file-upload">
@@ -345,17 +346,26 @@ export function UploadDialog({
           />
         </label>
         <label className="field">
-          원문 본문
+          저장할 본문
           <textarea
             rows={10}
             value={upload.values.content}
             onChange={(event) => upload.patch({ content: event.target.value })}
-            placeholder="확인한 원문 텍스트를 붙여 넣어 주세요."
+            placeholder="등록할 본문을 붙여 넣어 주세요."
           />
         </label>
         <details className="upload-metadata">
           <summary>출처 정보 추가</summary>
           <div className="form-grid">
+            <label className="field">
+              저장된 자료의 형태
+              <select value={upload.values.documentForm || ""} onChange={(event) =>
+                upload.patch({ documentForm: (event.target.value || null) as DocumentForm | null })}>
+                <option value="">파일의 선언 사용 또는 미확인</option>
+                {Object.entries(documentFormLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+              </select>
+              <small>편집본과 원자료를 구분합니다. 파일의 선언은 검토가 필요합니다.</small>
+            </label>
             <label className="field wide">
               원문 URL
               <input

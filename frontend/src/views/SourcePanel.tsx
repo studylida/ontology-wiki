@@ -9,6 +9,7 @@ import {
 import type { useSourceController } from "../controllers/useSourceController";
 import {
   formatDate,
+  documentFormLabel,
   indexLabel,
   readScopeLabel,
   reviewLabel,
@@ -28,12 +29,14 @@ export function SourcePanel({
   if (!source.selection) return null;
   const revision = source.revision;
   const citation = source.selection.citation;
-  const isSummary = revision?.metadata.sourceType === "editorial_summary" ||
-    (!revision?.metadata.sourceType && citation?.sourceType === "editorial_summary");
+  const formLabel = revision
+    ? documentFormLabel(revision.metadata.documentForm, revision.metadata.sourceType)
+    : documentFormLabel(citation?.documentForm, citation?.sourceType);
+  const isDerived = ["편집 요약", "편집본", "원문 텍스트 추출본"].includes(formLabel);
   const url = safeUrl(revision?.metadata.url || citation?.url);
   return (
     <Modal
-      title={isSummary ? "편집 요약과 근거" : "자료와 근거"}
+      title={isDerived ? `${formLabel}과 근거` : "자료와 근거"}
       eyebrow="SOURCE READER"
       onClose={source.close}
       className="source-panel"
@@ -47,7 +50,8 @@ export function SourcePanel({
             {revision && (
               <>
                 <h3 className="source-title">{revision.title}</h3>
-                {isSummary && <p className="fine-print">저장된 자료는 편집 요약입니다. 연결된 원문과 구분해 확인하세요.</p>}
+                <p className="fine-print">자료 형태: {formLabel}. {isDerived ? "저장된 자료를 연결된 원문과 구분해 확인하세요." : "등록 정보이며 검증 결과가 아닙니다."}</p>
+                {isDerived && <p className="fine-print">연결된 링크는 인용 구간의 개별 근거와 다를 수 있습니다. 개별 근거의 출처는 저장된 본문에서 확인하세요.</p>}
                 <div className="badge-row">
                   <Badge tone="blue">
                     {readScopeLabel[revision.readScope] || revision.readScope}
@@ -97,7 +101,7 @@ export function SourcePanel({
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {isSummary ? "연결된 원문 링크 열기" : "발행처에서 열기"} <ExternalLink size={13} />
+                      {isDerived ? "자료에 연결된 링크 열기" : "발행처에서 열기"} <ExternalLink size={13} />
                     </a>
                   )}
                   <button

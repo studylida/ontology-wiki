@@ -9,14 +9,14 @@ def encoded(value):
 
 def project_hit(hit):
     keys = ("id", "passageId", "sourceRevisionId", "title", "locator", "text", "publisher", "publisherId",
-            "author", "attributedTo", "attributionBasis", "sourceType", "readScope", "metadataVersion", "contextTruncated")
+            "author", "attributedTo", "attributionBasis", "sourceType", "documentForm", "readScope", "metadataVersion", "contextTruncated")
     return {key: hit[key] for key in keys if key in hit}
 
 
 def project_card(card, *, relation):
     keys = ("id", "fromConceptId", "toConceptId", "fromName", "toName", "type", "summary", "conditions", "status") if relation else (
         "id", "conceptId", "sourceRevisionId", "publisher", "publisherId", "author", "attributedTo", "attributionBasis",
-        "sourceType", "aspect", "summary", "conditions", "status", "metadataVersion")
+        "sourceType", "documentForm", "aspect", "summary", "conditions", "status", "metadataVersion")
     result = {key: card[key] for key in keys if key in card}
     result["evidenceRefs"] = [{"passageId": e["passageId"], "sourceRevisionId": e["sourceRevisionId"]}
                               for e in card.get("evidence", [])]

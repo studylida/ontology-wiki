@@ -24,6 +24,19 @@ export function safeUrl(value?: string | null): string | undefined {
     return undefined;
   }
 }
+export const documentFormLabels = {
+  unknown: "형태 미확인",
+  original: "원문",
+  editorial_summary: "편집 요약",
+  edited_derivative: "편집본",
+  text_extraction: "원문 텍스트 추출본",
+} as const;
+export function documentFormLabel(form?: string | null, sourceType?: string | null) {
+  if (form && Object.prototype.hasOwnProperty.call(documentFormLabels, form)) return documentFormLabels[form as keyof typeof documentFormLabels];
+  if (sourceType === "editorial_summary") return documentFormLabels.editorial_summary;
+  if (sourceType === "research_article_text_extraction") return documentFormLabels.text_extraction;
+  return documentFormLabels.unknown;
+}
 export const reviewLabel: Record<string, string> = {
   pending: "검토 대기",
   approved: "승인",

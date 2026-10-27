@@ -17,7 +17,8 @@ from test_rag_contract import indexed_source
 
 @pytest.mark.asyncio
 async def test_metadata_correction_marks_history_and_removes_stale_cards_from_replay(app, sessions, settings, principal, reviewer, embedding_client):
-    source = await indexed_source(sessions, settings, principal, reviewer, embedding_client)
+    source = await indexed_source(sessions, settings, principal, reviewer, embedding_client,
+        text="---\neditorial_derivative: true\n---\nDRAM capacitor stores charge.")
     async with sessions() as session, session.begin():
         revision = await session.get(DocumentRevision, source["currentRevisionId"])
         passage = await session.scalar(select(Passage).where(Passage.source_revision_id == revision.id))
@@ -34,6 +35,7 @@ async def test_metadata_correction_marks_history_and_removes_stale_cards_from_re
     await asyncio.wait_for(answers.runtimes[handle["runId"]].task, 10)
     original = await answers.get(principal, handle["runId"])
     assert len(original["message"]["sourceViews"]) == 1
+    assert original["message"]["sourceViews"][0]["documentForm"] == "edited_derivative"
     await DocumentService(sessions, settings).patch_metadata(reviewer, source["currentRevisionId"],
         MetadataPatch(author="외부 기고자", attributedTo="외부 기고자", attributionBasis="author_byline"))
     protected = await answers.get(principal, handle["runId"])

@@ -1,5 +1,6 @@
 /** Public API DTOs. See docs/design/CONTRACT.md; these are contracts, not an execution layer. */
 export type ResponseMode = "wiki" | "analysis";
+export type DocumentForm = "original" | "editorial_summary" | "edited_derivative" | "text_extraction" | "unknown";
 export type RunStatus =
   "queued" | "running" | "completed" | "failed" | "cancelled" | "interrupted";
 export interface ListResult<T> {
@@ -59,8 +60,10 @@ export interface Citation {
   publisherId?: string | null;
   author?: string | null;
   sourceType?: string | null;
+  documentForm?: DocumentForm | null;
   url?: string | null;
   contextOrigin?: string | null;
+  historicalMetadata?: boolean;
 }
 export interface Relation {
   id: string;
@@ -84,6 +87,7 @@ export interface SourceView {
   attributedTo?: string | null;
   attributionBasis: string;
   sourceType: string;
+  documentForm?: DocumentForm | null;
   aspect: string;
   summary: string;
   conditions?: string | null;
@@ -228,6 +232,7 @@ export interface DocumentMetadata {
   attributedTo?: string | null;
   attributionBasis?: string | null;
   sourceType?: string | null;
+  documentForm?: DocumentForm | null;
   publishedAt?: string | null;
   url?: string | null;
   visibility?: string;

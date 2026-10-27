@@ -248,15 +248,81 @@ async def test_extended_keeps_pinned_revision_and_stops_on_no_novelty(sessions, 
 
 
 @pytest.mark.asyncio
+async def test_extended_search_is_not_blocked_by_neighbor_context(sessions, settings, principal, reviewer, embedding_client, monkeypatch):
+    from knowledge.documents.repository import DocumentRepository
+
+    source = await indexed_source(sessions, settings, principal, reviewer, embedding_client)
+    revision = source["currentRevisionId"]
+    real_search = DocumentRepository.search
+    calls, first_hit = 0, None
+
+    async def controlled_search(self, *args, **kwargs):
+        nonlocal calls, first_hit
+        result = await real_search(self, *args, **kwargs)
+        assert result["hits"]
+        calls += 1
+        first = result["hits"][0]
+        first_hit = first
+        result["hits"] = [{**first, "passageId": "direct" if calls == 1 else "extra",
+                           "text": "직접 결과" if calls == 1 else "추가 검색 결과"}]
+        return result
+
+    async def large_neighbor(self, *args, **kwargs):
+        return [{**first_hit, "passageId": "neighbor", "text": "실험 조건 250°C. " + "조건 " * 2000,
+                 "neighborOf": ["direct"]}]
+
+    monkeypatch.setattr(DocumentRepository, "search", controlled_search)
+    monkeypatch.setattr(DocumentRepository, "get_neighbors", large_neighbor)
+    rag = RetrievalService(sessions, embedding_client, settings.model_copy(update={"context_max_characters": 4000}))
+    result = await rag.search(principal, RetrievalRequest(message="DRAM 원리와 한계", sourceRevisionIds=[revision], extended=True))
+    assert calls >= 2
+    assert result["exploration"]["extraQueries"] >= 1
+    passages = result["grounding"]["passages"]
+    assert any(p["passageId"] == "extra" for p in passages)
+    assert any(p["passageId"] == "neighbor" and "250°C" in p["text"] for p in passages)
+
+
+@pytest.mark.asyncio
+async def test_extended_continues_after_duplicate_result_for_next_aspect(sessions, settings, principal, reviewer, embedding_client, monkeypatch):
+    from knowledge.documents.repository import DocumentRepository
+
+    source = await indexed_source(sessions, settings, principal, reviewer, embedding_client)
+    revision = source["currentRevisionId"]
+    real_search, calls = DocumentRepository.search, 0
+
+    async def controlled_search(self, *args, **kwargs):
+        nonlocal calls
+        result = await real_search(self, *args, **kwargs)
+        assert result["hits"]
+        calls += 1
+        hit = result["hits"][0]
+        result["hits"] = [{**hit, "passageId": "later-condition" if calls == 3 else "initial",
+                           "text": "적용 한계는 250°C" if calls == 3 else "DRAM 시험"}]
+        return result
+
+    async def no_neighbors(self, *args, **kwargs):
+        return []
+
+    monkeypatch.setattr(DocumentRepository, "search", controlled_search)
+    monkeypatch.setattr(DocumentRepository, "get_neighbors", no_neighbors)
+    result = await RetrievalService(sessions, embedding_client, settings).search(principal,
+        RetrievalRequest(message="DRAM의 원리와 한계", sourceRevisionIds=[revision], extended=True))
+    assert calls == 3 and result["exploration"]["extraQueries"] == 2
+    assert result["stopReason"] == "planned_queries_exhausted"
+    assert [q["requirementId"] for q in result["queries"][1:]] == ["principle", "limits"]
+    assert any(p["passageId"] == "later-condition" for p in result["grounding"]["passages"])
+
+
+@pytest.mark.asyncio
 async def test_unstructured_korean_extended_has_bounded_missing_aspect_plan(sessions, settings, principal, reviewer, embedding_client):
     await indexed_source(sessions, settings, principal, reviewer, embedding_client)
     result = await RetrievalService(sessions, embedding_client, settings).search(principal,
         RetrievalRequest(message="DRAM의 작동 원리와 한계를 알려 주세요", extended=True))
     assert {item["id"] for item in result["requirementCoverage"]} == {"principle", "limits"}
-    assert result["exploration"]["extraQueries"] == 1
-    assert len(result["queries"]) == 2
+    assert result["exploration"]["extraQueries"] == 2
+    assert len(result["queries"]) == 3
     assert result["semanticSufficiency"] == "not_evaluated"
-    assert result["usage"]["calls"] == 0 and result["usage"]["fixtureCalls"] == 2
+    assert result["usage"]["calls"] == 0 and result["usage"]["fixtureCalls"] == 3
     assert result["usage"]["costUsd"] is None
 
 
@@ -313,7 +379,7 @@ async def test_literal_condition_mentions_never_certify_quantitative_sufficiency
     result = await RetrievalService(sessions, embedding_client, settings).search(principal,
         RetrievalRequest(message="HBM 온도와 압력, 허용 휨 수치와 양사 수율 차이의 정확한 조건은?", extended=True))
     assert result["exploration"]["extraQueries"] >= 1
-    assert result["stopReason"] == "no_new_evidence"
+    assert result["stopReason"] == "query_budget"
     assert result["semanticSufficiency"] == "not_evaluated"
     assert {"temperature", "pressure", "warpage", "yield"} <= {r["id"] for r in result["requirementCoverage"]}
     assert all(r["status"] in ("candidate_found", "unknown") for r in result["requirementCoverage"])

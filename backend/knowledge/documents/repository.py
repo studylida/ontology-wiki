@@ -11,7 +11,7 @@ from sqlalchemy.orm import aliased
 from knowledge.core.errors import AppError
 from knowledge.core.ids import new_id
 from knowledge.documents.entities import Document, DocumentAttachment, DocumentRevision, EmbeddingRecord, Passage, PassageEmbedding
-from knowledge.documents.parsing import digest, metadata_digest, segment
+from knowledge.documents.parsing import declared_document_form, digest, metadata_digest, segment
 
 
 def is_reviewer(principal) -> bool:
@@ -64,7 +64,7 @@ def citation_dict(passage: Passage, revision: DocumentRevision, document: Docume
             "publisher": meta.get("publisher"), "publisherId": meta.get("publisherId"),
             "author": meta.get("author"), "attributedTo": meta.get("attributedTo"),
             "attributionBasis": meta.get("attributionBasis", "unknown"),
-            "sourceType": meta.get("sourceType", "unknown"), "url": meta.get("url"),
+            "sourceType": meta.get("sourceType", "unknown"), "documentForm": meta.get("documentForm"), "url": meta.get("url"),
             "publishedAt": meta.get("publishedAt"), "readScope": revision.read_scope,
             "metadataVersion": revision.metadata_version}
 
@@ -76,6 +76,8 @@ class DocumentRepository:
     async def create_source(self, principal, request, raw_path, *, read_scope_value="full", origin_key=None, media_type=None):
         """Insert one source within the caller's transaction (including transfers)."""
         metadata = request.model_dump(mode="json", by_alias=True, exclude={"title", "content", "format", "visibility"})
+        if metadata.get("documentForm") is None:
+            metadata["documentForm"] = declared_document_form(request.content)
         document = Document(id=new_id("doc"), owner_id=principal.id, title=request.title,
                             visibility=request.visibility, origin_key=origin_key)
         self.session.add(document)
