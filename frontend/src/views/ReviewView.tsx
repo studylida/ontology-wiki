@@ -29,11 +29,13 @@ export function ReviewView({
   controller: review,
   onQuestion,
   onUpload,
+  onBatchUpload,
   canIndex,
 }: {
   controller: ReturnType<typeof useReviewController>;
   onQuestion: (id: string, title: string) => void;
   onUpload: () => void;
+  onBatchUpload?: () => void;
   canIndex: boolean;
 }) {
   const [tab, setTab] = useState<"content" | "passages" | "metadata">(
@@ -83,6 +85,11 @@ export function ReviewView({
           <button className="secondary-button small" onClick={onUpload}>
             문헌 등록
           </button>
+          {onBatchUpload && (
+            <button className="secondary-button small" onClick={onBatchUpload}>
+              여러 문헌 등록
+            </button>
+          )}
         </div>
       </header>
       <div className="review-workspace">

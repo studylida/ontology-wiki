@@ -32,6 +32,7 @@ import { ConversationView } from "./views/ConversationView";
 import { ResearchView } from "./views/ResearchView";
 import { PersonalWikiView } from "./views/PersonalWikiView";
 import { ReviewView } from "./views/ReviewView";
+import { BatchUploadDialog, canBatchDocumentUpload } from "./views/BatchUploadDialog";
 import { SourcePanel } from "./views/SourcePanel";
 import {
   ResourcePicker,
@@ -54,13 +55,14 @@ function Workspace({ user, onLogout }: { user: User; onLogout: () => void }) {
   );
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dialog, setDialog] = useState<
-    "resources" | "upload" | "settings" | null
+    "resources" | "upload" | "batch-upload" | "settings" | null
   >(null);
   const [conversationFilter, setConversationFilter] = useState("");
   const [globalNotice, setGlobalNotice] = useState<string | null>(null);
   const canReview =
     user.permissions?.includes("documents:review") ||
     ["admin", "reviewer"].includes(user.role);
+  const canBatchUpload = canBatchDocumentUpload(user.permissions);
   const canIndex =
     user.permissions?.includes("jobs:manage") || user.role === "admin";
   const onCreated = useCallback(
@@ -365,6 +367,7 @@ function Workspace({ user, onLogout }: { user: User; onLogout: () => void }) {
               controller={review}
               onQuestion={questionDocument}
               onUpload={() => setDialog("upload")}
+              onBatchUpload={canBatchUpload ? () => setDialog("batch-upload") : undefined}
               canIndex={canIndex}
             />
           ) : (
@@ -395,6 +398,9 @@ function Workspace({ user, onLogout }: { user: User; onLogout: () => void }) {
           onClose={() => setDialog(null)}
           onCreated={documentCreated}
         />
+      )}
+      {dialog === "batch-upload" && canBatchUpload && (
+        <BatchUploadDialog onClose={() => setDialog(null)} onChanged={() => void review.refresh()} />
       )}
       {dialog === "settings" && (
         <SettingsDialog

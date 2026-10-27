@@ -6,7 +6,7 @@ from sqlalchemy import func, select
 from knowledge.core.errors import AppError
 from knowledge.core.ids import new_id
 from knowledge.documents.dto import MetadataPatch, NewDocument, NewRevision, ReviewRequest
-from knowledge.documents.entities import Document, DocumentRevision, EmbeddingRecord, Passage
+from knowledge.documents.entities import Document, DocumentRevision, EmbeddingRecord, Passage, PassageEmbedding
 from knowledge.documents.repository import DocumentRepository, citation_dict
 from knowledge.documents.service import DocumentService
 from knowledge.jobs.entities import Job
@@ -140,6 +140,43 @@ async def test_cache_reused_and_metadata_change_invalidates_view_without_embeddi
         second_job = job.id
     result = await process_index_job(sessions, embedding_client, second_job)
     assert result["embedded"] == 0 and result["reused"] >= 1
+
+
+@pytest.mark.asyncio
+async def test_new_revision_embeds_only_changed_passage(sessions, settings, reviewer, principal, embedding_client):
+    text = "# First\nUnchanged first.\n# Second\nOriginal middle.\n# Third\nUnchanged last."
+    document, first_job = await approve_and_queue(sessions, settings, reviewer, embedding_client, content=text)
+    first = await process_index_job(sessions, embedding_client, first_job)
+    assert first["status"] == "succeeded" and first["embedded"] == 3
+    old_id = document["currentRevisionId"]
+
+    service = DocumentService(sessions, settings)
+    updated = await service.add_revision(reviewer, document["id"], NewRevision(content=text.replace("Original middle.", "Corrected middle.")))
+    new_revision_id = updated["currentRevisionId"]
+    await service.review(reviewer, new_revision_id, ReviewRequest(decision="approve", reason="correct middle passage"))
+    async with sessions() as session, session.begin():
+        assert await DocumentRepository(session).resolve_snapshot(principal) == [old_id]
+        revision = await session.get(DocumentRevision, new_revision_id)
+        job = await enqueue_index(session, revision, embedding_client.profile_id, reviewer.id)
+        job.status = "running"
+        second_job = job.id
+
+    result = await process_index_job(sessions, embedding_client, second_job)
+    assert result["status"] == "succeeded"
+    assert (result["indexedPassages"], result["embedded"], result["reused"]) == (3, 1, 2)
+    async with sessions() as session:
+        async def vectors(revision_id):
+            rows = await session.execute(select(Passage.ordinal, PassageEmbedding.embedding_id)
+                .join(PassageEmbedding, PassageEmbedding.passage_id == Passage.id)
+                .where(Passage.source_revision_id == revision_id,
+                       PassageEmbedding.profile_id == embedding_client.profile_id))
+            return dict(rows.all())
+
+        old_vectors, new_vectors = await vectors(old_id), await vectors(new_revision_id)
+        assert set(old_vectors) == set(new_vectors) == {0, 1, 2}
+        assert old_vectors[0] == new_vectors[0] and old_vectors[2] == new_vectors[2]
+        assert old_vectors[1] != new_vectors[1]
+        assert await DocumentRepository(session).resolve_snapshot(principal) == [new_revision_id]
 
 
 @pytest.mark.asyncio
