@@ -108,6 +108,13 @@ class DocumentRepository:
         metadata = request.model_dump(mode="json", by_alias=True, exclude={"title", "content", "format", "visibility"})
         if processing_metadata:
             metadata = {**processing_metadata, **metadata}
+        chunks = prepared_passages(request.content, passage_records) if passage_records is not None else segment(request.content, request.title)
+        unchecked = (metadata.get("parserProfile", {}).get("engine") == "docling" and
+                     (passage_records is None or metadata.get("preprocessingQuality", {}).get("version") != 2))
+        if unchecked:
+            metadata["preprocessingQuality"] = {"version": 2,
+                "issues": [{"reason": "legacy_structured_conversion_not_checked"}],
+                "heldPassages": len(chunks)}
         if metadata.get("documentForm") is None:
             metadata["documentForm"] = declared_document_form(request.content)
         document = Document(id=new_id("doc"), owner_id=principal.id, title=request.title,
@@ -122,9 +129,11 @@ class DocumentRepository:
         self.session.add(revision)
         await self.session.flush()
         document.current_revision_id = revision.id
-        chunks = prepared_passages(request.content, passage_records) if passage_records is not None else segment(request.content, request.title)
         for passage in chunks:
-            self.session.add(Passage(source_revision_id=revision.id, **passage.__dict__))
+            values = dict(passage.__dict__)
+            if unchecked:
+                values.update(excluded=True, exclusion_reason="이전 구조 추출본의 전처리 검토 필요")
+            self.session.add(Passage(source_revision_id=revision.id, **values))
         await self.session.flush()
         return document, revision
 

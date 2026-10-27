@@ -79,7 +79,7 @@ def test_letter_subscripts_in_mathml_caption_are_preserved(index, expected):
     raw = f'<article><table-wrap id="t1"><label>Table 1</label><caption><p>Design with <math><msub><mi>a</mi><mi>{index}</mi></msub></math> levels.</p></caption></table-wrap></article>'.encode()
     old = "Table 1 Design with  levels."
     original = {"structuredDocument": {"texts": [{"self_ref": "#/texts/0", "label": "caption", "text": old}]},
-                "preparedPassages": [{"text": old}]}
+                "sourceMap": [{"documentRefs": ["#/texts/0"]}], "preparedPassages": [{"text": old}]}
     fixed, edits, unresolved = repair_jats(original, raw)
     assert not unresolved and len(edits) == 1
     assert expected in fixed["preparedPassages"][0]["text"]

@@ -35,6 +35,8 @@ class ParsedPassage:
     end_offset: int
     embedding_text: str
     input_hash: str
+    excluded: bool = False
+    exclusion_reason: str | None = None
 
 
 def frontmatter(text: str) -> dict:
@@ -59,37 +61,31 @@ def declared_document_form(text: str) -> str | None:
 
 
 def segment(text: str, title: str, *, max_chars: int = 1400, overlap: int = 150) -> list[ParsedPassage]:
-    # CRLF front matter is recognized without normalizing the source body/offsets.
-    front = re.match(r"\A---\r?\n.*?\r?\n---(?:\r?\n|$)", text, re.S)
-    start = front.end() if front else 0
-    headers = list(re.finditer(r"^(#{1,6})\s+(.+?)\r?$", text[start:], re.M))
-    boundaries = [(start, "본문")]
-    stack: list[tuple[int, str]] = []
-    for match in headers:
-        level = len(match.group(1))
-        stack = [(l, h) for l, h in stack if l < level]
-        stack.append((level, match.group(2).strip()))
-        boundaries.append((start + match.start(), " > ".join(h for _, h in stack)))
-    passages = []
-    for n, (begin, locator) in enumerate(boundaries):
-        end = boundaries[n + 1][0] if n + 1 < len(boundaries) else len(text)
-        cursor = begin
-        while cursor < end:
-            chunk_end = min(end, cursor + max_chars)
-            if chunk_end < end:
-                split = text.rfind("\n", cursor + max_chars // 2, chunk_end)
-                if split > cursor:
-                    chunk_end = split
-            raw = text[cursor:chunk_end]
-            stripped = raw.strip()
-            if stripped:
-                offset = cursor + len(raw) - len(raw.lstrip())
-                embedded = f"문헌: {title}\n절: {locator}\n{stripped}"
-                passages.append(ParsedPassage(len(passages), stripped, locator, offset,
-                    offset + len(stripped), embedded, digest(embedded)))
-            if chunk_end == end:
-                break
-            cursor = max(cursor + 1, chunk_end - overlap)
+    from knowledge.documents.preprocessing import markdown_blocks
+    blocks, notes = markdown_blocks(text)
+    passages, pending = [], []
+
+    def emit():
+        if not pending:
+            return
+        begin, end = pending[0]["inputStart"], pending[-1]["inputEnd"]
+        value, locator = text[begin:end], pending[0]["locator"]
+        embedded = f"문헌: {title}\n절: {locator}\n{value}"
+        # UTF-8 byte count bounds token count without a tokenizer dependency.
+        oversized = len(embedded.encode("utf-8")) > 7000
+        passages.append(ParsedPassage(len(passages), value, locator, begin, end, embedded, digest(embedded),
+            oversized, "긴 문단 또는 표의 분할 검토 필요" if oversized else None))
+
+    for block in blocks:
+        table_note = (any(p["kind"] == "table" for p in pending) and
+                      bool(re.match(r"^(?:[*†‡]|주\s*[:：]|note\s*[:：]|footnote\s*[:：])", block["text"], re.I)))
+        if pending and (block["kind"] == "heading" or block["locator"] != pending[-1]["locator"]
+                or (block["kind"] != "table" and not table_note and block["inputEnd"] - pending[0]["inputStart"] > max_chars)
+                or any(pending[-1]["inputEnd"] <= n["inputStart"] < block["inputStart"] for n in notes)):
+            emit()
+            pending = []
+        pending.append(block)
+    emit()
     return passages
 
 
@@ -107,7 +103,10 @@ def prepared_passages(content: str, records: list[dict]) -> list[ParsedPassage]:
                 or content[start:end] != text or not isinstance(locator, str) or not locator.strip()
                 or not isinstance(embedded, str) or not embedded.strip() or text not in embedded):
             raise ValueError("Structured passage does not match preserved content")
-        result.append(ParsedPassage(ordinal, text, locator, start, end, embedded, digest(embedded)))
+        hold = record.get("qualityHold")
+        if hold is not None and (not isinstance(hold, str) or not hold.strip()):
+            raise ValueError("Invalid structured quality hold")
+        result.append(ParsedPassage(ordinal, text, locator, start, end, embedded, digest(embedded), bool(hold), hold))
         previous_end = end
     return result
 

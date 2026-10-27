@@ -1,6 +1,8 @@
 """Optional installed-runtime contract test; API environments stay ML-free."""
 import hashlib
 import json
+import os
+import re
 from pathlib import Path
 
 import pytest
@@ -10,8 +12,8 @@ from knowledge.integrations.public_fetch import _parser_environment
 
 
 ROOT = Path(__file__).resolve().parents[2]
-RUNTIME = ROOT / "var/runtimes/docling/Scripts/python.exe"
-MODELS = ROOT / "var/models/docling"
+RUNTIME = Path(os.environ.get("OW_TEST_DOCLING_PYTHON", ROOT / "var/runtimes/docling/Scripts/python.exe"))
+MODELS = Path(os.environ.get("OW_TEST_DOCLING_MODELS", ROOT / "var/models/docling"))
 pytestmark = pytest.mark.skipif(not RUNTIME.exists(), reason="isolated Docling runtime not installed")
 
 ARTICLE = """<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/">
@@ -50,7 +52,7 @@ async def test_jats_original_hash_float_table_math_and_exact_offsets(tmp_path):
     assert result["metadata"]["relocatedFloatElements"] == 2
     assert result["metadata"]["parserProfile"]["maxCharacters"] == 24680
     assert result["metadata"]["tableCount"] == result["metadata"]["pictureCount"] == 1
-    assert "{2}^{31}−1" in result["content"]
+    assert "{2}^{31}−1" in re.sub(r"\s", "", result["content"])
     table = next(p for p in result["preparedPassages"] if "31.24" in p["text"])
     assert "250 °C" in table["text"] and "0.5 h" in table["text"]
     assert "Conclusion" not in table["locator"]
@@ -58,6 +60,21 @@ async def test_jats_original_hash_float_table_math_and_exact_offsets(tmp_path):
         assert result["content"][passage["start_offset"]:passage["end_offset"]] == passage["text"]
         assert passage["input_hash"] == hashlib.sha256(passage["embedding_text"].encode()).hexdigest()
     assert result["readScope"] == "partial"
+
+
+@pytest.mark.asyncio
+async def test_jats_preserves_math_text_and_holds_unsupported_semantics(tmp_path):
+    from knowledge.documents.runtime_preprocessing import prepare_conversion
+    body = ('<inline-formula><mml:math><mml:mrow><mml:mi>a</mml:mi> + <mml:mi>b</mml:mi></mml:mrow></mml:math></inline-formula>'
+            '<inline-formula><mml:math><mml:semantics><mml:mi>x</mml:mi><mml:annotation>source</mml:annotation></mml:semantics></mml:math></inline-formula>'
+            '<inline-formula><mml:math><mml:msub><mml:mi>a</mml:mi><mml:mi>b</mml:mi><mml:mi>c</mml:mi></mml:msub></mml:math></inline-formula>')
+    raw = ARTICLE.replace('Specimen-specific observation.', body).encode()
+    result = json.loads(await convert(raw, tmp_path))
+    assert 'a + b' in result['normalizedXml']
+    assert result['metadata']['mathmlPreservedAsXml'] == 2
+    assert 'annotation' in result['normalizedXml'] and 'msub' in result['normalizedXml']
+    prepared = prepare_conversion(result, raw, jats=True)
+    assert prepared['metadata']['preprocessingQuality']['heldPassages'] == len(prepared['preparedPassages'])
 
 
 @pytest.mark.asyncio

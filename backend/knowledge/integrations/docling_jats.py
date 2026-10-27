@@ -1,7 +1,7 @@
 """Offline publisher JATS conversion; original bytes remain separate from normalization.
 
 Run only in the isolated Docling runtime behind the bounded-process launcher.
-This does not add XML as a public service input format.
+The public service uses the same bounded conversion for JATS input.
 """
 from __future__ import annotations
 
@@ -69,8 +69,15 @@ def normalize_jats(raw: bytes) -> tuple[bytes, dict]:
         tag=etree.QName(node).localname
         if tag in {'mi','mn','mo','mtext'}: return ''.join(node.itertext())
         children=list(node)
-        if tag=='semantics': return math_notation(children[0])
-        if tag in {'math','mrow','mstyle'}: return ''.join(math_notation(c) for c in children)
+        if tag=='semantics':
+            if len(children)!=1: raise ValueError('MathML semantics annotations require review')
+            return (node.text or '')+math_notation(children[0])+(children[0].tail or '')
+        if tag in {'math','mrow','mstyle'}:
+            return (node.text or '')+''.join(math_notation(c)+(c.tail or '') for c in children)
+        if (node.text or '').strip() or any((child.tail or '').strip() for child in children):
+            raise ValueError('MathML direct text requires review')
+        if tag in {'msup','msub','mfrac'} and len(children)!=2 or tag=='msubsup' and len(children)!=3:
+            raise ValueError('MathML operand count requires review')
         if tag=='msup': return '{'+math_notation(children[0])+'}^{'+math_notation(children[1])+'}'
         if tag=='msub': return '{'+math_notation(children[0])+'}_{'+math_notation(children[1])+'}'
         if tag=='msubsup': return '{'+math_notation(children[0])+'}_{'+math_notation(children[1])+'}^{'+math_notation(children[2])+'}'

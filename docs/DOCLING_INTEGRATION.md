@@ -1,6 +1,6 @@
-# Docling PDF ingestion
+# Docling PDF and JATS ingestion
 
-The API calls `knowledge.integrations.public_fetch.parse_download` with `parser="docling"` for PDFs. HTML/text retain the lightweight extractor. Docling is an isolated optional Python runtime; the API environment does not import its ML packages. A configured Docling failure is returned explicitly and never silently replaced with the legacy extraction.
+The API calls `knowledge.integrations.public_fetch.parse_download` with `parser="docling"` for PDFs and publisher JATS XML. HTML/text retain the lightweight extractor. XML requires Docling; OCR is an explicit PDF-only option. Docling is an isolated optional Python runtime; the API environment does not import its ML packages. A configured Docling failure is returned explicitly and never silently replaced with the legacy extraction.
 
 ## Windows runtime
 
@@ -49,9 +49,9 @@ Final v3 conversion completed for both representative PDFs. Cu: 10 pages, 18 pas
 
 Official interfaces: [Docling advanced options](https://docling-project.github.io/docling/usage/advanced_options/), [DocumentConverter API](https://docling-project.github.io/docling/reference/document_converter/), [hybrid chunking](https://docling-project.github.io/docling/examples/hybrid_chunking/), [PyPI release](https://pypi.org/project/docling/2.143.0/).
 
-## Offline publisher XML conversion
+## Publisher XML conversion
 
-`knowledge.integrations.docling_jats` preserves the pinned SDK's native `JatsDocumentBackend` / `SimplePipeline` path for already acquired publisher JATS XML. It is an offline corpus utility, not a new public upload or research URL format. Use `run_bounded_python` with the isolated runtime, this module name, and the model directory as its positional argument; the reviewed batch uses 180 wall seconds, 120 CPU seconds, 4 GiB committed memory and 32 MiB output. Supply `_parser_environment()` plus a temporary profile/home. Input remains capped at 5 MiB.
+`knowledge.integrations.docling_jats` preserves the pinned SDK's native `JatsDocumentBackend` / `SimplePipeline` path for publisher JATS XML. The public fetch path accepts XML and JATS media types when Docling is configured and runs the existing bounded isolated worker. Input remains capped at 5 MiB.
 
 The utility removes an OAI-PMH transport wrapper and the JATS element namespace, while retaining the original bytes unchanged. Publisher `floats-group` tables and figures move intact into a separately labelled extraction section so they are neither lost nor incorrectly attached to the conclusions. Numeric subscripts/superscripts become equivalent Unicode notation. Supported MathML becomes mathematical notation; unsupported layouts remain literal MathML for review. Native figure-caption formula extraction can still be incomplete. No equation is evaluated and no unusual source value is silently corrected.
 
@@ -62,3 +62,9 @@ Canonical offsets and prepared passages follow the PDF contract. Locators identi
 The 2026-10-27 batch inventory covers all 30 files in the nine prepared `raw/new-*` folders. Nine publisher XML and two author PDF extractions produced 327 prepared passages linked to the existing studies, in addition to the previously verified Cu-thickness extraction. The six other PDFs retain explicit holds for unresolved relevance, independent verification or permitted use. Every prior PDF extraction and editorial summary remains preserved. The inventory, targeted QA, registration manifests and unsuccessful conversion profiles live under `var/verification/docling-20261027/batch/`; registration and approval remain document-service operations.
 
 Run `python -m pytest backend/tests/test_bounded_process.py backend/tests/test_document_parsers.py backend/tests/test_docling_jats.py -q`. The optional JATS test uses the installed isolated runtime to check original and normalized hashes, relocated table conditions, MathML, canonical offsets, and UTF-8/UTF-16 entity rejection. It skips explicitly when that runtime is unavailable.
+
+## Runtime quality holds
+
+`documents.runtime_preprocessing` checks prepared Docling passages before preservation and registration. Repeated packed numeric table rows and missing table structure are held; table captions are repeated in their own table passages. Uniquely matched JATS captions may be repaired from the original XML, and unique paragraph evidence is linked by XPath. Unsupported MathML or unresolved captions retain the original XML and cause a conservative document-wide hold. Document registration persists held passages as excluded, so they are not indexed or retrieved; a reviewed edited revision has a separate explicit release. The source remains available, and old cache artifacts are preserved under their original keys.
+
+The default legacy PDF parser has no comparable structured-table quality gate. Previously registered or indexed sources are not retroactively changed. The checks are targeted heuristics and cannot establish transcription correctness; see [the scoped runtime validation](PREPROCESSING_RUNTIME_VALIDATION_20261027.md).

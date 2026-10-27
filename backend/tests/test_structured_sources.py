@@ -3,10 +3,37 @@ import json
 import pytest
 from sqlalchemy import select
 
-from knowledge.documents.dto import NewDocument, NewRevision
+from knowledge.documents.dto import NewDocument, NewRevision, ReviewRequest
 from knowledge.documents.entities import DocumentRevision, Passage
 from knowledge.documents.parsing import digest, prepared_passages, read_raw_json, save_raw
 from knowledge.documents.service import DocumentService
+
+
+@pytest.mark.asyncio
+async def test_held_extraction_and_edited_revision_require_explicit_review(sessions, settings, reviewer):
+    docs = DocumentService(sessions, settings)
+    content = "표: 0 283.8 240.9\n\n조건: 250°C, 30 min"
+    first, second = content.split("\n\n")
+    first_record = record(first) | {"qualityHold": "전처리 구조 또는 수식 확인 필요"}
+    second_record = record(second, len(first) + 2)
+    created = await docs.create(reviewer, NewDocument(title="실험", content=content,
+        visibility="shared_candidate", documentForm="text_extraction"), raw_bytes=b"original-pdf",
+        media_type="application/pdf", passage_records=[first_record, second_record], processing_metadata={
+            "parserProfile": {"engine": "docling"}, "preprocessingQuality": {"version": 2, "issues": [{"reason": "table"}]}})
+    original_id = created["currentRevisionId"]
+    await docs.review(reviewer, original_id, ReviewRequest(decision="approve", reason="기존 구간 검토"))
+    old = await docs.detail(reviewer, original_id)
+    assert [p["excluded"] for p in old["passages"]] == [True, False]
+    edited = await docs.add_revision(reviewer, created["id"], NewRevision(content="표: 열을 원문과 대조해 수정\n\n조건: 250°C, 30 min"))
+    edited_id = edited["currentRevisionId"]
+    before_review = await docs.detail(reviewer, edited_id)
+    assert before_review["reviewStatus"] == "pending"
+    assert before_review["metadata"]["preprocessingEditReviewRequired"]
+    assert all(p["excluded"] for p in before_review["passages"])
+    await docs.review(reviewer, edited_id, ReviewRequest(decision="approve", reason="편집본의 표와 조건 대조"))
+    after_review = await docs.detail(reviewer, edited_id)
+    assert all(not p["excluded"] for p in after_review["passages"])
+    assert (await docs.detail(reviewer, original_id))["passages"][0]["excluded"]
 
 
 def record(text, offset=0):

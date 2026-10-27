@@ -16,7 +16,7 @@ def sha(body: bytes) -> str:
 
 
 def normalized(text: str) -> str:
-    return re.sub(r"\W", "", unicodedata.normalize("NFKC", text)).casefold()
+    return re.sub(r"\s", "", text)
 
 
 def markdown_blocks(text: str) -> tuple[list[dict], list[dict]]:
@@ -119,17 +119,20 @@ def script_text(value: str, superscript: bool = False) -> str:
     return ("^{" if superscript else "_{") + value + "}"
 
 
-def xml_text(node, *, omit_math=False):
+def xml_text(node, *, omit_math=False, in_math=False):
     tag = node.tag.rsplit("}", 1)[-1]
     if omit_math and tag in {"math", "tex-math"}:
         return ""
-    children = [xml_text(c, omit_math=omit_math) for c in node]
+    in_math = in_math or tag == "math" or node.tag.startswith("{http://www.w3.org/1998/Math/MathML}")
+    if in_math and tag not in {"math", "mrow", "mi", "mn", "mo", "mtext", "msub", "msup"}:
+        raise ValueError("Caption math requires manual review")
+    children = [xml_text(c, omit_math=omit_math, in_math=in_math) for c in node]
     if tag in {"msub", "msup"}:
-        if len(children) != 2:
+        if len(children) != 2 or (node.text or "").strip() or any((child.tail or "").strip() for child in node):
             raise ValueError("Caption math requires manual review")
         return children[0] + script_text(children[1], superscript=tag == "msup")
     if tag in {"math", "mrow", "mi", "mn", "mo", "mtext", "msub", "msup"}:
-        return (node.text or "") + "".join(children)
+        return (node.text or "") + "".join(value + (child.tail or "") for value, child in zip(children, node))
     if tag in {"semantics", "mfrac", "msqrt", "msubsup", "mtable", "mover", "munder"}:
         raise ValueError("Caption math requires manual review")
     value = (node.text or "") + "".join(value + (child.tail or "") for value, child in zip(children, node))
@@ -141,8 +144,13 @@ def table_reprocessing_candidates(result: dict) -> list[dict]:
     number = re.compile(r"(?<![\w.])[−+-]?\d+(?:\.\d+)?(?:\s*±\s*[−+-]?\d+(?:\.\d+)?)?(?![\w.])")
     candidates = []
     for table in result["structuredDocument"].get("tables", []):
+        if not isinstance(table.get("data", {}).get("table_cells"), list) or not table["data"]["table_cells"]:
+            candidates.append({"documentRef": table.get("self_ref", ""),
+                "pageNumbers": sorted({p["page_no"] for p in table.get("prov", [])}),
+                "reason": "table_structure_missing", "status": "needs_targeted_reextraction_and_source_comparison"})
+            continue
         suspicious_rows = set()
-        for cell in table["data"]["table_cells"]:
+        for cell in table.get("data", {}).get("table_cells", []):
             text = cell["text"]
             if cell.get("column_header") or cell.get("row_span", 1) != 1:
                 continue
@@ -163,6 +171,7 @@ def repair_jats(result: dict, raw: bytes) -> tuple[dict, list[dict], list[dict]]
     nodes, edits, unresolved = xml_nodes(raw), [], []
     document = result["structuredDocument"]
     captions = [x for x in document["texts"] if x["label"] == "caption"]
+    originals = []
     for node, path in nodes:
         if node.tag.rsplit("}", 1)[-1] not in {"fig", "table-wrap"}:
             continue
@@ -176,23 +185,27 @@ def repair_jats(result: dict, raw: bytes) -> tuple[dict, list[dict], list[dict]]
         except ValueError:
             unresolved.append({"xmlId": node.get("id"), "xpath": path, "reason": "complex_caption_math_preserved_in_original"})
             continue
+        originals.append((node, path, full, without))
+    for node, path, full, without in originals:
         matches = [c for c in captions if normalized(c["text"]) in {normalized(full), normalized(without)}]
-        if len(matches) != 1:
+        if len(matches) != 1 or sum(normalized(matches[0]["text"]) in {normalized(other_full), normalized(other_without)}
+                                    for _, _, other_full, other_without in originals) != 1:
             unresolved.append({"xmlId": node.get("id"), "xpath": path, "reason": "caption_not_uniquely_matched"})
             continue
         item = matches[0]
         item["rawXmlLocation"] = {"xmlId": node.get("id"), "xpath": path}
         if normalized(item["text"]) != normalized(full):
             old = item["text"]
-            changed = 0
-            for passage in result["preparedPassages"]:
-                if old in passage["text"]:
-                    passage["text"] = passage["text"].replace(old, full)
-                    changed += 1
-            if changed:
+            targets = [passage for passage, source in zip(result["preparedPassages"], result["sourceMap"], strict=True)
+                       if item["self_ref"] in source["documentRefs"] and old in passage["text"]]
+            if targets and all(passage["text"].count(old) == 1 for passage in targets):
+                for passage in targets:
+                    passage["text"] = passage["text"].replace(old, full, 1)
                 edits.append({"type": "extraction_caption_repair", "before": old, "after": full,
                               "xmlId": node.get("id"), "xpath": path, "documentRef": item["self_ref"]})
                 item["text"] = full
+            else:
+                unresolved.append({"xmlId": node.get("id"), "xpath": path, "reason": "caption_not_found_in_passages"})
     return result, edits, unresolved
 
 
@@ -262,8 +275,24 @@ def docling_blocks(result: dict) -> list[dict]:
 def link_xml(blocks: list[dict], result: dict, raw: bytes) -> dict:
     nodes = xml_nodes(raw)
     # Location matching must retain numeric signs, decimal points and units.
-    location_text = lambda text: re.sub(r"\s", "", unicodedata.normalize("NFKC", text))
+    location_text = lambda text: re.sub(r"\s", "", text)
     searchable = [location_text(b["text"]) for b in blocks]
+    paragraphs = [n for n, _ in nodes if n.tag.rsplit("}", 1)[-1] == "p"]
+    paragraph_texts = [location_text("".join(n.itertext())) for n in paragraphs]
+
+    def plain_fragments(node):
+        parts = [""]
+        def walk(current):
+            parts[-1] += current.text or ""
+            for child in current:
+                if child.tag.rsplit("}", 1)[-1] in {"math", "tex-math"}:
+                    parts.append("")
+                else:
+                    walk(child)
+                parts[-1] += child.tail or ""
+        walk(node)
+        return [location_text(part) for part in parts if len(location_text(part)) >= 50]
+
     ids, misses = {}, []
     for node, path in nodes:
         tag = node.tag.rsplit("}", 1)[-1]
@@ -276,8 +305,16 @@ def link_xml(blocks: list[dict], result: dict, raw: bytes) -> dict:
             value = location_text("".join(node.itertext()))
             if len(value) >= 25:
                 matches = [i for i, text in enumerate(searchable) if value in text]
-                if len(matches) > 1:
+                if len(matches) > 1 or sum(value in text for text in paragraph_texts) != 1:
                     matches = []
+            if not matches:
+                for fragment in plain_fragments(node):
+                    anchor = fragment[:100]
+                    candidates = [i for i, text in enumerate(searchable) if anchor in text]
+                    if len(candidates) == 1 and sum(anchor in text for text in paragraph_texts) == 1:
+                        matches = candidates
+                        location.update(matchMethod="unique_literal_fragment", matchedText=anchor)
+                        break
         else:
             refs = {item["self_ref"] for item in result["structuredDocument"]["texts"]
                     if item.get("rawXmlLocation") == location}
