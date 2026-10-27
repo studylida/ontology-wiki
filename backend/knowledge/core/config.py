@@ -37,10 +37,6 @@ class Settings(BaseSettings):
     reranker_device: Literal["cpu", "cuda"] = "cpu"
     reranker_max_length: int = Field(1024, ge=128, le=8192)
     reranker_batch_size: int = Field(4, ge=1, le=64)
-    retrieval_graph_mode: Literal["disabled", "lightrag"] = "disabled"
-    lightrag_python_path: str = ""
-    lightrag_index_path: str = ""
-    lightrag_timeout_seconds: float = Field(90.0, gt=0, le=600)
     pdf_parser: Literal["legacy", "docling"] = "legacy"
     docling_python_path: str = ""
     docling_artifacts_path: str = "./var/docling-artifacts"

@@ -134,7 +134,7 @@ async def evaluate(args, code_revision):
                "effort": settings.generation_effort, "embeddingProfile": embedding.profile_id,
                "pipelineConfig": {name: getattr(settings, name, None) for name in (
                    "reranker_mode", "reranker_model_revision", "reranker_device", "reranker_max_length",
-                   "reranker_batch_size", "retrieval_candidate_limit", "retrieval_graph_mode",
+                   "reranker_batch_size", "retrieval_candidate_limit",
                    "retrieval_limit", "extended_max_queries", "extended_seconds",
                    "context_max_characters", "prompt_max_characters")},
                "extended": True, "results": []}
@@ -222,8 +222,6 @@ def main():
     parser.add_argument("--manifest")
     parser.add_argument("--question", action="append", choices=[question["id"] for question in QUESTIONS],
                         help="Run only this regression question for a bounded diagnostic; omitted runs both.")
-    parser.add_argument("--graph-mode", choices=["disabled", "lightrag"],
-                        help="Explicit graph ablation override applied after the runtime configuration.")
     parser.add_argument("--runtime-config", type=Path, help="Optional non-secret RAG runtime settings; generation/identity settings are excluded.")
     args = parser.parse_args()
     args.output = args.output.resolve()
@@ -238,12 +236,10 @@ def main():
     if args.runtime_config:
         config_file = args.runtime_config.resolve(strict=True)
         config = {key: value for key, value in dotenv_values(config_file, encoding="utf-8-sig").items()
-                  if value is not None and key.startswith(("OW_RERANKER_", "OW_RETRIEVAL_", "OW_LIGHTRAG_"))}
+                  if value is not None and key.startswith(("OW_RERANKER_", "OW_RETRIEVAL_"))}
         os.environ.update(config)
         args.runtime_config_record = {"path": str(config_file), "sha256": hashlib.sha256(config_file.read_bytes()).hexdigest(),
                                       "loadedKeys": sorted(config)}
-    if args.graph_mode:
-        os.environ["OW_RETRIEVAL_GRAPH_MODE"] = args.graph_mode
     sys.path.insert(0, str(code))
     asyncio.run(evaluate(args, revision))
 

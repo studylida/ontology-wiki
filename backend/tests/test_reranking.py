@@ -3,13 +3,9 @@ from copy import deepcopy
 import sys
 
 import pytest
-from sqlalchemy import select
 
 from knowledge.core.errors import AppError
-from knowledge.documents.dto import NewDocument
-from knowledge.documents.entities import Document, DocumentRevision, Passage
 from knowledge.documents.repository import DocumentRepository, select_ranked_hits
-from knowledge.documents.service import DocumentService
 from knowledge.integrations import rerank
 from test_rag_contract import indexed_source
 
@@ -49,44 +45,6 @@ async def test_candidate_pool_keeps_passages_that_final_diversity_would_drop(
     assert sum(h["sourceRevisionId"] == first["currentRevisionId"] for h in candidates["hits"]) >= 6
     assert sum(h["sourceRevisionId"] == first["currentRevisionId"] for h in final["hits"]) == 3
     assert {h["sourceRevisionId"] for h in narrow["hits"]} == {second["currentRevisionId"]}
-
-
-@pytest.mark.asyncio
-async def test_graph_ids_resolve_only_current_active_readable_evidence(
-    sessions, settings, principal, reviewer, embedding_client,
-):
-    first = await indexed_source(sessions, settings, principal, reviewer, embedding_client,
-        text="## 결과\n접합 결과.\n\n## 조건\n온도 250°C.")
-    second = await indexed_source(sessions, settings, principal, reviewer, embedding_client,
-        publisher="other", text="다른 회사의 조건.")
-    pending = await DocumentService(sessions, settings).create(principal,
-        NewDocument(title="미승인", content="검토 전 내용", visibility="shared_candidate"))
-    ids = [first["currentRevisionId"], second["currentRevisionId"], pending["currentRevisionId"]]
-    async with sessions() as session:
-        passages = list((await session.scalars(select(Passage).where(Passage.source_revision_id.in_(ids)))).all())
-        first_ids = [p.id for p in passages if p.source_revision_id == ids[0]]
-        candidates = [p.id for p in reversed(passages)] + [first_ids[0], "missing"]
-        repo = DocumentRepository(session)
-        result = await repo.fetch_candidate_ids(principal, candidates, ids,
-                                               [{"groupId": "first", "publisherId": "samsung"}])
-        assert [h["passageId"] for h in result] == [pid for pid in dict.fromkeys(candidates) if pid in first_ids]
-        assert all(h["methods"] == ["graph"] for h in result)
-    async with sessions() as session, session.begin():
-        excluded = await session.get(Passage, first_ids[0])
-        excluded.excluded = True
-    async with sessions() as session:
-        result = await DocumentRepository(session).fetch_candidate_ids(principal, first_ids, ids)
-        assert first_ids[0] not in [h["passageId"] for h in result]
-    async with sessions() as session, session.begin():
-        document = await session.get(Document, first["id"])
-        document.active_revision_id = None
-    async with sessions() as session:
-        assert await DocumentRepository(session).fetch_candidate_ids(principal, first_ids, ids) == []
-    async with sessions() as session, session.begin():
-        document = await session.get(Document, second["id"])
-        document.withdrawn = True
-    async with sessions() as session:
-        assert await DocumentRepository(session).fetch_candidate_ids(principal, candidates, ids) == []
 
 
 @pytest.fixture

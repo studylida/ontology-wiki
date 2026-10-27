@@ -268,17 +268,6 @@ class DocumentRepository:
                  "neighborOf": [o.id for o in origins if o.source_revision_id == p.source_revision_id and abs(o.ordinal - p.ordinal) == 1]}
                 for p, r, d in rows]
 
-    async def fetch_candidate_ids(self, principal, passage_ids, source_revision_ids, source_groups=None):
-        """Resolve graph IDs against current approved active evidence, never its cached text."""
-        if not passage_ids or not source_revision_ids:
-            return []
-        rows = (await self.session.execute(self._base(principal, source_revision_ids, source_groups).where(
-            Passage.id.in_(passage_ids), Document.active_revision_id == DocumentRevision.id,
-            DocumentRevision.index_status == "ready"))).all()
-        by_id = {p.id: {**citation_dict(p, r, d), "text": p.text, "documentId": d.id,
-                         "score": None, "methods": ["graph"]} for p, r, d in rows}
-        return [by_id[pid] for pid in dict.fromkeys(passage_ids) if pid in by_id]
-
     async def attachment_context(self, principal, attachment_ids, conversation_id=None):
         if principal.kind != "user" or not attachment_ids:
             return []

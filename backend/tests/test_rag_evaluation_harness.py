@@ -30,7 +30,7 @@ def test_failed_retrieval_preserves_known_and_unknown_cost_components():
     from knowledge.core.usage import summarize_usage, unknown_usage
     components = module("evaluate_rag_pipeline").usage_components
     observed = {"calls": 1, "costUsd": 0.012, "inputTokens": 10, "outputTokens": 2, "totalTokens": 12}
-    failed = summarize_usage([observed, unknown_usage("graph_query", "test")])
+    failed = summarize_usage([observed, unknown_usage("query_embedding", "test")])
     recorded = summarize_usage(components(failed))
     assert recorded["knownCostUsd"] == 0.012
     assert recorded["calls"] == 2

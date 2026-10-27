@@ -14,19 +14,15 @@ from .grounding import compose_grounding
 
 
 class RetrievalService:
-    def __init__(self, session_factory, embedding_client, settings, *, reranker=None, graph_search=None):
+    def __init__(self, session_factory, embedding_client, settings, *, reranker=None):
         self.session_factory, self.embedding_client, self.settings = session_factory, embedding_client, settings
-        self.reranker, self.graph_search = reranker, graph_search
+        self.reranker = reranker
         if self.reranker is None and settings.reranker_mode == "cross_encoder":
             from ..integrations.rerank import LocalCrossEncoderReranker
             self.reranker = LocalCrossEncoderReranker(settings.reranker_python_path,
                 settings.reranker_model_path, settings.reranker_model_revision,
                 timeout_seconds=settings.reranker_timeout_seconds, device=settings.reranker_device,
                 max_length=settings.reranker_max_length, batch_size=settings.reranker_batch_size)
-        if self.graph_search is None and settings.retrieval_graph_mode == "lightrag":
-            from ..integrations.lightrag import LightRAGSearchAdapter
-            self.graph_search = LightRAGSearchAdapter(settings.lightrag_python_path,
-                settings.lightrag_index_path, settings.lightrag_timeout_seconds)
 
     async def aclose(self):
         if self.reranker is not None:
@@ -39,10 +35,8 @@ class RetrievalService:
         retrieval_id, groups = new_id("ret"), [g.public() for g in request.source_groups]
         usages, warnings, query_log = [], [], []
         candidate_pools = []
-        graph_enabled = self.graph_search is not None and request.extended
-        enhanced = self.reranker is not None or graph_enabled
-        pipeline = {"reranking": {"status": "disabled"},
-                    "graph": {"status": "not_requested" if self.graph_search is not None else "disabled"}}
+        enhanced = self.reranker is not None
+        pipeline = {"reranking": {"status": "disabled"}}
         plan = plan_requirements(request.message, request.aspect)
 
         async def report(stage, message):
@@ -59,13 +53,6 @@ class RetrievalService:
                 snapshot = sorted(set(snapshot).intersection(request.source_revision_ids))
             attachments = await repo.attachment_context(principal, request.attachment_ids, request.conversation_id)
             selected_documents = await repo.selected_context(principal, request.document_context_ids) if request.document_context_ids else []
-            graph_manifest = None
-            if graph_enabled and snapshot:
-                from ..integrations.lightrag_manifest import capture_graph_snapshot
-                try:
-                    graph_manifest, _ = await capture_graph_snapshot(session, snapshot, self.embedding_client.profile_id)
-                except ValueError:
-                    pipeline["graph"] = {"status": "unavailable", "reason": "snapshot_changed"}
         # Request-specific documents never broaden the shared index snapshot.
         private_context = attachments + selected_documents
         if groups:
@@ -188,24 +175,6 @@ class RetrievalService:
                 hits += [{key: value for key, value in h.items() if key != "neighborOf"}
                          for h in neighbors if h["passageId"] not in seen]
             if enhanced:
-                if graph_manifest is not None:
-                    await report("graph", "관련 개념과 관계를 따라 근거를 찾습니다.")
-                    try:
-                        graph_result = await self.graph_search.search(query, graph_manifest)
-                    except (Exception, asyncio.CancelledError) as exc:
-                        usages.extend(getattr(exc, "usage", {}).get("components", []))
-                        pipeline["graph"] = {"status": "cancelled" if isinstance(exc, asyncio.CancelledError) else "failed"}
-                        raise
-                    usages.extend(graph_result.get("usage", {}).get("components", []))
-                    pipeline["graph"] = {key: value for key, value in graph_result.items()
-                                         if key not in ("passageIds", "usage")}
-                    if graph_result.get("status") == "ready":
-                        async with self.session_factory() as session:
-                            graph_hits = await DocumentRepository(session).fetch_candidate_ids(principal,
-                                graph_result["passageIds"], snapshot, groups)
-                        candidate_pools.append(graph_hits)
-                    else:
-                        warnings.append("관계 검색을 사용할 수 없어 벡터·문자 검색 결과로 진행했습니다.")
                 candidates = select_ranked_hits(merge_candidates(candidate_pools), groups,
                     max(self.settings.retrieval_candidate_limit, len(groups)), per_document_limit=None)["hits"]
                 pipeline["candidateCount"] = len(candidates)
@@ -227,14 +196,6 @@ class RetrievalService:
                 seen = {hit["passageId"] for hit in hits}
                 hits += [{key: value for key, value in hit.items() if key != "neighborOf"}
                          for hit in neighbors if hit["passageId"] not in seen]
-                if pipeline["graph"].get("status") == "ready":
-                    async with self.session_factory() as session:
-                        try:
-                            current, _ = await capture_graph_snapshot(session, snapshot, self.embedding_client.profile_id)
-                        except ValueError as exc:
-                            raise AppError(409, "SOURCE_SNAPSHOT_CHANGED", "검색 도중 문헌 정보가 변경되었습니다. 다시 질문해 주세요.") from exc
-                    if current["fingerprint"] != graph_manifest["fingerprint"]:
-                        raise AppError(409, "SOURCE_SNAPSHOT_CHANGED", "검색 도중 문헌 정보가 변경되었습니다. 다시 질문해 주세요.")
             extended_elapsed = round((monotonic() - extended_start) * 1000, 2) if extended_start else None
             await report("context", "근거의 조건·출처와 문맥 범위를 구성합니다.")
             selected = select_context(hits, self.settings.context_max_characters)

@@ -11,7 +11,7 @@ env = {**os.environ, **{k: v for k, v in dotenv_values(root / '.env').items() if
 args = sys.argv[1:]
 if args and args[0] in ('serve', 'worker'):
     env.update({k: v for k, v in dotenv_values(root / '.env.rag.local', encoding='utf-8-sig').items() if v is not None
-                and (k == 'OW_PDF_PARSER' or k.startswith(('OW_RERANKER_', 'OW_RETRIEVAL_', 'OW_LIGHTRAG_', 'OW_DOCLING_')))})
+                and (k == 'OW_PDF_PARSER' or k.startswith(('OW_RERANKER_', 'OW_RETRIEVAL_', 'OW_DOCLING_')))})
 env['PYTHONPATH'] = str(root / 'backend')
 if not args:
     raise SystemExit('Usage: dev.py serve|worker|migrate|create-user|import-evaluation|import-legacy|test ...')

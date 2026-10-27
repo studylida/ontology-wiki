@@ -11,7 +11,7 @@ Run from the repository root with the application virtual environment:
 .\.venv\Scripts\python.exe scripts\v2\evaluate_rag_pipeline.py --label after --manifest var\rag-evaluation\RUN\baseline\corpus-manifest.json --runtime-config .env.rag.local --output var\rag-evaluation\RUN\after
 ```
 
-Select the after-run retrieval configuration through the existing `OW_RERANKER_*` and `OW_LIGHTRAG_*` settings. `--runtime-config` loads only `OW_RERANKER_*`, `OW_RETRIEVAL_*`, and `OW_LIGHTRAG_*`, matching the service's retrieval runtime overlay without changing generation or identity settings. Wait for the graph index and local model to be ready. `pipelineConfig` records the request configuration; each result's `retrieval.pipeline` records whether each stage actually succeeded or fell back. A changed manifest fails the comparison. Code hashes and generated prompt messages are recorded for new runs, while a baseline from Git also retains its extracted backend snapshot.
+Select retrieval settings through `OW_RERANKER_*` and `OW_RETRIEVAL_*`. `--runtime-config` loads only these non-secret settings without changing generation or identity settings. `pipelineConfig` and `retrieval.pipeline` record the selected configuration and actual reranking execution. A changed manifest fails the comparison. Code hashes and generated prompt messages are recorded for new runs, while a baseline from Git also retains its extracted backend snapshot. The former LightRAG experiment and its graph-mode CLI option were removed at the user's request; saved experiment records are historical evidence, not active commands.
 
 RAGChecker runs in a separate environment so its research dependencies do not alter the application environment:
 
