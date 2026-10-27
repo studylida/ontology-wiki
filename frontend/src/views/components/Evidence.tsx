@@ -276,17 +276,21 @@ export function SourceViewCards({
   const sourceTypes = [...new Set(views.map((view) => view.sourceType))];
   if (!views.length) return null;
   return (
-    <div className="source-views">
-      <div className="subsection-header">
+    <details className="source-views">
+      <summary className="subsection-header">
         <h4>
-          <Users size={16} /> 출처별 관점
+          <Users size={16} /> 자료에서 정리한 관점
         </h4>
         <span>
           {conceptIds.length === 1
             ? "같은 개념의 조건과 근거"
             : "여러 개념의 조건과 근거"}
         </span>
-      </div>
+        <ChevronDown className="source-views-chevron" size={14} aria-hidden="true" />
+      </summary>
+      <p className="fine-print">
+        자료를 바탕으로 자동 정리한 설명입니다. 연결된 자료는 답변의 출처에서 확인할 수 있습니다. 관점을 선택하면 출처와 항목을 기준으로 비교 질문 초안을 준비합니다. 과거 판본은 현재 검색 범위에서 제외될 수 있습니다.
+      </p>
       <div className="view-filters">
         <label>
           <span className="sr-only">발행처 필터</span>
@@ -416,6 +420,6 @@ export function SourceViewCards({
           </button>
         </div>
       )}
-    </div>
+    </details>
   );
 }

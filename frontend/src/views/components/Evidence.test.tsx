@@ -151,13 +151,18 @@ describe("source viewpoint filters", () => {
       .spyOn(ontologyRepository, "sourceViews")
       .mockResolvedValue({ items: [first] });
     const compare = vi.fn();
-    render(
+    const { container } = render(
       <SourceViewCards
         views={[first, second]}
         onOpen={vi.fn()}
         onCompare={compare}
       />,
     );
+    const section = container.querySelector<HTMLDetailsElement>("details.source-views");
+    expect(section?.open).toBe(false);
+    fireEvent.click(screen.getByText("자료에서 정리한 관점"));
+    expect(section?.open).toBe(true);
+    expect(screen.getByText(/출처와 항목을 기준으로 비교 질문 초안을 준비합니다/)).toBeTruthy();
     fireEvent.change(screen.getByRole("combobox", { name: "발행처 필터" }), {
       target: { value: "p1" },
     });

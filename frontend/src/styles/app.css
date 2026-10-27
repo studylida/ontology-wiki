@@ -1681,6 +1681,12 @@ svg {
   gap: 7px;
   margin-bottom: 12px;
 }
+.source-views > summary {
+  cursor: pointer;
+}
+.source-views[open] > summary .source-views-chevron {
+  transform: rotate(180deg);
+}
 .subsection-header h4 {
   display: flex;
   gap: 7px;
