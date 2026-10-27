@@ -206,7 +206,9 @@ class DocumentRepository:
         neighbor_conditions = [and_(Passage.source_revision_id == origin.source_revision_id,
             Passage.ordinal.in_([origin.ordinal - 1, origin.ordinal + 1])) for origin in origins]
         rows = (await self.session.execute(self._base(principal, source_revision_ids, source_groups).where(or_(*neighbor_conditions)).order_by(Passage.source_revision_id, Passage.ordinal).limit(24))).all()
-        return [{**citation_dict(p, r, d), "text": p.text, "score": None, "methods": ["neighbor"]} for p, r, d in rows]
+        return [{**citation_dict(p, r, d), "text": p.text, "score": None, "methods": ["neighbor"],
+                 "neighborOf": [o.id for o in origins if o.source_revision_id == p.source_revision_id and abs(o.ordinal - p.ordinal) == 1]}
+                for p, r, d in rows]
 
     async def attachment_context(self, principal, attachment_ids, conversation_id=None):
         if principal.kind != "user" or not attachment_ids:

@@ -79,7 +79,8 @@ class RetrievalService:
 
         try:
             initial = await execute_query(query) if snapshot else {"hits": [], "groupCoverage": []}
-            hits = private_context + initial["hits"]
+            direct_hits = initial["hits"]
+            hits = private_context + direct_hits
             stop_reason = "basic_search_completed"
             extended_start, extra_count = None, 0
             if request.extended:
@@ -101,7 +102,8 @@ class RetrievalService:
 
                 try:
                     if context_characters(hits) < self.settings.context_max_characters:
-                        hits += await within_budget(neighbors)
+                        hits += [{key: value for key, value in h.items() if key != "neighborOf"}
+                                 for h in await within_budget(neighbors)]
                     # Literal mentions do not establish answerable conditions or
                     # numbers. Prioritize missing signals, but do not skip the
                     # remaining queries or claim sufficiency from word matches.
@@ -131,6 +133,16 @@ class RetrievalService:
                     warnings.append("추가 탐색 시간 예산이 끝나 이미 확보한 근거로 답변합니다.")
                     if query_log and query_log[-1]["status"] == "interrupted":
                         query_log[-1]["status"] = "time_budget"
+            else:
+                async with self.session_factory() as session:
+                    neighbors = await DocumentRepository(session).get_neighbors(principal,
+                        [h["passageId"] for h in direct_hits], source_revision_ids=snapshot, source_groups=groups)
+                direct_order = {hit["passageId"]: i for i, hit in enumerate(direct_hits)}
+                neighbors.sort(key=lambda h: min(direct_order[origin] for origin in h["neighborOf"]))
+                # Preserve direct-result priority; nearby context uses the remaining budget.
+                seen = {hit["passageId"] for hit in hits}
+                hits += [{key: value for key, value in h.items() if key != "neighborOf"}
+                         for h in neighbors if h["passageId"] not in seen]
             extended_elapsed = round((monotonic() - extended_start) * 1000, 2) if extended_start else None
             await report("context", "근거의 조건·출처와 문맥 범위를 구성합니다.")
             selected = select_context(hits, self.settings.context_max_characters)

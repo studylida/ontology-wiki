@@ -58,6 +58,63 @@ async def test_current_snapshot_explicit_scope_and_groups_intersect(sessions, se
 
 
 @pytest.mark.asyncio
+async def test_basic_search_includes_neighboring_experiment_conditions(sessions, settings, principal, reviewer, embedding_client, monkeypatch):
+    from knowledge.documents.repository import DocumentRepository
+
+    source = await indexed_source(sessions, settings, principal, reviewer, embedding_client,
+        text="# 연구\n\n## 시험 조건\n시험편은 250°C에서 1시간 가열했다.\n\n## 관찰 결과\n계면의 결정립이 성장했다.\n\n## 결론\n추가 측정이 필요하다.")
+    revision = source["currentRevisionId"]
+    real_search = DocumentRepository.search
+
+    async def observation_only(self, *args, **kwargs):
+        result = await real_search(self, *args, **kwargs)
+        result["hits"] = [hit for hit in result["hits"] if "관찰 결과" in hit["locator"]]
+        assert len(result["hits"]) == 1
+        return result
+
+    monkeypatch.setattr(DocumentRepository, "search", observation_only)
+    result = await RetrievalService(sessions, embedding_client, settings).search(principal,
+        RetrievalRequest(message="결정립 관찰 결과와 시험 조건", sourceRevisionIds=[revision], extended=False))
+    passages = result["grounding"]["passages"]
+    assert any("관찰 결과" in passage["locator"] for passage in passages)
+    assert any("시험 조건" in passage["locator"] and "250°C" in passage["text"] for passage in passages)
+    assert all(hit["sourceRevisionId"] == revision and "neighborOf" not in hit for hit in result["hits"])
+    assert len({hit["passageId"] for hit in result["hits"]}) == len(result["hits"])
+    assert result["usage"]["fixtureCalls"] == 1
+
+
+@pytest.mark.asyncio
+async def test_neighbors_do_not_displace_direct_sources_under_small_budget(sessions, settings, principal, reviewer, embedding_client, monkeypatch):
+    from knowledge.documents.repository import DocumentRepository
+
+    for publisher in ("first", "second"):
+        await indexed_source(sessions, settings, principal, reviewer, embedding_client, publisher=publisher,
+            text="# 보고서\n\n## 조건\n" + "시험 조건. " * 120 + "\n\n## 관찰\n직접 검색된 관찰 결과.")
+    real_search, real_neighbors = DocumentRepository.search, DocumentRepository.get_neighbors
+
+    async def observations_only(self, *args, **kwargs):
+        result = await real_search(self, *args, **kwargs)
+        result["hits"] = [hit for hit in result["hits"] if "관찰" in hit["locator"]]
+        assert len(result["hits"]) == 2
+        return result
+
+    async def no_neighbors(self, *args, **kwargs):
+        return []
+
+    monkeypatch.setattr(DocumentRepository, "search", observations_only)
+    monkeypatch.setattr(DocumentRepository, "get_neighbors", no_neighbors)
+    rag = RetrievalService(sessions, embedding_client, settings.model_copy(update={"context_max_characters": 1800}))
+    request = RetrievalRequest(message="관찰 결과")
+    baseline = await rag.search(principal, request)
+    monkeypatch.setattr(DocumentRepository, "get_neighbors", real_neighbors)
+    result = await rag.search(principal, request)
+    baseline_ids = [hit["passageId"] for hit in baseline["hits"]]
+    assert len(baseline_ids) == 2
+    assert [hit["passageId"] for hit in result["hits"][:2]] == baseline_ids
+    assert result["exploration"]["grounding"]["groundingCharacters"] <= 1800
+
+
+@pytest.mark.asyncio
 async def test_pending_review_context_never_enters_shared_search(sessions, settings, principal, reviewer, other_principal, embedding_client):
     docs = DocumentService(sessions, settings)
     pending = await docs.create(principal, NewDocument(title="검토 문헌", content="pending DRAM capacitor evidence",
