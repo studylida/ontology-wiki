@@ -22,12 +22,14 @@ class DocumentService:
     def __init__(self, session_factory, settings):
         self.sessions, self.settings = session_factory, settings
 
-    async def create(self, principal, request, *, read_scope_value="full", raw_bytes=None, origin_key=None):
+    async def create(self, principal, request, *, read_scope_value="full", raw_bytes=None, origin_key=None,
+                     media_type=None, processing_metadata=None, passage_records=None):
         principal.require("documents:write")
         raw_path = save_raw(self.settings.storage_path, raw_bytes or request.content.encode())
         async with self.sessions() as session, session.begin():
             doc, rev = await DocumentRepository(session).create_source(principal, request, raw_path,
-                read_scope_value=read_scope_value, origin_key=origin_key)
+                read_scope_value=read_scope_value, origin_key=origin_key, media_type=media_type,
+                processing_metadata=processing_metadata, passage_records=passage_records)
             return document_dict(doc, rev)
 
     @staticmethod
@@ -46,6 +48,12 @@ class DocumentService:
             if previous.content_hash == digest(request.content):
                 return document_dict(doc, previous)
             metadata = dict(previous.metadata_json)
+            if metadata.get("parserProfile"):
+                metadata["derivedFromRevisionId"] = previous.id
+                for field in ("parserProfile", "chunkProfile", "preparedPassagesArtifact", "sourceMapArtifact", "structuredArtifact",
+                              "sourceMapPath", "structuredDocumentPath", "extractedTextPath", "conversionKey"):
+                    metadata.pop(field, None)
+                metadata["documentForm"] = "edited_derivative"
             declared_form = declared_document_form(request.content)
             if declared_form is not None and declared_form != declared_document_form(previous.content):
                 metadata["documentForm"] = declared_form

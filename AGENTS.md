@@ -67,6 +67,8 @@ Windows process management belongs to `scripts/v2/windows_dev.ps1`; it starts th
 
 Offline corpus review uses `scripts/v2/curate_existing_corpus.py` with a hash-checked input manifest and private run-specific rules under `var/corpus-quality/`. It writes only a fresh review run and does not register, approve, or index product data. See `docs/CORPUS_QUALITY_REPORT_20261027.md` for the run and its limitations.
 
+The authorized RAG integrations are an unfinished checkpoint; read `docs/RAG_IMPLEMENTATION_CHECKPOINT_20261027.md` before enabling them. Docling owns structured extraction, the retrieval service merges candidates and invokes one CrossEncoder pass, LightRAG contributes only currently authorized source-passage IDs, and RAGChecker runs offline. Original sources and immutable revisions remain owned by the document service. Explicit local parser/reranker runtimes are authorized for this work; they are not silent generation or embedding fallbacks.
+
 Update API/schema migrations and relevant docs when contracts change. Keep frozen
 applied migrations immutable; add a new migration. Explain what changed, why,
 verified behavior and remaining limits. Keep a stable runId/debugging path. Do not

@@ -1,0 +1,15 @@
+{
+  "purpose": "Two user regression questions, not independent holdout or expert certification. References are a deliberately concise required-fact set; optional experiment details are judged against retrieved evidence, not demanded for recall.",
+  "references": {
+    "tsv_wire": {
+      "answer": "TSV는 실리콘 칩을 관통하는 수직 연결 경로이고, 와이어 본딩은 칩 외부의 가는 금속선으로 패드를 연결하는 방식이다. 적층 칩에서 TSV의 짧은 연결 경로는 신호 지연과 전송 에너지를 줄이는 데 유리하다. 실제 우위의 크기는 패키지와 동작 조건에 따라 달라진다. TSV 적층에는 휨과 발열을 포함한 제조·신뢰성 고려가 필요하고, 외부 와이어는 연결 공간을 차지한다. ThruChip 2014 발표의 32 nm 핀 간 비트당 에너지는 TSV 0.35 pJ/bit, 와이어 본딩 3.45 pJ/bit이며, 메모리 8개와 SoC 1개인 버스 구성의 값은 각각 2.45와 24.15 pJ/bit다. 이 값의 단위는 소비전력 W가 아니라 비트당 에너지다. 해당 표의 전압·속도·부하 및 측정 경계와 실측 여부를 확인하지 못했으므로 동일 조건 실험의 전력 차이로 확정할 수 없다.",
+      "verified_evidence_ids": ["psg_c173b05862134ea29c041af5447e1886", "psg_501bc64691e14f72a7ac8ae052bc81cd", "psg_55129da0a9a546c1958213a9581ea83c"],
+      "manual_checks": ["Four requested comparison rows are present.", "pJ/bit is not presented as W.", "Numbers preserve pin-to-pin versus bus boundary.", "No universal power ratio or equal-condition measurement is invented.", "No unsolicited quantitative-delay absence disclaimer.", "Direct explanations with unobtrusive citations; no repeated publisher narration."]
+    },
+    "thermocompression": {
+      "answer": "열압착 본딩은 접합할 표면에 열과 압력을 가해 밀착시키고 계면의 접합을 형성하는 방식이다. Cu-Cu는 구리 표면끼리의 접합을 뜻한다. 접합 재료와 형상에 맞추어 표면의 산화물·거칠기와 전처리, 온도, 압력 또는 힘, 유지 시간, 분위기를 함께 관리한다. 특정 Cu 시편에서 시험한 온도·힘·시간은 그 실험의 적용 조건이며 모든 제품에 통용되는 공정 레시피는 아니다. 표면 전처리와 실제 열압착 접합은 서로 다른 단계이므로 각 온도와 시간을 구분한다.",
+      "verified_evidence_ids": ["psg_7a625a0b3bc84f74bc9f08f1e19f3786", "psg_3a70805189f941cd83339e3b155db62e", "psg_035100a013df41999c424260291204a4"],
+      "manual_checks": ["Plain-language definition and purpose precede experiment details.", "Any CMP/BCu/NtCu abbreviations used are introduced.", "General concepts and experiment-specific findings are distinguishable.", "Pretreatment 350C/30s and bonding 200/250/300C,30kN/60min remain distinct if cited.", "30kN is force and not pressure.", "Specific experiment numbers are not generalized into production yield.", "No repeated defensive statements or unexplained audit language."]
+    }
+  }
+}

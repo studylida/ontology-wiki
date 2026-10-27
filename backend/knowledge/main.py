@@ -40,6 +40,7 @@ def create_app(settings=None, session_factory=None, embedding_client=None, gener
             yield
         finally:
             await answers.shutdown()
+            await retrieval.aclose()
             if engine:
                 await engine.dispose()
 

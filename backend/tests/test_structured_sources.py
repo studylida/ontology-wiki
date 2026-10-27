@@ -1,0 +1,64 @@
+import json
+
+import pytest
+from sqlalchemy import select
+
+from knowledge.documents.dto import NewDocument, NewRevision
+from knowledge.documents.entities import DocumentRevision, Passage
+from knowledge.documents.parsing import digest, prepared_passages, read_raw_json, save_raw
+from knowledge.documents.service import DocumentService
+
+
+def record(text, offset=0):
+    return {"text": text, "start_offset": offset, "end_offset": offset + len(text),
+            "locator": "페이지 2 · 표 1", "embedding_text": "문헌: 실험\n" + text,
+            "input_hash": "untrusted-supplied-hash"}
+
+
+def test_parser_offsets_and_embedding_identity_are_verified():
+    text = "온도 | 접합률\n250°C | 31.24%"
+    result = prepared_passages(text, [record(text)])
+    assert result[0].input_hash == digest(result[0].embedding_text)
+    assert result[0].input_hash != "untrusted-supplied-hash"
+    with pytest.raises(ValueError):
+        prepared_passages(text, [record("300°C")])
+    with pytest.raises(ValueError):
+        prepared_passages(text, [record(text), record(text)])
+
+
+def test_parser_artifact_is_hash_checked_and_confined_to_storage(tmp_path):
+    relative = save_raw(str(tmp_path), json.dumps([{"page": 2}]).encode())
+    assert read_raw_json(str(tmp_path), relative) == [{"page": 2}]
+    with pytest.raises(ValueError):
+        read_raw_json(str(tmp_path), "../outside.bin")
+    (tmp_path / relative).write_text("modified")
+    with pytest.raises(ValueError):
+        read_raw_json(str(tmp_path), relative)
+
+
+@pytest.mark.asyncio
+async def test_structured_source_keeps_original_and_old_provenance_on_manual_revision(sessions, settings, principal):
+    content = "온도 | 접합률\n250°C | 31.24%"
+    original = b"%PDF-test-original-preservation"
+    docs = DocumentService(sessions, settings)
+    created = await docs.create(principal,
+        NewDocument(title="실험", content=content, documentForm="text_extraction"),
+        raw_bytes=original, media_type="application/pdf", passage_records=[record(content)],
+        processing_metadata={"parserProfile": {"engine": "docling", "version": "test"},
+                             "preparedPassagesArtifact": "prepared-reference", "sourceMapArtifact": "map-reference"})
+    previous_id = created["currentRevisionId"]
+    changed = await docs.add_revision(principal, created["id"], NewRevision(content=content + "\n편집 설명"))
+    async with sessions() as session:
+        old = await session.get(DocumentRevision, previous_id)
+        new = await session.get(DocumentRevision, changed["currentRevisionId"])
+        chunks = list((await session.scalars(select(Passage).where(Passage.source_revision_id == previous_id))).all())
+    assert len(chunks) == 1 and chunks[0].locator == "페이지 2 · 표 1"
+    assert chunks[0].text == content and old.content == content
+    from pathlib import Path
+    assert (Path(settings.storage_path) / old.raw_path).read_bytes() == original
+    assert old.metadata_json["sourceMapArtifact"] == "map-reference"
+    assert old.metadata_json["documentForm"] == "text_extraction"
+    assert new.metadata_json["derivedFromRevisionId"] == previous_id
+    assert new.metadata_json["documentForm"] == "edited_derivative"
+    assert "sourceMapArtifact" not in new.metadata_json
+    assert "parserProfile" not in new.metadata_json

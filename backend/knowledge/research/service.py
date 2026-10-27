@@ -10,7 +10,7 @@ from sqlalchemy import select
 from knowledge.core.errors import AppError
 from knowledge.core.ids import new_id
 from knowledge.documents.dto import NewDocument
-from knowledge.documents.parsing import save_raw
+from knowledge.documents.parsing import save_raw, read_raw_json
 from knowledge.documents.repository import DocumentRepository
 from knowledge.documents.service import DocumentService
 from knowledge.integrations.providers import generate_json
@@ -22,7 +22,9 @@ from knowledge.research.dto import RelevanceAssessment
 
 
 def card(item):
-    metadata = {k: v for k, v in item.metadata_json.items() if k not in ("rawPath", "mediaType")}
+    metadata = {k: v for k, v in item.metadata_json.items() if k not in (
+        "rawPath", "mediaType", "preparedPassagesArtifact", "structuredArtifact", "sourceMapArtifact",
+        "sourceMapPath", "structuredDocumentPath", "extractedTextPath")}
     return {"id": item.id, "title": item.title, "url": item.url, **metadata,
             "readScope": item.read_scope, "content": item.content, "relevance": item.relevance,
             "limitations": item.limitations, "usage": item.usage,
@@ -77,11 +79,18 @@ class ResearchService:
         await self._conversation(principal, body.conversation_id)
         raw, media_type, final_url = await fetch_public(body.url,
             **public_fetch_options(self.settings.research_network_mode))
-        parsed = await parse_download(raw, media_type)
+        parser_options = {}
+        if self.settings.pdf_parser == "docling" and media_type == "application/pdf":
+            parser_options = {"parser": "docling", "python_executable": self.settings.docling_python_path,
+                "artifacts_path": self.settings.docling_artifacts_path, "storage_path": self.settings.storage_path,
+                "max_pages": self.settings.docling_max_pages, "max_characters": self.settings.docling_max_characters,
+                "timeout_seconds": self.settings.docling_timeout_seconds}
+        parsed = await parse_download(raw, media_type, **parser_options)
         raw_path = save_raw(self.settings.storage_path, raw)
         metadata = parsed["metadata"]
         metadata.update(url=final_url, rawPath=raw_path, mediaType=media_type,
-                        sourceType="web_document", attributionBasis="source_metadata_unverified", attributedTo=None)
+                        sourceType="web_document", documentForm="text_extraction",
+                        attributionBasis="source_metadata_unverified", attributedTo=None)
         summary, usage = None, None
         metadata["relevanceStatus"] = "not_requested" if not body.query else "unavailable"
         if body.query and self.settings.provider_mode == "live" and self.generation.model != "unconfigured":
@@ -121,6 +130,8 @@ class ResearchService:
         # File writes and all network/provider work are outside the transaction.
         raw_paths = {key: item.metadata_json.get("rawPath") or save_raw(self.settings.storage_path, item.content.encode())
                      for key, item in originals.items() if item.content}
+        prepared = {key: read_raw_json(self.settings.storage_path, item.metadata_json["preparedPassagesArtifact"])
+                    for key, item in originals.items() if item.metadata_json.get("preparedPassagesArtifact")}
         from knowledge.conversations.repository import ConversationRepository
         async with self.sessions() as session, session.begin():
             await ConversationRepository(session).owned(body.conversation_id, principal.id, lock=True)
@@ -137,11 +148,13 @@ class ResearchService:
                         publisher=metadata.get("publisher"), publisherId=metadata.get("publisherId"),
                         author=metadata.get("author"), attributedTo=metadata.get("attributedTo"),
                         attributionBasis=metadata.get("attributionBasis", "unknown"),
-                        sourceType=metadata.get("sourceType", "unknown"), publishedAt=metadata.get("publishedAt"),
+                        sourceType=metadata.get("sourceType", "unknown"), documentForm=metadata.get("documentForm"),
+                        publishedAt=metadata.get("publishedAt"),
                         visibility="shared_candidate")
                     document, revision = await documents.create_source(principal, request, raw_paths[item_id],
                         read_scope_value=item.read_scope, origin_key=f"research:{principal.id}:{item.id}",
-                        media_type=metadata.get("mediaType"))
+                        media_type=metadata.get("mediaType"), processing_metadata={key: value for key, value in metadata.items()
+                            if key not in ("rawPath", "relevanceStatus")}, passage_records=prepared.get(item_id))
                     revision_id = item.transferred_revision_id = revision.id
                     submitted.append(document.id)
                 attachment_ids.append(await documents.attach(principal, revision_id, body.conversation_id))

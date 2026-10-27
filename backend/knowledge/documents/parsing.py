@@ -87,6 +87,36 @@ def segment(text: str, title: str, *, max_chars: int = 1400, overlap: int = 150)
     return passages
 
 
+def prepared_passages(content: str, records: list[dict]) -> list[ParsedPassage]:
+    """Accept parser-produced chunks only when they map to the stored extraction."""
+    if not isinstance(records, list) or not records:
+        raise ValueError("Structured parsing produced no passages")
+    result, previous_end = [], 0
+    for ordinal, record in enumerate(records):
+        text, start, end = record.get("text"), record.get("start_offset"), record.get("end_offset")
+        locator, embedded = record.get("locator"), record.get("embedding_text")
+        if (not isinstance(text, str) or not text.strip()
+                or type(start) is not int or type(end) is not int
+                or not 0 <= start < end <= len(content) or start < previous_end
+                or content[start:end] != text or not isinstance(locator, str) or not locator.strip()
+                or not isinstance(embedded, str) or not embedded.strip() or text not in embedded):
+            raise ValueError("Structured passage does not match preserved content")
+        result.append(ParsedPassage(ordinal, text, locator, start, end, embedded, digest(embedded)))
+        previous_end = end
+    return result
+
+
+def read_raw_json(storage_path: str, relative_path: str):
+    root = Path(storage_path).resolve()
+    target = (root / relative_path).resolve()
+    if not target.is_relative_to(root) or target.suffix != ".bin":
+        raise ValueError("Invalid source artifact path")
+    body = target.read_bytes()
+    if hashlib.sha256(body).hexdigest() != target.stem:
+        raise ValueError("Source artifact hash mismatch")
+    return json.loads(body)
+
+
 def save_raw(storage_path: str, body: bytes) -> str:
     root = Path(storage_path).resolve()
     hashed = hashlib.sha256(body).hexdigest()

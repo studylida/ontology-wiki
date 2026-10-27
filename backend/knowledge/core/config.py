@@ -28,6 +28,25 @@ class Settings(BaseSettings):
     research_network_mode: Literal["system", "google_doh_egress"] = "system"
     auto_wiki_default: bool = True
     retrieval_limit: int = Field(8, ge=1, le=40)
+    retrieval_candidate_limit: int = Field(60, ge=8, le=200)
+    reranker_mode: Literal["disabled", "cross_encoder"] = "disabled"
+    reranker_python_path: str = ""
+    reranker_model_path: str = ""
+    reranker_model_revision: str = ""
+    reranker_timeout_seconds: float = Field(120.0, gt=0, le=600)
+    reranker_device: Literal["cpu", "cuda"] = "cpu"
+    reranker_max_length: int = Field(1024, ge=128, le=8192)
+    reranker_batch_size: int = Field(4, ge=1, le=64)
+    retrieval_graph_mode: Literal["disabled", "lightrag"] = "disabled"
+    lightrag_python_path: str = ""
+    lightrag_index_path: str = ""
+    lightrag_timeout_seconds: float = Field(90.0, gt=0, le=600)
+    pdf_parser: Literal["legacy", "docling"] = "legacy"
+    docling_python_path: str = ""
+    docling_artifacts_path: str = "./var/docling-artifacts"
+    docling_max_pages: int = Field(100, ge=1, le=500)
+    docling_max_characters: int = Field(300000, ge=1000, le=2000000)
+    docling_timeout_seconds: float = Field(180.0, gt=0, le=900)
     extended_max_queries: int = Field(3, ge=0, le=12)
     extended_seconds: float = Field(15.0, gt=0)
     context_max_characters: int = Field(24000, ge=1000)

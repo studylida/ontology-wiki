@@ -5,7 +5,8 @@ from time import monotonic
 from ..core.errors import AppError
 from ..core.ids import new_id
 from ..core.usage import summarize_usage, unknown_usage
-from ..documents.repository import DocumentRepository
+from ..documents.repository import DocumentRepository, select_ranked_hits
+from .candidates import merge_candidates
 from .context import group_matches, select_context
 from .entities import RetrievalRun
 from .planning import context_characters, coverage, plan_requirements
@@ -13,8 +14,23 @@ from .grounding import compose_grounding
 
 
 class RetrievalService:
-    def __init__(self, session_factory, embedding_client, settings):
+    def __init__(self, session_factory, embedding_client, settings, *, reranker=None, graph_search=None):
         self.session_factory, self.embedding_client, self.settings = session_factory, embedding_client, settings
+        self.reranker, self.graph_search = reranker, graph_search
+        if self.reranker is None and settings.reranker_mode == "cross_encoder":
+            from ..integrations.rerank import LocalCrossEncoderReranker
+            self.reranker = LocalCrossEncoderReranker(settings.reranker_python_path,
+                settings.reranker_model_path, settings.reranker_model_revision,
+                timeout_seconds=settings.reranker_timeout_seconds, device=settings.reranker_device,
+                max_length=settings.reranker_max_length, batch_size=settings.reranker_batch_size)
+        if self.graph_search is None and settings.retrieval_graph_mode == "lightrag":
+            from ..integrations.lightrag import LightRAGSearchAdapter
+            self.graph_search = LightRAGSearchAdapter(settings.lightrag_python_path,
+                settings.lightrag_index_path, settings.lightrag_timeout_seconds)
+
+    async def aclose(self):
+        if self.reranker is not None:
+            await self.reranker.aclose()
 
     async def search(self, principal, request, *, for_answer=False, progress=None,
                      cancel_event=None, history=None):
@@ -22,6 +38,11 @@ class RetrievalService:
         start = monotonic()
         retrieval_id, groups = new_id("ret"), [g.public() for g in request.source_groups]
         usages, warnings, query_log = [], [], []
+        candidate_pools = []
+        graph_enabled = self.graph_search is not None and request.extended
+        enhanced = self.reranker is not None or graph_enabled
+        pipeline = {"reranking": {"status": "disabled"},
+                    "graph": {"status": "not_requested" if self.graph_search is not None else "disabled"}}
         plan = plan_requirements(request.message, request.aspect)
 
         async def report(stage, message):
@@ -38,6 +59,13 @@ class RetrievalService:
                 snapshot = sorted(set(snapshot).intersection(request.source_revision_ids))
             attachments = await repo.attachment_context(principal, request.attachment_ids, request.conversation_id)
             selected_documents = await repo.selected_context(principal, request.document_context_ids) if request.document_context_ids else []
+            graph_manifest = None
+            if graph_enabled and snapshot:
+                from ..integrations.lightrag_manifest import capture_graph_snapshot
+                try:
+                    graph_manifest, _ = await capture_graph_snapshot(session, snapshot, self.embedding_client.profile_id)
+                except ValueError:
+                    pipeline["graph"] = {"status": "unavailable", "reason": "snapshot_changed"}
         # Request-specific documents never broaden the shared index snapshot.
         private_context = attachments + selected_documents
         if groups:
@@ -68,10 +96,18 @@ class RetrievalService:
             if not batch.vectors or len(batch.vectors) != 1:
                 raise AppError(502, "EMBEDDING_CONTRACT_ERROR", "질문 임베딩 응답이 올바르지 않습니다.")
             async with self.session_factory() as session:
-                result = await DocumentRepository(session).search(
-                    principal, batch.vectors[0], self.embedding_client.profile_id, text,
-                    source_revision_ids=snapshot, source_groups=groups,
-                    limit=max(self.settings.retrieval_limit, len(groups)))
+                repo = DocumentRepository(session)
+                if enhanced:
+                    candidates = await repo.search_candidates(principal, batch.vectors[0],
+                        self.embedding_client.profile_id, text, source_revision_ids=snapshot,
+                        source_groups=groups, candidate_limit=max(self.settings.retrieval_candidate_limit, len(groups)))
+                    candidate_pools.append(candidates["hits"])
+                    result = {**candidates, **select_ranked_hits(candidates["hits"], groups,
+                        max(self.settings.retrieval_limit, len(groups)))}
+                else:
+                    result = await repo.search(principal, batch.vectors[0], self.embedding_client.profile_id, text,
+                        source_revision_ids=snapshot, source_groups=groups,
+                        limit=max(self.settings.retrieval_limit, len(groups)))
             query_log.append({"query": text, "elapsedMs": round((monotonic() - call_start) * 1000, 2),
                               "hitCount": len(result["hits"]), "requirementId": requirement_id, "status": "completed"})
             warnings.extend(result.get("warnings", []))
@@ -104,7 +140,7 @@ class RetrievalService:
 
                 neighbor_hits = []
                 try:
-                    if context_characters(hits) < self.settings.context_max_characters:
+                    if not enhanced and context_characters(hits) < self.settings.context_max_characters:
                         neighbor_hits = [{key: value for key, value in h.items() if key != "neighborOf"}
                                          for h in await within_budget(neighbors)]
                     # Literal mentions do not establish answerable conditions or
@@ -141,7 +177,7 @@ class RetrievalService:
                         hits.append(extra_hits[i])
                     if i < len(neighbor_hits):
                         hits.append(neighbor_hits[i])
-            else:
+            elif not enhanced:
                 async with self.session_factory() as session:
                     neighbors = await DocumentRepository(session).get_neighbors(principal,
                         [h["passageId"] for h in direct_hits], source_revision_ids=snapshot, source_groups=groups)
@@ -152,6 +188,47 @@ class RetrievalService:
                 hits += [{key: value for key, value in h.items() if key != "neighborOf"}
                          for h in neighbors if h["passageId"] not in seen]
             extended_elapsed = round((monotonic() - extended_start) * 1000, 2) if extended_start else None
+            if enhanced:
+                if graph_manifest is not None:
+                    await report("graph", "관련 개념과 관계를 따라 근거를 찾습니다.")
+                    graph_result = await self.graph_search.search(query, graph_manifest)
+                    usages.extend(graph_result.get("usage", {}).get("components", []))
+                    pipeline["graph"] = {key: value for key, value in graph_result.items()
+                                         if key not in ("passageIds", "usage")}
+                    if graph_result.get("status") == "ready":
+                        async with self.session_factory() as session:
+                            graph_hits = await DocumentRepository(session).fetch_candidate_ids(principal,
+                                graph_result["passageIds"], snapshot, groups)
+                        candidate_pools.append(graph_hits)
+                    else:
+                        warnings.append("관계 검색을 사용할 수 없어 벡터·문자 검색 결과로 진행했습니다.")
+                candidates = select_ranked_hits(merge_candidates(candidate_pools), groups,
+                    max(self.settings.retrieval_candidate_limit, len(groups)), per_document_limit=None)["hits"]
+                pipeline["candidateCount"] = len(candidates)
+                if self.reranker is not None and candidates:
+                    await report("reranking", "질문과 근거의 관련도를 다시 확인합니다.")
+                    reranked = await self.reranker.rerank(query, candidates)
+                    candidates = reranked["hits"]
+                    pipeline["reranking"] = {"status": "completed", **{key: value for key, value in reranked.items() if key != "hits"}}
+                direct_hits = select_ranked_hits(candidates, groups,
+                    max(self.settings.retrieval_limit, len(groups)))["hits"]
+                async with self.session_factory() as session:
+                    neighbors = await DocumentRepository(session).get_neighbors(principal,
+                        [hit["passageId"] for hit in direct_hits], source_revision_ids=snapshot, source_groups=groups)
+                order = {hit["passageId"]: index for index, hit in enumerate(direct_hits)}
+                neighbors.sort(key=lambda hit: min(order[origin] for origin in hit["neighborOf"]))
+                hits = private_context + direct_hits
+                seen = {hit["passageId"] for hit in hits}
+                hits += [{key: value for key, value in hit.items() if key != "neighborOf"}
+                         for hit in neighbors if hit["passageId"] not in seen]
+                if pipeline["graph"].get("status") == "ready":
+                    async with self.session_factory() as session:
+                        try:
+                            current, _ = await capture_graph_snapshot(session, snapshot, self.embedding_client.profile_id)
+                        except ValueError as exc:
+                            raise AppError(409, "SOURCE_SNAPSHOT_CHANGED", "검색 도중 문헌 정보가 변경되었습니다. 다시 질문해 주세요.") from exc
+                    if current["fingerprint"] != graph_manifest["fingerprint"]:
+                        raise AppError(409, "SOURCE_SNAPSHOT_CHANGED", "검색 도중 문헌 정보가 변경되었습니다. 다시 질문해 주세요.")
             await report("context", "근거의 조건·출처와 문맥 범위를 구성합니다.")
             selected = select_context(hits, self.settings.context_max_characters)
             if context_characters(hits) > self.settings.context_max_characters:
@@ -196,6 +273,7 @@ class RetrievalService:
                       "appliedFilters": {"sourceRevisionIds": snapshot, "sourceGroups": groups, "aspect": request.aspect,
                                          "documentContextIds": request.document_context_ids, "attachmentIds": request.attachment_ids},
                       "usage": summarize_usage(usages), "stopReason": stop_reason,
+                      "pipeline": pipeline,
                       "requirementCoverage": coverage(plan, selected), "semanticSufficiency": "not_evaluated",
                       "exploration": {"planner": "bounded_parameter_aspect_rules_v2", "extraQueries": extra_count,
                           "queryBudget": self.settings.extended_max_queries, "secondsBudget": self.settings.extended_seconds,
@@ -214,6 +292,6 @@ class RetrievalService:
             async with self.session_factory() as session, session.begin():
                 session.add(RetrievalRun(id=retrieval_id, owner_id=principal.id, request=request.public(),
                     snapshot_id=snapshot_id, revision_ids=snapshot,
-                    result={"status": "cancelled" if isinstance(exc, asyncio.CancelledError) else "failed", "code": getattr(exc, "code", "RETRIEVAL_FAILED"),
+                    result={"status": "cancelled" if isinstance(exc, asyncio.CancelledError) else "failed", "code": getattr(exc, "code", "RETRIEVAL_FAILED"), "pipeline": pipeline,
                             "usage": summarize_usage(usages), "queries": query_log}))
             raise

@@ -27,7 +27,6 @@ import {
   CitationList,
   GroupCoverageList,
   RelationCards,
-  SourceViewCards,
 } from "./Evidence";
 
 interface Props {
@@ -45,7 +44,6 @@ export function MessageCard({
   run,
   onOpen,
   onRelation,
-  onCompare,
   onOrganize,
   onRetry,
   onFirstVisible,
@@ -139,7 +137,6 @@ export function MessageCard({
       );
     }
   };
-  const shared = { onOpen, onCompare };
   return (
     <article
       className={`assistant-message ${partial ? "is-partial" : ""}`}
@@ -177,7 +174,6 @@ export function MessageCard({
               citations={message.citations}
               onCitation={onOpen}
             />
-            <SourceViewCards views={message.sourceViews} {...shared} />
             {message.relations.length > 0 && (
               <section className="answer-section">
                 <h3>관련 개념과 근거</h3>
@@ -220,9 +216,6 @@ export function MessageCard({
                     onCitation={onOpen}
                   />
                 )}
-                {index === 2 && (
-                  <SourceViewCards views={message.sourceViews} {...shared} />
-                )}
                 {index === 3 && (
                   <RelationCards
                     relations={message.relations}
@@ -245,7 +238,6 @@ export function MessageCard({
                   </>
                 )}
                 {!parts[index] &&
-                  !(index === 2 && message.sourceViews.length) &&
                   !(index === 3 && message.relations.length) &&
                   !(index === 4 && message.citations.length) && (
                     <p className="inline-empty">

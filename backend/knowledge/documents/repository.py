@@ -11,7 +11,7 @@ from sqlalchemy.orm import aliased
 from knowledge.core.errors import AppError
 from knowledge.core.ids import new_id
 from knowledge.documents.entities import Document, DocumentAttachment, DocumentRevision, EmbeddingRecord, Passage, PassageEmbedding
-from knowledge.documents.parsing import declared_document_form, digest, metadata_digest, segment
+from knowledge.documents.parsing import declared_document_form, digest, metadata_digest, segment, prepared_passages
 
 
 def is_reviewer(principal) -> bool:
@@ -57,6 +57,34 @@ def author_ranking(hits: list[dict], terms: list[str]) -> dict[str, float]:
             for revision, count in matches.items()}
 
 
+def select_ranked_hits(hits: list[dict], source_groups: list[dict] | None = None,
+                       limit: int = 12, *, per_document_limit: int | None = 3) -> dict:
+    """Apply coverage and diversity after ranking, without changing evidence."""
+    groups = source_groups or []
+    chosen, seen, per_doc = [], set(), defaultdict(int)
+
+    def add(hit):
+        chosen.append(hit)
+        seen.add(hit["passageId"])
+        per_doc[hit.get("documentId", hit["sourceRevisionId"])] += 1
+
+    # Requested groups retain an opportunity even when they share a document.
+    for group in groups:
+        for hit in hits:
+            if group_match(hit, group) and hit["passageId"] not in seen:
+                add(hit)
+                break
+    for hit in hits:
+        if len(chosen) >= limit:
+            break
+        doc_id = hit.get("documentId", hit["sourceRevisionId"])
+        if hit["passageId"] not in seen and (per_document_limit is None or per_doc[doc_id] < per_document_limit):
+            add(hit)
+    coverage = [{"groupId": group["groupId"], "hitCount": sum(group_match(h, group) for h in chosen),
+                 "status": "available" if any(group_match(h, group) for h in chosen) else "missing"} for group in groups]
+    return {"hits": chosen, "groupCoverage": coverage}
+
+
 def citation_dict(passage: Passage, revision: DocumentRevision, document: Document) -> dict:
     meta = revision.metadata_json
     return {"id": passage.id, "passageId": passage.id, "sourceRevisionId": revision.id,
@@ -73,9 +101,12 @@ class DocumentRepository:
     def __init__(self, session):
         self.session = session
 
-    async def create_source(self, principal, request, raw_path, *, read_scope_value="full", origin_key=None, media_type=None):
+    async def create_source(self, principal, request, raw_path, *, read_scope_value="full", origin_key=None, media_type=None,
+                            processing_metadata=None, passage_records=None):
         """Insert one source within the caller's transaction (including transfers)."""
         metadata = request.model_dump(mode="json", by_alias=True, exclude={"title", "content", "format", "visibility"})
+        if processing_metadata:
+            metadata = {**processing_metadata, **metadata}
         if metadata.get("documentForm") is None:
             metadata["documentForm"] = declared_document_form(request.content)
         document = Document(id=new_id("doc"), owner_id=principal.id, title=request.title,
@@ -90,7 +121,8 @@ class DocumentRepository:
         self.session.add(revision)
         await self.session.flush()
         document.current_revision_id = revision.id
-        for passage in segment(request.content, request.title):
+        chunks = prepared_passages(request.content, passage_records) if passage_records is not None else segment(request.content, request.title)
+        for passage in chunks:
             self.session.add(Passage(source_revision_id=revision.id, **passage.__dict__))
         await self.session.flush()
         return document, revision
@@ -158,7 +190,14 @@ class DocumentRepository:
             stmt = stmt.where(or_(*(group_predicate(group) for group in groups)))
         return stmt
 
-    async def search(self, principal, query_vector, profile_id, query_text, source_revision_ids=None, source_groups=None, limit=12):
+    async def search_candidates(self, principal, query_vector, profile_id, query_text,
+                                source_revision_ids=None, source_groups=None, candidate_limit=60):
+        """Return a bounded authorized pool before document diversity selection."""
+        return await self.search(principal, query_vector, profile_id, query_text,
+                                 source_revision_ids, source_groups, candidate_limit, candidates_only=True)
+
+    async def search(self, principal, query_vector, profile_id, query_text, source_revision_ids=None,
+                     source_groups=None, limit=12, *, candidates_only=False):
         if source_revision_ids is None:
             source_revision_ids = await self.resolve_snapshot(principal, None, source_groups)
         snapshot = "idx-" + hashlib.sha256("|".join(sorted(source_revision_ids)).encode()).hexdigest()[:24]
@@ -171,6 +210,7 @@ class DocumentRepository:
         vector_stmt = base.join(PassageEmbedding, PassageEmbedding.passage_id == Passage.id).join(EmbeddingRecord, EmbeddingRecord.id == PassageEmbedding.embedding_id).where(PassageEmbedding.profile_id == profile_id)
         distance = EmbeddingRecord.vector.cosine_distance(query_vector)
         vector_rows, lexical_rows = [], []
+        method_limit = max(60, limit if candidates_only else limit * 4)
         separated = re.sub(r"(?<=[^\W\d_가-힣])(?=[가-힣])", " ", query_text)
         terms = list(dict.fromkeys(t.casefold() for t in re.findall(r"[\w\u2070-\u209f-]{2,}", separated)))[:16]
         anchor = aliased(Passage)
@@ -180,7 +220,7 @@ class DocumentRepository:
         # publisher must not evict a smaller requested group's candidates.
         for group in groups or [{}]:
             scoped_vector = vector_stmt.where(group_predicate(group))
-            vector_rows.extend((await self.session.execute(scoped_vector.add_columns(distance.label("distance")).order_by(distance, Passage.id).limit(max(60, limit * 4)))).all())
+            vector_rows.extend((await self.session.execute(scoped_vector.add_columns(distance.label("distance")).order_by(distance, Passage.id).limit(method_limit))).all())
             if terms:
                 author = func.lower(func.coalesce(DocumentRevision.metadata_json["author"].astext, ""))
                 matches = [or_(func.lower(Passage.text).contains(t, autoescape=True),
@@ -188,7 +228,7 @@ class DocumentRepository:
                         author.op("~")(rf"(^|[^[:alnum:]]){re.escape(t)}([^[:alnum:]]|$)")
                         if t.isalpha() else False))) for t in terms]
                 lexical_score = sum(case((condition, 1), else_=0) for condition in matches)
-                lexical_rows.extend((await self.session.execute(base.where(group_predicate(group)).add_columns(lexical_score.label("lexical_score")).where(or_(*matches)).order_by(lexical_score.desc(), Passage.id).limit(max(60, limit * 4)))).all())
+                lexical_rows.extend((await self.session.execute(base.where(group_predicate(group)).add_columns(lexical_score.label("lexical_score")).where(or_(*matches)).order_by(lexical_score.desc(), Passage.id).limit(method_limit))).all())
         vector_rows = sorted({row[0].id: row for row in vector_rows}.values(), key=lambda row: (float(row[3]), row[0].id))
         lexical_rows = sorted({row[0].id: row for row in lexical_rows}.values(), key=lambda row: (-int(row[3]), row[0].id))
         if not vector_rows:
@@ -209,21 +249,10 @@ class DocumentRepository:
                 hit["score"] += author_scores[hit["sourceRevisionId"]]
                 hit["methods"].append("author")
         ordered = sorted(candidates.values(), key=lambda h: (-h["score"], h["passageId"]))
-        chosen, seen, per_doc = [], set(), defaultdict(int)
-        # Give every requested source group an opportunity, never fabricate coverage.
-        for group in groups:
-            for hit in ordered:
-                if group_match(hit, group) and hit["passageId"] not in seen:
-                    chosen.append(hit); seen.add(hit["passageId"]); per_doc[hit["documentId"]] += 1
-                    break
-        for hit in ordered:
-            if len(chosen) >= limit:
-                break
-            if hit["passageId"] not in seen and per_doc[hit["documentId"]] < 3:
-                chosen.append(hit); seen.add(hit["passageId"]); per_doc[hit["documentId"]] += 1
-        coverage = [{"groupId": group["groupId"], "hitCount": sum(group_match(h, group) for h in chosen),
-                     "status": "available" if any(group_match(h, group) for h in chosen) else "missing"} for group in groups]
-        return {"hits": chosen, "indexSnapshotId": snapshot, "groupCoverage": coverage, "warnings": warnings}
+        selected = select_ranked_hits(ordered, groups, limit,
+                                      per_document_limit=None if candidates_only else 3)
+        return {**selected, "indexSnapshotId": snapshot, "warnings": warnings,
+                "candidateCount": len(ordered)}
 
     async def get_neighbors(self, principal, passage_ids, source_revision_ids=None, source_groups=None):
         origins = list((await self.session.scalars(select(Passage).where(Passage.id.in_(passage_ids)))).all())
@@ -237,6 +266,17 @@ class DocumentRepository:
         return [{**citation_dict(p, r, d), "text": p.text, "score": None, "methods": ["neighbor"],
                  "neighborOf": [o.id for o in origins if o.source_revision_id == p.source_revision_id and abs(o.ordinal - p.ordinal) == 1]}
                 for p, r, d in rows]
+
+    async def fetch_candidate_ids(self, principal, passage_ids, source_revision_ids, source_groups=None):
+        """Resolve graph IDs against current approved active evidence, never its cached text."""
+        if not passage_ids or not source_revision_ids:
+            return []
+        rows = (await self.session.execute(self._base(principal, source_revision_ids, source_groups).where(
+            Passage.id.in_(passage_ids), Document.active_revision_id == DocumentRevision.id,
+            DocumentRevision.index_status == "ready"))).all()
+        by_id = {p.id: {**citation_dict(p, r, d), "text": p.text, "documentId": d.id,
+                         "score": None, "methods": ["graph"]} for p, r, d in rows}
+        return [by_id[pid] for pid in dict.fromkeys(passage_ids) if pid in by_id]
 
     async def attachment_context(self, principal, attachment_ids, conversation_id=None):
         if principal.kind != "user" or not attachment_ids:

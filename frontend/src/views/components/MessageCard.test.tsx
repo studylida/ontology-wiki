@@ -155,4 +155,34 @@ describe("answer citation grouping", () => {
     fireEvent.click(screen.getByText("자료 C3"));
     expect(screen.getByRole("button", { name: /출처 3: 자료 C3 · 구간 C3/ })).toBeTruthy();
   });
+  it.each(["analysis", "wiki"] as const)("keeps %s citations and relation actions without rendering stored source views", (responseMode) => {
+    const onOpen = vi.fn();
+    const onRelation = vi.fn();
+    const relation = {
+      id: "rel-1", fromConceptId: "from", toConceptId: "to", fromName: "구리 접합", toName: "표면 평탄화",
+      type: "prerequisite", summary: "접촉면을 고르게 만드는 단계", status: "supported", evidence: [citations[1]],
+    };
+    const sourceView = {
+      id: "view-1", conceptId: "from", sourceRevisionId: "r1", attributionBasis: "author",
+      sourceType: "research", aspect: "conditions", summary: "저장된 자동 관점 설명", status: "current", evidence: [citations[1]],
+    };
+    render(<MessageCard message={{ ...message, responseMode, relations: [relation], sourceViews: [sourceView] }} onOpen={onOpen} onRelation={onRelation} onCompare={vi.fn()} onOrganize={vi.fn()} onRetry={vi.fn()} onFirstVisible={vi.fn()} />);
+    expect(screen.queryByText("자료에서 정리한 관점")).toBeNull();
+    expect(screen.queryByText(sourceView.summary)).toBeNull();
+    expect(screen.queryByRole("button", { name: "등록 관점 조회" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /구리 접합 · 선행 조건 표면 평탄화/ }));
+    fireEvent.click(screen.getByRole("button", { name: "이 개념으로 이어서 질문" }));
+    expect(onRelation).toHaveBeenCalledWith(relation);
+    const citedGroup = screen.getAllByText("자료 C2").find((element) => !element.closest(".relation-card"))!;
+    fireEvent.click(citedGroup);
+    fireEvent.click(within(citedGroup.closest("details")!).getByRole("button", { name: /출처 2: 자료 C2 · 구간 C2/ }));
+    expect(onOpen).toHaveBeenCalledWith(citations[1]);
+  });
+  it("populates the wiki sources section with citations when it needs no explanatory prose", () => {
+    render(<MessageCard message={{ ...message, responseMode: "wiki", content: "## 핵심 설명\n근거가 있는 기술 설명입니다. [출처: C2]\n## 목적·원리\n원리 설명\n## 사례·조건\n조건이 분명한 사례\n## 관계\n관련 개념\n## 출처·부족한 부분\n" }} onOpen={vi.fn()} onRelation={vi.fn()} onCompare={vi.fn()} onOrganize={vi.fn()} onRetry={vi.fn()} onFirstVisible={vi.fn()} />);
+    const sources = screen.getByRole("heading", { name: /출처·부족한 부분/ }).closest("section")!;
+    expect(within(sources).getByText("자료 C2")).toBeTruthy();
+    expect(within(sources).queryByText("이 항목의 내용이 응답에 제공되지 않았습니다.")).toBeNull();
+    expect(within(sources).queryByText("이 답변에 연결된 원문 출처가 없습니다.")).toBeNull();
+  });
 });

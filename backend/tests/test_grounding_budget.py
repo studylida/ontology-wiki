@@ -1,3 +1,7 @@
+import json
+
+import pytest
+
 from knowledge.rag.grounding import compose_grounding, encoded
 from knowledge.rag.dto import AnswerRequest
 from knowledge.answers.prompt import build_messages
@@ -32,6 +36,23 @@ def test_total_prompt_bound_keeps_latest_history_without_extra_model_calls():
     assert sum(len(m["content"]) for m in messages) <= 50000
     assert messages[-2]["content"].startswith("7")
     assert len(messages) < len(history) + 2
+
+
+@pytest.mark.parametrize("mode", ["wiki", "analysis"])
+@pytest.mark.parametrize("question", ["열압착 본딩의 원리와 적용 조건을 설명해 주세요.", "각 자료의 해석과 출처를 비교해 주세요."])
+def test_readable_answer_prompt_preserves_question_and_source_provenance(mode, question):
+    request = AnswerRequest(clientRequestId="source-contract", message=question, responseMode=mode)
+    evidence = {"passages": [{"id": "p1", "passageId": "p1", "sourceRevisionId": "r1", "documentForm": "text_extraction",
+                             "title": "원문 제목", "author": "원문 저자", "locator": "페이지 4 표 2", "text": "시편 A의 조건과 측정 결과"}],
+                "relations": [], "sourceViews": []}
+    retrieval = {"grounding": evidence, "warnings": [], "groupCoverage": [], "requirementCoverage": []}
+    messages = build_messages(request, retrieval, [])
+    assert [message["role"] for message in messages] == ["system", "user"]
+    user_question, payload = messages[-1]["content"].split("\n\nEVIDENCE_JSON\n", 1)
+    evidence_text, coverage_text = payload.split("\nCOVERAGE_JSON\n", 1)
+    assert user_question == question
+    assert json.loads(evidence_text) == evidence
+    assert json.loads(coverage_text)["semanticSufficiency"] == "not_evaluated"
 
 
 def test_ranked_direct_evidence_has_priority_over_graph_expansion():

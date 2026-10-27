@@ -1,0 +1,9 @@
+# Install the CPU runtime from the official PyTorch index first:
+# python -m pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
+# For the verified NVIDIA driver 566.07 use the CUDA 12.6 build instead:
+# python -m pip install torch==2.14.1+cu126 --index-url https://download.pytorch.org/whl/cu126
+torch==2.14.1
+sentence-transformers==6.2.0
+transformers==5.21.0
+huggingface-hub==2.3.0
+numpy==2.5.4

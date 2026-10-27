@@ -1,7 +1,6 @@
-"""Sandboxable, bounded document parsing subprocess. No network or credentials."""
+"""Text extraction entry point; resource bounds are set by bounded_process."""
 import io
 import json
-import resource
 import sys
 
 from bs4 import BeautifulSoup
@@ -9,8 +8,6 @@ from pypdf import PdfReader
 
 
 def parse(body, media_type):
-    resource.setrlimit(resource.RLIMIT_CPU, (8, 8))
-    resource.setrlimit(resource.RLIMIT_AS, (512 * 1024 * 1024, 512 * 1024 * 1024))
     maximum = 80000
     title, metadata, limitations = "", {}, []
     if media_type == "application/pdf":
