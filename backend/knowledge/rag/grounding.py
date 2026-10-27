@@ -50,20 +50,21 @@ def compose_grounding(hits, relations, source_views, max_characters, *, groups=N
         head = next((hit for hit in hits if group_matches(hit, group)), None)
         if head:
             candidates.append(head)
-    for i in range(max(len(hits), len(graph_hits), 0)):
-        if i < len(hits):
-            candidates.append(hits[i])
-        if i < len(graph_hits):
-            candidates.append(graph_hits[i])
+    # Ranked search evidence gets priority; related-concept evidence uses the remaining budget.
+    candidates.extend(hits)
+    candidates.extend(graph_hits)
     payload = {"passages": [], "relations": [], "sourceViews": [], "coverage": "retrieved_evidence_not_semantic_certification"}
     selected, seen = [], set()
-    passage_budget = int(max_characters * .75) if graph_hits and not groups else max_characters - 100
+    direct_ids = {hit["passageId"] for hit in hits}
     for hit in candidates:
         identifier = hit["passageId"]
         if identifier in seen or not hit.get("text", hit.get("excerpt", "")):
             continue
         copy = {**hit, "text": hit.get("text", hit.get("excerpt", ""))}
         proposed = project_hit(copy)
+        passage_budget = max_characters - 100
+        if identifier not in direct_ids and graph_hits and not groups:
+            passage_budget = max(int(max_characters * .75), len(encoded(payload)))
         remaining = passage_budget - len(encoded({**payload, "passages": payload["passages"] + [proposed]}))
         if remaining < 0:
             # Omit rather than fill a tiny remaining slot with a misleading fragment.

@@ -39,6 +39,25 @@ const relation: Relation = {
 };
 
 describe("relation exploration boundaries", () => {
+  it("groups passages by revision while preserving inline citation numbers and earlier-answer provenance", () => {
+    const onOpen = vi.fn();
+    const other = { ...citation, id: "C2", passageId: "p2", sourceRevisionId: "r2", title: "다른 판본" };
+    const previous = { ...citation, id: "C3", passageId: "p3", locator: "결과", sourceType: "editorial_summary", contextOrigin: "earlier_answer" };
+    render(<CitationList citations={[citation, other, previous]} onOpen={onOpen} />);
+    expect(screen.getByText("자료 판본 2개 · 근거 구간 3개")).toBeTruthy();
+    const group = screen.getByText("Fixture source · test only").closest("details")!;
+    expect(group.textContent).toContain("2개 구간");
+    expect(group.open).toBe(false);
+    fireEvent.click(screen.getByText("Fixture source · test only"));
+    const passage = screen.getByRole("button", { name: /출처 3:.*결과/ });
+    expect(passage.textContent).toContain("이전 답변의 출처");
+    fireEvent.click(passage);
+    expect(onOpen).toHaveBeenCalledWith(previous);
+    const otherGroup = screen.getByText("다른 판본").closest("details")!;
+    expect(otherGroup.open).toBe(false);
+    fireEvent.click(screen.getByText("다른 판본"));
+    expect(screen.getByRole("button", { name: /출처 2:.*다른 판본/ })).toBeTruthy();
+  });
   it.each([
     ["is_a", "상위 개념"],
     ["alternative_to", "대체 개념"],
@@ -75,6 +94,7 @@ describe("relation exploration boundaries", () => {
     expect(screen.getByText("동일한 대상 공정에 한함")).toBeTruthy();
     expect(onOpen).not.toHaveBeenCalled();
     expect(onFollowup).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByText("Fixture source · test only"));
     fireEvent.click(screen.getByRole("button", { name: /Fixture source/ }));
     expect(onOpen).toHaveBeenCalledWith(citation);
     expect(onFollowup).not.toHaveBeenCalled();
@@ -93,6 +113,10 @@ describe("relation exploration boundaries", () => {
         onOpen={onOpen}
       />,
     );
+    const group = screen.getByText("Fixture source · test only").closest("details")!;
+    expect(group.open).toBe(false);
+    fireEvent.click(screen.getByText("Fixture source · test only"));
+    expect(group.open).toBe(true);
     fireEvent.click(screen.getByRole("button"));
     expect(onOpen).toHaveBeenCalledTimes(1);
     expect(screen.getByText(/접합 조건/)).toBeTruthy();

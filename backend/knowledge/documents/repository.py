@@ -6,6 +6,7 @@ import re
 from collections import defaultdict
 
 from sqlalchemy import and_, case, func, or_, select
+from sqlalchemy.orm import aliased
 
 from knowledge.core.errors import AppError
 from knowledge.core.ids import new_id
@@ -42,6 +43,18 @@ def group_predicate(group: dict):
 
 def group_match(metadata: dict, group: dict) -> bool:
     return all(metadata.get(k) == group[k] for k in ("publisherId", "sourceType") if group.get(k))
+
+
+def author_ranking(hits: list[dict], terms: list[str]) -> dict[str, float]:
+    author_terms = [t for t in terms if len(t) >= 3 and t.isalpha()]
+    matches = {}
+    for hit in hits:
+        author = str(hit.get("author") or "").casefold()
+        count = sum(bool(re.search(rf"(?<!\w){re.escape(t)}(?!\w)", author)) for t in author_terms)
+        if count:
+            matches[hit["sourceRevisionId"]] = count
+    return {revision: 1 / (61 + sum(other > count for other in matches.values()))
+            for revision, count in matches.items()}
 
 
 def citation_dict(passage: Passage, revision: DocumentRevision, document: Document) -> dict:
@@ -156,14 +169,22 @@ class DocumentRepository:
         vector_stmt = base.join(PassageEmbedding, PassageEmbedding.passage_id == Passage.id).join(EmbeddingRecord, EmbeddingRecord.id == PassageEmbedding.embedding_id).where(PassageEmbedding.profile_id == profile_id)
         distance = EmbeddingRecord.vector.cosine_distance(query_vector)
         vector_rows, lexical_rows = [], []
-        terms = list(dict.fromkeys(t.casefold() for t in re.findall(r"[\w가-힣-]{2,}", query_text)))[:16]
+        separated = re.sub(r"(?<=[^\W\d_가-힣])(?=[가-힣])", " ", query_text)
+        terms = list(dict.fromkeys(t.casefold() for t in re.findall(r"[\w\u2070-\u209f-]{2,}", separated)))[:16]
+        anchor = aliased(Passage)
+        first_visible = select(func.min(anchor.ordinal)).where(anchor.source_revision_id == DocumentRevision.id,
+            anchor.excluded.is_(False)).correlate(DocumentRevision).scalar_subquery()
         # Query each requested group independently before ranking. A high-volume
         # publisher must not evict a smaller requested group's candidates.
         for group in groups or [{}]:
             scoped_vector = vector_stmt.where(group_predicate(group))
             vector_rows.extend((await self.session.execute(scoped_vector.add_columns(distance.label("distance")).order_by(distance, Passage.id).limit(max(60, limit * 4)))).all())
             if terms:
-                matches = [func.lower(Passage.text).contains(t, autoescape=True) for t in terms]
+                author = func.lower(func.coalesce(DocumentRevision.metadata_json["author"].astext, ""))
+                matches = [or_(func.lower(Passage.text).contains(t, autoescape=True),
+                    and_(Passage.ordinal == first_visible, or_(func.lower(Document.title).contains(t, autoescape=True),
+                        author.op("~")(rf"(^|[^[:alnum:]]){re.escape(t)}([^[:alnum:]]|$)")
+                        if t.isalpha() else False))) for t in terms]
                 lexical_score = sum(case((condition, 1), else_=0) for condition in matches)
                 lexical_rows.extend((await self.session.execute(base.where(group_predicate(group)).add_columns(lexical_score.label("lexical_score")).where(or_(*matches)).order_by(lexical_score.desc(), Passage.id).limit(max(60, limit * 4)))).all())
         vector_rows = sorted({row[0].id: row for row in vector_rows}.values(), key=lambda row: (float(row[3]), row[0].id))
@@ -180,6 +201,11 @@ class DocumentRepository:
                 hit["methods"].append(method)
                 if method == "vector":
                     hit["cosineDistance"] = float(row[3])
+        author_scores = author_ranking(list(candidates.values()), terms)
+        for hit in candidates.values():
+            if hit["sourceRevisionId"] in author_scores:
+                hit["score"] += author_scores[hit["sourceRevisionId"]]
+                hit["methods"].append("author")
         ordered = sorted(candidates.values(), key=lambda h: (-h["score"], h["passageId"]))
         chosen, seen, per_doc = [], set(), defaultdict(int)
         # Give every requested source group an opportunity, never fabricate coverage.

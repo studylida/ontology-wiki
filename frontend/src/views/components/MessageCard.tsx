@@ -6,7 +6,7 @@ import {
   FileText,
   Sparkles,
 } from "lucide-react";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import type {
   Citation,
   Message,
@@ -53,6 +53,11 @@ export function MessageCard({
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState<string | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [citationScan, setCitationScan] = useState<{ content: string; key: string; ids: string[] } | null>(null);
+  const citationKey = JSON.stringify(message.citations.map((citation) => citation.id));
+  const onCitationsFound = useCallback((ids: string[]) => {
+    setCitationScan({ content: message.content, key: citationKey, ids });
+  }, [message.content, citationKey]);
   const historical = useRunDetailsController(
     message.runId,
     detailsOpen,
@@ -93,6 +98,8 @@ export function MessageCard({
     );
   const parts = splitWiki(message.content);
   const terminal = isTerminal(message.status);
+  const citedIds = terminal && citationScan?.content === message.content && citationScan.key === citationKey
+    ? new Set(citationScan.ids) : undefined;
   const partial = ["failed", "cancelled", "interrupted"].includes(
     message.status,
   );
@@ -157,6 +164,11 @@ export function MessageCard({
           </Badge>
         )}
       </header>
+      {terminal && message.content && !!message.citations.length && (
+        <div hidden aria-hidden="true">
+          <SafeMarkdown content={message.content} citations={message.citations} onCitationsFound={onCitationsFound} />
+        </div>
+      )}
       {message.content ? (
         message.responseMode === "analysis" ? (
           <div className="answer-body analysis-answer">
@@ -178,7 +190,7 @@ export function MessageCard({
             )}
             <section className="answer-section">
               <h3>출처</h3>
-              <CitationList citations={message.citations} onOpen={onOpen} />
+              <CitationList citations={message.citations} onOpen={onOpen} citedIds={citedIds} />
               <GroupCoverageList
                 summary={info?.retrievalSummary}
                 groups={info?.request?.sourceGroups}
@@ -223,6 +235,7 @@ export function MessageCard({
                     <CitationList
                       citations={message.citations}
                       onOpen={onOpen}
+                      citedIds={citedIds}
                     />
                     <GroupCoverageList
                       summary={info?.retrievalSummary}

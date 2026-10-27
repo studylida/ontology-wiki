@@ -31,3 +31,25 @@ def test_total_prompt_bound_keeps_latest_history_without_extra_model_calls():
     assert sum(len(m["content"]) for m in messages) <= 50000
     assert messages[-2]["content"].startswith("7")
     assert len(messages) < len(history) + 2
+
+
+def test_ranked_direct_evidence_has_priority_over_graph_expansion():
+    hits = [{"id": f"p{i}", "passageId": f"p{i}", "sourceRevisionId": f"r{i}", "text": "검색 근거 " * 50}
+            for i in range(3)]
+    graph = [{"id": f"g{i}", "passageId": f"g{i}", "sourceRevisionId": f"gr{i}", "excerpt": "관계 근거 " * 50}
+             for i in range(6)]
+    views = [{"id": f"v{i}", "conceptId": "c", "sourceRevisionId": g["sourceRevisionId"], "evidence": [g]}
+             for i, g in enumerate(graph)]
+    selected, grounding, _ = compose_grounding(hits, [], views, 2600)
+    assert [hit["passageId"] for hit in selected[:3]] == ["p0", "p1", "p2"]
+    assert len(encoded(grounding)) <= 2600
+
+
+def test_graph_does_not_shrink_budget_for_direct_search_passages():
+    hits = [{"id": f"p{i}", "passageId": f"p{i}", "sourceRevisionId": f"r{i}", "text": "a" * 300} for i in range(4)]
+    reference = {"id": "g", "passageId": "g", "sourceRevisionId": "gr", "excerpt": "b" * 300}
+    views = [{"id": "v", "conceptId": "c", "sourceRevisionId": "gr", "evidence": [reference]}]
+    selected, grounding, _ = compose_grounding(hits, [], views, 1800)
+    assert [hit["passageId"] for hit in selected[:4]] == ["p0", "p1", "p2", "p3"]
+    assert all(not hit.get("contextTruncated") for hit in selected[:4])
+    assert len(encoded(grounding)) <= 1800

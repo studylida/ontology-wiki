@@ -12,10 +12,10 @@ from knowledge.rag.dto import RetrievalRequest, SourceGroup
 from knowledge.rag.service import RetrievalService
 
 
-async def indexed_source(sessions, settings, principal, reviewer, embedding_client, *, publisher="samsung", text="DRAM capacitor stores charge."):
+async def indexed_source(sessions, settings, principal, reviewer, embedding_client, *, publisher="samsung", author=None, text="DRAM capacitor stores charge."):
     documents = DocumentService(sessions, settings)
     source = await documents.create(principal, NewDocument(title=f"{publisher} technical source", content=text,
-        publisherId=publisher, publisher=publisher, sourceType="official", visibility="shared_candidate"))
+        publisherId=publisher, publisher=publisher, author=author, sourceType="official", visibility="shared_candidate"))
     revision_id = source["currentRevisionId"]
     await documents.review(reviewer, revision_id, ReviewRequest(decision="approve", reason="테스트 문헌 검토"))
     async with sessions() as session, session.begin():
@@ -37,6 +37,91 @@ def test_context_budget_preserves_occurrence_identity_and_declares_truncation():
     assert sum(len(r["text"]) for r in result) == 75
     assert result[1]["contextTruncated"] is True
     assert len(additional_queries("A process? B alternative? C limit?", "conditions", 2)) == 2
+
+
+def test_author_rank_is_identical_for_all_passages_of_same_revision():
+    from knowledge.documents.repository import author_ranking
+    hits = [{"sourceRevisionId": "a", "author": "Alice Smith, Bob Lee", "passageId": "z"},
+            {"sourceRevisionId": "a", "author": "Alice Smith, Bob Lee", "passageId": "a"},
+            {"sourceRevisionId": "b", "author": "Carol Smith, David Lee", "passageId": "b"}]
+    scores = author_ranking(hits, ["smith", "lee"])
+    assert scores["a"] == scores["b"] == 1 / 61
+    assert scores == author_ranking(list(reversed(hits)), ["smith", "lee"])
+
+
+@pytest.mark.asyncio
+async def test_author_metadata_improves_ranking_without_dropping_other_sources(sessions, settings, principal, reviewer, embedding_client):
+    from knowledge.documents.repository import DocumentRepository
+
+    first = await indexed_source(sessions, settings, principal, reviewer, embedding_client, publisher="first",
+        author="Alice Smith, Bob Lee", text="공정 성장률 결과 및 시험 조건.")
+    second = await indexed_source(sessions, settings, principal, reviewer, embedding_client, publisher="second",
+        author="Carol Jones, David Khan", text="공정 성장률 결과 및 시험 조건.")
+    async with sessions() as session:
+        repo = DocumentRepository(session)
+        query = "Smith와 Lee의 연구에서 성장률 결과는?"
+        vector = (await embedding_client.embed([query])).vectors[0]
+        result = await repo.search(principal, vector, embedding_client.profile_id, query)
+        assert result["hits"][0]["sourceRevisionId"] == first["currentRevisionId"]
+        assert {hit["sourceRevisionId"] for hit in result["hits"]} == {first["currentRevisionId"], second["currentRevisionId"]}
+        combined = "Smith와 Lee의 연구 결과와 Jones와 Khan의 연구 결과를 함께 알려줘"
+        vector = (await embedding_client.embed([combined])).vectors[0]
+        result = await repo.search(principal, vector, embedding_client.profile_id, combined)
+        assert {hit["sourceRevisionId"] for hit in result["hits"]} == {first["currentRevisionId"], second["currentRevisionId"]}
+
+
+@pytest.mark.asyncio
+async def test_chemical_tokens_and_author_matches_keep_distinct_sources(sessions, settings, principal, reviewer, embedding_client):
+    from knowledge.documents.repository import DocumentRepository
+
+    chemical = await indexed_source(sessions, settings, principal, reviewer, embedding_client, publisher="chemical",
+        author="Alice Smith, Bob Lee", text="# 소스\n\n## 측정\nAl₂O₃ 및 SiO₂와 H₂O의 실험 값.")
+    other = await indexed_source(sessions, settings, principal, reviewer, embedding_client, publisher="other",
+        author="Carol Jones, David Khan", text="thermal metal material")
+    international = await indexed_source(sessions, settings, principal, reviewer, embedding_client, publisher="intl",
+        author="Emir Bostancı", text="전기저항 단위 ωμ 결과")
+    async with sessions() as session:
+        repo = DocumentRepository(session)
+        for term in ("Al₂O₃", "SiO₂", "H₂O"):
+            vector = (await embedding_client.embed([term])).vectors[0]
+            result = await repo.search(principal, vector, "missing-profile", term)
+            assert {hit["sourceRevisionId"] for hit in result["hits"]} == {chemical["currentRevisionId"]}
+        for term in ("Bostancı의", "ωμ"):
+            vector = (await embedding_client.embed([term])).vectors[0]
+            result = await repo.search(principal, vector, "missing-profile", term)
+            assert {hit["sourceRevisionId"] for hit in result["hits"]} == {international["currentRevisionId"]}, ascii(term)
+
+    # Title/author metadata is matched once per document, even for many passages.
+    long_source = await indexed_source(sessions, settings, principal, reviewer, embedding_client, publisher="long",
+        author="Alice Smith, Bob Lee", text="\n\n".join(f"## 단락 {i}\n자료" for i in range(75)))
+    from sqlalchemy import select
+    from knowledge.documents.entities import Passage
+    async with sessions() as session, session.begin():
+        first = await session.scalar(select(Passage).where(Passage.source_revision_id == long_source["currentRevisionId"], Passage.ordinal == 0))
+        first.excluded = True
+    async with sessions() as session:
+        repo = DocumentRepository(session)
+        query = "Smith와 Lee의 연구와 Jones와 Khan의 연구를 비교"
+        vector = (await embedding_client.embed([query])).vectors[0]
+        result = await repo.search(principal, vector, "missing-profile", query)
+        ids = {hit["sourceRevisionId"] for hit in result["hits"]}
+        assert {chemical["currentRevisionId"], other["currentRevisionId"], long_source["currentRevisionId"]} <= ids
+
+
+@pytest.mark.asyncio
+async def test_author_signal_keeps_relevant_experiment_passages_in_long_document(sessions, settings, principal, reviewer, embedding_client):
+    from knowledge.documents.repository import DocumentRepository
+
+    text = "# 일반 개요\n\n## 시험 조건\n성장률 실험조건 두 요인을 함께 살폈다.\n\n## 측정 결과\n성장률 실험조건의 결과를 관찰했다.\n\n" + "\n\n".join(f"## 부록 {i}\n설명" for i in range(75))
+    source = await indexed_source(sessions, settings, principal, reviewer, embedding_client,
+        author="Alice Smith, Bob Lee", text=text)
+    query = "Smith와 Lee의 연구에서 성장률 실험조건"
+    vector = (await embedding_client.embed(["성장률 실험조건"])).vectors[0]
+    async with sessions() as session:
+        result = await DocumentRepository(session).search(principal, vector, embedding_client.profile_id, query)
+    hits = [h for h in result["hits"] if h["sourceRevisionId"] == source["currentRevisionId"]]
+    assert any("시험 조건" in h["locator"] for h in hits)
+    assert any("측정 결과" in h["locator"] for h in hits)
 
 
 @pytest.mark.asyncio

@@ -28,10 +28,12 @@ export function SourcePanel({
   if (!source.selection) return null;
   const revision = source.revision;
   const citation = source.selection.citation;
+  const isSummary = revision?.metadata.sourceType === "editorial_summary" ||
+    (!revision?.metadata.sourceType && citation?.sourceType === "editorial_summary");
   const url = safeUrl(revision?.metadata.url || citation?.url);
   return (
     <Modal
-      title="원문과 근거"
+      title={isSummary ? "편집 요약과 근거" : "자료와 근거"}
       eyebrow="SOURCE READER"
       onClose={source.close}
       className="source-panel"
@@ -45,6 +47,7 @@ export function SourcePanel({
             {revision && (
               <>
                 <h3 className="source-title">{revision.title}</h3>
+                {isSummary && <p className="fine-print">저장된 자료는 편집 요약입니다. 연결된 원문과 구분해 확인하세요.</p>}
                 <div className="badge-row">
                   <Badge tone="blue">
                     {readScopeLabel[revision.readScope] || revision.readScope}
@@ -94,7 +97,7 @@ export function SourcePanel({
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      발행처에서 열기 <ExternalLink size={13} />
+                      {isSummary ? "연결된 원문 링크 열기" : "발행처에서 열기"} <ExternalLink size={13} />
                     </a>
                   )}
                   <button

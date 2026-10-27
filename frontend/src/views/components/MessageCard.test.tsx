@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MessageCard } from "./MessageCard";
-import type { Message, Usage } from "../../types/contracts";
+import type { Citation, Message, Usage } from "../../types/contracts";
 
 beforeEach(() => {
   vi.stubGlobal(
@@ -110,5 +110,49 @@ describe("provider metrics provenance", () => {
     expect(screen.getByText(/입력 900 \/ 출력 200 토큰/)).toBeTruthy();
     expect(screen.getByText(/입력 100 토큰/)).toBeTruthy();
     expect(screen.queryByText("multiple")).toBeNull();
+  });
+});
+
+describe("answer citation grouping", () => {
+  const citations: Citation[] = ["C1", "C2", "C3"].map((id, index) => ({
+    id, sourceRevisionId: `r${index}`, passageId: `p${index}`, title: `자료 ${id}`,
+    locator: `구간 ${id}`, excerpt: `근거 ${id}`,
+    ...(id === "C3" ? { contextOrigin: "earlier_answer" } : {}),
+  }));
+  const message: Message = {
+    id: "m-citations", role: "assistant", responseMode: "analysis", status: "completed",
+    content: "실제 인용 [출처: C2]\n\n`[C1]`\n\n[C1](https://example.org)\n\n```text\n[C3]\n```",
+    createdAt: "2026-10-26T12:00:00Z", citations, relations: [], sourceViews: [], warnings: [],
+  };
+  it.each(["analysis", "wiki"] as const)("prioritizes actual %s citations, retaining numbered uncited and prior sources", (responseMode) => {
+    const onOpen = vi.fn();
+    render(<MessageCard message={{ ...message, responseMode }} onOpen={onOpen} onRelation={vi.fn()} onCompare={vi.fn()} onOrganize={vi.fn()} onRetry={vi.fn()} onFirstVisible={vi.fn()} />);
+    expect(screen.getByText("답변에 인용한 자료")).toBeTruthy();
+    expect(screen.getByText("자료 C2").closest("details")?.open).toBe(false);
+    fireEvent.click(screen.getByText("자료 C2"));
+    expect(screen.getByRole("button", { name: /출처 2: 자료 C2 · 구간 C2/ })).toBeTruthy();
+    const more = screen.getByText("본문에 인용되지 않은 다른 근거 · 2개 구간");
+    expect(more.closest("details")?.open).toBe(false);
+    fireEvent.click(more);
+    const other = more.closest("details")!;
+    expect(within(other).getByText("자료 C1").closest("details")?.open).toBe(false);
+    fireEvent.click(within(other).getByText("자료 C1"));
+    expect(within(other).getByRole("button", { name: /출처 1: 자료 C1 · 구간 C1/ })).toBeTruthy();
+    expect(within(other).getByText("자료 C3").closest("details")?.open).toBe(false);
+    fireEvent.click(within(other).getByText("자료 C3"));
+    const prior = within(other).getByRole("button", { name: /출처 3: 자료 C3 · 구간 C3/ });
+    expect(prior.textContent).toContain("이전 답변의 출처");
+    fireEvent.click(prior);
+    expect(onOpen).toHaveBeenCalledWith(citations[2]);
+  });
+  it("does not hide potential sources while the answer streams", () => {
+    render(<MessageCard message={{ ...message, status: "running" }} onOpen={vi.fn()} onRelation={vi.fn()} onCompare={vi.fn()} onOrganize={vi.fn()} onRetry={vi.fn()} onFirstVisible={vi.fn()} />);
+    expect(screen.queryByText("답변에 인용한 자료")).toBeNull();
+    expect(screen.getByText("자료 C1").closest("details")?.open).toBe(false);
+    fireEvent.click(screen.getByText("자료 C1"));
+    expect(screen.getByRole("button", { name: /출처 1: 자료 C1 · 구간 C1/ })).toBeTruthy();
+    expect(screen.getByText("자료 C3").closest("details")?.open).toBe(false);
+    fireEvent.click(screen.getByText("자료 C3"));
+    expect(screen.getByRole("button", { name: /출처 3: 자료 C3 · 구간 C3/ })).toBeTruthy();
   });
 });

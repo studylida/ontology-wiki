@@ -60,6 +60,7 @@ export interface Citation {
   author?: string | null;
   sourceType?: string | null;
   url?: string | null;
+  contextOrigin?: string | null;
 }
 export interface Relation {
   id: string;

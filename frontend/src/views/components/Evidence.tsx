@@ -79,35 +79,74 @@ export function CitationList({
   citations,
   onOpen,
   compact = false,
+  citedIds,
 }: {
   citations: Citation[];
   onOpen: (citation: Citation) => void;
   compact?: boolean;
+  citedIds?: ReadonlySet<string>;
 }) {
   if (!citations.length) return null;
+  const indexed = citations.map((citation, index) => ({ citation, number: index + 1 }));
+  const groupCount = new Set(citations.map((citation) => citation.sourceRevisionId || citation.id)).size;
+  const renderGroups = (items: typeof indexed) => {
+    const groups = new Map<string, typeof indexed>();
+    items.forEach((item) => {
+      const key = item.citation.sourceRevisionId || item.citation.id;
+      const entries = groups.get(key) || [];
+      entries.push(item);
+      groups.set(key, entries);
+    });
+    return [...groups.entries()].map(([key, entries]) => {
+        const first = entries[0].citation;
+        return (
+          <details className="citation-group" key={key}>
+            <summary>
+              <strong>{first.title || "제목 미확인 문헌"}</strong>
+              <span>
+                {first.sourceType === "editorial_summary" ? "편집 요약 · " : ""}
+                {first.publisher ? `${first.publisher} · ` : ""}{entries.length}개 구간
+              </span>
+            </summary>
+            <div className="citation-group-passages">
+              {entries.map(({ citation, number }) => (
+                <button
+                  key={citation.id}
+                  className="citation-card"
+                  onClick={() => onOpen(citation)}
+                  aria-label={`출처 ${number}: ${citation.title || "제목 미확인 문헌"} · ${citation.locator || "위치 미확인"}`}
+                >
+                  <span className="citation-number">{number}</span>
+                  <span>
+                    <strong>{citation.locator || "위치 미확인"}</strong>
+                    {citation.contextOrigin === "earlier_answer" && <small>이전 답변의 출처</small>}
+                    {!compact && citation.excerpt && (
+                      <span className="citation-excerpt">{citation.excerpt}</span>
+                    )}
+                  </span>
+                  <ArrowUpRight size={15} />
+                </button>
+              ))}
+            </div>
+          </details>
+        );
+      });
+  };
+  const cited = citedIds ? indexed.filter(({ citation }) => citedIds.has(citation.id)) : indexed;
+  const other = citedIds ? indexed.filter(({ citation }) => !citedIds.has(citation.id)) : [];
   return (
     <div className={`citation-list ${compact ? "compact" : ""}`}>
-      {citations.map((citation, index) => (
-        <button
-          key={citation.id}
-          className="citation-card"
-          onClick={() => onOpen(citation)}
-        >
-          <span className="citation-number">{index + 1}</span>
-          <span>
-            <strong>{citation.title || "제목 미확인 문헌"}</strong>
-            <small>
-              {[citation.publisher, citation.locator]
-                .filter(Boolean)
-                .join(" · ") || "위치 미확인"}
-            </small>
-            {!compact && citation.excerpt && (
-              <span className="citation-excerpt">{citation.excerpt}</span>
-            )}
-          </span>
-          <ArrowUpRight size={15} />
-        </button>
-      ))}
+      <p className="fine-print">자료 판본 {groupCount}개 · 근거 구간 {citations.length}개</p>
+      {citedIds && cited.length > 0 && <strong>답변에 인용한 자료</strong>}
+      {citedIds && !cited.length && <p className="fine-print">답변 본문에 연결된 인용을 확인하지 못했습니다.</p>}
+      {renderGroups(cited)}
+      {other.length > 0 && (
+        <details className="other-citations">
+          <summary>본문에 인용되지 않은 다른 근거 · {other.length}개 구간</summary>
+          <p className="fine-print">검색 결과 또는 이전 대화에서 가져온 근거입니다.</p>
+          {renderGroups(other)}
+        </details>
+      )}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Citation } from "../../types/contracts";
@@ -10,7 +10,7 @@ type MarkdownNode = {
   url?: string;
   children?: MarkdownNode[];
 };
-function citationPlugin(citations: Citation[]) {
+function citationPlugin(citations: Citation[], found?: Set<string>) {
   const ids = new Set(citations.map((citation) => citation.id));
   return () => (tree: MarkdownNode) => {
     const walk = (node: MarkdownNode) => {
@@ -26,6 +26,7 @@ function citationPlugin(citations: Citation[]) {
           while ((match = pattern.exec(text))) {
             const citationId = match[1].replace(/^출처\s*:\s*/, "").trim();
             if (!ids.has(citationId)) continue;
+            found?.add(citationId);
             if (match.index > last)
               children.push({
                 type: "text",
@@ -53,12 +54,16 @@ export function SafeMarkdown({
   content,
   citations = [],
   onCitation,
+  onCitationsFound,
 }: {
   content: string;
   citations?: Citation[];
   onCitation?: (citation: Citation) => void;
+  onCitationsFound?: (ids: string[]) => void;
 }) {
-  const plugin = useMemo(() => citationPlugin(citations), [citations]);
+  const found = useMemo(() => new Set<string>(), [content, citations]);
+  const plugin = useMemo(() => citationPlugin(citations, found), [citations, found]);
+  useEffect(() => { onCitationsFound?.([...found]); }, [found, onCitationsFound]);
   const citationMap = useMemo(
     () =>
       new Map(
