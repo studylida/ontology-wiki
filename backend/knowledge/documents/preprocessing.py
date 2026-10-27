@@ -291,6 +291,27 @@ def link_xml(blocks: list[dict], result: dict, raw: bytes) -> dict:
             formula_blocks.setdefault(sha(notation.strip().encode()), set()).add(i)
     paths = {id(node): path for node, path in nodes}
     caption_refs = {}
+    note_refs = {}
+    titles = Counter(location_text(''.join(title.itertext())) for note, _ in nodes
+        if note.tag.rsplit('}', 1)[-1] == 'notes' for title in note
+        if title.tag.rsplit('}', 1)[-1] == 'title')
+    items = result['structuredDocument']['texts']
+    for note, _ in nodes:
+        if note.tag.rsplit('}', 1)[-1] != 'notes':
+            continue
+        headings = [child for child in note if child.tag.rsplit('}', 1)[-1] == 'title']
+        children = [child for child in note if child.tag.rsplit('}', 1)[-1] == 'p']
+        if len(headings) != 1 or len(children) != 1:
+            continue
+        title, value = location_text(''.join(headings[0].itertext())), location_text(''.join(children[0].itertext()))
+        if not title or not value or titles[title] != 1:
+            continue
+        section = [item['self_ref'] for item in items if item.get('label') == 'section_header' and location_text(item.get('text', '')) == title]
+        if len(section) != 1:
+            continue
+        refs = [item['self_ref'] for item in items if (item.get('parent') or {}).get('$ref') == section[0] and location_text(item.get('text', '')) == value]
+        if len(refs) == 1:
+            note_refs[paths[id(children[0])]] = refs[0]
     for node, path in nodes:
         if node.tag.rsplit("}", 1)[-1] not in {"fig", "table-wrap"}:
             continue
@@ -326,6 +347,12 @@ def link_xml(blocks: list[dict], result: dict, raw: bytes) -> dict:
         location = {"xmlId": node.get("id"), "xpath": path}
         matches = []
         if tag == "p":
+            if path in note_refs:
+                matches = [i for i, block in enumerate(blocks) if note_refs[path] in block.get('documentRefs', [])]
+                if len(matches) == 1:
+                    location['matchMethod'] = 'unique_titled_note'
+                else:
+                    matches = []
             if path in caption_refs:
                 matches = [i for i, block in enumerate(blocks) if caption_refs[path].intersection(block.get("documentRefs", []))]
                 if matches:

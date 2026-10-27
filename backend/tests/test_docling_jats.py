@@ -63,6 +63,21 @@ async def test_jats_original_hash_float_table_math_and_exact_offsets(tmp_path):
 
 
 @pytest.mark.asyncio
+async def test_titled_notes_survive_and_identical_short_paragraphs_link_by_parent(tmp_path):
+    from knowledge.documents.runtime_preprocessing import prepare_conversion
+    notes = ('<back><notes><title>Ethics review</title><p>Not applicable.</p></notes>'
+             '<notes><title>Consent statement</title><p>Not applicable.</p></notes></back>')
+    raw = ARTICLE.replace('</article>', notes + '</article>').encode()
+    converted = json.loads(await convert(raw, tmp_path))
+    prepared = prepare_conversion(converted, raw, jats=True)
+    assert converted['metadata']['titledNotesConverted'] == 2
+    for heading, index in [('Ethics review', 1), ('Consent statement', 2)]:
+        matches = [(p, s) for p, s in zip(prepared['preparedPassages'], prepared['sourceMap']) if heading in p['text']]
+        assert len(matches) == 1 and 'Not applicable.' in matches[0][0]['text']
+        assert any(loc.get('matchMethod') == 'unique_titled_note' and f"/*[local-name()='notes'][{index}]" in loc['xpath'] for loc in matches[0][1].get('rawXmlLocations', []))
+
+
+@pytest.mark.asyncio
 async def test_jats_preserves_math_text_and_holds_unsupported_semantics(tmp_path):
     from knowledge.documents.runtime_preprocessing import prepare_conversion
     body = ('<inline-formula><mml:math><mml:mrow><mml:mi>a</mml:mi> + <mml:mi>b</mml:mi></mml:mrow></mml:math></inline-formula>'

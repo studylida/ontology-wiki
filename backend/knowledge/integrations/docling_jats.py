@@ -56,6 +56,14 @@ def normalize_jats(raw: bytes) -> tuple[bytes, dict]:
             float_section.append(item);float_count+=1
         article.remove(floating)
     if float_count: body_node.append(float_section)
+    note_count=0
+    unresolved_notes=[]
+    for note in article.xpath('.//back//notes[title]'):
+        children=list(note)
+        if sum(c.tag=='title' for c in children)==1 and all(c.tag in {'title','p'} for c in children):
+            note.tag='sec';note_count+=1
+        else:
+            unresolved_notes.append({'xmlId':note.get('id'),'reason':'complex_titled_notes_require_review'})
     # Avoid native chunking splitting chemical subscripts and squared units into new lines.
     for node in list(article.iter()):
         if node.tag in {'sub','sup'}:
@@ -120,7 +128,7 @@ def normalize_jats(raw: bytes) -> tuple[bytes, dict]:
         replacement.tail=math_node.tail;math_node.getparent().replace(math_node,replacement)
     normalized=etree.tostring(article,encoding='UTF-8',xml_declaration=True,
         doctype='<!DOCTYPE article SYSTEM "https://jats.nlm.nih.gov/archiving/1.4/JATS-archivearticle1-4.dtd">')
-    return normalized, {"title": original_title, "floatCount": float_count, "mathCount": math_count, "mathFallback": math_fallback, "mathFallbackDetails": fallback_details, "mathNotationHashes": notation_hashes}
+    return normalized, {"title": original_title, "floatCount": float_count, "mathCount": math_count, "mathFallback": math_fallback, "mathFallbackDetails": fallback_details, "mathNotationHashes": notation_hashes, "noteCount":note_count, "unresolvedNotes":unresolved_notes}
 
 
 def parse_jats(raw: bytes, *, artifacts_path: str, max_characters: int = 500000) -> dict:
@@ -163,13 +171,14 @@ def parse_jats(raw: bytes, *, artifacts_path: str, max_characters: int = 500000)
     result=dict(title=title,content=content,readScope='partial',metadata={
         'documentForm':'text_extraction','sourceSha256':hashlib.sha256(raw).hexdigest(),
         'parserInputSha256':hashlib.sha256(normalized).hexdigest(),
-        'sourceXmlNormalization':'unwrap OAI-PMH, remove JATS namespace, declare DTD, move floats-group nodes intact into body, preserve sub/sup as Unicode notation; entity and external fetch disabled',
+        'sourceXmlNormalization':'unwrap OAI-PMH, remove JATS namespace, declare DTD, move floats-group nodes intact into body, preserve titled back notes as sections and sub/sup as Unicode notation; entity and external fetch disabled',
         'relocatedFloatElements':float_count,
         'mathmlNotationConverted':math_count,'mathmlPreservedAsXml':math_fallback,'mathmlFallbackDetails':info['mathFallbackDetails'],
         'mathmlNotationHashes':info['mathNotationHashes'],
+        'titledNotesConverted':info['noteCount'],'unresolvedTitledNotes':info['unresolvedNotes'],
         'parserProfile':{'engine':'docling','version':version('docling'),'coreVersion':version('docling-core'),
                          'sourceFormat':'xml_jats','backend':'JatsDocumentBackend','serialization':'hybrid-markdown-v3',
-                         'inputNormalization':'jats-transport-v3',
+                         'inputNormalization':'jats-transport-v4',
                          'maxCharacters':max_characters,
                          'chunker':'HybridChunker','maxTokens':768,'tokenizer':'cl100k_base','ocr':False,
                          'remoteFetch':False,'localFetch':False},

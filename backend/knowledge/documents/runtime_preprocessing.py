@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import copy
+import xml.etree.ElementTree as ET
 
 from knowledge.documents.parsing import prepared_passages
 from knowledge.documents.preprocessing import assemble, docling_blocks, link_xml, repair_jats, sha, table_reprocessing_candidates
@@ -74,14 +75,35 @@ def prepare_conversion(result: dict, raw: bytes, *, jats: bool = False) -> dict:
         issues.append({"reason": "jats_caption_requires_review", "locations": unresolved})
     if jats and result["metadata"].get("mathmlPreservedAsXml", 0):
         issues.append({"reason": "complex_mathml_requires_review", "count": result["metadata"]["mathmlPreservedAsXml"]})
-    for record, source in zip(result["preparedPassages"], sources, strict=True):
-        if document_hold or any(issue.get("documentRef") in source.get("documentRefs", []) for issue in issues):
+    if jats and result['metadata'].get('unresolvedTitledNotes'):
+        document_hold = True
+        issues.append({'reason': 'jats_notes_title_requires_review', 'locations': result['metadata']['unresolvedTitledNotes']})
+    display_holds = set()
+    if jats and (result.get('normalizedXml') or result['metadata'].get('mathmlNotationConverted', 0)):
+        normalized = result.get('normalizedXml', '')
+        if not normalized or sha(normalized.encode('utf8')) != result['metadata'].get('parserInputSha256'):
+            document_hold = True
+            issues.append({'reason': 'normalized_math_source_unavailable'})
+        else:
+            root = ET.fromstring(normalized)
+            formulas = {''.join(node.itertext()).strip() for node in root.iter() if node.tag.rsplit('}', 1)[-1] == 'tex-math'}
+            risky = {formula for formula in formulas if formula and any(char in formula for char in '\\_^{}')}
+            for ordinal, record in enumerate(result['preparedPassages']):
+                if '$$' in record['text'] or any(formula in record['text'] for formula in risky):
+                    display_holds.add(ordinal)
+            if any(formula and not any(formula in record['text'] for record in result['preparedPassages']) for formula in formulas):
+                document_hold = True
+                issues.append({'reason': 'converted_math_missing_from_extraction'})
+            if display_holds:
+                issues.append({'reason': 'math_display_requires_review', 'passageOrdinals': sorted(display_holds)})
+    for ordinal, (record, source) in enumerate(zip(result["preparedPassages"], sources, strict=True)):
+        if document_hold or ordinal in display_holds or any(issue.get("documentRef") in source.get("documentRefs", []) for issue in issues):
             record["qualityHold"] = "전처리 구조 또는 수식 확인 필요"
     result["metadata"]["preprocessingQuality"] = {"version": 2, "issues": issues,
         "heldPassages": sum(bool(record.get("qualityHold")) for record in result["preparedPassages"]),
         "unmatchedXmlParagraphs": len(mapping.get("unmatchedParagraphs", [])), "captionCorrections": edits}
     if issues:
         result["readScope"] = "partial"
-        result["limitations"].append("표 구조 또는 수식에 검토가 필요한 구간이 있어 검색에서 보류합니다.")
+        result["limitations"].append("추출 구조, 원문 제목 또는 수식 표시에 검토가 필요한 구간이 있어 검색에서 보류합니다.")
     prepared_passages(result["content"], result["preparedPassages"])
     return result

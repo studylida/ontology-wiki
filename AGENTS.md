@@ -77,7 +77,9 @@ revisions can release their edit hold. Markdown segmentation preserves block and
 source offsets. Unique XML evidence locations are retained in the source map;
 uncertain locations and original files are never replaced. JATS math conversion
 retains original MathML when layout is unsupported; unique formula hashes can
-link source paragraphs without guessing. Legacy extraction and
+link source paragraphs without guessing. Unique titled JATS notes retain their
+parent context; ambiguous notes and math whose Markdown display is unsafe are
+held for review. Legacy extraction and
 previously indexed content are outside this runtime quality gate. See
 `docs/PREPROCESSING_RUNTIME_VALIDATION_20261027.md` for scoped checks.
 

@@ -175,6 +175,44 @@ def test_short_ambiguous_paragraphs_are_reported_as_unmatched():
     assert not blocks[0].get("rawXmlLocations")
 
 
+def test_titled_note_requires_unique_title_and_parent_reference():
+    raw = b'<article><back><notes><title>Ethics</title><p>Not applicable.</p></notes><notes><title>Consent</title><p>Not applicable.</p></notes></back></article>'
+    items = [{'self_ref': '#/texts/0', 'label': 'section_header', 'text': 'Ethics'},
+             {'self_ref': '#/texts/1', 'label': 'text', 'text': 'Not applicable.', 'parent': {'$ref': '#/texts/0'}},
+             {'self_ref': '#/texts/2', 'label': 'section_header', 'text': 'Consent'},
+             {'self_ref': '#/texts/3', 'label': 'text', 'text': 'Not applicable.', 'parent': {'$ref': '#/texts/2'}}]
+    result = {'structuredDocument': {'texts': items}}
+    blocks = [{'text': 'Ethics\nNot applicable.', 'documentRefs': ['#/texts/1']},
+              {'text': 'Consent\nNot applicable.', 'documentRefs': ['#/texts/3']}]
+    assert not link_xml(blocks, result, raw)['unmatchedParagraphs']
+    assert all(block['rawXmlLocations'][0]['matchMethod'] == 'unique_titled_note' for block in blocks)
+    ambiguous = raw.replace(b'Consent', b'Ethics')
+    blocks = [{'text': 'Ethics\nNot applicable.', 'documentRefs': ['#/texts/1']}]
+    assert len(link_xml(blocks, result, ambiguous)['unmatchedParagraphs']) == 2
+
+
+def test_math_display_and_table_formula_are_held_without_holding_clean_text():
+    raw = b'<article><body><p>Source</p></body></article>'
+    normalized = '<article><body><tex-math>{x}_{i}</tex-math><tex-math>\\frac{a}{b}</tex-math></body></article>'
+    values = ['Condition 250°C.', '$${x}_{i}$$', '| Value |\n| --- |\n| \\frac{a}{b} |']
+    content = '\n\n'.join(values)
+    starts = [content.index(value) for value in values]
+    records = [{'text': value, 'locator': 'source', 'start_offset': start, 'end_offset': start + len(value), 'embedding_text': value}
+               for value, start in zip(values, starts)]
+    source_map = [{'startOffset': r['start_offset'], 'endOffset': r['end_offset'], 'locator': 'source',
+                   'documentRefs': [], 'label': 'text', 'pageNumbers': [], 'provenance': []} for r in records]
+    data = {'title': 'source', 'content': content, 'readScope': 'full', 'limitations': [],
+            'metadata': {'sourceSha256': sha(raw), 'parserInputSha256': sha(normalized.encode()), 'mathmlNotationConverted': 2},
+            'normalizedXml': normalized, 'structuredDocument': {'texts': [], 'tables': []},
+            'sourceMap': source_map, 'preparedPassages': records}
+    result = prepare_conversion(data, raw, jats=True)
+    assert [bool(p.get('qualityHold')) for p in result['preparedPassages']] == [False, True, True]
+    assert [p.excluded for p in prepared_passages(result['content'], result['preparedPassages'])] == [False, True, True]
+    assert any(issue['reason'] == 'math_display_requires_review' for issue in result['metadata']['preprocessingQuality']['issues'])
+    data['metadata']['parserInputSha256'] = 'invalid'
+    assert prepare_conversion(data, raw, jats=True)['metadata']['preprocessingQuality']['heldPassages'] == 3
+
+
 @pytest.mark.parametrize("lost", ["105 mA", "10.5 mA"])
 def test_xml_caption_numeric_sign_and_decimal_mismatch_stays_on_hold(lost):
     raw = b'<article><body><fig id="f1"><label>Figure 1</label><caption><p>Measured current was &#8722;10.5 mA.</p></caption></fig></body></article>'
