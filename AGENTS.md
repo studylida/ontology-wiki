@@ -63,6 +63,13 @@ motion and keyboard interaction, and never manufacture progress or typing delays
 
 ## Handoff
 
+Offline preprocessing is owned by `knowledge.documents.preprocessing` and
+`scripts/v2/preprocess_documents.py`. It reads hash-pinned local originals and
+existing Docling artifacts, writes a fresh immutable review bundle, and never
+registers, approves, embeds, indexes, or activates service data. Paragraph/table
+boundaries, raw XML nodes, extraction offsets and editorial notes remain separate.
+See `docs/PREPROCESSING_QUALITY_20261027.md` for verification and remaining limits.
+
 Windows process management belongs to `scripts/v2/windows_dev.ps1`; it starts the existing API/worker/Vite entry points and manages only its recorded local processes. See `docs/WINDOWS_LOCAL.md` for this environment; application layer boundaries remain unchanged.
 
 Offline corpus review uses `scripts/v2/curate_existing_corpus.py` with a hash-checked input manifest and private run-specific rules under `var/corpus-quality/`. It writes only a fresh review run and does not register, approve, or index product data. See `docs/CORPUS_QUALITY_REPORT_20261027.md` for the run and its limitations.
