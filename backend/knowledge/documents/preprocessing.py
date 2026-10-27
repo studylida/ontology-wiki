@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import copy
+from collections import Counter
 import hashlib
 import json
 import re
@@ -279,19 +280,43 @@ def link_xml(blocks: list[dict], result: dict, raw: bytes) -> dict:
     searchable = [location_text(b["text"]) for b in blocks]
     paragraphs = [n for n, _ in nodes if n.tag.rsplit("}", 1)[-1] == "p"]
     paragraph_texts = [location_text("".join(n.itertext())) for n in paragraphs]
+    formulas = result.get("metadata", {}).get("mathmlNotationHashes", [])
+    formula_hash_counts = Counter(item["sha256"] for item in formulas)
+    formula_ids = Counter(n.get("id") for n, _ in nodes if n.tag.rsplit("}", 1)[-1] == "math" and n.get("id"))
+    formula_by_id = {item["xmlId"]: item for item in formulas if item.get("xmlId") and
+                     item.get("length", 0) >= 40 and formula_ids[item["xmlId"]] == 1 and formula_hash_counts[item["sha256"]] == 1}
+    formula_blocks = {}
+    for i, block in enumerate(blocks):
+        for notation in re.findall(r"\$\$(.*?)\$\$", block["text"], re.S):
+            formula_blocks.setdefault(sha(notation.strip().encode()), set()).add(i)
+    paths = {id(node): path for node, path in nodes}
+    caption_refs = {}
+    for node, path in nodes:
+        if node.tag.rsplit("}", 1)[-1] not in {"fig", "table-wrap"}:
+            continue
+        caption = next((c for c in node if c.tag.rsplit("}", 1)[-1] == "caption"), None)
+        if caption is None:
+            continue
+        caption_paragraphs = [c for c in caption.iter() if c.tag.rsplit("}", 1)[-1] == "p"]
+        if len(caption_paragraphs) == 1:
+            location = {"xmlId": node.get("id"), "xpath": path}
+            refs = {item["self_ref"] for item in result["structuredDocument"]["texts"]
+                    if item.get("rawXmlLocation") == location}
+            if refs:
+                caption_refs[paths[id(caption_paragraphs[0])]] = refs
 
     def plain_fragments(node):
         parts = [""]
         def walk(current):
             parts[-1] += current.text or ""
             for child in current:
-                if child.tag.rsplit("}", 1)[-1] in {"math", "tex-math"}:
+                if child.tag.rsplit("}", 1)[-1] in {"math", "tex-math", "inline-formula", "disp-formula", "sub", "sup", "italic", "bold", "xref"}:
                     parts.append("")
                 else:
                     walk(child)
                 parts[-1] += child.tail or ""
         walk(node)
-        return [location_text(part) for part in parts if len(location_text(part)) >= 50]
+        return [location_text(part) for part in parts if len(location_text(part)) >= 40]
 
     ids, misses = {}, []
     for node, path in nodes:
@@ -301,9 +326,13 @@ def link_xml(blocks: list[dict], result: dict, raw: bytes) -> dict:
         location = {"xmlId": node.get("id"), "xpath": path}
         matches = []
         if tag == "p":
+            if path in caption_refs:
+                matches = [i for i, block in enumerate(blocks) if caption_refs[path].intersection(block.get("documentRefs", []))]
+                if matches:
+                    location["matchMethod"] = "unique_caption_reference"
             # Only complete paragraph matches are accepted, never fuzzy anchors.
             value = location_text("".join(node.itertext()))
-            if len(value) >= 25:
+            if not matches and len(value) >= 25:
                 matches = [i for i, text in enumerate(searchable) if value in text]
                 if len(matches) > 1 or sum(value in text for text in paragraph_texts) != 1:
                     matches = []
@@ -315,6 +344,16 @@ def link_xml(blocks: list[dict], result: dict, raw: bytes) -> dict:
                         matches = candidates
                         location.update(matchMethod="unique_literal_fragment", matchedText=anchor)
                         break
+            if not matches:
+                for math in node.iter():
+                    if math.tag.rsplit("}", 1)[-1] != "math":
+                        continue
+                    item = formula_by_id.get(math.get("id"))
+                    candidates = formula_blocks.get(item["sha256"], set()) if item else set()
+                    if len(candidates) == 1:
+                        matches = list(candidates)
+                        location.update(matchMethod="unique_formula_hash", formulaXmlId=math.get("id"), notationSha256=item["sha256"])
+                        break
         else:
             refs = {item["self_ref"] for item in result["structuredDocument"]["texts"]
                     if item.get("rawXmlLocation") == location}
@@ -323,7 +362,7 @@ def link_xml(blocks: list[dict], result: dict, raw: bytes) -> dict:
             blocks[i].setdefault("rawXmlLocations", []).append(location)
         if node.get("id"):
             ids[node.get("id")] = matches
-        if tag == "p" and len(location_text("".join(node.itertext()))) >= 25 and not matches:
+        if tag == "p" and location_text("".join(node.itertext())) and not matches:
             misses.append(location)
         if matches:
             for xref in node.iter():

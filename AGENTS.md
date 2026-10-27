@@ -75,7 +75,9 @@ before `DocumentRepository` stores prepared passages. Structural or formula qual
 holds use the existing excluded-passage state; only explicitly reviewed edited
 revisions can release their edit hold. Markdown segmentation preserves block and
 source offsets. Unique XML evidence locations are retained in the source map;
-uncertain locations and original files are never replaced. Legacy extraction and
+uncertain locations and original files are never replaced. JATS math conversion
+retains original MathML when layout is unsupported; unique formula hashes can
+link source paragraphs without guessing. Legacy extraction and
 previously indexed content are outside this runtime quality gate. See
 `docs/PREPROCESSING_RUNTIME_VALIDATION_20261027.md` for scoped checks.
 

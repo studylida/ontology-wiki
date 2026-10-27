@@ -67,7 +67,9 @@ def normalize_jats(raw: bytes) -> tuple[bytes, dict]:
             node.getparent().replace(node,replacement)
     def math_notation(node):
         tag=etree.QName(node).localname
-        if tag in {'mi','mn','mo','mtext'}: return ''.join(node.itertext())
+        if tag in {'mi','mn','mo','mtext'}:
+            if len(node): raise ValueError('Nested MathML token requires review')
+            return node.text or ''
         children=list(node)
         if tag=='semantics':
             if len(children)!=1: raise ValueError('MathML semantics annotations require review')
@@ -83,17 +85,42 @@ def normalize_jats(raw: bytes) -> tuple[bytes, dict]:
         if tag=='msubsup': return '{'+math_notation(children[0])+'}_{'+math_notation(children[1])+'}^{'+math_notation(children[2])+'}'
         if tag=='mfrac': return '\\frac{'+math_notation(children[0])+'}{'+math_notation(children[1])+'}'
         if tag=='msqrt': return '\\sqrt{'+''.join(math_notation(c) for c in children)+'}'
+        if (tag=='mfenced' and len(children)==1 and set(node.attrib) <= {'open','close','separators'}
+                and (node.get('open','('),node.get('close',')')) in {('(',')'),('[',']')}):
+            return node.get('open','(')+math_notation(children[0])+node.get('close',')')
+        if tag=='mover' and len(children)==2 and set(node.attrib) <= {'accent'} and node.get('accent') in {None,'true','false'}:
+            mark=math_notation(children[1])
+            if mark in {'−','-'}: return '\\overset{'+mark+'}{'+math_notation(children[0])+'}'
+            if mark=='^' and node.get('accent')=='true': return '\\hat{'+math_notation(children[0])+'}'
+        if (tag=='munderover' and len(children)==3 and not node.attrib
+                and etree.QName(children[0]).localname=='mo' and math_notation(children[0])=='∑'):
+            return '\\sum\\limits_{'+math_notation(children[1])+'}^{'+math_notation(children[2])+'}'
+        if tag=='mtable' and set(node.attrib) <= {'columnalign'} and node.get('columnalign','left')=='left' and children:
+            rows=[]
+            for row in children:
+                if etree.QName(row).localname!='mtr' or row.attrib or (row.text or '').strip() or len(row)!=1:
+                    raise ValueError('MathML table layout requires review')
+                cell=row[0]
+                if (etree.QName(cell).localname!='mtd' or cell.attrib or (cell.tail or '').strip()
+                        or (cell.text or '').strip() or any((c.tail or '').strip() for c in cell)):
+                    raise ValueError('MathML table layout requires review')
+                rows.append((cell.text or '')+''.join(math_notation(c)+(c.tail or '') for c in cell))
+            return '\\begin{aligned}'+r'\\'.join('&'+row for row in rows)+'\\end{aligned}'
         raise ValueError('Unsupported MathML layout')
     math_count=math_fallback=0
+    fallback_details=[]
+    notation_hashes=[]
     for math_node in list(article.xpath('.//*[local-name()="math"]')):
         try:
             notation=math_notation(math_node);replacement=etree.Element('tex-math');replacement.text=notation;math_count+=1
-        except (ValueError,IndexError):
+            notation_hashes.append({'xmlId':math_node.get('id'),'sha256':hashlib.sha256(notation.strip().encode('utf8')).hexdigest(), 'length':len(notation.strip())})
+        except (ValueError,IndexError) as exc:
             replacement=etree.Element('named-content');replacement.text='[MathML 원문: '+etree.tostring(math_node,encoding='unicode',with_tail=False)+']';math_fallback+=1
+            fallback_details.append({'xmlId':math_node.get('id'),'reason':str(exc) or 'MathML operand count requires review'})
         replacement.tail=math_node.tail;math_node.getparent().replace(math_node,replacement)
     normalized=etree.tostring(article,encoding='UTF-8',xml_declaration=True,
         doctype='<!DOCTYPE article SYSTEM "https://jats.nlm.nih.gov/archiving/1.4/JATS-archivearticle1-4.dtd">')
-    return normalized, {"title": original_title, "floatCount": float_count, "mathCount": math_count, "mathFallback": math_fallback}
+    return normalized, {"title": original_title, "floatCount": float_count, "mathCount": math_count, "mathFallback": math_fallback, "mathFallbackDetails": fallback_details, "mathNotationHashes": notation_hashes}
 
 
 def parse_jats(raw: bytes, *, artifacts_path: str, max_characters: int = 500000) -> dict:
@@ -138,7 +165,8 @@ def parse_jats(raw: bytes, *, artifacts_path: str, max_characters: int = 500000)
         'parserInputSha256':hashlib.sha256(normalized).hexdigest(),
         'sourceXmlNormalization':'unwrap OAI-PMH, remove JATS namespace, declare DTD, move floats-group nodes intact into body, preserve sub/sup as Unicode notation; entity and external fetch disabled',
         'relocatedFloatElements':float_count,
-        'mathmlNotationConverted':math_count,'mathmlPreservedAsXml':math_fallback,
+        'mathmlNotationConverted':math_count,'mathmlPreservedAsXml':math_fallback,'mathmlFallbackDetails':info['mathFallbackDetails'],
+        'mathmlNotationHashes':info['mathNotationHashes'],
         'parserProfile':{'engine':'docling','version':version('docling'),'coreVersion':version('docling-core'),
                          'sourceFormat':'xml_jats','backend':'JatsDocumentBackend','serialization':'hybrid-markdown-v3',
                          'inputNormalization':'jats-transport-v3',

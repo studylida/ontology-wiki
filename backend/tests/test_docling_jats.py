@@ -78,6 +78,25 @@ async def test_jats_preserves_math_text_and_holds_unsupported_semantics(tmp_path
 
 
 @pytest.mark.asyncio
+async def test_jats_fences_and_overmarks_keep_structure_and_unsupported_layout_is_held(tmp_path):
+    body = ('<inline-formula><mml:math id="fenced"><mml:mfenced open="[" close="]"><mml:mi>x</mml:mi></mml:mfenced></mml:math></inline-formula>'
+            '<inline-formula><mml:math id="over"><mml:mover accent="true"><mml:mi>y</mml:mi><mml:mo>^</mml:mo></mml:mover></mml:math></inline-formula>'
+            '<inline-formula><mml:math id="rows"><mml:mtable columnalign="left"><mml:mtr><mml:mtd><mml:mi>x</mml:mi></mml:mtd></mml:mtr><mml:mtr><mml:mtd><mml:mi>y</mml:mi></mml:mtd></mml:mtr></mml:mtable></mml:math></inline-formula>'
+            '<inline-formula><mml:math id="sum"><mml:munderover><mml:mo>∑</mml:mo><mml:mi>i</mml:mi><mml:mi>n</mml:mi></mml:munderover></mml:math></inline-formula>'
+            '<inline-formula><mml:math id="unknown"><mml:mtable><mml:mtr><mml:mtd><mml:mi>x</mml:mi></mml:mtd><mml:mtd><mml:mi>y</mml:mi></mml:mtd></mml:mtr></mml:mtable></mml:math></inline-formula>'
+            '<inline-formula><mml:math id="multi"><mml:mfenced><mml:mi>x</mml:mi><mml:mi>y</mml:mi></mml:mfenced></mml:math></inline-formula>'
+            '<inline-formula><mml:math id="nested"><mml:mi><mml:mglyph alt="x"/></mml:mi></mml:math></inline-formula>')
+    raw = ARTICLE.replace('Specimen-specific observation.', body).encode()
+    result = json.loads(await convert(raw, tmp_path))
+    assert '[x]' in result['normalizedXml']
+    assert r'\hat{y}' in result['normalizedXml']
+    assert r'\begin{aligned}&x\\&y\end{aligned}' in result['content']
+    assert r'\sum\limits_{i}^{n}' in result['normalizedXml']
+    assert result['metadata']['mathmlPreservedAsXml'] == 3
+    assert [x['xmlId'] for x in result['metadata']['mathmlFallbackDetails']] == ['unknown', 'multi', 'nested']
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("encoding", ["utf-8", "utf-16"])
 async def test_jats_rejects_entity_declarations_including_utf16(tmp_path, encoding):
     malicious = '<!DOCTYPE article [<!ENTITY xxe SYSTEM "file:///never-read">]><article>&xxe;</article>'

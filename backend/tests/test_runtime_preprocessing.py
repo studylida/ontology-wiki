@@ -130,9 +130,48 @@ def test_unique_literal_fragment_maps_original_xml_but_ambiguous_text_does_not()
     blocks = [{"text": prefix + "a_{i} were measured.", "documentRefs": []}]
     link_xml(blocks, result, duplicate)
     assert not blocks[0].get("rawXmlLocations")
+
+
+def test_unique_plain_fragment_after_chemical_subscript_maps_only_its_original_paragraph():
+    before = "A brief explanation of Al"
+    after = "deposition conditions were measured carefully for every specimen during the experiment."
+    raw = f"<article><body><p>{before}<sub>2</sub>O<sub>3</sub> {after}</p></body></article>".encode()
+    blocks = [{"text": before + "₂O₃ " + after, "documentRefs": []}]
+    result = {"structuredDocument": {"texts": []}}
+    assert not link_xml(blocks, result, raw)["unmatchedParagraphs"]
+    assert blocks[0]["rawXmlLocations"][0]["matchMethod"] == "unique_literal_fragment"
+    duplicate = raw.replace(b"</body>", f"<p>Another Al<sub>2</sub>O<sub>3</sub> {after}</p></body>".encode())
+    blocks = [{"text": before + "₂O₃ " + after, "documentRefs": []}]
+    link_xml(blocks, result, duplicate)
+    assert not blocks[0].get("rawXmlLocations")
+
+
+def test_formula_hash_location_requires_unique_original_formula_and_passage():
+    raw = b'<article><body><p>Formula: <math id="m1"><mi>symbol</mi></math></p></body></article>'
+    notation = r'\frac{very_long_experimental_measurement}{reference_condition}'
+    entry = {"xmlId": "m1", "sha256": sha(notation.encode()), "length": len(notation)}
+    result = {"structuredDocument": {"texts": []}, "metadata": {"mathmlNotationHashes": [entry]}}
+    blocks = [{"text": "$$" + notation + "$$", "documentRefs": []}]
+    link_xml(blocks, result, raw)
+    location = blocks[0]["rawXmlLocations"][0]
+    assert location["matchMethod"] == "unique_formula_hash" and location["formulaXmlId"] == "m1"
+    ambiguous = {**result, "metadata": {"mathmlNotationHashes": [entry, {**entry, "xmlId": "m2"}]}}
+    blocks = [{"text": "$$" + notation + "$$", "documentRefs": []}]
+    link_xml(blocks, ambiguous, raw)
+    assert not blocks[0].get("rawXmlLocations")
+    blocks = [{"text": "$$" + notation + "$$", "documentRefs": []} for _ in range(2)]
+    link_xml(blocks, result, raw)
+    assert all(not block.get("rawXmlLocations") for block in blocks)
+
+
+def test_short_ambiguous_paragraphs_are_reported_as_unmatched():
+    raw = b'<article><notes><p>Not applicable.</p></notes><notes><p>Not applicable.</p></notes></article>'
+    blocks = [{"text": "Not applicable.\nNot applicable.", "documentRefs": []}]
+    mapping = link_xml(blocks, {"structuredDocument": {"texts": []}}, raw)
+    assert len(mapping["unmatchedParagraphs"]) == 2 and not blocks[0].get("rawXmlLocations")
     same = b"<article><body><p>This complete paragraph is identical in two different original sections.</p><p>This complete paragraph is identical in two different original sections.</p></body></article>"
     blocks = [{"text": "This complete paragraph is identical in two different original sections.", "documentRefs": []}]
-    link_xml(blocks, result, same)
+    link_xml(blocks, {"structuredDocument": {"texts": []}}, same)
     assert not blocks[0].get("rawXmlLocations")
 
 
@@ -160,6 +199,16 @@ def test_duplicate_original_caption_is_not_assigned_a_location():
     result, edits, unresolved = repair_jats(data, raw)
     assert len(unresolved) == 2 and not edits
     assert "rawXmlLocation" not in result["structuredDocument"]["texts"][0]
+
+
+def test_unique_caption_reference_connects_its_only_original_paragraph():
+    raw = b'<article><fig id="f"><caption><p>Short <sup>2</sup> caption.</p></caption></fig></article>'
+    path = "/*[local-name()='article'][1]/*[local-name()='fig'][1]"
+    result = {"structuredDocument": {"texts": [{"self_ref": "#/texts/0", "rawXmlLocation": {"xmlId": "f", "xpath": path}}]}}
+    blocks = [{"text": "Short ² caption.", "documentRefs": ["#/texts/0"]}]
+    link_xml(blocks, result, raw)
+    paragraph = next(loc for loc in blocks[0]["rawXmlLocations"] if loc.get("matchMethod") == "unique_caption_reference")
+    assert paragraph["xpath"].endswith("/*[local-name()='caption'][1]/*[local-name()='p'][1]")
 
 
 def test_caption_repair_never_changes_unrelated_passages():

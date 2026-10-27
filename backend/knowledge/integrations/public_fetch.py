@@ -127,7 +127,7 @@ async def parse_download(body: bytes, media_type: str, *, parser="legacy", pytho
             model_hash = await asyncio.to_thread(model_fingerprint, artifacts_path)
             legacy_key = conversion_key(body, max_pages=max_pages, max_characters=max_characters, ocr=ocr,
                                         model_artifacts_hash=model_hash)
-            key = hashlib.sha256((("runtime-quality-v4:jats:" if use_jats else "runtime-quality-v3:pdf:") + legacy_key).encode()).hexdigest()
+            key = hashlib.sha256((("runtime-quality-v10:jats:" if use_jats else "runtime-quality-v3:pdf:") + legacy_key).encode()).hexdigest()
             cached = load_conversion(storage_path, key, body) if storage_path else None
         except (OSError, KeyError, TypeError, ValueError) as exc:
             raise AppError(503, "parser_artifact_invalid", "Docling 모델과 변환 보존 파일을 확인해 주세요.") from exc
