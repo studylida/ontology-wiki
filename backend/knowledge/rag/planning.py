@@ -10,6 +10,8 @@ ASPECTS = (
     ("definition", "정의", r"정의|의미|무엇|뭐|개념|definition|defined|refers to"),
     ("purpose", "목적", r"목적|왜|필요|용도|purpose|used for"),
     ("principle", "원리", r"원리|작동|동작|기전|메커니즘|principle|mechanism|operates"),
+    ("path", "경로와 구조", r"경로|\bpath\b|\broute\b"),
+    ("delay", "지연 특성", r"지연|\bdelay\b|\blatency\b"),
     ("conditions", "적용 조건", r"조건|환경|경우|상황|적용|공정창|condition|when|under"),
     ("limits", "한계", r"한계|단점|제약|실패|어려움|limit|drawback|constraint|failure"),
     ("alternatives", "대안", r"대안|대체|대신|alternative|instead"),

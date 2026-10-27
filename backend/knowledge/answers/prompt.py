@@ -4,7 +4,7 @@ from ..rag.context import numeric_conflict_note
 from .citations import alias_grounding
 
 
-def build_messages(request, retrieval, history, *, max_characters=64000):
+def build_messages(request, retrieval, history, *, max_characters=64000, evidence_review=None):
     mode = (
         "위키 본문은 다음 네 제목 순서입니다: ## 핵심 설명, ## 목적·원리, ## 사례·조건, ## 관계. "
         "각 절에는 질문과 관련된 내용만 쓰세요. 사례·조건은 앞에서 설명한 원리를 이해하는 데 도움이 되는 사례로 이어가세요. "
@@ -41,6 +41,8 @@ def build_messages(request, retrieval, history, *, max_characters=64000):
         "확인되지 않은 이유는 미확인으로 남기세요. 서로 다른 시편·시간·단위·실측과 예측은 조건별로 구분하여 설명하세요. "
         "답에 사용하는 실험의 공정 조건에 대해 원문 내부에서 수치가 다르다고 지적한 근거가 있으면 각 값과 원문의 위치를 짧게 밝히고 어느 값이 맞는지 미확인이라고 쓰세요. "
         "정량 비교는 제시할 값과 그 비교에 필요한 조건을 중심으로 설명하고, 다른 실험은 질문과 직접 연결될 때만 해당 항목에서 설명하세요.\n"
+        "[항목별 근거 검토] 검토 결과가 있으면 각 항목의 관련 사실과 조건을 중심으로 답하고, 원문 근거와 검토 내용을 대조하세요. "
+        "실제로 사용하는 측정값의 의미와 비교 조건을 그 값과 연결해 설명하세요.\n"
         "[한계의 위치] 설명을 바꾸는 핵심 한계만 해당 결과 바로 뒤에 짧게 한 번 쓰세요. "
         "사용자가 정량 비교를 요청하면 먼저 비교 가능한 수치를 제시하고, 필요한 비교 조건의 미확인 부분은 표 아래 한 문단에서만 설명하세요. "
         "그 밖의 항목은 확인된 정성적 차이로 답하세요. 수치를 요청하지 않은 항목의 수치 부재, 사용하지 않은 연구·지표, "
@@ -62,9 +64,10 @@ def build_messages(request, retrieval, history, *, max_characters=64000):
               "이 근거가 답변에서 설명하는 실험의 조건에 해당하면 두 값과 원문 위치, 미확인 상태를 "
               "조건 바로 뒤에 한 문장으로 설명하고 해당 근거를 인용하세요. 서로 다른 실험이면 구분하세요."
               if discrepancy_ids else "")
+    review_text = "\nEVIDENCE_REVIEW_JSON\n" + json.dumps(evidence_review, ensure_ascii=False, separators=(",", ":")) if evidence_review else ""
     current = {"role": "user", "content": request.message + "\n\nEVIDENCE_JSON\n" +
         json.dumps(evidence, ensure_ascii=False, separators=(",", ":")) + "\nCOVERAGE_JSON\n" +
-        json.dumps(coverage, ensure_ascii=False, separators=(",", ":")) + review}
+        json.dumps(coverage, ensure_ascii=False, separators=(",", ":")) + review + review_text}
     used = len(system) + len(current["content"])
     if used > max_characters:
         raise AppError(422, "INPUT_CONTEXT_TOO_LARGE", "질문과 근거가 입력 문맥 한도를 넘었습니다. 질문이나 선택 범위를 줄여 주세요.")

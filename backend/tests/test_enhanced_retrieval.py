@@ -35,6 +35,8 @@ def test_power_comparison_explicitly_plans_numeric_energy_evidence():
     assert plan[0]["id"] == "power"
     assert "비트당 에너지" in plan[0]["query"]
     assert "지연" not in plan[0]["query"]
+    mixed = plan_requirements("A와 B의 경로, 전력, 지연을 비교하고 전력 수치가 부족하면 표시해 주세요.")
+    assert {"path", "power", "delay", "comparison"} <= {item["id"] for item in mixed}
 
 
 def test_numeric_request_prioritizes_requested_parameter_without_changing_subject_or_qualitative_query():
@@ -132,7 +134,7 @@ async def test_saved_source_views_are_not_reused_as_generation_evidence(sessions
 
 
 @pytest.mark.asyncio
-async def test_reranker_sees_broad_pool_once_then_keeps_neighbor_conditions(sessions, settings, principal, reviewer, embedding_client):
+async def test_reranker_preserves_neighbor_conditions_for_principle_request(sessions, settings, principal, reviewer, embedding_client):
     await indexed_source(sessions, settings, principal, reviewer, embedding_client,
         text="\n\n".join(f"## 무관 설명 {i}\n일반적인 금속." for i in range(10)) +
              "\n\n## 조건\n시편을 250°C에서 1시간 가열했다.\n\n## 관찰\n구리 계면이 결합했다.")
@@ -152,10 +154,37 @@ async def test_reranker_sees_broad_pool_once_then_keeps_neighbor_conditions(sess
     options = settings.model_copy(update={"retrieval_limit": 1})
     result = await RetrievalService(sessions, embedding_client, options, reranker=ranker).search(principal,
         RetrievalRequest(message="구리 접합 원리와 조건", extended=True))
-    assert ranker.calls == 1
+    assert ranker.calls == 2
     assert "## 관찰" in result["hits"][0]["text"]
     assert any("250°C" in hit["text"] and "neighbor" in hit["methods"] for hit in result["hits"])
     assert result["pipeline"]["reranking"]["status"] == "completed"
+
+
+@pytest.mark.asyncio
+async def test_principle_focus_adds_a_new_source_without_displacing_the_direct_result(sessions, settings, principal, reviewer, embedding_client):
+    await indexed_source(sessions, settings, principal, reviewer, embedding_client, text="기술의 일반적인 소개와 응용")
+    await indexed_source(sessions, settings, principal, reviewer, embedding_client, text="각 요소가 작용해 결과가 생기는 원리")
+    await indexed_source(sessions, settings, principal, reviewer, embedding_client, text="그 밖의 주변 기술 설명")
+
+    class Rank:
+        async def rerank(self, query, hits):
+            focused = "각 요소의 역할과 변화" in query
+            def priority(hit):
+                if "일반적인 소개" in hit["text"]:
+                    return 0
+                if "작용해 결과" in hit["text"]:
+                    return 1 if focused else 2
+                return 2 if focused else 1
+            return {"hits": sorted(hits, key=priority), "elapsedMs": 1}
+        async def aclose(self):
+            pass
+
+    options = settings.model_copy(update={"retrieval_limit": 1})
+    found = await RetrievalService(sessions, embedding_client, options, reranker=Rank()).search(
+        principal, RetrievalRequest(message="기술의 원리와 적용 조건", extended=True))
+    assert "일반적인 소개" in found["hits"][0]["text"]
+    assert any("작용해 결과" in h["text"] and "principle_focus" in h["methods"] for h in found["hits"])
+    assert found["pipeline"]["principleFocus"]["count"] == 1
 
 
 @pytest.mark.asyncio

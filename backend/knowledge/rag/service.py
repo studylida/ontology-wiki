@@ -207,8 +207,11 @@ class RetrievalService:
                 hits += [{key: value for key, value in h.items() if key != "neighborOf"}
                          for h in neighbors if h["passageId"] not in seen]
             if enhanced:
+                wants_principle = any(item["id"] == "principle" for item in plan)
+                # A principle may appear in only one query pool, below the fused top ranks.
+                candidate_limit = min(200, self.settings.retrieval_candidate_limit * (2 if wants_principle else 1))
                 candidates = select_ranked_hits(merge_candidates(candidate_pools), groups,
-                    max(self.settings.retrieval_candidate_limit, len(groups)), per_document_limit=None)["hits"]
+                    max(candidate_limit, len(groups)), per_document_limit=None)["hits"]
                 pipeline["candidateCount"] = len(candidates)
                 if self.reranker is not None and candidates:
                     await report("reranking", "질문과 근거의 관련도를 다시 확인합니다.")
@@ -219,6 +222,21 @@ class RetrievalService:
                     pipeline["reranking"]["query"] = ranked_query
                 direct_hits = select_ranked_hits(candidates, groups,
                     max(self.settings.retrieval_limit, len(groups)), per_document_limit=2)["hits"]
+                principle_hits = []
+                if wants_principle and candidates:
+                    focused = await self.reranker.rerank(query + "\n작용 원리: 각 요소의 역할과 변화가 생기는 과정",
+                                                        candidates[:max(12, self.settings.retrieval_limit * 2)])
+                    used_sources = {h.get("lineageKey") or h.get("sourceRevisionId") for h in direct_hits}
+                    used_ids = {h["passageId"] for h in direct_hits}
+                    # shortcut: only one highly ranked additional source; expand aspect coverage when evaluation warrants it.
+                    match = next((h for h in focused["hits"][:self.settings.retrieval_limit + 3]
+                        if h["passageId"] not in used_ids and
+                        (h.get("lineageKey") or h.get("sourceRevisionId")) not in used_sources), None)
+                    if match:
+                        principle_hits = [{**match, "methods": list(dict.fromkeys([*match.get("methods", []), "principle_focus"]))}]
+                    pipeline["principleFocus"] = {"candidateCount": len(focused["hits"]), "count": len(principle_hits),
+                                                  "elapsedMs": focused.get("elapsedMs")}
+                direct_hits += principle_hits
                 companions = experiment_companions(candidates, direct_hits)
                 pipeline["experimentCompanions"] = {"count": len(companions)}
                 conflict_notes = conflict_companions(candidates, direct_hits + companions)

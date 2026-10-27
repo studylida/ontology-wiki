@@ -7,6 +7,7 @@ from ..core.usage import summarize_usage, unknown_usage
 from ..documents.repository import DocumentRepository
 from ..rag.context import citation
 from .prompt import build_messages
+from .evidence_plan import evidence_review_messages, parse_evidence_review
 from .repository import AnswerRepository
 from .citations import CitationTextDecoder, citation_aliases, decode_citation_deltas
 
@@ -152,7 +153,39 @@ class AnswerExecutor:
                 for value in values:
                     await runtime.emit(kind, value)
             await self.flush(runtime, force=True)
-            messages = build_messages(request, result, history, max_characters=self.settings.prompt_max_characters)
+            evidence_review = None
+            review_messages = evidence_review_messages(request, result) if self.settings.provider_mode != "fixture" else None
+            if review_messages:
+                await runtime.emit("retrieval.status", {"stage": "evidence_review", "message": "질문 항목에 맞는 근거와 비교 조건을 확인합니다."})
+                review_started, review_usage, review_text, review_attempted = monotonic(), None, "", False
+                try:
+                    if sum(len(item["content"]) for item in review_messages) > self.settings.prompt_max_characters:
+                        raise ValueError("Evidence review exceeds prompt budget")
+                    review_attempted = True
+                    async for delta in self.provider_deltas(runtime, review_messages):
+                        if delta.usage is not None:
+                            review_usage = {**delta.usage, "operation": "evidence_review"}
+                        if runtime.cancel_event.is_set() or runtime.finished:
+                            raise asyncio.CancelledError()
+                        review_text += delta.text or ""
+                        if len(review_text) > 12000:
+                            raise ValueError("Evidence review exceeds output budget")
+                    evidence_review = parse_evidence_review(review_text, request, result)
+                except asyncio.CancelledError:
+                    raise
+                except Exception as exc:
+                    if review_usage is None and isinstance(getattr(exc, "usage", None), dict):
+                        review_usage = {**exc.usage, "operation": "evidence_review"}
+                    runtime.warnings.append("항목별 근거 검토를 완료하지 못해 기존 검색 근거로 답변합니다.")
+                    logging.getLogger("knowledge.answers").warning("evidence_review_unavailable run_id=%s", runtime.run_id)
+                finally:
+                    runtime.metrics["evidenceReviewMs"] = round((monotonic() - review_started) * 1000, 2)
+                    if review_attempted:
+                        usages.append(review_usage or unknown_usage("evidence_review", runtime.generation_config.get("model")))
+                    runtime.usage = summarize_usage(usages)
+                await self.verify_access(runtime)
+            messages = build_messages(request, result, history, max_characters=self.settings.prompt_max_characters,
+                                      evidence_review=evidence_review)
             runtime.metrics["promptCharacters"] = sum(len(item["content"]) for item in messages)
             runtime.metrics["groundingCharacters"] = result["exploration"]["grounding"]["groundingCharacters"]
             generation_started = monotonic()
