@@ -63,6 +63,26 @@ motion and keyboard interaction, and never manufacture progress or typing delays
 
 ## Handoff
 
+Offline preprocessing is owned by `knowledge.documents.preprocessing` and
+`scripts/v2/preprocess_documents.py`. It reads hash-pinned local originals and
+existing Docling artifacts, writes a fresh immutable review bundle, and never
+registers, approves, embeds, indexes, or activates service data. Paragraph/table
+boundaries, raw XML nodes, extraction offsets and editorial notes remain separate.
+See `docs/PREPROCESSING_QUALITY_20261027.md` for verification and remaining limits.
+
+Runtime Docling PDF/JATS conversion passes through `documents.runtime_preprocessing`
+before `DocumentRepository` stores prepared passages. Structural or formula quality
+holds use the existing excluded-passage state; only explicitly reviewed edited
+revisions can release their edit hold. Markdown segmentation preserves block and
+source offsets. Unique XML evidence locations are retained in the source map;
+uncertain locations and original files are never replaced. JATS math conversion
+retains original MathML when layout is unsupported; unique formula hashes can
+link source paragraphs without guessing. Unique titled JATS notes retain their
+parent context; ambiguous notes and math whose Markdown display is unsafe are
+held for review. Legacy extraction and
+previously indexed content are outside this runtime quality gate. See
+`docs/PREPROCESSING_RUNTIME_VALIDATION_20261027.md` for scoped checks.
+
 Windows process management belongs to `scripts/v2/windows_dev.ps1`; it starts the existing API/worker/Vite entry points and manages only its recorded local processes. See `docs/WINDOWS_LOCAL.md` for this environment; application layer boundaries remain unchanged.
 
 Offline corpus review uses `scripts/v2/curate_existing_corpus.py` with a hash-checked input manifest and private run-specific rules under `var/corpus-quality/`. It writes only a fresh review run and does not register, approve, or index product data. See `docs/CORPUS_QUALITY_REPORT_20261027.md` for the run and its limitations.

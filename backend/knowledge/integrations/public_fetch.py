@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import ipaddress
 import json
 import os
@@ -67,7 +68,7 @@ async def fetch_public(url: str, *, transport=None, resolver=resolve_public_url)
             try:
                 async with client.stream("GET", pinned, headers={"Host": hostname,
                     "User-Agent": "OntologyKnowledge/1.0 (explicit user literature fetch)",
-                    "Accept": "text/html,application/pdf,text/plain,text/markdown"},
+                    "Accept": "text/html,application/pdf,text/plain,text/markdown,application/xml,text/xml,application/jats+xml"},
                     extensions={"sni_hostname": hostname}) as response:
                     if response.status_code in (301, 302, 303, 307, 308):
                         location = response.headers.get("location")
@@ -82,8 +83,8 @@ async def fetch_public(url: str, *, transport=None, resolver=resolve_public_url)
                     if length and int(length) > MAX_BYTES:
                         raise AppError(413, "source_too_large", "첫 버전의 문헌 다운로드 한도는 5MB입니다.")
                     media_type = response.headers.get("content-type", "").split(";")[0].lower()
-                    if media_type not in ("text/html", "application/pdf", "text/plain", "text/markdown", "application/xhtml+xml"):
-                        raise AppError(422, "unsupported_source_type", "HTML·PDF·텍스트 문헌만 가져올 수 있습니다.")
+                    if media_type not in ("text/html", "application/pdf", "text/plain", "text/markdown", "application/xhtml+xml", "application/xml", "text/xml", "application/jats+xml"):
+                        raise AppError(422, "unsupported_source_type", "HTML·PDF·JATS XML·텍스트 문헌만 가져올 수 있습니다.")
                     body = bytearray()
                     async for chunk in response.aiter_bytes():
                         body.extend(chunk)
@@ -108,10 +109,15 @@ async def parse_download(body: bytes, media_type: str, *, parser="legacy", pytho
                          artifacts_path=None, storage_path=None, max_pages=100,
                          max_characters=500000, timeout_seconds=None, ocr=False):
     started = monotonic()
-    use_docling = parser == "docling" and media_type == "application/pdf"
+    use_jats = media_type in {"application/xml", "text/xml", "application/jats+xml"}
+    use_docling = parser == "docling" and (media_type == "application/pdf" or use_jats)
     if parser not in {"legacy", "docling"}:
         raise AppError(500, "parser_configuration", "문헌 해석기 설정이 올바르지 않습니다.")
-    if not body or len(body) > (20 * 1024 * 1024 if use_docling else MAX_BYTES):
+    if use_jats and parser != "docling":
+        raise AppError(503, "parser_configuration", "JATS XML에는 Docling 설정이 필요합니다.")
+    if use_jats and ocr:
+        raise AppError(422, "parser_configuration", "JATS XML에는 OCR을 적용할 수 없습니다.")
+    if not body or len(body) > (20 * 1024 * 1024 if use_docling and not use_jats else MAX_BYTES):
         raise AppError(413, "source_too_large", "문헌 해석 입력의 크기 한도를 확인해 주세요.")
     if use_docling and (not python_executable or not artifacts_path):
         raise AppError(503, "parser_configuration", "Docling 실행 환경과 모델 경로를 설정해 주세요.")
@@ -119,8 +125,9 @@ async def parse_download(body: bytes, media_type: str, *, parser="legacy", pytho
         from knowledge.integrations.docling_artifacts import conversion_key, load_conversion, model_fingerprint, preserve_conversion
         try:
             model_hash = await asyncio.to_thread(model_fingerprint, artifacts_path)
-            key = conversion_key(body, max_pages=max_pages, max_characters=max_characters, ocr=ocr,
-                                 model_artifacts_hash=model_hash)
+            legacy_key = conversion_key(body, max_pages=max_pages, max_characters=max_characters, ocr=ocr,
+                                        model_artifacts_hash=model_hash)
+            key = hashlib.sha256((("runtime-quality-v12:jats:" if use_jats else "runtime-quality-v3:pdf:") + legacy_key).encode()).hexdigest()
             cached = load_conversion(storage_path, key, body) if storage_path else None
         except (OSError, KeyError, TypeError, ValueError) as exc:
             raise AppError(503, "parser_artifact_invalid", "Docling 모델과 변환 보존 파일을 확인해 주세요.") from exc
@@ -129,9 +136,22 @@ async def parse_download(body: bytes, media_type: str, *, parser="legacy", pytho
             processing.update(originalElapsedMs=processing["elapsedMs"], cacheHit=True,
                               elapsedMs=round((monotonic() - started) * 1000, 2))
             return cached
-        module, executable = "knowledge.integrations.docling_parser", python_executable
-        args = ["--artifacts-path", str(Path(artifacts_path).resolve()), "--max-pages", str(max_pages),
-                "--max-characters", str(max_characters)] + (["--ocr"] if ocr else [])
+        try:
+            legacy = load_conversion(storage_path, legacy_key, body) if storage_path and not use_jats else None
+        except (OSError, KeyError, TypeError, ValueError) as exc:
+            raise AppError(503, "parser_artifact_invalid", "Docling 모델과 변환 보존 파일을 확인해 주세요.") from exc
+        if legacy is not None:
+            from knowledge.documents.runtime_preprocessing import prepare_conversion
+            result = prepare_conversion(legacy, body)
+            processing = result["metadata"]["processing"]
+            processing.update(originalElapsedMs=processing["elapsedMs"], cacheHit=True,
+                              elapsedMs=round((monotonic() - started) * 1000, 2))
+            preserve_conversion(storage_path, key, body, result)
+            return result
+        module, executable = ("knowledge.integrations.docling_jats" if use_jats else "knowledge.integrations.docling_parser"), python_executable
+        args = ([str(Path(artifacts_path).resolve()), "--max-characters", str(max_characters)] if use_jats else
+                ["--artifacts-path", str(Path(artifacts_path).resolve()), "--max-pages", str(max_pages),
+                 "--max-characters", str(max_characters)] + (["--ocr"] if ocr else []))
     else:
         module, executable, args = "knowledge.integrations.parse_document", sys.executable, [media_type]
     try:
@@ -158,6 +178,8 @@ async def parse_download(body: bytes, media_type: str, *, parser="legacy", pytho
             result["metadata"]["parserProfile"]["modelArtifactsHash"] = model_hash
             result["metadata"]["processing"] = {"elapsedMs": round((monotonic() - started) * 1000, 2),
                                                    "cacheHit": False, "execution": "local_cpu"}
+            from knowledge.documents.runtime_preprocessing import prepare_conversion
+            result = prepare_conversion(result, body, jats=use_jats)
             if storage_path:
                 preserve_conversion(storage_path, key, body, result)
         return result

@@ -33,9 +33,12 @@ class DocumentService:
             return document_dict(doc, rev)
 
     @staticmethod
-    def _add_passages(session, revision_id, title, content):
+    def _add_passages(session, revision_id, title, content, *, quality_review_required=False):
         for p in segment(content, title):
-            session.add(Passage(source_revision_id=revision_id, **p.__dict__))
+            values = dict(p.__dict__)
+            if quality_review_required and not p.excluded:
+                values.update(excluded=True, exclusion_reason="편집된 보류 원문의 전처리 검토 필요")
+            session.add(Passage(source_revision_id=revision_id, **values))
 
     async def add_revision(self, principal, document_id, request):
         principal.require("documents:write")
@@ -48,6 +51,10 @@ class DocumentService:
             if previous.content_hash == digest(request.content):
                 return document_dict(doc, previous)
             metadata = dict(previous.metadata_json)
+            quality_review_required = bool(metadata.get("preprocessingEditReviewRequired") or
+                metadata.get("preprocessingQuality", {}).get("issues"))
+            if quality_review_required:
+                metadata["preprocessingEditReviewRequired"] = True
             if metadata.get("editorialSha256"):
                 metadata["derivedFromRevisionId"] = previous.id
                 metadata["editorialSha256"] = digest(request.content)
@@ -72,7 +79,7 @@ class DocumentService:
             session.add(rev)
             await session.flush()
             doc.current_revision_id, doc.updated_at = rev.id, utcnow()
-            self._add_passages(session, rev.id, doc.title, request.content)
+            self._add_passages(session, rev.id, doc.title, request.content, quality_review_required=quality_review_required)
             await session.flush()
             return document_dict(doc, rev)
 
@@ -117,6 +124,10 @@ class DocumentService:
                     ConceptSourceView.status == "active").values(status="withdrawn"))
             elif request.decision == "approve":
                 doc.withdrawn = False
+                if rev.metadata_json.get("preprocessingEditReviewRequired"):
+                    await session.execute(update(Passage).where(Passage.source_revision_id == rev.id,
+                        Passage.excluded.is_(True), Passage.exclusion_reason == "편집된 보류 원문의 전처리 검토 필요")
+                        .values(excluded=False, exclusion_reason=None))
             if request.decision != "approve" or previous_status != "approved":
                 rev.index_status = "pending"
                 if doc.active_revision_id == rev.id:

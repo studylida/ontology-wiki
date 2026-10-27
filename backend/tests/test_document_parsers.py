@@ -11,11 +11,15 @@ from knowledge.integrations.docling_parser import assemble_blocks
 
 
 def sample_result(body=b"original-pdf"):
-    return {"title": "Example", "content": "250°C | 0.5 h | 31.24%", "readScope": "full",
+    content = "250°C | 0.5 h | 31.24%"
+    return {"title": "Example", "content": content, "readScope": "full",
             "metadata": {"sourceSha256": hashlib.sha256(body).hexdigest(),
                          "parserProfile": {"version": "2.143.0"}},
-            "limitations": [], "structuredDocument": {"tables": [{"cells": ["31.24%"]}]},
-            "sourceMap": [{"pageNumbers": [3]}], "preparedPassages": [{"text": "250°C"}]}
+            "limitations": [], "structuredDocument": {"tables": []},
+            "sourceMap": [{"startOffset": 0, "endOffset": len(content), "locator": "페이지 3",
+                           "label": "text", "documentRefs": [], "pageNumbers": [3], "provenance": []}],
+            "preparedPassages": [{"text": content, "locator": "페이지 3", "start_offset": 0,
+                                  "end_offset": len(content), "embedding_text": content}]}
 
 
 def test_whole_structured_blocks_keep_exact_offsets():
