@@ -8,6 +8,7 @@ import pytest
 from knowledge.documents.preprocessing import (
     apply_table_repairs, assemble, docling_blocks, group_markdown, link_xml,
     markdown_blocks, repair_jats, sha, xml_nodes,
+    table_reprocessing_candidates, xml_text,
 )
 
 
@@ -73,6 +74,30 @@ def test_complex_caption_math_and_entities_fail_without_invention():
             xml_nodes(raw)
 
 
+@pytest.mark.parametrize("index,expected", [("i", "aᵢ"), ("n", "aₙ"), ("q", "a_{q}")])
+def test_letter_subscripts_in_mathml_caption_are_preserved(index, expected):
+    raw = f'<article><table-wrap id="t1"><label>Table 1</label><caption><p>Design with <math><msub><mi>a</mi><mi>{index}</mi></msub></math> levels.</p></caption></table-wrap></article>'.encode()
+    old = "Table 1 Design with  levels."
+    original = {"structuredDocument": {"texts": [{"self_ref": "#/texts/0", "label": "caption", "text": old}]},
+                "preparedPassages": [{"text": old}]}
+    fixed, edits, unresolved = repair_jats(original, raw)
+    assert not unresolved and len(edits) == 1
+    assert expected in fixed["preparedPassages"][0]["text"]
+    assert fixed["structuredDocument"]["texts"][0]["rawXmlLocation"]["xmlId"] == "t1"
+    assert xml_text(xml_nodes(f'<sub>{index}</sub>'.encode())[0][0]) == expected[1:]
+
+
+def test_numeric_column_collapse_is_queued_not_approved():
+    def result(rows):
+        return {"structuredDocument": {"tables": [{"self_ref": "#/tables/0", "prov": [{"page_no": 20}],
+            "data": {"table_cells": [{"text": text, "start_row_offset_idx": i, "row_span": 1} for i, text in enumerate(rows)]}}]}}
+    queue = table_reprocessing_candidates(result(["0 283.8 ± 5.4 240.9 ± 3.3", "1 254.5 ± 4.7 250.6 ± 6.8"]))
+    assert queue[0]["pageNumbers"] == [20]
+    assert queue[0]["status"] == "needs_targeted_reextraction_and_source_comparison"
+    assert not table_reprocessing_candidates(result(["250°C, 30 min, 20 MPa", "300°C, 10 min, 10 MPa"]))
+    assert not table_reprocessing_candidates(result(["283.8 ± 5.4", "240.9 ± 3.3"]))
+
+
 def test_reviewed_table_repair_preserves_values_and_repeats_conditions():
     table = {"self_ref": "#/tables/0"}
     old_rows = ["0 2.0 ± 0.1 3.0 ± 0.2 50.0", "All chips 2.1 ± 0.1 3.1 ± 0.2 47.6"]
@@ -132,3 +157,34 @@ def test_cli_hash_guards_new_directory_and_roundtrip(tmp_path):
     with pytest.raises(ValueError, match="hash mismatch"):
         cli.prepare(manifest, tmp_path / "another")
     assert not (tmp_path / "another").exists()
+
+
+def test_cli_routes_collapsed_tables_to_reprocessing_without_indexing(tmp_path):
+    path = Path(__file__).parents[2] / "scripts/v2/preprocess_documents.py"
+    spec = importlib.util.spec_from_file_location("preprocess_queue_cli", path)
+    cli = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(cli)
+    original = tmp_path / "original.pdf"
+    original.write_bytes(b"test-only preserved PDF bytes")
+    content = "| 0 283.8 240.9 |\n| 1 254.5 250.6 |"
+    extraction = tmp_path / "extraction.json"
+    result = {"content": content, "metadata": {"sourceSha256": sha(original.read_bytes())},
+              "structuredDocument": {"tables": [{"self_ref": "#/tables/0", "prov": [{"page_no": 20}],
+                  "data": {"table_cells": [{"text": text, "start_row_offset_idx": i}
+                                           for i, text in enumerate(["0 283.8 240.9", "1 254.5 250.6"])]}}]},
+              "preparedPassages": [{"text": content, "start_offset": 0, "end_offset": len(content),
+                                    "locator": "page 20", "embedding_text": content}],
+              "sourceMap": [{"startOffset": 0, "endOffset": len(content), "locator": "page 20", "label": "table",
+                             "documentRefs": ["#/tables/0"], "pageNumbers": [20], "provenance": [{"page_no": 20}]}]}
+    extraction.write_bytes(json.dumps(result).encode())
+    descriptor = lambda p: {"path": str(p), "sha256": sha(p.read_bytes())}
+    record = {"id": "sample", "format": "docling", "original": descriptor(original), "input": descriptor(extraction),
+              "lineageKey": "sample", "title": "Example", "documentForm": "text_extraction"}
+    manifest = tmp_path / "manifest.json"
+    manifest.write_bytes(json.dumps({"documents": [record]}).encode())
+    output = tmp_path / "output"
+    assert cli.prepare(manifest, output)[0]["heldPassages"] == 1
+    assert not (output / "index-candidates.jsonl").read_bytes()
+    queued = json.loads((output / "sample/reprocessing-queue.json").read_bytes())
+    assert queued[0]["pageNumbers"] == [20]
+    assert queued[0]["status"] == "needs_targeted_reextraction_and_source_comparison"

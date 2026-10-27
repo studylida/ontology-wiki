@@ -11,7 +11,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "backend"))
 from knowledge.documents.preprocessing import (
     apply_table_repairs, assemble, docling_blocks, group_markdown, link_xml,
-    markdown_blocks, repair_jats, sha,
+    markdown_blocks, repair_jats, sha, table_reprocessing_candidates,
 )
 from knowledge.documents.parsing import prepared_passages
 
@@ -53,7 +53,7 @@ def prepare(manifest_path: Path, output: Path):
         if sha(original_copy.read_bytes()) != record["original"]["sha256"] or sha(input_copy.read_bytes()) != record["input"]["sha256"]:
             raise ValueError("Input changed during preservation")
         raw = original_copy.read_bytes()
-        notes, corrections, unresolved, mapping = [], [], [], {}
+        notes, corrections, unresolved, mapping, reprocessing = [], [], [], {}, []
         if record["format"] == "markdown":
             extraction = input_copy.read_bytes().decode("utf-8-sig")
             blocks, notes = markdown_blocks(extraction)
@@ -67,6 +67,9 @@ def prepare(manifest_path: Path, output: Path):
                 if (passage["start_offset"] != source_map["startOffset"]
                         or passage["end_offset"] != source_map["endOffset"]):
                     raise ValueError("Docling source map differs from extraction offsets")
+            repaired_refs = {repair["documentRef"] for repair in record.get("tableRepairs", [])}
+            reprocessing = [item for item in table_reprocessing_candidates(result)
+                            if item["documentRef"] not in repaired_refs]
             if record.get("tableRepairs"):
                 result, changes = apply_table_repairs(result, record["tableRepairs"])
                 corrections.extend(changes)
@@ -91,6 +94,7 @@ def prepare(manifest_path: Path, output: Path):
         for passage in passages:
             holds = [hold for hold in record.get("qualityHolds", [])
                      if hold["documentRef"] in passage.get("documentRefs", [])]
+            holds.extend(item for item in reprocessing if item["documentRef"] in passage.get("documentRefs", []))
             passage["indexingDisposition"] = "hold" if holds else "candidate_for_index_review"
             passage["qualityHolds"] = holds
         (folder / "extracted.md").write_bytes(extraction.encode("utf-8"))
@@ -99,6 +103,7 @@ def prepare(manifest_path: Path, output: Path):
         dump(folder / "passages.json", passages)
         dump(folder / "source-map.json", [{k: v for k, v in p.items() if k not in {"text", "embedding_text"}} for p in passages])
         dump(folder / "corrections.json", corrections)
+        dump(folder / "reprocessing-queue.json", reprocessing)
         dump(folder / "editorial-map.json", notes)
         dump(folder / "xml-mapping-review.json", {**mapping, "unresolvedCaptions": unresolved})
         provenance = {**record, "originalCopy": str(original_copy), "inputCopy": str(input_copy),

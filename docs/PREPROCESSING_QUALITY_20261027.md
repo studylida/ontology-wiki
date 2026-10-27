@@ -1,5 +1,7 @@
 # 문서 전처리 품질 개선 기록
 
+후속 보완: [전처리 후속 기록](PREPROCESSING_FOLLOWUP_20261027.md)에서 XML 대표 근거 찾기, HBM2 표3~8의 해당 페이지 OCR·원문 대조 복원과 ALD 표1의 `aᵢ` 복원을 완료했다. 아래의 run-v4 보류 상태와 수치는 그 이전 판본의 기록으로 보존한다.
+
 2026-10-27 한국 시간 기준. `fix/document-preprocessing-quality-20261027` 브랜치에서 오프라인 전처리만 수행했다. 서비스 등록·승인·활성화·색인과 외부 모델 호출은 수행하지 않았다. 기존 작업 폴더 `C:/Users/BISTelligence/ontology-wiki-conversation`의 미커밋 변경, 원본과 이전 처리 결과는 보존했다.
 
 ## 확인한 완료 지점과 구조

@@ -108,7 +108,15 @@ def xml_nodes(raw: bytes):
 
 
 SUB = str.maketrans("0123456789+-=()", "₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎")
+SUB.update(str.maketrans("aehijklmnoprstuvx", "ₐₑₕᵢⱼₖₗₘₙₒₚᵣₛₜᵤᵥₓ"))
 SUP = str.maketrans("0123456789+-=()", "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾")
+
+
+def script_text(value: str, superscript: bool = False) -> str:
+    alphabet = SUP if superscript else SUB
+    if all(ord(char) in alphabet for char in value):
+        return value.translate(alphabet)
+    return ("^{" if superscript else "_{") + value + "}"
 
 
 def xml_text(node, *, omit_math=False):
@@ -116,16 +124,37 @@ def xml_text(node, *, omit_math=False):
     if omit_math and tag in {"math", "tex-math"}:
         return ""
     children = [xml_text(c, omit_math=omit_math) for c in node]
-    if tag in {"msub", "msup"} and len(children) == 2:
-        if not all(c in "0123456789+-=()" for c in children[1]):
+    if tag in {"msub", "msup"}:
+        if len(children) != 2:
             raise ValueError("Caption math requires manual review")
-        return children[0] + children[1].translate(SUB if tag == "msub" else SUP)
+        return children[0] + script_text(children[1], superscript=tag == "msup")
     if tag in {"math", "mrow", "mi", "mn", "mo", "mtext", "msub", "msup"}:
         return (node.text or "") + "".join(children)
     if tag in {"semantics", "mfrac", "msqrt", "msubsup", "mtable", "mover", "munder"}:
         raise ValueError("Caption math requires manual review")
     value = (node.text or "") + "".join(value + (child.tail or "") for value, child in zip(children, node))
-    return value.translate(SUB if tag == "sub" else SUP) if tag in {"sub", "sup"} else value
+    return script_text(value, superscript=tag == "sup") if tag in {"sub", "sup"} else value
+
+
+def table_reprocessing_candidates(result: dict) -> list[dict]:
+    """Flag numeric rows packed into one cell; conversion success is not approval."""
+    number = re.compile(r"(?<![\w.])[−+-]?\d+(?:\.\d+)?(?:\s*±\s*[−+-]?\d+(?:\.\d+)?)?(?![\w.])")
+    candidates = []
+    for table in result["structuredDocument"].get("tables", []):
+        suspicious_rows = set()
+        for cell in table["data"]["table_cells"]:
+            text = cell["text"]
+            if cell.get("column_header") or cell.get("row_span", 1) != 1:
+                continue
+            # A real list/condition cell containing words is left for normal review.
+            if len(number.findall(text)) >= 3 and not number.sub("", text).strip(" \n\r\t/%–−-+"):
+                suspicious_rows.add(cell["start_row_offset_idx"])
+        if len(suspicious_rows) >= 2:
+            candidates.append({"documentRef": table["self_ref"],
+                "pageNumbers": sorted({p["page_no"] for p in table.get("prov", [])}),
+                "reason": "multiple_numeric_columns_packed_into_single_cell",
+                "rows": sorted(suspicious_rows), "status": "needs_targeted_reextraction_and_source_comparison"})
+    return candidates
 
 
 def repair_jats(result: dict, raw: bytes) -> tuple[dict, list[dict], list[dict]]:
