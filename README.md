@@ -1,10 +1,10 @@
 # Ontology Wiki — 사내 지식 기반 AI 어시스턴트
 
-[목표 아키텍처](docs/ARCHITECTURE.md)가 설계 기준이다. **1~3단계의 API: 인증·개인 대화, 공용 문헌 업로드·자동 색인, 내부 검색·답변·각주·스트리밍**을 연결했다. 새 사용자 화면은 4단계 대상이다. 구 프론트엔드와 구 API의 호환은 제공하지 않는다.
+[목표 아키텍처](docs/ARCHITECTURE.md)가 설계 기준이다. **1~4단계: 인증·개인 대화, 공용 문헌 업로드·자동 색인, 내부 검색·답변·각주·스트리밍과 브라우저 화면**을 연결했다. 외부 조사·개인 위키·모드 선택과 구 화면/답변의 호환은 제공하지 않는다. 실제 모델 품질과 현업 유용성 평가를 완료했다는 의미는 아니다.
 
 ## 실행과 스키마
 
-Python 3.12, PostgreSQL 16, pgvector를 사용한다. API와 문헌 작업자는 같은 DB와 지속 원문 저장 경로를 사용한다. 새 환경은 별도의 빈 개발 DB로 시작한다. 기존 v3 DB에는 같은 migrate 명령으로 미적용 SQL만 추가한다. 1단계 `001_foundation.sql`, 2단계 `002_documents.sql`은 변경하지 않았고 3단계는 `003_answers.sql`이다. v2 데이터 이관이나 DB·원문 삭제 명령은 제공하지 않는다.
+Python 3.12, PostgreSQL 16, pgvector를 사용한다. API와 문헌 작업자는 같은 DB와 지속 원문 저장 경로를 사용한다. 새 환경은 별도의 빈 개발 DB로 시작한다. 기존 v3 DB에는 같은 migrate 명령으로 미적용 SQL만 추가한다. 1단계 `001_foundation.sql`, 2단계 `002_documents.sql`은 변경하지 않았고 3단계는 `003_answers.sql`이다. 4단계는 새 스키마가 필요하지 않다. v2 데이터 이관이나 DB·원문 삭제 명령은 제공하지 않는다.
 
 ```bash
 python3 -m venv .venv
@@ -31,6 +31,32 @@ export OW_PROVIDER_MODE=fixture
 API 기동은 계정·migration·문헌 작업자·모델 호출을 자동 시작하지 않는다. 이전에 중단된 답변 실행은 `interrupted`로 기록하고 저장된 부분만 복원한다. **새 생성은 POST 요청이나 명시적 재시도로만 시작**한다. 작업자를 실행하지 않으면 업로드는 대기 상태로 남는다.
 
 비밀번호는 대화식으로 최소 12자를 입력한다. `OW_BOOTSTRAP_PASSWORD`는 자동화용이며 Git·로그에 남기지 않는다. `OW_AUTH_SECRET`은 재시작 후에도 같은 비공개 값을 유지한다. 명시적 프로세스 환경변수는 `.env`보다 우선한다. Windows에서는 `.venv\Scripts\python.exe`와 PowerShell의 `$env:...`를 사용한다. pgvector 설치 권한이 없다면 DB 관리자가 확장을 먼저 설치해야 한다.
+
+## 브라우저 실행과 사용
+
+프론트엔드는 기존 React·TypeScript·Vite 구성과 lockfile을 사용한다. CI의 Node 버전은 22다. API와 문헌 작업자를 실행한 상태에서 별도 셸을 연다.
+
+```bash
+cd frontend
+npm ci
+npm run dev
+# 타입 검사와 배포 파일 생성:
+npm run build
+# 빌드 결과를 로컬에서 확인:
+npm run preview
+```
+
+개발 화면은 `http://127.0.0.1:5173`이다. Vite가 `/api`를 기본 `http://127.0.0.1:8000`으로 프록시한다. API 주소가 다르면 Vite 실행 전에 `OW_API_PROXY_TARGET`을 설정한다. preview도 같은 프록시를 사용하며 주소는 실행 로그에서 확인한다. 별도 배포에서는 `/api/v1` 프록시 또는 빌드 시 `VITE_API_BASE_URL`이 필요하다. 모델 API 키는 프론트엔드 환경변수에 넣지 않는다. 루트의 구 HTML/JS 시안 진입점은 삭제했으며 `frontend`만 실행한다. dev/preview를 운영 배포로 취급하지 않는다.
+
+로그인 → **공용 문헌**에서 전사 공유 안내 확인·파일 업로드 → 처리 상태 확인 → **새 대화**에서 질문 → 문장 옆 각주로 해당 판본·구간 확인 순서로 사용한다. 최신 판본 상태와 실제 검색 가능 여부를 따로 표시하므로 새 판본이 실패해도 이전 유효 판본이 검색에 쓰이는지 알 수 있다. 처리 중에는 서버 상태만 표시하며 가짜 진행률은 없다.
+
+같은 대화에서 후속 질문을 보낸다. 진행 중 **답변 중단**은 실제 취소 요청이며, 실패·취소·중단 후 **답변 다시 생성**은 명시적 새 실행이다. **저장된 실행 다시 연결**과 페이지 새로고침은 GET으로 저장 상태를 복원할 뿐 생성하지 않는다. POST 응답을 못 받은 경우 **같은 요청 다시 전송**은 같은 requestId를 재사용한다. 연결 종료나 전송 중 상태를 성공으로 바꾸지 않는다.
+
+원문 패널은 각주 번호·문헌·판본·근거 구간을 함께 표시하고 원본 파일을 인증된 API로 받는다. Markdown의 원시 HTML·외부 이미지는 렌더링하지 않고, 확인된 인용 ID만 각주 버튼으로 만든다. 본문·출처 목록·원문 패널은 서버의 인용 번호를 공유한다.
+
+공용 문헌 화면에서 최신/활성 판본, 보류 이유, 처리 오류와 재처리·비활성화를 확인한다. 변경 버튼은 서버의 `canManage`를 사용하며 실제 권한/상태 검사는 서버가 수행한다. 비활성화에는 확인 단계가 있고 승인 대기열은 없다. 새 파일 판본 등록 API는 유지하지만 새 판본 업로드 전용 UI는 이번 최소 화면에 포함하지 않는다.
+
+새 서비스의 sessionStorage에는 로그인 토큰, 사용자별 선택 대화 ID, 전송 결과 미확인 요청만 저장한다. 답변 본문은 서버에서 복원하며 구 초안·모드·위키 상태를 읽거나 변환하지 않는다. 로그아웃하면 해당 사용자 세션 상태와 화면을 비운다. 문헌 목록은 화면이 열려 있을 때 갱신하고, 원문 패널도 현재 접근 가능 여부를 재확인한다. 과거 대화의 자료 변경은 대화 재조회에 반영된다. 이미 내려받은 자료를 원격 삭제한다는 의미는 아니다.
 
 ## 인증과 개인 대화
 
@@ -77,7 +103,7 @@ requestId는 사용자 범위에서 멱등하다. 동일 요청 재전송은 같
 }
 ```
 
-위 ID는 형식 설명용 예시다. GET 실행 응답에는 `answer`, `error`, `usage`, `retrievalRunId`, `retrieval`이 추가된다. 검색 진단은 실행 소유자만 읽을 수 있고, 질의·후보 ID/점수·최종 전달 근거·문맥 크기·재순위화 사용 여부를 담는다. `no_evidence`는 사용 가능한 근거를 확보하지 못한 상태이며 DB/임베딩 실패와 다르다. 장애는 실패 상태와 `error.phase`로 구분한다.
+위 ID는 형식 설명용 예시다. GET 실행 응답에는 `answer`, `error`, `usage`, `retrievalRunId`, `retrieval`이 추가된다. 검색 진단은 실행 소유자만 읽을 수 있고, 질의·후보 ID/점수·최종 전달 근거·문맥 크기·재순위화 사용 여부를 담는다. `no_evidence`는 사용 가능한 근거를 확보하지 못한 상태이며 DB/임베딩 실패와 다르다. 장애는 실패 상태와 `error.phase`로 구분한다. 실행 상세는 짧은 DB 잠금 아래 본문과 durableSeq를 함께 읽어 복원 시 서로 다른 저장 시점의 본문·커서가 섞이지 않게 한다.
 
 ### SSE와 각주
 
@@ -142,13 +168,24 @@ Jobs는 접수·진행·재시도를, Indexing은 변환·임베딩·원자적 �
 
 RAG는 활성 유효 Passage의 벡터/문자열 후보, 문헌별 다양성, 필요한 원문 조건/불일치 주석, 앞뒤 구간을 사용한다. 문맥 예산은 원문 구간 전체와 메타데이터를 포함해 한 곳에서 적용한다. `OW_RERANKER_MODE=cross_encoder`와 기존 로컬 모델 설정을 사용할 수 있지만 실패 시 경고를 남기고 기본 검색으로 계속한다. Extended·외부 검색·충돌 해결 에이전트·개인 위키는 답변 경로에 없다.
 
-## 검증과 다음 단계
+## 검증
 
 ```bash
 export OW_TEST_DATABASE_URL='postgresql+asyncpg://USER:PASSWORD@127.0.0.1:5432/ontology_assistant_test'
 .venv/bin/python scripts/v2/dev.py test -q
+cd frontend
+npm ci
+npm run build
+npm test
+cd ..
+# 실제 Chromium 검증용 추가 도구:
+.venv/bin/python -m pip install -r backend/requirements-browser.txt
+.venv/bin/python -m playwright install chromium
+PYTHONPATH=backend .venv/bin/python -m pytest tests/browser -q
 ```
 
-로컬 주소의 `_test` DB와 임시 DB 생성 권한이 필요하다. 각 테스트가 만든 임시 DB만 삭제한다. 기존 shared-assistant CI에서 `tests/foundation`을 실행한다. PostgreSQL·pgvector·Uvicorn·HTTP/SSE·파일·작업자·프로세스 재시작은 실제로 사용하고, 임베딩과 생성은 명시적 fixture다. 라이브 공급자 스트림 프로토콜 검사는 MockTransport다. 실제 모델 호출·의미 정확도·업무 유용성·브라우저 검증은 수행하지 않았다.
+로컬 주소의 `_test` DB와 임시 DB 생성 권한이 필요하다. 각 테스트가 만든 임시 DB만 삭제한다. Linux의 Chromium 시스템 패키지가 없으면 Playwright의 `install --with-deps chromium`이 필요할 수 있다. 브라우저 검증은 빌드된 UI·실제 PostgreSQL·Uvicorn·HTTP/SSE·파일 저장·문헌 작업자를 사용하며 임베딩과 생성만 fixture다. `shared-assistant.yml`에 backend 회귀와 frontend 빌드/테스트/Chromium 작업을 함께 둔다. 합성 자료의 XML/스크린샷 산출물은 CI 임시 artifact에만 보관한다.
 
-기본 PDF 텍스트 추출은 실제 실행한다. 구조화 전처리와 JATS 연결은 fixture/계약 검사이며 실제 Docling PDF/JATS 변환 성공을 뜻하지 않는다. 과거 전체 backend/tests·프론트엔드는 아직 새 계약으로 모두 이전하지 않았으며 해당 전체 통과를 주장하지 않는다. 4단계는 위 turns/SSE/각주/문헌 API를 화면에 연결한다. 실행 보고나 민감한 원문을 docs에 추가하지 않는다.
+`tests/foundation`은 업로드·검색·각주·후속 질문·동시 요청·취소·재연결·프로세스 재시작·철회·실제 저장 오류를 검사한다. `tests/browser`는 직원 로그인부터 업로드·질문·각주·원본 파일, 새로고침, 취소/재시도, 미확인 POST 재전송, 연결 실패, 운영 API와 자료 비활성화를 검사한다. 프론트 단위 테스트는 SSE, 안전한 Markdown과 인용, HTTP와 사용자별 저장 경계를 검사한다. 라이브 공급자 스트림 프로토콜 검사는 MockTransport다. 실제 모델 호출·의미 정확도·업무 유용성 평가와 여러 OS/브라우저의 전체 호환성 검증은 별도다.
+
+기본 PDF 텍스트 추출은 실제 실행한다. 구조화 전처리와 JATS 연결은 fixture/계약 검사이며 실제 Docling PDF/JATS 변환 성공을 뜻하지 않는다. 구 프론트 기능 전용 테스트는 새 계약 테스트로 교체했으나 과거 전체 backend/tests·운영 스크립트가 모두 이전되거나 통과했다는 뜻은 아니다. 기존 lockfile의 의존성 보안 경고는 기능 검사 통과와 별도로 검토해야 하며 운영 공개 전 해결 범위를 확인한다. 이번 단계에서 강제 의존성 업그레이드나 운영 배포는 하지 않는다.

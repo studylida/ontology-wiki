@@ -132,7 +132,10 @@ class AnswerService:
         principal.require('conversations:read')
         await self.repair_if_abandoned(principal, run_id)
         async with self.sessions() as session:
-            run = await AnswerRepository(session).owned(run_id, principal.id)
+            # persist() locks this same run before changing its message and cursor.
+            # Hold it only for this DB snapshot, never for HTTP/SSE/provider I/O.
+            # Otherwise READ COMMITTED could pair an older cursor with newer text.
+            run = await AnswerRepository(session).owned(run_id, principal.id, lock=True)
             message = await session.get(Message, run.message_id)
             view = await visible_message(session, principal, message)
             result = {**self.summary(run), 'answer': view.public(), 'error': run.error,

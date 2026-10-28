@@ -1,4 +1,5 @@
 """Chromium against the built UI, real HTTP/PostgreSQL and document worker. Providers alone are fixtures."""
+from concurrent.futures import ThreadPoolExecutor
 import importlib.util
 import json
 import os
@@ -20,7 +21,13 @@ database_factory = support.database_factory
 
 @pytest.fixture
 def browser_app(database_factory, tmp_path):
-    with database_factory() as database:
+    with database_factory() as database, ThreadPoolExecutor(max_workers=1) as database_thread:
+        # Playwright's synchronous facade owns an event loop on this thread.
+        # Reuse the real foundation DB helpers on another thread, not nested
+        # asyncio.run(), fake SQL, or weakened persistence assertions.
+        browser_database = SimpleNamespace(name=database.name, url=database.url,
+            query=lambda sql, *args: database_thread.submit(database.query, sql, *args).result(timeout=20),
+            execute=lambda sql, *args: database_thread.submit(database.execute, sql, *args).result(timeout=20))
         env = {**os.environ, 'PYTHONPATH': str(ROOT / 'backend'), 'OW_DATABASE_URL': database.url,
             'OW_AUTH_SECRET': secrets.token_hex(32), 'OW_BOOTSTRAP_PASSWORD': secrets.token_urlsafe(24),
             'OW_PROVIDER_MODE': 'fixture', 'OW_STORAGE_PATH': str(tmp_path / 'raw'), 'OW_PDF_PARSER': 'legacy'}
@@ -35,7 +42,7 @@ def browser_app(database_factory, tmp_path):
             server.start()
             with socket.socket() as listener:
                 listener.bind(('127.0.0.1', 0)); port = listener.getsockname()[1]
-            frontend = subprocess.Popen(['npm', 'run', 'preview', '--', '--port', str(port), '--strictPort'],
+            frontend = subprocess.Popen(['node', 'node_modules/vite/bin/vite.js', 'preview', '--port', str(port), '--strictPort'],
                 cwd=ROOT / 'frontend', env={**env, 'OW_API_PROXY_TARGET': str(server.client.base_url)},
                 stdout=output, stderr=subprocess.STDOUT)
             url = f'http://127.0.0.1:{port}'
@@ -54,14 +61,16 @@ def browser_app(database_factory, tmp_path):
                 page = context.new_page(); page.set_default_timeout(15000)
                 errors = []; page.on('pageerror', lambda error: errors.append(str(error)))
                 try:
-                    yield SimpleNamespace(page=page, context=context, url=url, server=server, database=database,
+                    yield SimpleNamespace(page=page, context=context, url=url, server=server, database=browser_database,
                         environment=env, work=lambda: json.loads(support.cli(env, 'worker', '--once').stdout), directory=tmp_path)
                     assert not errors, errors
                 finally:
                     artifacts = Path(os.environ.get('RUNNER_TEMP', str(tmp_path))) / 'browser-artifacts'
                     artifacts.mkdir(exist_ok=True)
-                    page.screenshot(path=str(artifacts / (tmp_path.name + '.png')), full_page=True)
-                    context.close(); browser.close()
+                    try:
+                        page.screenshot(path=str(artifacts / (tmp_path.name + '.png')), full_page=True)
+                    finally:
+                        context.close(); browser.close()
         finally:
             if frontend:
                 frontend.terminate()
