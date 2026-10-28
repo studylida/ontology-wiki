@@ -1,0 +1,42 @@
+name: Isolated development dependencies
+on:
+  push:
+    branches: [feat/shared-knowledge-assistant-20261028]
+    paths: [.github/workflows/offline-dev-kit.yml]
+permissions:
+  contents: read
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Download exact backend dependencies
+        run: |
+          mkdir -p "$RUNNER_TEMP/kit/wheels"
+          python -m pip download -r backend/requirements-dev.txt python-multipart --only-binary=:all: -d "$RUNNER_TEMP/kit/wheels"
+      - name: Install locked frontend dependencies
+        run: |
+          cd frontend
+          npm ci
+          tar -czf "$RUNNER_TEMP/kit/node_modules.tar.gz" node_modules
+      - name: Package PostgreSQL and pgvector binaries without data
+        run: |
+          docker run --rm --entrypoint sh pgvector/pgvector:0.8.7-pg16-bookworm -c '
+            libs=$(ldd /usr/lib/postgresql/16/bin/* /usr/lib/postgresql/16/lib/vector.so 2>/dev/null | awk "/=> \\// {print \$3}" | sort -u)
+            tar -czh -f - /usr/lib/postgresql/16 /usr/share/postgresql/16 $libs
+          ' > "$RUNNER_TEMP/kit/postgres-runtime.tar.gz"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: isolated-development-kit
+          path: ${{ runner.temp }}/kit/
+          retention-days: 1
+          if-no-files-found: error
