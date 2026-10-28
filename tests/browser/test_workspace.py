@@ -66,8 +66,11 @@ def test_upload_question_citation_followup_refresh_and_private_ownership(browser
         page.get_by_role('button', name='원본 파일 받기', exact=True).click()
     assert Path(download.value.path()).read_bytes() == TEXT
     page.get_by_role('button', name='원문 닫기', exact=True).click()
-    ask(page, 'What about the result under those conditions?', new=False); answer(page)
+    ask(page, 'What about the result under those conditions?', new=False)
+    # Wait for the new turn before checking completion; the previous answer is
+    # already completed while POST and the following transcript GET are pending.
     expect(page.get_by_test_id('message-assistant')).to_have_count(2)
+    answer(page)
     before = page.get_by_test_id('message-assistant').last.inner_text()
     page.reload(); answer(page)
     expect(page.get_by_test_id('message-assistant')).to_have_count(2)
