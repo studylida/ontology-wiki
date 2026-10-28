@@ -1,0 +1,33 @@
+name: Shared knowledge assistant
+
+on:
+  push:
+    branches: [feat/shared-knowledge-assistant-20261028]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shared-assistant-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-and-syntax:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify Python source syntax
+        run: python3 -m compileall -q backend/knowledge
+      - name: Export tracked source for isolated offline development
+        run: git bundle create "$RUNNER_TEMP/ontology-wiki-source.bundle" --all
+      - uses: actions/upload-artifact@v4
+        with:
+          name: source-${{ github.sha }}
+          path: ${{ runner.temp }}/ontology-wiki-source.bundle
+          retention-days: 1
+          if-no-files-found: error
