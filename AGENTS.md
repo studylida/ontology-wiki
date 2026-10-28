@@ -2,7 +2,7 @@
 
 ## Source of truth
 
-Read README.md and docs/ARCHITECTURE.md first. The target architecture governs scope; it does not mean every future capability is implemented. Keep the source-preserving preprocessing baseline `68ccd5f3bc98abd480d5a413947974aa02843a66`. Continue the implementation branch, not an old baseline.
+Read README.md for the implemented chat/RAG and docs/ARCHITECTURE.md for that existing system's technical history. **For the new shared concept wiki, docs/WIKI_PRODUCT_DIRECTION.md is the independent product-direction source of truth. Do not derive the new wiki's requirements from older wiki exclusions, feature tables or ontology designs in ARCHITECTURE.md.** Neither product-direction agreement nor old architectural plans imply implementation. Keep the source-preserving preprocessing baseline `68ccd5f3bc98abd480d5a413947974aa02843a66`. Continue the implementation branch, not an old baseline.
 
 One product job: answer work questions using shared company-domain documents, naturally, with clickable evidence footnotes. Every authenticated employee may upload shareable material. Valid passages are indexed automatically without approval. Conversations and answer runs stay private. Operations handle processing exceptions, not mandatory approval.
 
