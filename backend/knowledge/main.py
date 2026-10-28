@@ -1,4 +1,4 @@
-"""Composition of private conversations and shared document intake."""
+"""Composition of private conversations, shared intake and evidence-based answers."""
 from contextlib import asynccontextmanager
 from types import SimpleNamespace
 from fastapi import FastAPI
@@ -17,16 +17,29 @@ from .identity.security import check_secret
 from .identity.service import IdentityService
 from .migration.schema import assert_current_schema
 from .registry import load_entities
+from .answers.router import router as answer_router
+from .answers.service import AnswerService
+from .integrations.providers import get_embedding_client, get_generation_client
+from .rag.service import RAGService
 
 
-def create_app(settings=None, session_factory=None):
+def create_app(settings=None, session_factory=None, *, embedding_client=None, generation_client=None, reranker=None):
     settings = settings or get_settings()
     engine = None
     if session_factory is None:
-        engine = create_async_engine(settings.database_url,pool_pre_ping=True)
-        session_factory = async_sessionmaker(engine,expire_on_commit=False,autoflush=False)
-    services = SimpleNamespace(identity=IdentityService(session_factory,settings),
-        conversations=ConversationService(session_factory),documents=DocumentService(session_factory,settings))
+        engine = create_async_engine(settings.database_url, pool_pre_ping=True)
+        session_factory = async_sessionmaker(engine, expire_on_commit=False, autoflush=False)
+    if reranker is None and settings.reranker_mode == 'cross_encoder':
+        from .integrations.rerank import LocalCrossEncoderReranker
+        reranker = LocalCrossEncoderReranker(settings.reranker_python_path, settings.reranker_model_path,
+            settings.reranker_model_revision, timeout_seconds=settings.reranker_timeout_seconds,
+            device=settings.reranker_device, max_length=settings.reranker_max_length,
+            batch_size=settings.reranker_batch_size)
+    services = SimpleNamespace(identity=IdentityService(session_factory, settings),
+        conversations=ConversationService(session_factory), documents=DocumentService(session_factory, settings))
+    rag = RAGService(session_factory, settings, embedding_client or get_embedding_client(settings), reranker)
+    services.answers = AnswerService(session_factory, settings, services.identity, rag,
+                                    generation_client or get_generation_client(settings))
 
     @asynccontextmanager
     async def lifespan(app):
@@ -35,31 +48,33 @@ def create_app(settings=None, session_factory=None):
             load_entities()
             async with session_factory() as session:
                 await assert_current_schema(session)
-            # No migration, account seeding, model call or worker on API startup.
+            await services.answers.start()
+            # Startup never migrates, seeds users, calls a model or starts document jobs.
             yield
         finally:
+            await services.answers.close()
             if engine is not None:
                 await engine.dispose()
 
-    app = FastAPI(title='Company Knowledge Assistant',version='0.2.0',lifespan=lifespan)
-    app.state.settings,app.state.session_factory,app.state.services = settings,session_factory,services
+    app = FastAPI(title='Company Knowledge Assistant', version='0.3.0', lifespan=lifespan)
+    app.state.settings, app.state.session_factory, app.state.services = settings, session_factory, services
     app.add_middleware(CORSMiddleware,
-        allow_origins=[origin.strip() for origin in settings.cors_origins.split(',') if origin.strip()],
-        allow_credentials=False,allow_methods=['GET','POST','PATCH'],allow_headers=['Authorization','Content-Type'])
+        allow_origins=[o.strip() for o in settings.cors_origins.split(',') if o.strip()],
+        allow_credentials=False, allow_methods=['GET', 'POST', 'PATCH'],
+        allow_headers=['Authorization', 'Content-Type', 'Last-Event-ID'])
     install_error_handlers(app)
 
     @app.middleware('http')
-    async def no_personal_response_cache(request,call_next):
+    async def no_personal_response_cache(request, call_next):
         response = await call_next(request)
         if request.url.path.startswith('/api/v1/'):
             response.headers['Cache-Control'] = 'no-store'
         return response
 
-    app.include_router(identity_router,prefix='/api/v1')
-    app.include_router(conversation_router,prefix='/api/v1')
-    app.include_router(document_router,prefix='/api/v1')
+    for router in (identity_router, conversation_router, document_router, answer_router):
+        app.include_router(router, prefix='/api/v1')
 
-    @app.get('/api/v1/health',tags=['health'])
+    @app.get('/api/v1/health', tags=['health'])
     async def health():
         connected = False
         try:
@@ -67,9 +82,10 @@ def create_app(settings=None, session_factory=None):
                 connected = await session.scalar(text('SELECT 1')) == 1
         except Exception:
             pass
-        return JSONResponse({'status':'ok' if connected else 'degraded',
-            'database':'connected' if connected else 'unavailable','stage':'documents',
-            'capabilities':['authentication','private_conversations','message_storage','shared_document_upload','automatic_indexing']},
+        return JSONResponse({'status': 'ok' if connected else 'degraded',
+            'database': 'connected' if connected else 'unavailable', 'stage': 'answers',
+            'capabilities': ['authentication', 'private_conversations', 'message_storage',
+                'shared_document_upload', 'automatic_indexing', 'grounded_answers', 'durable_answer_events']},
             status_code=200 if connected else 503)
     return app
 

@@ -1,256 +1,152 @@
+"""Retrieval and generation orchestration with commit-before-publication events."""
 import asyncio
 import logging
+import re
 from time import monotonic
-
-from ..core.errors import AppError
-from ..core.usage import summarize_usage, unknown_usage
-from ..documents.repository import DocumentRepository
-from ..rag.context import citation
+from knowledge.core.errors import AppError
+from knowledge.conversations.protection import source_state
+from knowledge.documents.repository import DocumentRepository
+from .citations import CitationNormalizer
 from .prompt import build_messages
-from .evidence_plan import evidence_review_messages, parse_evidence_review
 from .repository import AnswerRepository
-from .citations import CitationTextDecoder, citation_aliases, decode_citation_deltas
 
 
-class AnswerExecutor:
-    def __init__(self, session_factory, identity, conversations, retrieval, generation_client, settings):
-        self.session_factory, self.identity = session_factory, identity
-        self.conversations, self.retrieval = conversations, retrieval
-        self.generation_client, self.settings = generation_client, settings
+async def persist(service, runtime, *, status=None, retrieval_id=None, error=None):
+    async with runtime.write_lock:
+        events = list(runtime.pending)
+        try:
+            async with service.sessions() as session, session.begin():
+                if status == 'completed' and not await DocumentRepository(session).ensure_readable(
+                        None, runtime.source_ids, lock=True):
+                    raise AppError(409, 'source_unavailable', '답변 중 근거 문헌이 비활성화되었습니다.', retryable=True)
+                await AnswerRepository(session).persist(runtime.run_id, runtime.epoch,
+                    events=events, content=runtime.text, citations=runtime.citations,
+                    source_ids=runtime.source_ids, warnings=runtime.warnings,
+                    status=status, retrieval_id=retrieval_id, usage=runtime.usage, error=error)
+        except Exception:
+            # No pending event, especially complete, is exposed before COMMIT succeeds.
+            runtime.storage_failed = True
+            raise
+        runtime.pending.clear()
+        runtime.pending_chars = 0
+        runtime.last_flush = monotonic()
+        if status:
+            runtime.status = status
+        runtime.changed.set()
 
-    async def verify_access(self, runtime):
-        runtime.principal = await self.identity.refresh_principal(runtime.principal)
-        runtime.principal.require("rag:answer")
-        async with self.session_factory() as session:
-            if not await DocumentRepository(session).ensure_readable(runtime.principal, runtime.revision_ids()):
-                raise AppError(403, "SOURCE_ACCESS_CHANGED", "사용된 자료의 접근 권한이 변경되었습니다.")
 
-    async def flush(self, runtime, *, force=False):
-        if not runtime.pending:
-            return
-        if not force and runtime.pending_characters < self.settings.stream_flush_characters and (
-                monotonic() - runtime.last_flush < self.settings.stream_flush_seconds):
-            return
-        await self.verify_access(runtime)
-        async with self.session_factory() as session, session.begin():
-            await AnswerRepository(session).persist(runtime)
-        runtime.flushed()
-
-    async def provider_deltas(self, runtime, messages):
-        iterator = self.generation_client.stream(messages, effort=self.settings.generation_effort,
+async def execute(service, runtime, principal, question, conversation_id, user_message_id):
+    phase = 'retrieval'
+    iterator = next_delta = None
+    normalizer = None
+    try:
+        async with asyncio.timeout(600):
+            runtime.pending.append({'type': 'state', 'data': {'status': 'retrieving'}})
+            await persist(service, runtime, status='retrieving')
+            history, history_sources = [], set()
+            async with service.sessions() as session:
+                rows = await AnswerRepository(session).history_before(conversation_id, user_message_id)
+                for message in rows:
+                    if message.role == 'assistant':
+                        if message.status != 'completed' or await source_state(session, principal, message.source_revision_ids) != 'current':
+                            continue
+                        history_sources.update(message.source_revision_ids)
+                    history.append({'role': message.role,
+                        'content': re.sub(r'\[\[[^\]]+\]\]', '', message.content) if message.role == 'assistant' else message.content})
+            retrieval_id, found = await service.rag.retrieve(principal, conversation_id, question, history)
+            runtime.source_ids = sorted(history_sources | set(found['sourceRevisionIds']))
+            runtime.warnings = found['warnings']
+            runtime.usage = {'retrieval': found['usage']}
+            messages = build_messages(question, history, found['evidence'], service.settings.prompt_max_characters)
+            normalizer = CitationNormalizer(found['evidence'])
+            runtime.pending.append({'type': 'state', 'data': {'status': 'generating',
+                'retrievalRunId': retrieval_id, 'evidenceStatus': found['status'], 'warnings': runtime.warnings}})
+            await persist(service, runtime, status='generating', retrieval_id=retrieval_id)
+            phase = 'generation'
+            await service.check_live(principal, runtime.source_ids)
+            iterator = service.generation.stream(messages, effort=service.settings.generation_effort,
                                                  cancel_event=runtime.cancel_event).__aiter__()
-        pending = None
-        try:
+            checked = monotonic()
             while True:
-                pending = pending or asyncio.create_task(anext(iterator))
-                done, _ = await asyncio.wait({pending}, timeout=self.settings.stream_flush_seconds)
-                if not done:
-                    await self.flush(runtime, force=True)
-                    continue
-                try:
-                    delta = pending.result()
-                except StopAsyncIteration:
-                    return
-                pending = None
-                yield delta
-        finally:
-            if pending is not None and not pending.done():
-                pending.cancel()
-                await asyncio.gather(pending, return_exceptions=True)
-            close = getattr(iterator, "aclose", None)
-            if close:
-                await close()
-
-    async def finish(self, runtime, status, error=None):
-        async with runtime.finish_lock:
-            await self._finish(runtime, status, error)
-
-    async def _finish(self, runtime, status, error=None):
-        if runtime.finished:
-            return
-        runtime.metrics["totalMs"] = round((monotonic() - runtime.started_clock) * 1000, 2)
-        if status == "completed":
-            await self.verify_access(runtime)
-        async with self.session_factory() as session, session.begin():
-            terminal = await AnswerRepository(session).persist(
-                runtime, terminal=status, error=error, validate_sources=status == "completed")
-        runtime.flushed()
-        if terminal:
-            # The terminal event is withheld until its answer and usage commit succeeds.
-            runtime.events.append(terminal)
-            runtime.status = terminal["data"]["status"]
-        runtime.finished = True
-        await runtime.notify()
-        if runtime.status == "completed":
-            try:
-                from ..personal_wiki.service import enqueue_for_message
-                await enqueue_for_message(self.session_factory, runtime.principal, runtime.message_id)
-            except Exception:
-                # Post-answer enrichment is independent. A failed enqueue must not
-                # turn the already committed answer into a false generation failure.
-                # Its durable warning is visible on restore; explicit organize can retry.
-                async with self.session_factory() as session, session.begin():
-                    row = await AnswerRepository(session).owned(runtime.run_id, runtime.principal.id, lock=True)
-                    warning = "답변은 저장됐으나 개인 위키 정리 작업을 등록하지 못했습니다."
-                    row.warnings = list(dict.fromkeys((row.warnings or []) + [warning]))
-
-    async def execute(self, runtime, request):
-        usages, generation_usage = [], None
-        generation_started = None
-        generation_attempted = False
-        decoder = None
-
-        async def preserve_citation_tail():
-            if decoder is not None:
-                pending = decoder.finish()
-                if pending:
-                    runtime.content += pending
-                    await runtime.emit("text.delta", {"text": pending})
-        try:
-            await self.verify_access(runtime)
-            if runtime.cancel_event.is_set():
-                raise asyncio.CancelledError()
-            runtime.status = "running"
-            await runtime.emit("run.started", {"messageId": runtime.message_id,
-                "conversationId": runtime.conversation_id, "responseMode": request.response_mode,
-                "extended": request.extended, "generationConfig": runtime.generation_config})
-            await self.flush(runtime, force=True)
-            history = await self.conversations.history(runtime.principal, runtime.conversation_id, runtime.user_message_id)
-
-            async def progress(data):
-                await runtime.emit("retrieval.status", data)
-                await self.flush(runtime, force=True)
-
-            retrieval_start = monotonic()
-            try:
-                result = await self.retrieval.search(runtime.principal, request, for_answer=True,
-                    progress=progress, cancel_event=runtime.cancel_event, history=history)
-            finally:
-                runtime.metrics["retrievalMs"] = round((monotonic() - retrieval_start) * 1000, 2)
-            runtime.retrieval_run_id = result["retrievalRunId"]
-            usages.extend(result["usage"].get("components", []))
-            runtime.usage = summarize_usage(usages)
-            runtime.warnings = list(result.get("warnings", []))
-            if self.settings.provider_mode == "fixture":
-                runtime.warnings.append("명시적 fixture 응답입니다. 실제 모델의 생성 품질·비용을 확인한 결과가 아닙니다.")
-            runtime.citations = [citation(hit) for hit in result["hits"]]
-            # A follow-up can depend on an earlier answer. Keep those dependencies
-            # for current ACL checks rather than hiding only the earlier citation.
-            seen = {item["id"] for item in runtime.citations}
-            for item in history:
-                for previous in item.get("citations", []):
-                    if previous.get("id") not in seen:
-                        runtime.citations.append({**previous, "contextOrigin": "earlier_answer"})
-                        seen.add(previous.get("id"))
-            runtime.relations, runtime.source_views = result.get("relations", []), result.get("sourceViews", [])
-            await self.verify_access(runtime)
-            await runtime.emit("retrieval.status", {"stage": "ready", "message": "답변에 사용할 근거 범위를 구성했습니다.",
-                "retrievalRunId": result["retrievalRunId"], "indexSnapshotId": result["indexSnapshotId"],
-                "groupCoverage": result["groupCoverage"], "warnings": runtime.warnings,
-                "stopReason": result["stopReason"]})
-            for kind, values in (("citation.add", runtime.citations), ("relation.add", runtime.relations),
-                                 ("source_view.add", runtime.source_views)):
-                for value in values:
-                    await runtime.emit(kind, value)
-            await self.flush(runtime, force=True)
-            evidence_review = None
-            review_messages = evidence_review_messages(request, result) if self.settings.provider_mode != "fixture" else None
-            if review_messages:
-                await runtime.emit("retrieval.status", {"stage": "evidence_review", "message": "질문 항목에 맞는 근거와 비교 조건을 확인합니다."})
-                review_started, review_usage, review_text, review_attempted = monotonic(), None, "", False
-                try:
-                    if sum(len(item["content"]) for item in review_messages) > self.settings.prompt_max_characters:
-                        raise ValueError("Evidence review exceeds prompt budget")
-                    review_attempted = True
-                    async for delta in self.provider_deltas(runtime, review_messages):
-                        if delta.usage is not None:
-                            review_usage = {**delta.usage, "operation": "evidence_review"}
-                        if runtime.cancel_event.is_set() or runtime.finished:
-                            raise asyncio.CancelledError()
-                        review_text += delta.text or ""
-                        if len(review_text) > 12000:
-                            raise ValueError("Evidence review exceeds output budget")
-                    evidence_review = parse_evidence_review(review_text, request, result)
-                except asyncio.CancelledError:
-                    raise
-                except Exception as exc:
-                    if review_usage is None and isinstance(getattr(exc, "usage", None), dict):
-                        review_usage = {**exc.usage, "operation": "evidence_review"}
-                    runtime.warnings.append("항목별 근거 검토를 완료하지 못해 기존 검색 근거로 답변합니다.")
-                    logging.getLogger("knowledge.answers").warning("evidence_review_unavailable run_id=%s", runtime.run_id)
-                finally:
-                    runtime.metrics["evidenceReviewMs"] = round((monotonic() - review_started) * 1000, 2)
-                    if review_attempted:
-                        usages.append(review_usage or unknown_usage("evidence_review", runtime.generation_config.get("model")))
-                    runtime.usage = summarize_usage(usages)
-                await self.verify_access(runtime)
-            messages = build_messages(request, result, history, max_characters=self.settings.prompt_max_characters,
-                                      evidence_review=evidence_review)
-            runtime.metrics["promptCharacters"] = sum(len(item["content"]) for item in messages)
-            runtime.metrics["groundingCharacters"] = result["exploration"]["grounding"]["groundingCharacters"]
-            generation_started = monotonic()
-            generation_attempted = True
-            # No SQL session/transaction is held while awaiting provider output.
-            decoder = CitationTextDecoder(citation_aliases(result))
-            async for delta in decode_citation_deltas(self.provider_deltas(runtime, messages), result,
-                                                      decoder=decoder, cancel_event=runtime.cancel_event):
-                if delta.model:
-                    runtime.generation_config["model"] = delta.model
-                if getattr(delta, "provider_event_type", None) and runtime.metrics["providerEventMs"] is None:
-                    runtime.metrics["providerEventMs"] = round((monotonic() - runtime.started_clock) * 1000, 2)
-                if delta.usage is not None:
-                    generation_usage = {**delta.usage, "operation": "answer_generation"}
-                    runtime.usage = summarize_usage(usages + [generation_usage])
-                if runtime.cancel_event.is_set() or runtime.finished:
+                if runtime.cancel_event.is_set():
                     raise asyncio.CancelledError()
+                if next_delta is None:
+                    next_delta = asyncio.ensure_future(anext(iterator))
+                try:
+                    delta = await asyncio.wait_for(asyncio.shield(next_delta), timeout=.25)
+                except TimeoutError:
+                    if runtime.pending and monotonic() - runtime.last_flush >= service.settings.stream_flush_seconds:
+                        await persist(service, runtime)
+                    if monotonic() - checked >= .5:
+                        await service.check_live(principal, runtime.source_ids)
+                        checked = monotonic()
+                    continue
+                except StopAsyncIteration:
+                    next_delta = None
+                    break
+                next_delta = None
+                if monotonic() - checked >= .5:
+                    await service.check_live(principal, runtime.source_ids)
+                    checked = monotonic()
+                if delta.usage is not None:
+                    runtime.usage = {**runtime.usage, 'generation': delta.usage}
                 if delta.text:
-                    if runtime.metrics["firstTextMs"] is None:
-                        runtime.metrics["firstTextMs"] = round((monotonic() - runtime.started_clock) * 1000, 2)
-                    runtime.content += delta.text
-                    # Only reference-key fragments are buffered; prose remains the received provider text.
-                    await runtime.emit("text.delta", {"text": delta.text})
-                await self.flush(runtime)
-            runtime.metrics["generationMs"] = round((monotonic() - generation_started) * 1000, 2)
-            runtime.usage = summarize_usage(usages + [generation_usage or unknown_usage("answer_generation", runtime.generation_config["model"])])
-            if decoder.unknown_references:
-                raise AppError(502, "SOURCE_REFERENCE_INVALID", "답변의 일부 출처 참조를 확인하지 못했습니다. 다시 시도해 주세요.", retryable=True)
-            if not runtime.content.strip():
-                raise AppError(502, "EMPTY_PROVIDER_ANSWER", "공급자가 실제 답변 본문을 보내지 않았습니다.", retryable=True)
-            await self.finish(runtime, "completed")
-        except asyncio.CancelledError as exc:
-            await preserve_citation_tail()
-            if getattr(exc, "usage", None):
-                usages.extend(exc.usage.get("components", []))
-            if generation_started:
-                runtime.metrics["generationMs"] = round((monotonic() - generation_started) * 1000, 2)
-            if generation_attempted:
-                usages.append(generation_usage or unknown_usage("answer_generation", runtime.generation_config.get("model")))
-            runtime.usage = summarize_usage(usages)
-            error = {"code": "PROCESS_INTERRUPTED", "message": "서버 종료로 답변이 중단되었습니다.", "retryable": True} if runtime.cancel_kind == "interrupted" else None
-            await self.finish(runtime, runtime.cancel_kind, error)
-        except Exception as exc:
-            await preserve_citation_tail()
-            if generation_started:
-                runtime.metrics["generationMs"] = round((monotonic() - generation_started) * 1000, 2)
-            observed = getattr(exc, "usage", None)
-            if generation_attempted and getattr(exc, "code", None) != "configuration_blocked":
-                observed_generation = observed if observed and "components" not in observed else None
-                usages.append(generation_usage or observed_generation or unknown_usage("answer_generation", runtime.generation_config.get("model")))
-            if observed and "components" in observed:
-                usages.extend(observed["components"])
-            runtime.usage = summarize_usage(usages)
-            public_error = exc.public() if isinstance(exc, AppError) else {
-                "code": "ANSWER_FAILED", "message": "답변 처리 중 오류가 발생했습니다. 저장된 부분을 확인하고 다시 시도하세요.", "retryable": True}
-            status = "cancelled" if runtime.cancel_event.is_set() or getattr(exc, "code", None) == "RUN_CANCELLED" else "failed"
-            await self.finish(runtime, status, None if status == "cancelled" else public_error)
-
-    async def run(self, runtime, request):
+                    text, citations = normalizer.feed(delta.text)
+                    runtime.citations = normalizer.citations
+                    runtime.text += text
+                    runtime.pending_chars += len(text)
+                    runtime.pending.extend({'type': 'citation', 'data': c} for c in citations)
+                    if text:
+                        runtime.pending.append({'type': 'delta', 'data': {'text': text}})
+                    if len(runtime.text) > 120000:
+                        raise AppError(502, 'answer_output_limit', '답변 출력 한도를 초과했습니다.', retryable=True)
+                if (runtime.pending_chars >= service.settings.stream_flush_characters
+                        or monotonic() - runtime.last_flush >= service.settings.stream_flush_seconds):
+                    await persist(service, runtime)
+            tail, citations = normalizer.feed('', final=True)
+            runtime.text += tail
+            runtime.citations = normalizer.citations
+            runtime.pending.extend({'type': 'citation', 'data': c} for c in citations)
+            if tail:
+                runtime.pending.append({'type': 'delta', 'data': {'text': tail}})
+            runtime.warnings = list(dict.fromkeys([*runtime.warnings, *normalizer.warnings]))
+            if not runtime.text.strip():
+                raise AppError(502, 'empty_answer', '모델이 답변 본문을 반환하지 않았습니다.', retryable=True)
+            await service.check_live(principal, runtime.source_ids)
+            runtime.pending.append({'type': 'complete', 'data': {'status': 'completed', 'warnings': runtime.warnings}})
+            phase = 'persistence'
+            await persist(service, runtime, status='completed')
+    except BaseException as exc:
+        if not isinstance(exc, (Exception, asyncio.CancelledError)):
+            raise
+        status = 'interrupted' if runtime.shutdown else 'cancelled' if isinstance(exc, asyncio.CancelledError) else 'failed'
+        if isinstance(exc, AppError):
+            error = {**exc.public(), 'phase': phase}
+        else:
+            error = {'code': 'execution_interrupted' if runtime.shutdown else 'cancelled' if status == 'cancelled'
+                     else 'answer_timeout' if isinstance(exc, TimeoutError) else phase + '_failed',
+                     'message': '답변 실행이 중단되었습니다. 저장된 내용은 복원할 수 있으며 재시도는 직접 요청해야 합니다.',
+                     'retryable': True, 'phase': phase}
+        if getattr(exc, 'usage', None) is not None:
+            runtime.usage = {**runtime.usage, 'generation' if phase == 'generation' else 'retrieval': exc.usage}
+        # A failed completion transaction must never leave a complete event in the next batch.
+        runtime.pending = [e for e in runtime.pending if e['type'] != 'complete']
+        if normalizer is not None:
+            runtime.warnings = list(dict.fromkeys([*runtime.warnings, *normalizer.warnings]))
+        runtime.pending.append({'type': status if status != 'failed' else 'error', 'data': {'status': status, 'error': error}})
         try:
-            await self.execute(runtime, request)
-        except Exception as exc:
-            # If final persistence itself fails, never emit a false success/failure
-            # commit. Restore reconciles the dead run when storage is reachable.
-            runtime.storage_error = True
-            logging.getLogger("knowledge.answers").error("answer_persistence_failed run_id=%s error_type=%s",
-                                                         runtime.run_id, type(exc).__name__)
-            await runtime.notify()
+            await persist(service, runtime, status=status, error=error)
+        except Exception:
+            # Durable GET/replay will reconcile the unfinished run when storage returns.
+            runtime.storage_failed = True
+            logging.getLogger('knowledge.answers').error('answer_persistence_failed run_id=%s', runtime.run_id)
+    finally:
+        if next_delta is not None:
+            next_delta.cancel()
+            await asyncio.gather(next_delta, return_exceptions=True)
+        if iterator is not None and hasattr(iterator, 'aclose'):
+            try:
+                await iterator.aclose()
+            except (Exception, asyncio.CancelledError):
+                pass
+        runtime.changed.set()

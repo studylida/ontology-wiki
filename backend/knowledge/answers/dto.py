@@ -1,24 +1,21 @@
-from ..conversations.dto import message_dto
-from pydantic import Field
-from ..core.dto import DTO
+from pydantic import Field, field_validator
+from knowledge.core.dto import DTO
+from knowledge.conversations.dto import clean_text
 
 
-class ClientMetricsRequest(DTO):
-    first_visible_text_ms: float = Field(ge=0, le=86400000, allow_inf_nan=False)
+class TurnRequest(DTO):
+    question: str = Field(min_length=1, max_length=30000)
+    request_id: str = Field(min_length=1, max_length=128, pattern=r'^[A-Za-z0-9_.:-]+$')
+
+    @field_validator('question')
+    @classmethod
+    def meaningful_question(cls, value):
+        return clean_text(value)
 
 
-def run_handle(row):
-    return {"runId": row.id, "conversationId": row.conversation_id,
-            "messageId": row.message_id, "status": row.status,
-            "eventsUrl": f"/api/v1/answer-runs/{row.id}/events"}
+class AnswerRequest(TurnRequest):
+    conversation_id: str = Field(min_length=1, max_length=64)
 
 
-def run_dto(row, message):
-    return {**run_handle(row), "lastSeq": row.last_seq, "message": message_dto(message),
-            "request": row.request, "error": row.error, "usage": row.usage,
-            "warnings": row.warnings, "metrics": row.metrics,
-            "generationConfig": row.generation_config,
-            "retrievalRunId": row.retrieval_run_id,
-            "retryOfRunId": row.retry_of_run_id, "createdAt": row.created_at.isoformat(),
-            "startedAt": row.started_at.isoformat() if row.started_at else None,
-            "finishedAt": row.finished_at.isoformat() if row.finished_at else None}
+class RetryRequest(DTO):
+    request_id: str = Field(min_length=1, max_length=128, pattern=r'^[A-Za-z0-9_.:-]+$')

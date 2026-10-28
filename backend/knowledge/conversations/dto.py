@@ -1,51 +1,51 @@
 from datetime import datetime
-
+from typing import Literal
 from pydantic import Field, field_validator
-
-from ..core.dto import DTO
+from knowledge.core.dto import DTO
 
 
 def clean_text(value: str) -> str:
     value = value.strip()
-    if not value or "\x00" in value:
-        raise ValueError("비어 있거나 NUL 문자가 포함된 내용은 저장할 수 없습니다.")
+    if not value or '\x00' in value:
+        raise ValueError('A nonempty string without NUL characters is required')
     return value
 
 
 class ConversationCreate(DTO):
-    title: str | None = Field(None, min_length=1, max_length=300)
-
-    @field_validator("title")
+    title: str = Field(default='새 대화', min_length=1, max_length=300)
+    @field_validator('title')
     @classmethod
-    def valid_title(cls, value):
-        return None if value is None else clean_text(value)
+    def validate_title(cls, value):
+        return clean_text(value)
 
 
 class ConversationPatch(DTO):
     title: str = Field(min_length=1, max_length=300)
-
-    @field_validator("title")
+    @field_validator('title')
     @classmethod
-    def valid_title(cls, value):
+    def validate_title(cls, value):
         return clean_text(value)
 
 
 class MessageCreate(DTO):
-    # This endpoint stores a user's message, not an AI completion. The role is
-    # assigned by the server, and DTO.extra='forbid' rejects spoofed roles/owners.
     content: str = Field(min_length=1, max_length=30000)
-
-    @field_validator("content")
+    @field_validator('content')
     @classmethod
-    def valid_content(cls, value):
+    def validate_content(cls, value):
         return clean_text(value)
 
 
 class MessageView(DTO):
     id: str
-    role: str
+    role: Literal['user', 'assistant']
     content: str
     created_at: datetime
+    status: str = 'completed'
+    run_id: str | None = None
+    citations: list[dict] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
+    source_unavailable: bool = False
+    historical_sources: bool = False
 
 
 class ConversationView(DTO):
@@ -56,7 +56,7 @@ class ConversationView(DTO):
 
 
 class ConversationDetail(ConversationView):
-    messages: list[MessageView]
+    messages: list[MessageView] = Field(default_factory=list)
 
 
 class ConversationList(DTO):

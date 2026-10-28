@@ -1,234 +1,201 @@
+"""Owner-scoped answer use cases. GET/reconnect never starts generation."""
 import asyncio
 import hashlib
 import json
-from datetime import timedelta
-
+from time import monotonic
+import asyncpg
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
-
-from ..conversations.entities import Conversation, Message
-from ..conversations.repository import ConversationRepository
-from ..conversations.service import protect_message
-from ..core.errors import AppError
-from ..core.ids import new_id, utcnow
-from ..rag.dto import AnswerRequest
-from .dto import run_handle
-from .entities import ACTIVE_STATUSES, AnswerRun
-from .execution import AnswerExecutor
+from knowledge.core.errors import AppError
+from knowledge.conversations.entities import Message
+from knowledge.conversations.protection import source_state, visible_message
+from knowledge.conversations.repository import ConversationRepository
+from knowledge.documents.repository import DocumentRepository
+from knowledge.rag.entities import RetrievalRun
 from .repository import AnswerRepository
-from .runtime import RunRuntime
+from .runtime import RunRegistry
+from .states import ACTIVE, RETRYABLE, TERMINAL
 
 
 class AnswerService:
-    def __init__(self, session_factory, identity, conversations, retrieval, generation_client, settings):
-        self.session_factory, self.settings = session_factory, settings
-        self.executor = AnswerExecutor(session_factory, identity, conversations, retrieval, generation_client, settings)
-        self.runtimes: dict[str, RunRuntime] = {}
-        self.stopping = False
+    def __init__(self, sessions, settings, identity, rag, generation):
+        self.sessions, self.settings, self.identity = sessions, settings, identity
+        self.rag, self.generation = rag, generation
+        self.registry = RunRegistry()
+        self._lease = None
 
-    async def recover(self):
-        # V1 explicitly runs one API process; no lease or distributed worker is implied.
-        async with self.session_factory() as session, session.begin():
-            return await AnswerRepository(session).interrupt_active()
+    async def start(self):
+        # The MVP runs one API process per database. A dedicated session lock has
+        # no long-lived SQL transaction and prevents one process recovering another's runs.
+        self._lease = await asyncpg.connect(self.settings.database_url.replace('postgresql+asyncpg://', 'postgresql://', 1))
+        if not await self._lease.fetchval('SELECT pg_try_advisory_lock(820261031)'):
+            await self._lease.close()
+            self._lease = None
+            raise RuntimeError('This MVP requires one answer API process per database; use --workers 1')
+        async with self.sessions() as session, session.begin():
+            await AnswerRepository(session).recover()
 
-    async def shutdown(self):
-        self.stopping = True
-        tasks = []
-        for runtime in self.runtimes.values():
-            if runtime.task and not runtime.task.done():
-                runtime.cancel_kind = "interrupted"
-                runtime.cancel_event.set()
-                runtime.task.cancel()
-                tasks.append(runtime.task)
-        if tasks:
-            await asyncio.gather(*tasks, return_exceptions=True)
+    async def close(self):
+        await self.registry.close()
+        if self.rag.reranker is not None and hasattr(self.rag.reranker, 'aclose'):
+            await self.rag.reranker.aclose()
+        if self._lease is not None:
+            await self._lease.close()
+            self._lease = None
+
+    async def check_live(self, principal, source_ids):
+        await self.identity.refresh_principal(principal)
+        async with self.sessions() as session:
+            if not await DocumentRepository(session).ensure_readable(principal, source_ids):
+                raise AppError(409, 'source_unavailable', '근거 문헌이 비활성화되어 실행을 중단했습니다.', retryable=True)
 
     @staticmethod
-    def same_request(existing, request_hash):
-        if existing.request_hash != request_hash:
-            raise AppError(409, "IDEMPOTENCY_CONFLICT", "같은 요청 ID에 다른 내용이 전달됐습니다. 새 요청 ID를 사용하세요.")
-        return run_handle(existing)
+    def summary(run):
+        return {'runId': run.id, 'conversationId': run.conversation_id,
+                'userMessageId': run.user_message_id, 'messageId': run.message_id,
+                'requestId': run.request_id, 'status': run.status, 'durableSeq': run.durable_seq,
+                'eventsUrl': '/api/v1/answer-runs/' + run.id + '/events'}
 
-    async def create(self, principal, request: AnswerRequest):
-        principal.require("rag:answer")
-        if self.stopping:
-            raise AppError(503, "SERVER_STOPPING", "서버가 종료 중입니다. 잠시 후 다시 시도하세요.", retryable=True)
-        body = request.public()
-        fingerprint = hashlib.sha256(json.dumps(body, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
-        async with self.session_factory() as session:
-            existing = await AnswerRepository(session).idempotent(principal.id, request.client_request_id)
-            if existing:
-                return self.same_request(existing, fingerprint)
-        config = {"model": getattr(self.executor.generation_client, "model", self.settings.generation_model),
-                  "effort": self.settings.generation_effort, "providerMode": self.settings.provider_mode}
+    async def create(self, principal, body, *, retry_of=None):
+        principal.require('conversations:write')
+        payload = {'conversationId': body.conversation_id, 'question': body.question, 'requestId': body.request_id}
+        if retry_of:
+            payload['retryOf'] = retry_of
+        fingerprint = hashlib.sha256(json.dumps(payload, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+        created = False
         try:
-            async with self.session_factory() as session, session.begin():
-                repo = AnswerRepository(session)
-                if request.conversation_id:
-                    conversation = await ConversationRepository(session).owned(request.conversation_id, principal.id, lock=True)
-                    existing = await repo.idempotent(principal.id, request.client_request_id)
-                    if existing:
-                        return self.same_request(existing, fingerprint)
-                    if await repo.active_for_conversation(conversation.id):
-                        raise AppError(409, "CONVERSATION_BUSY", "이 대화의 답변이 진행 중입니다. 완료하거나 취소한 뒤 이어서 질문하세요.")
-                else:
-                    conversation = Conversation(id=new_id("conv"), owner_id=principal.id, title=request.message[:100],
-                        auto_wiki=self.settings.auto_wiki_default and principal.kind == "user")
-                    session.add(conversation)
-                    await session.flush()
-                if request.retry_of_run_id:
-                    previous = await repo.owned(request.retry_of_run_id, principal.id)
-                    if previous.status in ACTIVE_STATUSES:
-                        raise AppError(409, "RETRY_NOT_READY", "진행 중인 답변은 별도 재시도할 수 없습니다.")
-                    if previous.conversation_id != conversation.id:
-                        raise AppError(422, "RETRY_CONVERSATION_MISMATCH", "재시도는 원래 대화에서 시작해야 합니다.")
-                created_at, run_id = utcnow(), new_id("run")
-                user_message = Message(id=new_id("msg"), conversation_id=conversation.id, role="user",
-                    content=request.message, status="completed", created_at=created_at)
-                assistant = Message(id=new_id("msg"), conversation_id=conversation.id, role="assistant",
-                    content="", response_mode=request.response_mode, extended=request.extended,
-                    run_id=run_id, status="queued", created_at=created_at + timedelta(microseconds=1))
-                session.add_all([user_message, assistant])
-                await session.flush()
-                run = AnswerRun(id=run_id, owner_id=principal.id, conversation_id=conversation.id,
-                    user_message_id=user_message.id, message_id=assistant.id, client_request_id=request.client_request_id,
-                    request_hash=fingerprint, request=body, retry_of_run_id=request.retry_of_run_id,
-                    status="queued", generation_config=config)
-                session.add(run)
-                conversation.updated_at = created_at
-                conversation.next_settings = {key: body[key] for key in ("responseMode", "extended", "conceptIds",
-                    "sourceRevisionIds", "documentContextIds", "sourceGroups", "aspect", "attachmentIds")}
-                await session.flush()
-                handle = run_handle(run)
+            async with self.sessions() as session, session.begin():
+                conversation = await ConversationRepository(session).owned(body.conversation_id, principal.id, lock=True)
+                repository = AnswerRepository(session)
+                existing = await repository.by_request(principal.id, body.request_id)
+                if existing is not None:
+                    if existing.request_hash != fingerprint:
+                        raise AppError(409, 'request_id_conflict', '같은 요청 ID가 다른 질문에 사용되었습니다.')
+                    return self.summary(existing)
+                if await repository.active(conversation.id) is not None:
+                    raise AppError(409, 'conversation_busy', '이 대화의 답변이 진행 중입니다. 완료하거나 취소한 뒤 질문해 주세요.', retryable=True)
+                retry_user = None
+                if retry_of:
+                    old = await repository.owned(retry_of, principal.id)
+                    latest = await repository.latest_user(conversation.id)
+                    if old.status not in RETRYABLE or latest is None or latest.id != old.user_message_id:
+                        raise AppError(409, 'retry_not_allowed', '가장 최근 질문의 중단·실패 답변만 재시도할 수 있습니다.')
+                    retry_user = latest
+                run = await repository.create(principal, conversation, payload, fingerprint, self.registry.epoch,
+                                              retry_user=retry_user)
+                result = self.summary(run)
+                created = True
         except IntegrityError:
-            # Unique owner/request key resolves concurrent submissions atomically;
-            # the losing transaction also rolls back its messages/conversation.
-            async with self.session_factory() as session:
-                existing = await AnswerRepository(session).idempotent(principal.id, request.client_request_id)
-                if existing:
-                    return self.same_request(existing, fingerprint)
-            raise
-        runtime = RunRuntime(run.id, assistant.id, conversation.id, user_message.id, principal,
-                             generation_config=config)
-        self.runtimes[run.id] = runtime
-        actual_request = request.model_copy(update={"conversation_id": conversation.id})
-        runtime.task = asyncio.create_task(self.executor.run(runtime, actual_request), name=f"answer:{run.id}")
-        # Completed run events are durable; keep only a bounded recent in-memory cache.
-        completed = [key for key, value in self.runtimes.items() if value.finished]
-        for key in completed[:-128]:
-            self.runtimes.pop(key, None)
-        return handle
+            # Owner/request uniqueness also covers simultaneous requests to different conversations.
+            async with self.sessions() as session:
+                existing = await AnswerRepository(session).by_request(principal.id, body.request_id)
+                if existing is not None and existing.request_hash == fingerprint:
+                    return self.summary(existing)
+            raise AppError(409, 'request_id_conflict', '요청 ID 또는 대화의 진행 상태가 충돌했습니다.') from None
+        if created:
+            from .execution import execute
+            try:
+                runtime = self.registry.add(result['runId'])
+                runtime.task = asyncio.create_task(execute(self, runtime, principal, body.question,
+                    body.conversation_id, result['userMessageId']), name='answer:' + result['runId'])
+            except Exception:
+                async with self.sessions() as session, session.begin():
+                    stored = await AnswerRepository(session).owned(result['runId'], principal.id, lock=True)
+                    await AnswerRepository(session).interrupt(stored)
+                raise
+        return result
+
+    async def repair_if_abandoned(self, principal, run_id):
+        runtime = self.registry.get(run_id)
+        if runtime is not None and runtime.task is not None and not runtime.task.done():
+            return
+        async with self.sessions() as session, session.begin():
+            repository = AnswerRepository(session)
+            run = await repository.owned(run_id, principal.id, lock=True)
+            if run.status in ACTIVE:
+                await repository.interrupt(run)
 
     async def get(self, principal, run_id):
-        runtime = self.runtimes.get(run_id)
-        if runtime and runtime.storage_error and not runtime.finished:
-            await self.executor.finish(runtime, "interrupted", {"code": "PERSISTENCE_INTERRUPTED",
-                "message": "답변 저장 중 연결이 중단되었습니다. 저장된 부분을 확인하고 명시적으로 다시 시도하세요.", "retryable": True})
-        async with self.session_factory() as session:
-            value = await AnswerRepository(session).detail(run_id, principal.id)
-            value["message"] = await protect_message(session, principal, value["message"])
-            value["warnings"] = list(dict.fromkeys((value["warnings"] or []) + value["message"].get("warnings", [])))
-            return value
+        principal.require('conversations:read')
+        await self.repair_if_abandoned(principal, run_id)
+        async with self.sessions() as session:
+            run = await AnswerRepository(session).owned(run_id, principal.id)
+            message = await session.get(Message, run.message_id)
+            view = await visible_message(session, principal, message)
+            result = {**self.summary(run), 'answer': view.public(), 'error': run.error,
+                      'usage': run.usage, 'retrievalRunId': run.retrieval_run_id}
+            if view.source_unavailable:
+                result['retrieval'] = None
+            else:
+                retrieval = await session.get(RetrievalRun, run.retrieval_run_id) if run.retrieval_run_id else None
+                result['retrieval'] = retrieval.result if retrieval else None
+            return result
 
     async def cancel(self, principal, run_id):
-        async with self.session_factory() as session, session.begin():
-            row = await AnswerRepository(session).owned(run_id, principal.id, lock=True)
-            if row.status in ACTIVE_STATUSES:
-                row.status = "cancel_requested"
-            status = row.status
-        runtime = self.runtimes.get(run_id)
-        if runtime and not runtime.finished:
+        principal.require('conversations:write')
+        async with self.sessions() as session:
+            run = await AnswerRepository(session).owned(run_id, principal.id)
+            if run.status in TERMINAL:
+                return await self.get(principal, run_id)
+        runtime = self.registry.get(run_id)
+        if runtime is not None and runtime.task is not None and not runtime.task.done():
             runtime.cancel_event.set()
-            if runtime.task and not runtime.task.done():
-                runtime.task.cancel()
-                await asyncio.gather(runtime.task, return_exceptions=True)
-            # Cancellation can win before the coroutine's first instruction.
-            if not runtime.finished:
-                await self.executor.finish(runtime, "cancelled")
-            status = runtime.status
-        return {"runId": run_id, "status": status}
+            runtime.task.cancel()
+            await asyncio.gather(runtime.task, return_exceptions=True)
+        return await self.get(principal, run_id)
 
-    async def record_client_metrics(self, principal, run_id, first_visible_text_ms):
-        async with self.session_factory() as session, session.begin():
-            row = await AnswerRepository(session).owned(run_id, principal.id, lock=True)
-            metrics = dict(row.metrics or {})
-            if "clientFirstVisibleTextMs" not in metrics:
-                metrics.update(clientFirstVisibleTextMs=first_visible_text_ms, clientTimingSource="browser_untrusted")
-                row.metrics = metrics
-            runtime = self.runtimes.get(run_id)
-            if runtime:
-                runtime.metrics.setdefault("clientFirstVisibleTextMs", metrics["clientFirstVisibleTextMs"])
-                runtime.metrics["clientTimingSource"] = "browser_untrusted"
-            return {"runId": run_id, "metrics": metrics}
-
-    @staticmethod
-    def historical_event(event, protected):
-        stale = set(protected.get("staleSourceRevisionIds", []))
-        if not stale:
-            return event
-        if event["type"] == "source_view.add" and event["data"].get("sourceRevisionId") in stale:
-            return None
-        if event["type"] == "citation.add" and event["data"].get("sourceRevisionId") in stale:
-            return {**event, "data": {**event["data"], "historicalMetadata": True}}
-        if event["type"] in ("retrieval.status", "run.completed", "run.failed", "run.cancelled"):
-            return {**event, "data": {**event["data"], "warnings": list(dict.fromkeys(
-                event["data"].get("warnings", []) + protected.get("warnings", [])))}}
-        return event
+    async def retry(self, principal, run_id, body):
+        from .dto import AnswerRequest
+        principal.require('conversations:write')
+        await self.repair_if_abandoned(principal, run_id)
+        async with self.sessions() as session:
+            old = await AnswerRepository(session).owned(run_id, principal.id)
+            request = AnswerRequest(conversation_id=old.conversation_id,
+                question=old.request_payload['question'], request_id=body.request_id)
+        return await self.create(principal, request, retry_of=run_id)
 
     async def check_stream(self, principal, run_id, after):
-        detail = await self.get(principal, run_id)
-        if detail["message"]["status"] == "restricted":
-            raise AppError(403, "SOURCE_ACCESS_CHANGED", "이 응답의 근거 자료에 현재 접근할 수 없습니다.")
-        runtime = self.runtimes.get(run_id)
-        highest = runtime.seq if runtime else detail["lastSeq"]
-        if after > highest or (not runtime and detail["status"] == "interrupted" and after >= highest):
-            raise AppError(409, "REPLAY_CURSOR_AHEAD", "저장된 이벤트 범위보다 앞선 위치입니다. 실행 상세를 다시 불러오세요.",
-                           details={"lastSeq": detail["lastSeq"]}, retryable=True)
-        return detail
+        principal.require('conversations:read')
+        await self.repair_if_abandoned(principal, run_id)
+        async with self.sessions() as session:
+            run = await AnswerRepository(session).owned(run_id, principal.id)
+            if after > run.durable_seq:
+                raise AppError(409, 'invalid_event_cursor', '저장된 이벤트보다 뒤의 커서입니다. 실행 상태를 다시 조회해 주세요.')
+            message = await session.get(Message, run.message_id)
+            if await source_state(session, principal, message.source_revision_ids) == 'unavailable':
+                raise AppError(409, 'source_unavailable', '비활성화된 근거가 있어 이전 답변 이벤트를 재생하지 않습니다.')
 
-    async def event_stream(self, principal, run_id, after, disconnected):
-        cursor = after
-        runtime = self.runtimes.get(run_id)
-        if not runtime:
-            detail = await self.get(principal, run_id)
-            protected = detail["message"]
-            if protected["status"] == "restricted":
-                return
-            async with self.session_factory() as session:
-                events = await AnswerRepository(session).events(run_id, cursor)
-            for event in events:
-                if await disconnected():
-                    return
-                event = self.historical_event(event, protected)
-                if event is not None:
-                    yield event
-            return
-        while True:
-            if await disconnected():
-                return
+    async def event_stream(self, principal, run_id, after, disconnected, authenticate=None):
+        heartbeat = monotonic()
+        while not await disconnected():
             try:
-                await self.executor.verify_access(runtime)
-            except AppError:
-                # Do not replay withdrawn text or fabricate a durable terminal event.
-                # The authenticated detail endpoint exposes its restricted state.
-                return
-            async with self.session_factory() as session:
-                protected = await protect_message(session, runtime.principal, {"citations": runtime.citations,
-                    "relations": runtime.relations, "sourceViews": runtime.source_views,
-                    "warnings": runtime.warnings, "status": runtime.status})
-            if protected["status"] == "restricted":
-                return
-            ready = [event for event in runtime.events if event["seq"] > cursor]
-            for event in ready:
-                cursor = event["seq"]
-                event = self.historical_event(event, protected)
-                if event is not None:
+                if authenticate is not None:
+                    principal = await authenticate()
+                else:
+                    await self.identity.refresh_principal(principal)
+                await self.check_stream(principal, run_id, after)
+                async with self.sessions() as session:
+                    repository = AnswerRepository(session)
+                    run = await repository.owned(run_id, principal.id)
+                    events = await repository.events_after(run_id, after)
+                    done = run.status in TERMINAL
+                for event in events:
+                    # Re-check current access before every durable event, not just initial GET.
+                    await self.check_stream(principal, run_id, after)
+                    after = event['seq']
                     yield event
-            if runtime.finished or runtime.storage_error:
+                if done and not events:
+                    return
+            except AppError as exc:
+                # Transport notices have no durable ID and cannot masquerade as completion.
+                yield {'type': 'stream_error', 'runId': run_id, 'data': {'error': exc.public()}}
                 return
-            async with runtime.changed:
-                if any(event["seq"] > cursor for event in runtime.events):
-                    continue
-                try:
-                    await asyncio.wait_for(runtime.changed.wait(), timeout=15)
-                except TimeoutError:
-                    yield None  # SSE comment heartbeat, never a fake answer token.
+            except Exception:
+                yield {'type': 'stream_error', 'runId': run_id, 'data': {'error': {
+                    'code': 'event_store_unavailable', 'message': '저장된 이벤트를 읽지 못했습니다. 재연결은 새 생성을 시작하지 않습니다.', 'retryable': True}}}
+                return
+            if monotonic() - heartbeat > 10:
+                heartbeat = monotonic()
+                yield None
+            if not events:
+                await asyncio.sleep(.15)

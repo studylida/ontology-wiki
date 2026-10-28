@@ -1,31 +1,27 @@
-from datetime import datetime
-
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, String, Text
-from sqlalchemy.orm import Mapped, mapped_column
-
-from ..core.database import Base
-from ..core.ids import new_id, utcnow
+from sqlalchemy import Column, DateTime, ForeignKey, String, Text
+from sqlalchemy.dialects.postgresql import JSONB
+from knowledge.core.database import Base
+from knowledge.core.ids import new_id, utcnow
 
 
 class Conversation(Base):
-    __tablename__ = "conversations"
-    id: Mapped[str] = mapped_column(String(80), primary_key=True, default=lambda: new_id("conv"))
-    owner_id: Mapped[str] = mapped_column(ForeignKey("knowledge_users.id", ondelete="CASCADE"), index=True)
-    title: Mapped[str] = mapped_column(String(300), default="새 대화")
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
-    __table_args__ = (CheckConstraint("length(btrim(title)) > 0", name="ck_conversation_title"),)
+    __tablename__ = 'conversations'
+    id = Column(String(64), primary_key=True, default=lambda: new_id('conv'))
+    owner_id = Column(String(64), ForeignKey('knowledge_users.id', ondelete='CASCADE'), nullable=False)
+    title = Column(String(300), nullable=False, default='새 대화')
+    created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+    updated_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
 
 
 class Message(Base):
-    __tablename__ = "messages"
-    id: Mapped[str] = mapped_column(String(80), primary_key=True, default=lambda: new_id("msg"))
-    conversation_id: Mapped[str] = mapped_column(ForeignKey("conversations.id", ondelete="CASCADE"))
-    role: Mapped[str] = mapped_column(String(16))
-    content: Mapped[str] = mapped_column(Text)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
-    __table_args__ = (
-        CheckConstraint("role IN ('user', 'assistant')", name="ck_message_role"),
-        CheckConstraint("length(btrim(content)) > 0", name="ck_message_content"),
-        Index("ix_messages_conversation_created", "conversation_id", "created_at", "id"),
-    )
+    __tablename__ = 'messages'
+    id = Column(String(64), primary_key=True, default=lambda: new_id('msg'))
+    conversation_id = Column(String(64), ForeignKey('conversations.id', ondelete='CASCADE'), nullable=False)
+    role = Column(String(16), nullable=False)
+    content = Column(Text, nullable=False)
+    status = Column(String(24), nullable=False, default='completed')
+    run_id = Column(String(64), ForeignKey('answer_runs.id', use_alter=True))
+    citations = Column(JSONB, nullable=False, default=list)
+    source_revision_ids = Column(JSONB, nullable=False, default=list)
+    warnings = Column(JSONB, nullable=False, default=list)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)

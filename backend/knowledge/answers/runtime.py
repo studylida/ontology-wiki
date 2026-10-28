@@ -1,68 +1,58 @@
+"""Only live cancellation/notification state is local. Replay comes from PostgreSQL."""
 import asyncio
 from dataclasses import dataclass, field
 from time import monotonic
-
-from ..core.ids import utcnow
+from uuid import uuid4
+from .states import TERMINAL
 
 
 @dataclass
 class RunRuntime:
     run_id: str
-    message_id: str
-    conversation_id: str
-    user_message_id: str
-    principal: object
-    started_clock: float = field(default_factory=monotonic)
-    cancel_event: asyncio.Event = field(default_factory=asyncio.Event)
-    changed: asyncio.Condition = field(default_factory=asyncio.Condition)
-    finish_lock: asyncio.Lock = field(default_factory=asyncio.Lock)
-    cancel_kind: str = "cancelled"
+    epoch: str
+    status: str = 'accepted'
     task: asyncio.Task | None = None
-    seq: int = 0
-    events: list[dict] = field(default_factory=list)
-    pending: list[dict] = field(default_factory=list)
-    content: str = ""
-    citations: list[dict] = field(default_factory=list)
-    relations: list[dict] = field(default_factory=list)
-    source_views: list[dict] = field(default_factory=list)
-    warnings: list[str] = field(default_factory=list)
-    usage: dict | None = None
-    metrics: dict = field(default_factory=lambda: {"retrievalMs": None, "generationMs": None,
-                                                 "providerEventMs": None, "firstTextMs": None, "totalMs": None})
-    generation_config: dict = field(default_factory=dict)
-    retrieval_run_id: str | None = None
-    status: str = "queued"
-    finished: bool = False
-    storage_error: bool = False
-    pending_characters: int = 0
+    cancel_event: asyncio.Event = field(default_factory=asyncio.Event)
+    changed: asyncio.Event = field(default_factory=asyncio.Event)
+    write_lock: asyncio.Lock = field(default_factory=asyncio.Lock)
+    text: str = ''
+    citations: list = field(default_factory=list)
+    source_ids: list = field(default_factory=list)
+    warnings: list = field(default_factory=list)
+    usage: dict = field(default_factory=dict)
+    pending: list = field(default_factory=list)
+    pending_chars: int = 0
     last_flush: float = field(default_factory=monotonic)
+    storage_failed: bool = False
+    shutdown: bool = False
 
-    def make_event(self, kind, data):
-        self.seq += 1
-        return {"type": kind, "runId": self.run_id, "seq": self.seq,
-                "at": utcnow().isoformat(), "data": data}
 
-    async def emit(self, kind, data):
-        if self.finished:
-            return
-        event = self.make_event(kind, data)
-        self.pending.append(event)
-        self.events.append(event)
-        if kind == "text.delta":
-            self.pending_characters += len(data["text"])
-        await self.notify()
+class RunRegistry:
+    def __init__(self):
+        self.epoch = uuid4().hex
+        self.runs = {}
 
-    async def notify(self):
-        async with self.changed:
-            self.changed.notify_all()
+    def get(self, run_id):
+        return self.runs.get(run_id)
 
-    def revision_ids(self):
-        ids = {c["sourceRevisionId"] for c in self.citations if c.get("sourceRevisionId")}
-        for card in self.relations + self.source_views:
-            ids.update(c["sourceRevisionId"] for c in card.get("evidence", []) if c.get("sourceRevisionId"))
-        return sorted(ids)
+    def add(self, run_id):
+        for key, value in list(self.runs.items()):
+            if len(self.runs) < 256:
+                break
+            if value.task is not None and value.task.done():
+                self.runs.pop(key)
+        if len(self.runs) >= 256:
+            from knowledge.core.errors import AppError
+            raise AppError(503, 'answer_capacity', '진행 중인 답변이 많습니다. 잠시 후 다시 시도해 주세요.', retryable=True)
+        runtime = RunRuntime(run_id, self.epoch)
+        self.runs[run_id] = runtime
+        return runtime
 
-    def flushed(self):
-        self.pending.clear()
-        self.pending_characters = 0
-        self.last_flush = monotonic()
+    async def close(self):
+        active = [r for r in self.runs.values() if r.task is not None and not r.task.done()]
+        for runtime in active:
+            runtime.shutdown = True
+            runtime.cancel_event.set()
+            runtime.task.cancel()
+        if active:
+            await asyncio.gather(*(r.task for r in active), return_exceptions=True)

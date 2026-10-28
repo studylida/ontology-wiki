@@ -8,6 +8,7 @@ from conftest import ROOT, cli
 
 CORE_TABLES = {'knowledge_users','conversations','messages'}
 DOCUMENT_TABLES = {'documents','document_revisions','passages','embedding_records','passage_embeddings','processing_jobs'}
+ANSWER_TABLES = {'answer_runs','answer_event_batches','retrieval_runs'}
 
 
 def new_conversation(application,name='alice'):
@@ -19,9 +20,9 @@ def new_conversation(application,name='alice'):
 def test_real_login_schema_and_health(application):
     response = application.server.request('GET','/health')
     assert response.status_code == 200
-    assert set(response.json()['capabilities']) == {'authentication','private_conversations','message_storage','shared_document_upload','automatic_indexing'}
+    assert set(response.json()['capabilities']) == {'authentication','private_conversations','message_storage','shared_document_upload','automatic_indexing','grounded_answers','durable_answer_events'}
     tables = {r['tablename'] for r in application.database.query("SELECT tablename FROM pg_tables WHERE schemaname='public'")}
-    assert tables == CORE_TABLES | DOCUMENT_TABLES | {'knowledge_schema_migrations'}
+    assert tables == CORE_TABLES | DOCUMENT_TABLES | ANSWER_TABLES | {'knowledge_schema_migrations'}
     columns = {r['column_name'] for r in application.database.query("SELECT column_name FROM information_schema.columns WHERE table_schema='public'")}
     assert not columns.intersection({'auto_wiki','response_mode','extended','next_settings','review_status'})
     me = application.server.request('GET','/auth/me',token=application.tokens['alice'])
@@ -65,7 +66,7 @@ def test_other_employee_and_admin_cannot_access_private_conversation(application
     assert owned.json()['title'] == '사내 문헌 질문' and owned.json()['messages'] == []
 
 
-@pytest.mark.parametrize('path',['/auth/me','/conversations','/conversations/unknown','/documents'])
+@pytest.mark.parametrize('path',['/auth/me','/conversations','/conversations/unknown','/documents','/answer-runs/unknown'])
 def test_authentication_required(application,path):
     assert application.server.request('GET',path).status_code == 401
     assert application.server.request('GET',path,token='not-a-token').status_code == 401
@@ -82,8 +83,7 @@ def test_conversation_contract_rejects_legacy_and_invalid_fields(application,bod
     assert application.server.request('POST','/conversations',token=application.tokens['alice'],json=body).status_code == 422
 
 
-@pytest.mark.parametrize('body',[{'content':' '},{'content':'a'*30001},{'content':'\x00'},
-                                  {'content':'x','role':'assistant'},{'content':'x','extended':True}])
+@pytest.mark.parametrize('body',[{'content':' '},{'content':'a'*30001},{'content':'\x00'}, {'content':'x','role':'assistant'},{'content':'x','extended':True}])
 def test_message_contract_does_not_allow_spoofed_or_legacy_data(application,body):
     conversation = new_conversation(application)
     assert application.server.request('POST',f'/conversations/{conversation}/messages',token=application.tokens['alice'],json=body).status_code == 422
@@ -136,24 +136,25 @@ def test_revoked_identity_is_rechecked(application):
         database.execute("UPDATE knowledge_users SET is_active=true WHERE username='bob'")
 
 
-@pytest.mark.parametrize('path',['/research/search','/personal-wiki/organize','/answer-runs','/retrieval/search','/index-jobs'])
-def test_unimplemented_and_removed_endpoints_do_not_succeed(application,path):
+@pytest.mark.parametrize('path',['/research/search','/personal-wiki/organize','/retrieval/search','/index-jobs'])
+def test_removed_endpoints_do_not_succeed(application,path):
     assert application.server.request('POST',path,token=application.tokens['alice'],json={}).status_code == 404
 
 
-def test_runtime_does_not_import_optional_features_or_model_clients(application):
+def test_runtime_does_not_import_removed_features_or_document_worker(application):
     program = '''import sys
 from knowledge.main import app
 from knowledge.registry import load_entities
 from knowledge.core.database import Base
 load_entities()
-assert set(Base.metadata.tables) == {'knowledge_users','conversations','messages','documents','document_revisions','passages','embedding_records','passage_embeddings','processing_jobs'}
-for prefix in ('knowledge.personal_wiki','knowledge.research','knowledge.answers','knowledge.rag','knowledge.jobs.worker','knowledge.integrations'):
+assert set(Base.metadata.tables) == {'knowledge_users','conversations','messages','documents','document_revisions','passages','embedding_records','passage_embeddings','processing_jobs','retrieval_runs','answer_runs','answer_event_batches'}
+for prefix in ('knowledge.personal_wiki','knowledge.research','knowledge.ontology','knowledge.jobs.worker','knowledge.integrations.public_fetch'):
     assert not any(name == prefix or name.startswith(prefix+'.') for name in sys.modules), prefix
 '''
     result = subprocess.run([sys.executable,'-c',program],cwd=ROOT,env=application.environment,capture_output=True,text=True,timeout=15)
     assert result.returncode == 0,result.stdout+result.stderr
     paths = application.server.client.get('/openapi.json').json()['paths']
     assert {'/api/v1/health','/api/v1/auth/login','/api/v1/auth/me','/api/v1/conversations',
-            '/api/v1/conversations/{conversation_id}','/api/v1/conversations/{conversation_id}/messages'} <= set(paths)
-    assert all(not any(word in path for word in ('research','wiki','answer-runs','retrieval')) for path in paths)
+            '/api/v1/conversations/{conversation_id}','/api/v1/conversations/{conversation_id}/messages',
+            '/api/v1/conversations/{conversation_id}/turns','/api/v1/answer-runs/{run_id}/events'} <= set(paths)
+    assert all(not any(word in path for word in ('research','wiki','retrieval')) for path in paths)
