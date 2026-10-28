@@ -8,9 +8,9 @@ One product job: answer work questions using shared company-domain documents, na
 
 Removed: external research, fixed five-part answers, response modes, Extended, personal wiki and legacy answer compatibility. Ontology and diagrams are optional, not answer prerequisites. Do not reintroduce old schema fields just to satisfy obsolete tests.
 
-## Implemented boundary: Stages 1–4
+## Implemented boundary: Stages 1–5 (fixture integration, not production qualification)
 
-`knowledge.main` composes Identity, Conversations, Documents and Answers. Additive migrations are `001_foundation.sql`, `002_documents.sql`, `003_answers.sql`. Never rewrite applied migrations. Stage 4 connects the React frontend to these contracts; it adds no new schema. The root HTML/JS prototype and retired frontend hooks, screens and contracts are removed. Run the UI from `frontend`.
+`knowledge.main` composes Identity, Conversations, Documents and Answers. Additive migrations are `001_foundation.sql`, `002_documents.sql`, `003_answers.sql`. Never rewrite applied migrations. Stage 4 connects the React frontend to these contracts; Stage 5 integrates regression tests, synthetic evaluation and fresh Compose smoke checks. Neither adds a schema. The root HTML/JS prototype and retired frontend hooks, screens and contracts are removed. Run the UI from `frontend`.
 
 The API requires one process per DB (`--workers 1`), enforced by a dedicated PostgreSQL session advisory lock. This prevents startup recovery from interrupting another live API's generation. Concurrent conversations are asynchronous within that process. The document worker is separate and uses its own lock. Do not silently remove these locks or claim multi-replica operation is implemented.
 
@@ -39,7 +39,15 @@ Use `scripts/v2/dev.py migrate|create-user|serve|worker|test`. Explicit environm
 
 `tests/browser` uses actual Chromium against the built UI, real isolated DB/API/storage and a separate document worker, with explicit fixture providers. The existing shared-assistant workflow also runs frontend type/build/unit tests. Keep browser DB assertions real: the sync Playwright event loop means foundation asyncio.run DB helpers must run on a separate thread. Screenshots/JUnit artifacts use temporary CI storage, not docs. Functional browser tests are not a manual visual/accessibility audit, live model quality evaluation, or business usefulness evaluation. Review dependency security warnings independently of functional test success.
 
-The former backend/tests and old operational scripts are not all ported. Preserve useful independent tests, replace capability tests when migrating their contracts, and remove only obsolete feature-only tests. Do not mask current failures with blanket skips or claim the old full suite passes.
+The retired backend/tests suite and v2 migrations/imports are removed. Reusable parser, source preservation, bounded-process, provider and reranking tests now live in tests/unit; current capability tests live in tests/foundation. Default dev.py test collects both plus tests/evaluation. Register the evaluation database fixture locally in its test module rather than adding a second bare conftest import that shadows foundation helpers. Browser verification runs separately. Installed Docling execution is explicitly optional under tests/optional and is not counted as passed by the default suite.
+
+The synthetic-only evaluation corpus has 12 documents and 18 work-style questions. It reuses the real intake/worker/retrieval/answer path with fixture providers and records raw-to-passage-to-candidate-to-context-to-answer trace and observed document coverage. Do not report that coverage as semantic retrieval accuracy or label fixture generation/human usefulness as evaluated. Never tune product answers to the test questions. Outputs stay in temporary CI artifacts or ignored evaluation-output, never docs; manual-review fields remain unreviewed until a human reviews them.
+
+The Compose smoke script uses a new random project/database/raw volume and explicit fixture providers, not an existing developer .env or credentials. Cleanup may only target resources it created. Current schema versions must not be rewritten. Old source crawler scripts and public URL fetch adapters have been removed; uploaded file parsers and existing stored source files are retained.
+
+Optional ontology extraction/management and diagram rendering are deferred, not secretly implemented or required. Remove old incompatible extraction services rather than recreating legacy tables. A code fence is not a rendered diagram. New-revision UI and source correction editors are not yet provided.
+
+The frontend lockfile audit found six development dependency advisories on 2026-10-28 (two critical, one high, three moderate); production-only npm audit reported zero. That is not a security certification. Keep dev/test servers private, record the unresolved tooling upgrades, and do not use audit fix --force or claim the warnings are resolved without a tested lockfile change. Real model quality, employee review and public deployment remain separate work.
 
 ## Architecture and work boundaries
 
