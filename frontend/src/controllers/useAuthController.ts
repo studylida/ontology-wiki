@@ -1,51 +1,40 @@
-import { useCallback, useEffect, useState } from "react";
-import { identityRepository } from "../repositories/api";
-import { authStorage, errorMessage, isAbort } from "../repositories/http";
-import type { User } from "../types/contracts";
+import { useEffect, useRef, useState } from 'react';
+import type { User } from '../types/contracts';
+import { api } from '../repositories/api';
+import { errorMessage } from '../repositories/http';
+import { authStorage, AUTH_CHANGED, clearWorkspace } from '../repositories/workspaceStorage';
 
 export function useAuthController() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(!!authStorage.getToken());
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null), [checking, setChecking] = useState(true);
+  const [busy, setBusy] = useState(false), [error, setError] = useState('');
+  const locked = useRef(false);
   useEffect(() => {
-    if (!authStorage.getToken()) return;
     const controller = new AbortController();
-    identityRepository
-      .me(controller.signal)
-      .then(setUser)
-      .catch((error) => {
-        if (!isAbort(error)) {
-          setError(errorMessage(error));
-          if (error.status === 401) authStorage.clear();
-        }
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
-      });
+    void (async () => {
+      try { if (authStorage.getToken()) { const value = await api.me(controller.signal); if (!controller.signal.aborted) setUser(value); } }
+      catch (e) { if (!controller.signal.aborted) setError(errorMessage(e)); }
+      finally { if (!controller.signal.aborted) setChecking(false); }
+    })();
     return () => controller.abort();
   }, []);
-  const login = useCallback(async (username: string, password: string) => {
-    if (!username.trim() || !password) {
-      setError("사용자 이름과 비밀번호를 입력해 주세요.");
-      return;
-    }
-    setBusy(true);
-    setError(null);
-    try {
-      const result = await identityRepository.login(username.trim(), password);
-      authStorage.setToken(result.accessToken);
-      setUser(result.user);
-    } catch (error) {
-      setError(errorMessage(error));
-    } finally {
-      setBusy(false);
-    }
-  }, []);
-  const logout = useCallback(() => {
-    authStorage.clear();
-    setUser(null);
-    setError(null);
-  }, []);
-  return { user, loading, busy, error, login, logout };
+  useEffect(() => {
+    const expired = () => {
+      try { authStorage.clear(); if (user) clearWorkspace(user.id); } catch { /* No private view survives logout. */ }
+      setUser(null); setError('로그인이 만료되었거나 권한이 변경되었습니다. 다시 로그인해 주세요.');
+    };
+    window.addEventListener(AUTH_CHANGED, expired);
+    return () => window.removeEventListener(AUTH_CHANGED, expired);
+  }, [user]);
+  async function login(username: string, password: string) {
+    if (locked.current) return;
+    locked.current = true; setBusy(true); setError('');
+    try { const response = await api.login(username, password); authStorage.setToken(response.accessToken); setUser(response.user); }
+    catch (e) { setError(errorMessage(e)); }
+    finally { locked.current = false; setBusy(false); }
+  }
+  function logout() {
+    try { if (user) clearWorkspace(user.id); authStorage.clear(); }
+    finally { setUser(null); setError(''); }
+  }
+  return {user, checking, busy, error, login, logout};
 }

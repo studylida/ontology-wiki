@@ -1,52 +1,37 @@
-import type { Draft, Route } from "../types/contracts";
+import type { Submission } from '../types/contracts';
 
-const key = (userId: string, conversationId?: string) =>
-  `knowledge-hub.draft.v1.${userId}.${conversationId || "new"}`;
-export const workspaceStorage = {
-  load(userId: string, conversationId?: string): Partial<Draft> | null {
-    try {
-      const raw = localStorage.getItem(key(userId, conversationId));
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
-  },
-  save(
-    userId: string,
-    conversationId: string | undefined,
-    draft: Draft,
-  ): boolean {
-    try {
-      localStorage.setItem(key(userId, conversationId), JSON.stringify(draft));
-      return true;
-    } catch {
-      return false;
-    }
-  },
-  removeNew(userId: string) {
-    try {
-      localStorage.removeItem(key(userId));
-    } catch {
-      /* A denied storage area must not prevent conversation use. */
-    }
-  },
+// New service namespace. Never import old drafts, answers or mode preferences.
+const PREFIX = 'knowledge-assistant.v3.';
+export const AUTH_CHANGED = 'knowledge-assistant:auth-expired';
+export const authStorage = {
+  getToken: () => sessionStorage.getItem(PREFIX + 'token'),
+  setToken: (token: string) => sessionStorage.setItem(PREFIX + 'token', token),
+  clear: () => sessionStorage.removeItem(PREFIX + 'token'),
 };
-export function readRoute(): Route {
-  const [screen, id] = window.location.hash.replace(/^#\/?/, "").split("/");
-  let decoded: string | undefined;
-  try {
-    decoded = id ? decodeURIComponent(id) : undefined;
-  } catch {
-    decoded = undefined;
-  }
-  if (screen === "research") return { screen: "research", id: decoded };
-  if (screen === "personal-wiki")
-    return { screen: "personal-wiki", id: decoded };
-  if (screen === "review") return { screen: "review" };
-  return { screen: "conversation", id: decoded };
+export function rememberConversation(userId: string, id: string) {
+  sessionStorage.setItem(PREFIX + userId + '.conversation', id);
 }
-export function writeRoute(route: Route, replace = false) {
-  const hash = `#/${route.screen}${route.id ? `/${encodeURIComponent(route.id)}` : ""}`;
-  if (replace) window.history.replaceState(null, "", hash);
-  else window.history.pushState(null, "", hash);
+export function rememberedConversation(userId: string) {
+  return sessionStorage.getItem(PREFIX + userId + '.conversation');
+}
+export function pendingSubmission(userId: string): Submission | null {
+  try {
+    const p = JSON.parse(sessionStorage.getItem(PREFIX + userId + '.pending') || 'null');
+    if (!p || typeof p.conversationId !== 'string' || typeof p.requestId !== 'string') return null;
+    if (p.kind === 'turn' && typeof p.question === 'string') return p;
+    if (p.kind === 'retry' && typeof p.runId === 'string') return p;
+  } catch { /* Invalid new-service state is ignored, never converted from legacy data. */ }
+  return null;
+}
+export function savePending(userId: string, pending: Submission | null) {
+  const key = PREFIX + userId + '.pending';
+  if (pending) sessionStorage.setItem(key, JSON.stringify(pending));
+  else sessionStorage.removeItem(key);
+}
+export function clearWorkspace(userId: string) {
+  sessionStorage.removeItem(PREFIX + userId + '.conversation');
+  sessionStorage.removeItem(PREFIX + userId + '.pending');
+}
+export function newRequestId(): string {
+  return crypto.randomUUID();
 }
