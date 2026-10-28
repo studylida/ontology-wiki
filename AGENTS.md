@@ -2,11 +2,11 @@
 
 ## Source of truth
 
-Read README.md for the implemented chat/RAG and docs/ARCHITECTURE.md for that existing system's technical history. **For the new shared concept wiki, docs/WIKI_PRODUCT_DIRECTION.md is the independent product-direction source of truth. Do not derive the new wiki's requirements from older wiki exclusions, feature tables or ontology designs in ARCHITECTURE.md.** Neither product-direction agreement nor old architectural plans imply implementation. Keep the source-preserving preprocessing baseline `68ccd5f3bc98abd480d5a413947974aa02843a66`. Continue the implementation branch, not an old baseline.
+Read README.md for the implemented chat/RAG. **docs/CHAT_ARCHITECTURE.md governs the implemented conversation, shared document ingestion and RAG design. docs/WIKI_ARCHITECTURE.md independently governs the new shared concept wiki's product architecture (currently planned, not implemented).** Do not apply removed personal-wiki features, legacy ontology flows or historical chat-only decisions as constraints on the new wiki. Neither product agreement nor old implementation plans imply that a new feature is live. Keep the source-preserving preprocessing baseline `68ccd5f3bc98abd480d5a413947974aa02843a66`. Continue the implementation branch, not an old baseline.
 
-One product job: answer work questions using shared company-domain documents, naturally, with clickable evidence footnotes. Every authenticated employee may upload shareable material. Valid passages are indexed automatically without approval. Conversations and answer runs stay private. Operations handle processing exceptions, not mandatory approval.
+Current chat/RAG job: answer work questions using shared company-domain documents, naturally, with clickable evidence footnotes. Every authenticated employee may upload shareable material. Valid passages are indexed automatically without approval. Conversations and answer runs stay private. Operations handle processing exceptions, not mandatory approval.
 
-Removed: external research, fixed five-part answers, response modes, Extended, personal wiki and legacy answer compatibility. Ontology and diagrams are optional, not answer prerequisites. Do not reintroduce old schema fields just to satisfy obsolete tests.
+Removed from the **current chat runtime**: external research, fixed five-part answers, response modes, Extended, old personal wiki and legacy answer compatibility. This does not prohibit the newly agreed **shared concept wiki**, which is a separate product scope; it is not yet implemented. Ontology generation and diagrams are not chat-answer prerequisites. Do not reintroduce old schema fields just to satisfy obsolete tests.
 
 ## Implemented boundary: Stages 1–5 (fixture integration, not production qualification)
 
@@ -55,4 +55,4 @@ Backend: Controller / Service / Repository / Entity / DTO. Frontend: View / Cont
 
 Keep the modular monolith, PostgreSQL/pgvector and existing provider interfaces. Do not add brokers, graph databases, agent frameworks, speculative extracted-knowledge tables or approval workflows. Fail closed for unauthorized/corrupt sources and fail soft for independent valid evidence and optional refinements. General knowledge may supplement explanations but cannot invent internal facts.
 
-Use isolated dev/test databases. No destructive production/shared DB or raw-volume operations, no secret commits, no force push, main merge or deployment. Old wiki rows need no migration, but Git history does not back up raw files or DB rows. docs/ARCHITECTURE.md remains the sole design source; don't add per-run reports or sensitive dumps.
+Use isolated dev/test databases. No destructive production/shared DB or raw-volume operations, no secret commits, no force push, main merge or deployment. Old personal-wiki rows need no migration, but Git history does not back up raw files or DB rows. Maintain two independent architecture sources: docs/CHAT_ARCHITECTURE.md and docs/WIKI_ARCHITECTURE.md. Do not add per-run reports or sensitive dumps.
