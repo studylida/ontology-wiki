@@ -6,3 +6,4 @@ def load_entities():
     from knowledge.jobs import entities as jobs
     from knowledge.rag import entities as retrieval
     from knowledge.answers import entities as answers
+    from knowledge.wiki import entities as wiki

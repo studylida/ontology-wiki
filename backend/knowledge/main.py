@@ -17,6 +17,8 @@ from .identity.security import check_secret
 from .identity.service import IdentityService
 from .migration.schema import assert_current_schema
 from .registry import load_entities
+from .wiki.router import router as wiki_router
+from .wiki.service import WikiService
 from .answers.router import router as answer_router
 from .answers.service import AnswerService
 from .integrations.providers import get_embedding_client, get_generation_client
@@ -38,6 +40,7 @@ def create_app(settings=None, session_factory=None, *, embedding_client=None, ge
     services = SimpleNamespace(identity=IdentityService(session_factory, settings),
         conversations=ConversationService(session_factory), documents=DocumentService(session_factory, settings))
     rag = RAGService(session_factory, settings, embedding_client or get_embedding_client(settings), reranker)
+    services.wiki = WikiService(session_factory)
     services.answers = AnswerService(session_factory, settings, services.identity, rag,
                                     generation_client or get_generation_client(settings))
 
@@ -71,7 +74,7 @@ def create_app(settings=None, session_factory=None, *, embedding_client=None, ge
             response.headers['Cache-Control'] = 'no-store'
         return response
 
-    for router in (identity_router, conversation_router, document_router, answer_router):
+    for router in (identity_router, conversation_router, document_router, answer_router, wiki_router):
         app.include_router(router, prefix='/api/v1')
 
     @app.get('/api/v1/health', tags=['health'])
@@ -85,7 +88,7 @@ def create_app(settings=None, session_factory=None, *, embedding_client=None, ge
         return JSONResponse({'status': 'ok' if connected else 'degraded',
             'database': 'connected' if connected else 'unavailable', 'stage': 'answers', 'providerMode': settings.provider_mode,
             'capabilities': ['authentication', 'private_conversations', 'message_storage',
-                'shared_document_upload', 'automatic_indexing', 'grounded_answers', 'durable_answer_events']},
+                'shared_document_upload', 'automatic_indexing', 'grounded_answers', 'durable_answer_events', 'shared_wiki']},
             status_code=200 if connected else 503)
     return app
 

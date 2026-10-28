@@ -33,8 +33,8 @@ def browser_app(database_factory, tmp_path):
             'OW_PROVIDER_MODE': 'fixture', 'OW_STORAGE_PATH': str(tmp_path / 'raw'), 'OW_PDF_PARSER': 'legacy'}
         env.pop('OPENAI_API_KEY', None)
         support.cli(env, 'migrate', '--database-name', database.name)
-        for name in ('alice', 'bob'):
-            support.cli(env, 'create-user', '--username', name)
+        for name, role in (('alice', 'user'), ('bob', 'user'), ('operator', 'admin')):
+            support.cli(env, 'create-user', '--username', name, '--role', role)
         server = support.Server(env, tmp_path)
         frontend = None
         output = (tmp_path / 'frontend.log').open('w')

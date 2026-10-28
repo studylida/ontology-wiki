@@ -81,7 +81,8 @@ jobs:
             ${{ runner.temp }}/evaluation
           retention-days: 3
   browser-workspace:
-    runs-on: ubuntu-latest
+    # Playwright 1.56 cannot install on the new ubuntu-latest (26.04).
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     services:
       postgres:

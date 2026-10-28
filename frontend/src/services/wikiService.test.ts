@@ -1,0 +1,25 @@
+import { expect, it, vi } from 'vitest';
+import { draftFromRevision, emptyWikiDraft, saveWikiCommand, validWikiDraft } from './wikiService';
+import type { WikiDetail, WikiRevision } from '../types/wiki';
+vi.mock('../repositories/workspaceStorage', () => ({newRequestId: () => 'same-test-request'}));
+const revision: WikiRevision = {id: 'r1', pageId: 'p1', number: 1, title: '개념', markdown: '  code  \n', sourceNote: '경험',
+  editor: {id: 'u1', username: 'alice'}, createdAt: '2026-10-29', changeSummary: '처음', restoredFromId: null};
+it('keeps exact Markdown whitespace and clears only the next change summary', () => {
+  expect(draftFromRevision(revision)).toEqual({title: '개념', markdown: '  code  \n', sourceNote: '경험', changeSummary: ''});
+});
+it('rejects empty drafts without requiring a source file', () => {
+  expect(validWikiDraft(emptyWikiDraft())).toBe(false);
+  expect(validWikiDraft({...emptyWikiDraft(), title: '개념', markdown: '본문'})).toBe(true);
+});
+it('captures a fixed create payload rather than holding a mutable draft', () => {
+  const draft = draftFromRevision(revision), command = saveWikiCommand(draft, null, null);
+  draft.markdown = 'changed later';
+  expect(command.kind).toBe('create'); expect(command.body.requestId).toBe('same-test-request');
+  expect('markdown' in command.body && command.body.markdown).toBe('  code  \n');
+});
+it('keeps the original edit base even when the latest page has changed', () => {
+  const page = {id: 'p1', version: 3} as WikiDetail;
+  const command = saveWikiCommand(draftFromRevision(revision), page, 1);
+  expect(command.kind === 'edit' && command.body.baseVersion).toBe(1);
+  expect(() => saveWikiCommand(draftFromRevision(revision), page, null)).toThrow();
+});
