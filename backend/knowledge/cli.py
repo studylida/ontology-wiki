@@ -1,6 +1,4 @@
-"""Explicit administration commands; no account, schema or paid call on startup."""
-from __future__ import annotations
-
+"""Explicit foundation setup commands. No worker/import side effects in Stage 1."""
 import argparse
 import asyncio
 import getpass
@@ -8,71 +6,67 @@ import json
 import os
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from knowledge.core.config import get_settings
-from knowledge.core.database import get_session_factory
-from knowledge.core.ids import new_id
-from knowledge.registry import load_entities
+from .core.config import get_settings
+from .identity.entities import User
+from .identity.security import hash_password
+from .migration.schema import assert_current_schema, migrate
+from .registry import load_entities
 
 
-async def execute(args):
+async def create_user(args):
+    username = args.username.strip()
+    if not username or len(username) > 128 or "\x00" in username:
+        raise ValueError("username must contain 1..128 non-NUL characters")
+    password = os.environ.get("OW_BOOTSTRAP_PASSWORD") or getpass.getpass("Password: ")
+    if not 12 <= len(password) <= 1024:
+        raise ValueError("Password must contain 12..1024 characters")
+    encoded = await asyncio.to_thread(hash_password, password)
+    engine = create_async_engine(get_settings().database_url)
+    sessions = async_sessionmaker(engine, expire_on_commit=False, autoflush=False)
+    try:
+        async with sessions() as session, session.begin():
+            await assert_current_schema(session)
+            if await session.scalar(select(User.id).where(User.username == username)):
+                raise ValueError("Username already exists; existing accounts are not overwritten")
+            user = User(username=username, password_hash=encoded, role=args.role)
+            session.add(user)
+            await session.flush()
+            result = {"id": user.id, "username": user.username, "role": user.role}
+        return result
+    except IntegrityError as exc:
+        raise ValueError("Could not create account; existing accounts are not overwritten") from exc
+    finally:
+        await engine.dispose()
+
+
+def parser():
+    result = argparse.ArgumentParser(description="Stage 1: explicit authentication/conversation setup")
+    commands = result.add_subparsers(dest="command", required=True)
+    migration = commands.add_parser("migrate", help="Install v3 into a fresh database, without deleting data")
+    migration.add_argument("--database-name", required=True)
+    user = commands.add_parser("create-user", help="Create an employee account explicitly")
+    user.add_argument("--username", required=True)
+    user.add_argument("--role", choices=("user", "admin"), default="user")
+    return result
+
+
+async def run(args):
     load_entities()
     if args.command == "migrate":
-        from knowledge.migration.schema import migrate
         return await migrate(args.database_name)
-    if args.command == "worker":
-        from knowledge.jobs.worker import run_worker
-        await run_worker(once=args.once)
-        return {"worker": "stopped"}
-    sessions = get_session_factory()
-    if args.command == "create-user":
-        from knowledge.identity.entities import User
-        from knowledge.identity.security import hash_password
-        password = os.environ.get("OW_BOOTSTRAP_PASSWORD") or getpass.getpass("New account password: ")
-        if len(password) < 12:
-            raise ValueError("Use at least 12 characters")
-        async with sessions() as session, session.begin():
-            if await session.scalar(select(User).where(User.username == args.username)):
-                raise ValueError("User already exists; this command never overwrites an account")
-            user = User(id=new_id("usr"), username=args.username, password_hash=hash_password(password),
-                role=args.role, kind="service" if args.service else "user", permissions=args.permission,
-                auto_wiki=get_settings().auto_wiki_default if not args.service else False)
-            session.add(user)
-            return {"id": user.id, "username": user.username, "role": user.role, "kind": user.kind}
-    if args.command == "import-evaluation":
-        from knowledge.migration.evaluation import import_evaluation
-        return await import_evaluation(sessions, get_settings(), args)
-    if args.command == "import-legacy":
-        from knowledge.migration.legacy import import_legacy
-        return await import_legacy(sessions, args.export, args.source_system, apply=args.apply)
-    raise ValueError("Unknown command")
+    return await create_user(args)
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    sub = parser.add_subparsers(dest="command", required=True)
-    migration = sub.add_parser("migrate")
-    migration.add_argument("--database-name", required=True)
-    user = sub.add_parser("create-user")
-    user.add_argument("--username", required=True)
-    user.add_argument("--role", choices=["user", "reviewer", "admin"], default="user")
-    user.add_argument("--service", action="store_true")
-    user.add_argument("--permission", action="append", default=[])
-    worker = sub.add_parser("worker")
-    worker.add_argument("--once", action="store_true")
-    evaluation = sub.add_parser("import-evaluation")
-    evaluation.add_argument("--corpus-zip", required=True)
-    evaluation.add_argument("--evaluation-dir", required=True)
-    evaluation.add_argument("--owner", required=True)
-    evaluation.add_argument("--model", choices=["text-embedding-3-small", "text-embedding-3-large"], default="text-embedding-3-large")
-    evaluation.add_argument("--approve-for-development", action="store_true", required=True)
-    legacy = sub.add_parser("import-legacy")
-    legacy.add_argument("--export", required=True)
-    legacy.add_argument("--source-system", required=True)
-    legacy.add_argument("--apply", action="store_true")
-    args = parser.parse_args()
-    result = asyncio.run(execute(args))
-    print(json.dumps(result, ensure_ascii=False, indent=2))
+    arguments = parser().parse_args()
+    try:
+        result = asyncio.run(run(arguments))
+    except (ValueError, RuntimeError) as exc:
+        raise SystemExit(str(exc)) from None
+    print(json.dumps(result, ensure_ascii=False))
 
 
 if __name__ == "__main__":
