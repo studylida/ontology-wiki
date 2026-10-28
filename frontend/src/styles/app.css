@@ -66,6 +66,7 @@ details { border-bottom: 1px solid #dce3ed; padding: 12px 0; } summary { cursor:
 .documents { height: 100%; overflow-y: auto; padding: 26px 32px; }
 .upload { margin: 22px 0; padding: 20px; border: 1px solid #dce3ed; border-radius: 10px; }
 .upload-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.upload .row button { flex-shrink: 0; }
 .document-workspace { display: grid; grid-template-columns: minmax(180px, 1fr) minmax(280px, 2fr); gap: 22px; }
 .document-list { min-width: 0; }
 .document-item { display: grid; gap: 4px; width: 100%; text-align: left; margin-bottom: 8px; }
