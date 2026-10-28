@@ -2,9 +2,9 @@
 
 > **상태:** 2026-10-29까지 사용자와 논의해 **합의한 제품 컨셉·운영 원칙**을 정리한 문서. **미구현 방향**이며 코드·API·화면의 구현 명세가 아니다.
 >
-> **이번 방향의 출발 코드:** [feat/shared-knowledge-assistant-20261028](https://github.com/studylida/ontology-wiki/tree/feat/shared-knowledge-assistant-20261028) · 논의 기준 \`fb4c49b8419f0a945d7aaf202b021d67d614b637\`. 이후 커밋이 있으면 현재 HEAD를 확인한다.
+> **이번 방향의 출발 코드:** [feat/shared-knowledge-assistant-20261028](https://github.com/studylida/ontology-wiki/tree/feat/shared-knowledge-assistant-20261028) · 논의 기준 `fb4c49b8419f0a945d7aaf202b021d67d614b637`. 이후 커밋이 있으면 현재 HEAD를 확인한다.
 >
-> **중요:** 이번 **신규 공용 위키 설계는 과거 위키 설계의 연장이 아니다.** 이전 \`docs/ARCHITECTURE.md\`의 위키 제외·과거 위키/온톨로지 구조·UI·데이터 설계로 요구사항을 제한하지 않는다. 그 문서는 이미 구현한 채팅·문헌 RAG의 기술적 배경으로만 참고한다. **기존 채팅·RAG는 현재 작동하는 서비스로 유지**하고 새 위키를 위해 불필요하게 재설계하지 않는다.
+> **중요:** 이번 **신규 공용 위키 설계는 과거 위키 설계의 연장이 아니다.** 이전 `docs/ARCHITECTURE.md`의 위키 제외·과거 위키/온톨로지 구조·UI·데이터 설계로 요구사항을 제한하지 않는다. 그 문서는 이미 구현한 채팅·문헌 RAG의 기술적 배경으로만 참고한다. **기존 채팅·RAG는 현재 작동하는 서비스로 유지**하고 새 위키를 위해 불필요하게 재설계하지 않는다.
 
 ## 1. 서비스가 존재하는 이유
 
