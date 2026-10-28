@@ -60,7 +60,8 @@ def test_upload_question_citation_followup_refresh_and_private_ownership(browser
     card.get_by_role('button', name=re.compile('^출처 ')).first.click()
     panel = page.get_by_label('원문 패널', exact=True)
     expect(panel).to_be_visible(); expect(page.get_by_test_id('evidence-passage')).to_contain_text(citations[0]['locator'])
-    expect(panel.get_by_role('heading', level=2)).to_have_text(f"출처 [{citations[0]['number']}]")
+    # The source itself may contain h2 headings; select the panel's named heading.
+    expect(panel.get_by_role('heading', level=2, name=f"출처 [{citations[0]['number']}]", exact=True)).to_be_visible()
     with page.expect_download() as download:
         page.get_by_role('button', name='원본 파일 받기', exact=True).click()
     assert Path(download.value.path()).read_bytes() == TEXT
