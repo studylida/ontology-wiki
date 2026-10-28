@@ -1,10 +1,10 @@
 # Ontology Wiki — 사내 지식 기반 AI 어시스턴트
 
-[목표 아키텍처](docs/ARCHITECTURE.md)가 설계 기준이다. **현재 구현 범위는 1·2단계: 인증·개인 대화와 공용 문헌 업로드·자동 색인**이다. RAG 답변·스트리밍은 3단계, 새 사용자 화면은 4단계에서 연결한다. 현재 메시지 저장은 AI 답변 생성이 아니다.
+[목표 아키텍처](docs/ARCHITECTURE.md)가 설계 기준이다. **1~3단계의 API: 인증·개인 대화, 공용 문헌 업로드·자동 색인, 내부 검색·답변·각주·스트리밍**을 연결했다. 새 사용자 화면은 4단계 대상이다. 구 프론트엔드와 구 API의 호환은 제공하지 않는다.
 
 ## 실행과 스키마
 
-Python 3.12, PostgreSQL 16 및 pgvector가 필요하다. API와 작업자는 같은 DB와 지속 원문 저장 경로를 사용한다. 새 환경은 별도의 빈 개발 DB로 시작한다. 이미 1단계 v3 DB가 있다면 같은 명령으로 `002_documents.sql`만 추가 적용하며 대화 기록은 유지한다. v2 DB는 이관하지 않는다. 기존 DB·원문을 삭제하는 명령은 제공하지 않는다.
+Python 3.12, PostgreSQL 16, pgvector를 사용한다. API와 문헌 작업자는 같은 DB와 지속 원문 저장 경로를 사용한다. 새 환경은 별도의 빈 개발 DB로 시작한다. 기존 v3 DB에는 같은 migrate 명령으로 미적용 SQL만 추가한다. 1단계 `001_foundation.sql`, 2단계 `002_documents.sql`은 변경하지 않았고 3단계는 `003_answers.sql`이다. v2 데이터 이관이나 DB·원문 삭제 명령은 제공하지 않는다.
 
 ```bash
 python3 -m venv .venv
@@ -18,19 +18,23 @@ export OW_PROVIDER_MODE=fixture
 .venv/bin/python scripts/v2/dev.py create-user --username alice
 .venv/bin/python scripts/v2/dev.py create-user --username bob
 .venv/bin/python scripts/v2/dev.py serve
-# 위와 같은 환경변수를 사용하는 별도 셸에서:
+# 같은 환경변수를 사용하는 별도 셸에서:
 .venv/bin/python scripts/v2/dev.py worker
-# 또는 대기 작업 한 건만 처리:
+# 대기 문헌 작업 한 건만 처리:
 .venv/bin/python scripts/v2/dev.py worker --once
 ```
 
-`fixture`는 동작 검증용 1536차원 해시 벡터이며 의미 검색 품질을 보증하지 않는다. 명시적 `live` 설정은 승인된 공급자 계정·자료·비용 범위에서만 사용한다. `disabled`이면 파싱 후 임베딩 구성 오류가 기록되며 fixture로 자동 대체되지 않는다. API 기동은 계정/마이그레이션/작업자/모델 호출을 자동 시작하지 않는다. **작업자를 실행하지 않으면 업로드는 대기 상태다.**
+**현재 MVP는 DB당 API 프로세스 하나(`--workers 1`)와 별도 문헌 작업자 하나를 사용한다.** 각각 다른 PostgreSQL 세션 advisory lock을 사용한다. 두 번째 API는 명확한 오류로 기동을 거부하여 살아 있는 다른 프로세스의 실행을 중단 상태로 복구하지 않도록 한다. 동시에 여러 대화의 요청은 한 비동기 API 프로세스에서 처리한다. 다중 API 인스턴스 운영을 지원한다고 주장하지 않는다.
 
-비밀번호는 대화식으로 최소 12자를 입력한다. `OW_BOOTSTRAP_PASSWORD`는 자동화용이며 Git·로그에 남기지 않는다. `OW_AUTH_SECRET`은 재시작 후에도 같은 비공개 값을 유지한다. 명시적 프로세스 환경변수는 `.env`보다 우선한다. Windows에서는 `.venv\Scripts\python.exe`와 PowerShell의 `$env:...`를 사용한다. pgvector 확장 설치 권한이 없는 DB 계정은 관리자가 확장을 먼저 설치해야 한다.
+`fixture`는 해시 임베딩과 제공받은 근거를 표시하는 검증용 응답이다. 검색 의미 품질이나 AI 해석 능력을 보증하지 않는다. fixture의 분할·대기는 취소/재연결 검사 전용이며 실제 공급자 응답을 인위적으로 타이핑하지 않는다. `live`는 승인된 공급자 계정·자료·비용 범위에서만 사용한다. 키·모델 설정 실패 시 다른 모델이나 fixture로 자동 대체하지 않는다. `disabled`는 명시적 구성 오류를 기록한다.
 
-## 인증과 개인 대화 API
+API 기동은 계정·migration·문헌 작업자·모델 호출을 자동 시작하지 않는다. 이전에 중단된 답변 실행은 `interrupted`로 기록하고 저장된 부분만 복원한다. **새 생성은 POST 요청이나 명시적 재시도로만 시작**한다. 작업자를 실행하지 않으면 업로드는 대기 상태로 남는다.
 
-서버 `http://127.0.0.1:8000`, OpenAPI `/docs`. 아래 경로는 `/api/v1` 아래다. 로그인 이후 `Authorization: Bearer <accessToken>`을 사용한다.
+비밀번호는 대화식으로 최소 12자를 입력한다. `OW_BOOTSTRAP_PASSWORD`는 자동화용이며 Git·로그에 남기지 않는다. `OW_AUTH_SECRET`은 재시작 후에도 같은 비공개 값을 유지한다. 명시적 프로세스 환경변수는 `.env`보다 우선한다. Windows에서는 `.venv\Scripts\python.exe`와 PowerShell의 `$env:...`를 사용한다. pgvector 설치 권한이 없다면 DB 관리자가 확장을 먼저 설치해야 한다.
+
+## 인증과 개인 대화
+
+서버 `http://127.0.0.1:8000`, OpenAPI `/docs`. 아래 API 경로는 `/api/v1` 아래이며 로그인 이후 `Authorization: Bearer <accessToken>`을 사용한다.
 
 | 메서드·경로 | 동작 |
 | --- | --- |
@@ -38,31 +42,86 @@ export OW_PROVIDER_MODE=fixture
 | `GET /auth/me` | 현재 사용자 |
 | `POST /conversations` | `{ "title": "질문 기록" }` 또는 `{}` |
 | `GET /conversations` | 본인의 최근 100개 대화 |
-| `GET /conversations/{id}` | 본인의 대화·메시지 |
+| `GET /conversations/{id}` | 본인의 대화·메시지·답변 상태·인용 |
 | `PATCH /conversations/{id}` | 대화 제목 변경 |
-| `POST /conversations/{id}/messages` | `{ "content": "질문" }` 저장. 생성 호출 없음 |
-| `GET /health` | DB 연결·구현된 기능 목록. 작업자 가동 여부를 보증하는 지표는 아님 |
+| `POST /conversations/{id}/messages` | `{ "content": "질문" }` 저장 전용. **AI 답변을 생성하지 않음** |
+| `GET /health` | DB 연결·구현 기능 목록. 공급자 품질이나 문헌 작업자 가동 여부의 보증은 아님 |
 
-관리자도 다른 직원의 개인 대화에 접근할 수 없다. 문헌을 공용으로 올린다는 사실은 질문 이력 공개와 무관하다.
+관리자도 다른 직원의 대화·실행·이벤트에 접근할 수 없다. 대화에 진행 중인 답변이 있으면 다른 질문/메시지 추가는 409다. 문헌의 공용 정책은 질문 이력 공개와 무관하다.
 
-## 공용 문헌 API
-
-**로그인한 직원 누구나 사내 전체 공유가 허용된 자료를 등록한다. 승인 대기 단계는 없다.** `multipart/form-data`의 `file`은 필수, `title`은 선택이며 생략하면 파일명이다. `metadata`는 JSON 문자열로 author/publisher/publishedAt/sourceType/documentForm만 받는다. 파서가 확인한 정보는 `processing`에 별도로 보존한다. 자료 등록·검색 반영은 회사의 공식 입장이나 사실 인증이 아니다.
+## 질문·답변 API — 화면 연결 기준
 
 | 메서드·경로 | 동작 |
 | --- | --- |
-| `POST /documents` | 파일 저장·작업 등록 후 **202**. 검색 완료가 아님 |
-| `GET /documents` | 최신 100개 문헌과 처리 상태 |
-| `GET /documents/{id}` | 최신 판본, 활성 판본, 작업 진행·오류·보류 개수 |
-| `POST /documents/{id}/revisions` | 같은 문헌의 새 파일 판본 등록 |
-| `GET /documents/{id}/passages` | 보존 추출문·구간·원문 위치·보류 사유 |
-| `GET /documents/{id}/raw` | 해시 검증한 원본 파일 다운로드 |
-| `POST /documents/{id}/reprocess` | 실패한 최신 작업 재시도. pending/running/succeeded는 중복 실행하지 않음 |
-| `POST /documents/{id}/deactivate` | 검색·원문 열람 제외 및 대기/진행 작업 취소 |
+| `POST /conversations/{id}/turns` | `{ "question": "질문", "requestId": "client-unique-id" }` → **202** 실행 접수 |
+| `POST /answer-runs` | 같은 계약에 `conversationId`를 추가하는 대체 진입점 |
+| `GET /answer-runs/{runId}` | 저장된 상태·답변·인용·오류·검색 진단 |
+| `GET /answer-runs/{runId}/events?after=0` | 저장 이벤트와 이후 이벤트를 SSE로 전달 |
+| `POST /answer-runs/{runId}/cancel` | 명시적 취소. 저장된 부분 본문 보존 |
+| `POST /answer-runs/{runId}/retry` | `{ "requestId": "new-client-id" }` → 가장 최근 실패/취소/중단 질문의 새 실행 |
 
-`raw`와 `passages`는 `?revisionId=...`를 받을 수 있다. 생략하면 활성 판본, 없으면 최신 판본이다. 추출문 조회에 표시되는 보류 구간은 관리·확인용이며 검색에서 제외된다. 비활성 문헌의 원문과 추출문은 노출하지 않는다. 전체 상태 목록에는 비활성 항목을 남긴다.
+화면에서 답변을 요청할 때는 **turns만 호출**한다. messages 저장과 turns를 동시에 호출하면 같은 질문을 두 번 저장하게 된다. turns는 사용자 메시지·빈 답변·실행을 한 트랜잭션에서 접수한다.
 
-업로드·조회는 모든 직원에게 허용하지만, **기존 문헌의 갱신·재시도·비활성화는 등록자 또는 관리자**에게만 허용한다. 이는 업로드 승인 체계가 아니라 타인의 공유 자료 변경 방지를 위한 최소 경계다. 부서별 ACL과 승인 역할은 만들지 않았다.
+requestId는 사용자 범위에서 멱등하다. 동일 요청 재전송은 같은 runId를 돌려주며 새 모델 호출을 만들지 않는다. 같은 ID를 다른 질문·대화에 쓰면 409다. 명시적 retry는 새 requestId를 사용하며 원래 사용자 메시지를 재사용하고 새 답변·실행을 만든다. 완료 답변이나 뒤에 새 질문이 있는 과거 답변의 retry는 허용하지 않는다.
+
+```json
+{
+  "runId": "run_...",
+  "conversationId": "conv_...",
+  "userMessageId": "msg_...",
+  "messageId": "msg_...",
+  "requestId": "client-unique-id",
+  "status": "accepted",
+  "durableSeq": 1,
+  "eventsUrl": "/api/v1/answer-runs/run_.../events"
+}
+```
+
+위 ID는 형식 설명용 예시다. GET 실행 응답에는 `answer`, `error`, `usage`, `retrievalRunId`, `retrieval`이 추가된다. 검색 진단은 실행 소유자만 읽을 수 있고, 질의·후보 ID/점수·최종 전달 근거·문맥 크기·재순위화 사용 여부를 담는다. `no_evidence`는 사용 가능한 근거를 확보하지 못한 상태이며 DB/임베딩 실패와 다르다. 장애는 실패 상태와 `error.phase`로 구분한다.
+
+### SSE와 각주
+
+```text
+id: 4
+event: delta
+data: {"runId":"run_...","seq":4,"type":"delta","data":{"text":"본문 조각"}}
+
+```
+
+| 이벤트 | data |
+| --- | --- |
+| `state` | `status`: accepted/retrieving/generating. generating에는 retrievalRunId·evidenceStatus·warnings |
+| `citation` | 실제 passageId·sourceRevisionId·documentId·title·locator·excerpt·number |
+| `delta` | `text`: 누적할 본문 조각 |
+| `complete` | `status: completed`, warnings. **본문과 이벤트 DB commit 성공 후에만 공개** |
+| `error` | `status: failed`, error(code/message/retryable/phase) |
+| `cancelled` / `interrupted` | 해당 종료 상태와 error |
+| `stream_error` | 전송/현재 접근 문제. durable seq/id가 없으며 답변 완료 이벤트가 아님 |
+
+연결 종료 자체는 실행 취소가 아니다. 재연결은 마지막 적용 seq를 `after` 또는 `Last-Event-ID` 헤더로 보내고 이후 이벤트만 적용한다. 두 값이 있으면 큰 값을 사용한다. 저장된 마지막 번호보다 큰 커서는 409다. SSE는 Bearer 헤더가 필요하므로 브라우저 구현은 헤더를 지원하는 스트리밍 HTTP 경로를 사용한다. 연결 복원 시 POST를 자동 반복하거나 새 requestId를 만들지 않는다. 주석 heartbeat는 본문에 표시하지 않는다.
+
+모델 내부 표식 `[[C1]]`은 서버가 **최종 문맥에 실제로 전달한** 구간의 `[[passageId]]`로 정규화한다. citation의 `number`는 해당 답변 내 최초 인용 순서이며 같은 구간은 같은 번호다. 화면은 제공된 citation 맵에 있는 ID만 클릭 가능한 각주로 표시하고 자체적으로 다른 출처를 만들어내지 않는다. 출처 패널은 `/documents/{documentId}/passages?revisionId={sourceRevisionId}`에서 구간 ID를 찾아 보여주고 raw API로 원문을 확인한다. 스트림 중 나눠진 표식은 화면의 누적 Markdown/인용 렌더러에서 처리한다.
+
+없는 alias는 출처 확인 불가로 표시하고 클릭 가능한 근거를 만들지 않는다. 이 검사는 **인용 ID의 실재성과 연결**을 확인하는 것이지 모델 문장의 의미가 원문으로 완전히 입증됐다는 인증이 아니다. 의미적 근거 적합성은 실제 모델 평가에서 별도로 확인한다.
+
+문헌 비활성화는 새 검색뿐 아니라 과거 답변 상세·대화 조회·이벤트 재생에도 반영된다. 근거 접근이 불가능하면 본문/각주를 숨기고 `sourceUnavailable`을 표시하며 재생을 거부한다. 판본만 교체되고 원문이 계속 공개된 경우에는 과거 답변을 `historicalSources`와 경고로 구분한다. 후속 생성에는 비활성 또는 구판본을 사용한 이전 답변을 회사의 현행 사실처럼 재투입하지 않는다. 이미 사용자가 내려받은 내용을 원격 삭제한다는 의미는 아니다.
+
+## 공용 문헌 API
+
+로그인한 직원 누구나 사내 공유가 허용된 자료를 등록한다. 관리자 승인 대기열은 없다. multipart `file` 필수, `title` 선택(기본 파일명), `metadata`는 author/publisher/publishedAt/sourceType/documentForm의 JSON 문자열이다. 파서가 확인한 정보는 processing에 따로 보존한다. 자료 등록은 공식 입장이나 사실 인증이 아니다.
+
+| 메서드·경로 | 동작 |
+| --- | --- |
+| `POST /documents` | 파일 저장·작업 등록 후 202 |
+| `GET /documents` | 최신 100개 문헌·처리 상태 |
+| `GET /documents/{id}` | 최신/활성 판본·작업 상태·오류·보류 개수 |
+| `POST /documents/{id}/revisions` | 새 파일 판본 등록 |
+| `GET /documents/{id}/passages` | 추출문·구간·위치·보류 사유 |
+| `GET /documents/{id}/raw` | 해시 검증한 원본 파일 |
+| `POST /documents/{id}/reprocess` | 실패한 최신 작업 재시도 |
+| `POST /documents/{id}/deactivate` | 검색·원문 접근 제외와 진행 작업 취소 |
+
+raw/passages의 `revisionId`를 생략하면 활성 판본, 없으면 최신 판본을 사용한다. 보류 구간은 원문 확인용으로 표시하되 검색에는 넣지 않는다. 비활성 문헌의 원문·추출문은 노출하지 않으며 상태 목록에는 비활성 항목을 남긴다. 업로드/조회는 전 직원, 기존 문헌의 갱신·재처리·비활성화는 등록자 또는 관리자에게 허용한다.
 
 ```bash
 curl -X POST http://127.0.0.1:8000/api/v1/documents \
@@ -71,17 +130,17 @@ curl -X POST http://127.0.0.1:8000/api/v1/documents \
   -F 'metadata={"sourceType":"internal","documentForm":"original"}'
 ```
 
-응답의 `documentId`로 상태를 조회한다. `queued/processing/ready/partial/failed/inactive`와 `searchable`을 구분한다. 새 판본이 실패해도 이전 유효 판본이 있으면 `latestRevision`은 실패이지만 `activeRevision`과 `searchable`은 유지된다. 새 판본의 모든 유효 구간 색인이 준비된 뒤 활성 판본을 한 번에 전환한다. 비활성화는 자동 재시도로 취소되지 않는다.
+`queued/processing/ready/partial/failed/inactive`와 `searchable`은 구분된다. 새 판본 실패 시 기존 유효 판본은 유지하고 새 판본의 유효 구간 색인이 모두 준비된 뒤에만 활성 판본을 교체한다. 비활성화는 작업 완료나 재시도로 취소되지 않는다. 같은 입력·형식·제목·메타데이터의 반복 업로드는 중복 작업을 만들지 않는다. 실패 재시도는 reprocess로 명시하고, 성공한 파싱/임베딩을 재사용한다. 완료/부분 사용 판본의 강제 재추출 편집기는 없으며 원문 수정은 새 판본으로 등록한다.
 
-같은 파일·해석 형식·제목·메타데이터는 중복 판본/작업을 만들지 않는다. 실패한 등록을 반복 업로드해도 자동 재시도하지 않으며 `reprocess`를 사용한다. 파싱 성공 결과와 임베딩 캐시는 실패 후 재시도에 재사용한다. 완료/부분 사용 판본의 구간을 수동 교정하거나 강제로 재추출하는 편집기는 현재 제공하지 않는다. 원문 수정은 새 판본으로 등록한다.
+## 전처리·검색·작업자
 
-## 전처리·작업자 경계
+Markdown·UTF-8 텍스트는 기존 구조 보존 청킹을 사용한다. 기본 PDF는 제한 프로세스의 pypdf 텍스트 추출로 페이지 위치를 보존하지만 표·이미지·수식의 완전성은 보증하지 않아 partial로 표시한다. 업로드 상한 20MiB, 기본 PDF/JATS 변환 입력은 5MiB다. 큰 PDF는 기존 Docling 설정을 사용한다.
 
-Markdown·UTF-8 텍스트는 기존 문단/표 청킹을 사용한다. 기본 PDF는 별도 제한 프로세스의 pypdf 텍스트 추출이며 페이지 위치를 유지하지만 **표·이미지·수식의 완전성을 보증하지 않으므로 partial**로 표시한다. 업로드 상한은 20MiB이고 기본 PDF/JATS 변환 입력 한도는 5MiB다. 큰 PDF는 기존 Docling 설정을 사용한다.
+Docling PDF/JATS는 `OW_PDF_PARSER=docling`, `OW_DOCLING_PYTHON_PATH`, `OW_DOCLING_ARTIFACTS_PATH`를 준비한다. 모델을 자동 설치·다운로드하지 않는다. JATS에는 Docling과 OCR 비활성 설정이 필요하다. 환경 부재나 변환 실패는 원문을 보존하고 오류를 기록하며 다른 변환기로 조용히 바꾸지 않는다.
 
-Docling PDF/JATS는 기존 변환기·원문 위치·표/수식 품질 보류 기능을 연결했다. `OW_PDF_PARSER=docling`, `OW_DOCLING_PYTHON_PATH`, `OW_DOCLING_ARTIFACTS_PATH`를 명시적으로 준비해야 하며 모델을 자동 설치/다운로드하지 않는다. JATS에는 Docling과 OCR 비활성 설정이 필요하다. 실행 환경이 없거나 파싱에 실패하면 원문은 보존하고 오류를 기록한다. 정상 처리로 위장하거나 다른 파서로 조용히 바꾸지 않는다. 정상 JATS DOCTYPE은 허용하고 엔티티 확장·외부 파일 접근은 기존 정규화기에서 차단한다.
+Jobs는 접수·진행·재시도를, Indexing은 변환·임베딩·원자적 활성화를 담당한다. 중단 문헌 작업은 다음 worker 시작에 실패로 기록하며 명시적 재시도를 기다린다. 일일 승인 예약과 자동 온톨로지 실행은 없다.
 
-Jobs는 접수·진행·재시도를, `indexing/service.py`는 변환·임베딩·색인 활성화를 담당한다. 이전 승인/일일 예약/자동 온톨로지 색인 코드는 실행 경로에서 제거했다. MVP 작업자는 DB advisory lock으로 한 번에 하나만 실행하며 여러 인스턴스가 중복 소비하지 않는다. 작업자 중단 후 다음 시작 시 running 작업을 실패로 기록하고 명시적 재시도를 기다린다. 자동 유료 재호출을 숨기지 않는다.
+RAG는 활성 유효 Passage의 벡터/문자열 후보, 문헌별 다양성, 필요한 원문 조건/불일치 주석, 앞뒤 구간을 사용한다. 문맥 예산은 원문 구간 전체와 메타데이터를 포함해 한 곳에서 적용한다. `OW_RERANKER_MODE=cross_encoder`와 기존 로컬 모델 설정을 사용할 수 있지만 실패 시 경고를 남기고 기본 검색으로 계속한다. Extended·외부 검색·충돌 해결 에이전트·개인 위키는 답변 경로에 없다.
 
 ## 검증과 다음 단계
 
@@ -90,6 +149,6 @@ export OW_TEST_DATABASE_URL='postgresql+asyncpg://USER:PASSWORD@127.0.0.1:5432/o
 .venv/bin/python scripts/v2/dev.py test -q
 ```
 
-테스트 계정에는 임시 DB 생성 권한이 필요하다. 로컬 주소의 `_test` DB만 허용하며 각 실행이 만든 임시 DB만 삭제한다. 기존 `shared-assistant.yml`에서 `tests/foundation`을 실행한다. 실제 PostgreSQL·Uvicorn·HTTP·파일·작업자·프로세스 재시작을 사용하고 임베딩만 명시적 fixture다. PDF 텍스트 추출은 실제 수행한다. 구조화 전처리와 JATS 호출 연결은 fixture/계약 검사이며 **실제 Docling PDF/JATS 변환 성공을 검증했다는 뜻이 아니다.**
+로컬 주소의 `_test` DB와 임시 DB 생성 권한이 필요하다. 각 테스트가 만든 임시 DB만 삭제한다. 기존 shared-assistant CI에서 `tests/foundation`을 실행한다. PostgreSQL·pgvector·Uvicorn·HTTP/SSE·파일·작업자·프로세스 재시작은 실제로 사용하고, 임베딩과 생성은 명시적 fixture다. 라이브 공급자 스트림 프로토콜 검사는 MockTransport다. 실제 모델 호출·의미 정확도·업무 유용성·브라우저 검증은 수행하지 않았다.
 
-3단계는 `DocumentRepository.resolve_snapshot/search_candidates/search/get_neighbors`와 실제 활성 구간·원문 API를 사용해 답변 경로를 연결하면 된다. API 서버에 답변/RAG 라우트, 개인 위키, 외부 조사, 자동 온톨로지 작업은 등록하지 않았다. 전처리 핵심 자산은 재사용하고 이후 이전 대상인 RAG·답변·옛 화면 소스는 아직 남아 있다. 옛 전체 backend 테스트·프론트엔드와 새 계약의 호환을 주장하지 않는다. 실제 모델 품질·현업 유용성·브라우저 UI는 이번 검증 범위가 아니다.
+기본 PDF 텍스트 추출은 실제 실행한다. 구조화 전처리와 JATS 연결은 fixture/계약 검사이며 실제 Docling PDF/JATS 변환 성공을 뜻하지 않는다. 과거 전체 backend/tests·프론트엔드는 아직 새 계약으로 모두 이전하지 않았으며 해당 전체 통과를 주장하지 않는다. 4단계는 위 turns/SSE/각주/문헌 API를 화면에 연결한다. 실행 보고나 민감한 원문을 docs에 추가하지 않는다.

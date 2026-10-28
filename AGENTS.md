@@ -1,43 +1,45 @@
 # Working on Ontology Wiki — target service redesign
 
-## Source of truth and scope
+## Source of truth
 
-Read `README.md` and `docs/ARCHITECTURE.md` first. The architecture is the future target, not a claim that every stage is implemented. The source-preserving preprocessing baseline is `68ccd5f3bc98abd480d5a413947974aa02843a66`; continue the implementation branch rather than resetting to an old baseline.
+Read README.md and docs/ARCHITECTURE.md first. The target architecture governs scope; it does not mean every future capability is implemented. Keep the source-preserving preprocessing baseline `68ccd5f3bc98abd480d5a413947974aa02843a66`. Continue the implementation branch, not an old baseline.
 
-The product has one user-facing job: answer work questions using company-domain documents, with natural phrasing and clickable evidence footnotes. Every authenticated employee may upload material suitable for company-wide sharing. Valid passages are indexed automatically without an approval gate. Conversations remain private. Operations handle failures, held passages, reprocessing and deactivation.
+One product job: answer work questions using shared company-domain documents, naturally, with clickable evidence footnotes. Every authenticated employee may upload shareable material. Valid passages are indexed automatically without approval. Conversations and answer runs stay private. Operations handle processing exceptions, not mandatory approval.
 
-Removed from the target: external research workflow, forced five-part answers, response modes, Extended, personal wiki and old-answer compatibility. Do not restore old schema fields to make obsolete tests green. Ontology and diagrams are optional, not answer prerequisites.
+Removed: external research, fixed five-part answers, response modes, Extended, personal wiki and legacy answer compatibility. Ontology and diagrams are optional, not answer prerequisites. Do not reintroduce old schema fields just to satisfy obsolete tests.
 
-## Current implementation boundary: Stages 1 and 2
+## Implemented boundary: Stages 1–3
 
-`knowledge.main` composes Identity, Conversations and Documents. v3 `001_foundation.sql` creates users/conversations/messages; additive `002_documents.sql` creates shared documents/revisions/passages/vectors/jobs. Do not rewrite applied migrations. Startup checks the schema without migration, account creation, provider calls or worker startup.
+`knowledge.main` composes Identity, Conversations, Documents and Answers. Additive migrations are `001_foundation.sql`, `002_documents.sql`, `003_answers.sql`. Never rewrite applied migrations. Stage 4 will connect the frontend; the old UI is not compatible with the new contracts.
 
-`POST /conversations/{id}/messages` only persists a user message. Stage 3 will connect RAG/answers; Stage 4 the frontend. Their reusable source and old test files remain temporarily but are not loaded by the current app.
+The API requires one process per DB (`--workers 1`), enforced by a dedicated PostgreSQL session advisory lock. This prevents startup recovery from interrupting another live API's generation. Concurrent conversations are asynchronous within that process. The document worker is separate and uses its own lock. Do not silently remove these locks or claim multi-replica operation is implemented.
 
-Use `scripts/v2/dev.py migrate|create-user|serve|worker|test`. Explicit process environment overrides `.env`. API and worker must share `OW_DATABASE_URL` and persistent `OW_STORAGE_PATH`. The worker is a separate process. `--once` consumes one pending document job. A DB advisory lock serializes workers; an interrupted job becomes a visible failure on restart and needs explicit retry.
+Startup checks the schema and records abandoned answer runs as interrupted. It does not migrate, create users, invoke a provider or start document processing. GET/reconnect never generates another answer. `POST /conversations/{id}/messages` saves only; the UI must use `/conversations/{id}/turns` for an actual question, not both.
 
-Uploads are open to employees. Updating, retrying or deactivating an existing shared document requires its uploader or admin, centralized in DocumentRepository. This is not a registration approval gate. Deactivation cannot be undone by a worker completion or retry. Revision activation is atomic after all usable passages have vectors; failed newer revisions retain the earlier usable active revision.
+## Single-owner responsibilities
 
-`IndexUnit` is a small internal input contract, not a new persistent knowledge table. Indexing owns preprocessing-to-vector-to-activation coordination, Jobs owns queue execution/retries, Documents owns immutable source files and revision/visibility policy. Existing `parsing`, `preprocessing`, `runtime_preprocessing`, bounded processes, provider adapters and retrieval ranking are reused. File conversion lives in `integrations/document_parser.py`, independently of URL fetching. Old jobs/indexing, jobs/router and jobs/service have been removed; do not recreate duplicate implementations.
+- Documents owns shared visibility, active revisions and raw integrity. Upload/read is open to employees; updates/reprocess/deactivation require uploader or admin. Deactivation is not undone by a worker.
+- Preprocessing preserves structure, source offsets and held passages. `integrations/document_parser.py` separates conversion from URL fetching. Keep existing Markdown/PDF/JATS assets.
+- Indexing owns the small IndexUnit contract, reusable vectors and atomic activation; Jobs owns execution/retry. A failed new revision keeps the earlier valid active revision. Reprocess retries failed jobs, not force-reextracting ready revisions.
+- DocumentRepository owns active-source retrieval SQL. RAG owns candidate selection, optional reranking, source-provided companions, neighbors and whole-passage context budgeting. No ontology dependency or Extended branch.
+- Answers owns question policy, run idempotency, cancellation/retry and commit-before-publication events. `answers/prompt.py` owns generation policy; `answers/citations.py` owns normalization/numbering. A citation ID check is not semantic entailment validation.
+- `conversations/protection.py` is the shared stored-answer/history policy. Withdrawal hides dependent answer content/citations and prevents replay. Replaced but readable revisions are labelled historical; their old assistant messages are not reused as current context.
+- Existing provider adapters remain explicit. Never silently replace a failed live model with a fixture. No paid calls without approved account/data/budget scope.
 
-Completed/partial-ready jobs are not re-enqueued by `reprocess`; failed jobs retry with successful parsed data and embeddings reused. Full correction editors and forced re-extraction of ready revisions are outside this stage. Source changes use a new revision.
+The live runtime registry contains only current task/cancellation state. PostgreSQL holds messages, runs, retrieval diagnostics and ordered event batches. Commit the body/state/events together before exposing complete. Storage errors are not successful answers. Reconnect resumes after the durable sequence; retry requires a new requestId and reuses the original user message. Same-user same-request replays return one run. Changed payloads conflict.
 
-## Verification
+## Execution and verification
 
-`tests/foundation` uses real PostgreSQL, HTTP, file storage and Uvicorn/worker processes, with deterministic fixture embeddings only. It covers private ownership, restart persistence, shared upload, valid/held passages, indexing, deduplication, revision replacement/failure, withdrawal and worker interruption. PDF text extraction uses the actual bounded pypdf path. Structured preprocessing and JATS routing tests use explicit fixtures, not actual Docling model execution. The existing `shared-assistant.yml` runs the suite. Old complete backend tests/frontend are not yet ported; update those when their capability is migrated rather than claiming they already pass.
+Use `scripts/v2/dev.py migrate|create-user|serve|worker|test`. Explicit environment overrides .env. API and document worker share OW_DATABASE_URL and OW_STORAGE_PATH. Token secrets must survive restarts. Source conversions use the configured local parser; missing environments fail visibly.
 
-No live model call or business-usefulness evaluation has been performed. Do not confuse saved fixture vectors with semantic retrieval quality. Do not silently substitute a different model, parser or database.
+`tests/foundation` uses real PostgreSQL, HTTP/SSE, files, Uvicorn and worker processes. Embeddings/generation are labelled fixtures. Provider protocol tests use MockTransport. Tests cover uploads and active evidence, neighbors, actual citation mapping, follow-ups, durable replay, concurrency, cancellation/retry, process kill/restart, source withdrawal and forced storage/retrieval errors. PDF text extraction runs for real; structured Docling/JATS verification is fixture/contract based. Do not claim actual LLM quality, local CrossEncoder model quality, Docling execution, browser usability or business usefulness from these tests.
 
-## Architecture and robustness
+The former backend/tests and old scripts/UI are not all ported. Preserve useful independent tests, replace capability tests when migrating their contracts, and remove only obsolete feature-only tests. Do not mask current failures with blanket skips or claim the old full suite passes.
 
-- Backend: Controller / Service / Repository / Entity / DTO. Frontend: View / Controller / Service / Repository / DTO. Organize by business capability; avoid empty forwarding layers.
-- Keep single owners for source access/activation, preprocessing, embedding, search/context budgets, answers, citations, jobs, HTTP/SSE and provider calls. Do not accumulate unrelated logic in one utils/service module.
-- Use the existing modular monolith and PostgreSQL/pgvector. Do not add graph databases, brokers, agent frameworks or speculative extraction tables.
-- Old wiki/analysis rows and legacy FK mappings need no migration. Git history restores tracked code, not actual raw files, credentials or DB rows.
-- Fail closed for unauthorized or corrupt sources, fail soft for independent valid passages and optional features. Never fabricate company facts, citations or success states.
-- Preserve raw PDF/XML/Markdown separately from extracted/normalized artifacts. Keep uncertain tables/formula passages held rather than quietly indexing them.
-- Normal GET requests do not invoke models, start jobs or mutate activation.
+## Architecture and work boundaries
 
-## Work boundaries
+Backend: Controller / Service / Repository / Entity / DTO. Frontend: View / Controller / Service / Repository / DTO. These are responsibility boundaries, not mandatory empty forwarding classes. Organize by capability; avoid duplicate rules and a giant utils/service module.
 
-Use isolated dev/test databases. Do not delete or alter production/shared data or another worker's uncommitted changes. Push only the requested implementation branch, without force, main merge or deployment. Remove dead paths as their capabilities are ported. Keep `docs/ARCHITECTURE.md` as the sole design document; do not add per-run reports or sensitive execution dumps to docs.
+Keep the modular monolith, PostgreSQL/pgvector and existing provider interfaces. Do not add brokers, graph databases, agent frameworks, speculative extracted-knowledge tables or approval workflows. Fail closed for unauthorized/corrupt sources and fail soft for independent valid evidence and optional refinements. General knowledge may supplement explanations but cannot invent internal facts.
+
+Use isolated dev/test databases. No destructive production/shared DB or raw-volume operations, no secret commits, no force push, main merge or deployment. Old wiki rows need no migration, but Git history does not back up raw files or DB rows. docs/ARCHITECTURE.md remains the sole design source; don't add per-run reports or sensitive dumps.

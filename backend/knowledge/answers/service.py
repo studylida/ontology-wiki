@@ -4,7 +4,6 @@ import hashlib
 import json
 from time import monotonic
 import asyncpg
-from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from knowledge.core.errors import AppError
 from knowledge.conversations.entities import Message
@@ -25,8 +24,8 @@ class AnswerService:
         self._lease = None
 
     async def start(self):
-        # The MVP runs one API process per database. A dedicated session lock has
-        # no long-lived SQL transaction and prevents one process recovering another's runs.
+        # Dedicated session lock, no long-lived SQL transaction. A second API
+        # must not recover a first process's live generation as interrupted.
         self._lease = await asyncpg.connect(self.settings.database_url.replace('postgresql+asyncpg://', 'postgresql://', 1))
         if not await self._lease.fetchval('SELECT pg_try_advisory_lock(820261031)'):
             await self._lease.close()
@@ -44,6 +43,8 @@ class AnswerService:
             self._lease = None
 
     async def check_live(self, principal, source_ids):
+        if self._lease is None or self._lease.is_closed():
+            raise AppError(503, 'execution_lease_lost', '실행 연결이 중단되었습니다. 자동으로 모델을 다시 호출하지 않습니다.', retryable=True)
         await self.identity.refresh_principal(principal)
         async with self.sessions() as session:
             if not await DocumentRepository(session).ensure_readable(principal, source_ids):
@@ -62,7 +63,7 @@ class AnswerService:
         if retry_of:
             payload['retryOf'] = retry_of
         fingerprint = hashlib.sha256(json.dumps(payload, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
-        created = False
+        runtime = None
         try:
             async with self.sessions() as session, session.begin():
                 conversation = await ConversationRepository(session).owned(body.conversation_id, principal.id, lock=True)
@@ -84,31 +85,43 @@ class AnswerService:
                 run = await repository.create(principal, conversation, payload, fingerprint, self.registry.epoch,
                                               retry_user=retry_user)
                 result = self.summary(run)
-                created = True
+                # Reserve before commit so a simultaneous GET cannot mistake
+                # the committed-but-not-launched run for an abandoned task.
+                runtime = self.registry.add(run.id)
         except IntegrityError:
-            # Owner/request uniqueness also covers simultaneous requests to different conversations.
+            if runtime is not None:
+                self.registry.runs.pop(runtime.run_id, None)
             async with self.sessions() as session:
                 existing = await AnswerRepository(session).by_request(principal.id, body.request_id)
                 if existing is not None and existing.request_hash == fingerprint:
                     return self.summary(existing)
             raise AppError(409, 'request_id_conflict', '요청 ID 또는 대화의 진행 상태가 충돌했습니다.') from None
-        if created:
-            from .execution import execute
-            try:
-                runtime = self.registry.add(result['runId'])
+        except BaseException:
+            if runtime is not None:
+                self.registry.runs.pop(runtime.run_id, None)
+            raise
+        from .execution import execute
+        try:
+            # Cancellation may arrive after commit but before task creation.
+            # Its endpoint persists the terminal state; do not start a provider call.
+            if not runtime.cancel_event.is_set():
                 runtime.task = asyncio.create_task(execute(self, runtime, principal, body.question,
                     body.conversation_id, result['userMessageId']), name='answer:' + result['runId'])
-            except Exception:
-                async with self.sessions() as session, session.begin():
-                    stored = await AnswerRepository(session).owned(result['runId'], principal.id, lock=True)
-                    await AnswerRepository(session).interrupt(stored)
-                raise
+        except Exception:
+            self.registry.runs.pop(runtime.run_id, None)
+            async with self.sessions() as session, session.begin():
+                stored = await AnswerRepository(session).owned(result['runId'], principal.id, lock=True)
+                await AnswerRepository(session).interrupt(stored)
+            raise
         return result
 
     async def repair_if_abandoned(self, principal, run_id):
         runtime = self.registry.get(run_id)
-        if runtime is not None and runtime.task is not None and not runtime.task.done():
-            return
+        if runtime is not None:
+            if runtime.task is None or not runtime.task.done():
+                return
+            if runtime.status in TERMINAL and not runtime.storage_failed:
+                return
         async with self.sessions() as session, session.begin():
             repository = AnswerRepository(session)
             run = await repository.owned(run_id, principal.id, lock=True)
@@ -135,13 +148,25 @@ class AnswerService:
         principal.require('conversations:write')
         async with self.sessions() as session:
             run = await AnswerRepository(session).owned(run_id, principal.id)
-            if run.status in TERMINAL:
-                return await self.get(principal, run_id)
-        runtime = self.registry.get(run_id)
-        if runtime is not None and runtime.task is not None and not runtime.task.done():
-            runtime.cancel_event.set()
-            runtime.task.cancel()
-            await asyncio.gather(runtime.task, return_exceptions=True)
+            terminal = run.status in TERMINAL
+        if not terminal:
+            runtime = self.registry.get(run_id)
+            if runtime is not None:
+                runtime.cancel_event.set()
+                if runtime.task is not None and not runtime.task.done():
+                    runtime.task.cancel()
+                    await asyncio.gather(runtime.task, return_exceptions=True)
+            # A coroutine cancelled before first execution cannot run its handler.
+            async with self.sessions() as session, session.begin():
+                repository = AnswerRepository(session)
+                run = await repository.owned(run_id, principal.id, lock=True)
+                if run.status in ACTIVE:
+                    error = {'code': 'cancelled', 'message': '사용자가 답변을 취소했습니다.', 'retryable': True}
+                    await repository.persist(run.id, run.process_epoch, status='cancelled', error=error,
+                        events=[{'type': 'cancelled', 'data': {'status': 'cancelled', 'error': error}}])
+            if runtime is not None and runtime.task is None:
+                runtime.status = 'cancelled'
+                self.registry.runs.pop(run_id, None)
         return await self.get(principal, run_id)
 
     async def retry(self, principal, run_id, body):
@@ -169,10 +194,7 @@ class AnswerService:
         heartbeat = monotonic()
         while not await disconnected():
             try:
-                if authenticate is not None:
-                    principal = await authenticate()
-                else:
-                    await self.identity.refresh_principal(principal)
+                principal = await authenticate() if authenticate is not None else await self.identity.refresh_principal(principal)
                 await self.check_stream(principal, run_id, after)
                 async with self.sessions() as session:
                     repository = AnswerRepository(session)
@@ -180,14 +202,14 @@ class AnswerService:
                     events = await repository.events_after(run_id, after)
                     done = run.status in TERMINAL
                 for event in events:
-                    # Re-check current access before every durable event, not just initial GET.
+                    if authenticate is not None:
+                        principal = await authenticate()
                     await self.check_stream(principal, run_id, after)
                     after = event['seq']
                     yield event
                 if done and not events:
                     return
             except AppError as exc:
-                # Transport notices have no durable ID and cannot masquerade as completion.
                 yield {'type': 'stream_error', 'runId': run_id, 'data': {'error': exc.public()}}
                 return
             except Exception:
