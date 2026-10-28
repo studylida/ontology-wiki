@@ -40,9 +40,10 @@ async def parse_file(body: bytes, media_type: str, *, parser='legacy', python_ex
         raise AppError(503, 'parser_configuration', 'JATS XML에는 OCR을 끈 Docling 설정이 필요합니다.')
     if not body or len(body) > (20 * 1024 * 1024 if use_docling and not use_jats else MAX_BYTES):
         raise AppError(413, 'source_too_large', '문헌 해석 입력의 크기 한도를 확인해 주세요.')
-    if use_jats and re.search(br'<!\s*(?:DOCTYPE|ENTITY)', body, re.I):
-        # Do not let an uploaded XML file request external entities or a DTD.
-        raise AppError(422, 'unsafe_xml', 'DTD 또는 엔티티 선언을 포함한 XML은 처리하지 않습니다.')
+    if use_jats and re.search(br'<!\s*ENTITY', body, re.I):
+        raise AppError(422, 'unsafe_xml', '엔티티 선언을 포함한 XML은 처리하지 않습니다.')
+    # Ordinary publisher DOCTYPEs are allowed. normalize_jats also checks the
+    # parsed DTD (including UTF-16), disables entity expansion and all network I/O.
     if use_docling and (not python_executable or not artifacts_path):
         raise AppError(503, 'parser_configuration', 'Docling 실행 환경과 모델 경로를 설정해 주세요.')
     if use_docling:

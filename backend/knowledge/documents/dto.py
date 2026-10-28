@@ -28,7 +28,3 @@ class UploadInfo(DTO):
         if not value.strip() or '\x00' in value:
             raise ValueError('A non-empty title without NUL is required')
         return value.strip()
-
-
-class DocumentAction(DTO):
-    reason: str | None = Field(None, max_length=500)

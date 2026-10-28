@@ -1,4 +1,4 @@
-# Verified Python 3.12 development/runtime dependency closure, 2026-10-26.
+# Python 3.12 dependency closure; multipart upload added 2026-10-28.
 annotated-doc==0.0.5
 annotated-types==0.8.0
 anyio==4.15.1
@@ -26,6 +26,7 @@ pypdf==6.4.0
 pytest==8.4.2
 pytest-asyncio==1.3.0
 python-dotenv==1.2.4
+python-multipart==0.0.32
 pyyaml==6.0.3
 soupsieve==3.0.4
 sqlalchemy==2.0.44
