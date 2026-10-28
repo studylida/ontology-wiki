@@ -2,7 +2,7 @@ name: Isolated Compose smoke
 
 on:
   push:
-    branches: [feat/conversation-rag-redesign-20261026]
+    branches: [feat/shared-knowledge-assistant-20261028]
     paths-ignore: ["docs/**", "README.md"]
   workflow_dispatch:
 
@@ -23,6 +23,12 @@ jobs:
           persist-credentials: false
       - name: Build and verify isolated fixture stack
         run: python3 scripts/v2/compose_smoke.py run --state-dir "$RUNNER_TEMP/ontology-compose-smoke"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: compose-smoke-${{ github.sha }}
+          path: ${{ runner.temp }}/ontology-compose-smoke/result.json
+          retention-days: 3
       - name: Remove only the smoke project's containers and volumes
         if: always()
         run: python3 scripts/v2/compose_smoke.py cleanup --state-dir "$RUNNER_TEMP/ontology-compose-smoke"

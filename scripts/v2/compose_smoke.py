@@ -61,14 +61,14 @@ def prepare(directory, docker_host):
     db_port, api_port, web_port = free_ports()
     state = {"createdBy": "ontology-wiki-compose-smoke-v1", "project": "ow-ci-" + secrets.token_hex(8),
         "dockerHost": docker_host, "dbPort": db_port, "apiPort": api_port, "webPort": web_port,
-        "username": "compose-reviewer", "password": secrets.token_urlsafe(24),
+        "username": "compose-employee", "password": secrets.token_urlsafe(24),
         "dbPassword": secrets.token_urlsafe(24), "authSecret": secrets.token_urlsafe(40)}
     values = {"OW_DEV_DB_PASSWORD": state["dbPassword"], "OW_AUTH_SECRET": state["authSecret"],
         "OW_DEV_DB_PORT": db_port, "OW_DEV_API_PORT": api_port, "OW_DEV_WEB_PORT": web_port,
         "OW_PROVIDER_MODE": "fixture", "OW_GENERATION_MODEL": "fixture-generation",
         "OW_GENERATION_EFFORT": "", "OW_EMBEDDING_MODEL": "text-embedding-3-large",
         "OW_EMBEDDING_API_DIMENSIONS": 1536, "OW_EMBEDDING_TRANSFORM": "native",
-        "OW_RESEARCH_NETWORK_MODE": "system", "OPENAI_API_KEY": ""}
+        "OPENAI_API_KEY": ""}
     private_write(directory / "compose.env", "".join(f"{key}={value}\n" for key, value in values.items()))
     private_write(directory / "state.json", json.dumps(state))
     (directory / "docker-config").mkdir(mode=0o700)
@@ -172,24 +172,39 @@ class Stack:
                 elif not line and data:
                     event = json.loads("\n".join(data))
                     data.clear()
+                    if event["type"] == "stream_error":
+                        raise SmokeFailure("SSE access or storage error")
                     if result and event["seq"] <= result[-1]["seq"]:
                         raise SmokeFailure("SSE sequence did not advance")
                     result.append(event)
-                    if event["type"] in ("run.completed", "run.failed", "run.cancelled"):
+                    if event["type"] in ("complete", "error", "cancelled", "interrupted"):
                         break
-        if not result or result[-1]["type"] != "run.completed":
+        if not result or result[-1]["type"] != "complete":
             raise SmokeFailure("Fixture answer SSE did not complete successfully")
         return result
 
-    def wait_jobs(self, kinds, timeout=60):
-        deadline = time.monotonic() + timeout
+    def upload(self, content):
+        boundary = "smoke-" + uuid4().hex
+        body = (f'--{boundary}\r\nContent-Disposition: form-data; name="title"\r\n\r\nSmoke fixture\r\n'
+                f'--{boundary}\r\nContent-Disposition: form-data; name="file"; filename="fixture.md"\r\n'
+                'Content-Type: text/markdown\r\n\r\n').encode() + content + f'\r\n--{boundary}--\r\n'.encode()
+        request = Request(self.api + '/documents', data=body, method='POST', headers={
+            'Authorization': 'Bearer ' + self.token, 'Content-Type': 'multipart/form-data; boundary=' + boundary})
+        with OPENER.open(request, timeout=20) as response:
+            if response.status != 202:
+                raise SmokeFailure('Upload was not accepted')
+            return json.load(response)
+
+    def wait_document(self, document_id):
+        deadline = time.monotonic() + 60
         while time.monotonic() < deadline:
-            jobs = self.request("GET", "/jobs")["items"]
-            picked = {kind: next((job for job in jobs if job["kind"] == kind), None) for kind in kinds}
-            if all(job and job["status"] not in ("pending", "running") for job in picked.values()):
-                return picked
-            time.sleep(1)
-        raise SmokeFailure("Expected jobs did not reach terminal states")
+            document = self.request('GET', '/documents/' + document_id)
+            if document['status'] in ('ready', 'partial', 'failed', 'inactive'):
+                if not document['searchable']:
+                    raise SmokeFailure('Document did not become searchable')
+                return document
+            time.sleep(.2)
+        raise SmokeFailure('Document worker did not finish')
 
 
 def verify(stack):
@@ -199,7 +214,7 @@ def verify(stack):
     stack.compose("run", "--rm", "--no-deps", "api", "python", "-m", "knowledge.cli",
                   "migrate", "--database-name", "ontology_wiki_dev")
     stack.compose("run", "--rm", "--no-deps", "-e", "OW_BOOTSTRAP_PASSWORD", "api", "python", "-m",
-                  "knowledge.cli", "create-user", "--username", stack.state["username"], "--role", "reviewer")
+                  "knowledge.cli", "create-user", "--username", stack.state["username"], "--role", "user")
     stack.compose("up", "--no-build", "-d", "api", "worker", "web")
     health = stack.health()
     versions = json.loads(stack.compose("exec", "-T", "db", "psql", "-U", "ontology_dev", "-d", "ontology_wiki_dev", "-Atc",
@@ -212,70 +227,39 @@ def verify(stack):
     login = stack.request("POST", "/auth/login", {"username": stack.state["username"], "password": stack.state["password"]})
     stack.token = login["accessToken"]
     stack.redactions.append(stack.token)
-    document = stack.request("POST", "/documents", {"title": "CI fixture — smoke bonding",
-        "content": "# Smoke bonding\nCI fixture only. Smoke bonding 정의와 적용 조건을 확인하는 저장·검색 검증 본문입니다. 실제 반도체 지식이 아닙니다.",
-        "format": "markdown", "visibility": "shared_candidate", "publisher": "CI fixture",
-        "publisherId": "ci-fixture", "sourceType": "fixture", "attributionBasis": "explicit_ci_fixture"})
-    revision = document["currentRevisionId"]
-    approved = stack.request("POST", f"/documents/revisions/{revision}/review",
-        {"decision": "approve", "reason": "Isolated CI fixture; not production or expert approval"})
-    if approved["reviewStatus"] != "approved" or approved["indexStatus"] == "ready":
-        raise SmokeFailure("Document approval and indexing state were conflated")
-    stack.request("POST", "/index-jobs", {"sourceRevisionIds": [revision], "immediate": True})
-    index = stack.wait_jobs(["index"])["index"]
-    if index["status"] != "succeeded":
-        raise SmokeFailure("Fixture indexing did not succeed")
-    source = stack.request("GET", f"/documents/revisions/{revision}")
-    if source["indexStatus"] != "ready" or not source["passages"]:
-        raise SmokeFailure("Source revision/passages were not retrievable after indexing")
-    conversation = stack.request("POST", "/conversations", {"title": "Compose smoke fixture"})
-    if conversation["nextSettings"].get("responseMode") != "wiki" or conversation["nextSettings"].get("extended") is not False:
-        raise SmokeFailure("New conversation defaults changed")
-    payload = {"clientRequestId": str(uuid4()), "conversationId": conversation["id"],
-        "message": "Smoke bonding 정의와 적용 조건을 설명해 주세요.", "responseMode": "wiki", "extended": False,
-        "sourceRevisionIds": [revision]}
-    run = stack.request("POST", "/answer-runs", payload)
-    events = stack.events(run["eventsUrl"])
-    kinds = {event["type"] for event in events}
-    if not {"run.started", "retrieval.status", "text.delta", "citation.add", "run.completed"}.issubset(kinds):
-        raise SmokeFailure("Required SSE lifecycle/evidence events were missing")
-    body = "".join(event["data"]["text"] for event in events if event["type"] == "text.delta")
-    saved = stack.request("GET", f"/answer-runs/{run['runId']}")
-    if saved["status"] != "completed" or saved["message"]["content"] != body or "fixture" not in body.lower():
-        raise SmokeFailure("Actual fixture deltas and persisted answer differ")
-    if saved["usage"]["calls"] != 0 or saved["usage"].get("costStatus") != "fixture":
-        raise SmokeFailure("Fixture execution was reported as a live provider call")
-    if not any(citation["sourceRevisionId"] == revision for citation in saved["message"]["citations"]):
-        raise SmokeFailure("Saved answer lost its original source revision")
-    same = stack.request("POST", "/answer-runs", payload)
-    if same["runId"] != run["runId"]:
-        raise SmokeFailure("Idempotent submission started another run")
-    stack.compose("restart", "api")
-    stack.health()
-    restored = stack.request("GET", f"/conversations/{conversation['id']}")
-    restored_message = next((message for message in restored["messages"] if message["id"] == run["messageId"]), None)
-    if not restored_message or restored_message["content"] != body or len(restored["messages"]) != 2:
-        raise SmokeFailure("Conversation did not restore after API restart")
-    replay = stack.events(run["eventsUrl"] + "?after=0")
-    if [(e["seq"], e["type"], e["data"]) for e in replay] != [(e["seq"], e["type"], e["data"]) for e in events]:
-        raise SmokeFailure("Durable SSE replay differed after API restart")
-    structured = stack.wait_jobs(["ontology_extract", "personal_wiki"])
-    for kind, job in structured.items():
-        if job["status"] != "failed" or (job.get("error") or {}).get("code") != "structured_output_invalid":
-            raise SmokeFailure(f"{kind}: fixture JSON failure must be explicit, not a fabricated success")
-        if (job.get("usage") or {}).get("calls") != 0:
-            raise SmokeFailure(f"{kind}: fixture was counted as an external model call")
-    if stack.request("GET", "/personal-wiki")["items"]:
-        raise SmokeFailure("Fixture JSON failure created a fake personal wiki page")
-    return {"status": "passed", "scope": "container_execution_with_fixture_provider",
-        "database": versions, "health": health, "webServed": True, "webApiProxy": True,
-        "documentApprovedAndIndexed": True, "sourceRevisionReadable": True,
-        "sseEventCount": len(events), "sseReplayAfterApiRestart": True,
-        "conversationRestoredAfterApiRestart": True, "idempotentSubmission": True,
-        "externalModelCalls": 0, "semanticQualityEvaluated": False,
-        "structuredFixtureJobs": {kind: {"status": job["status"], "errorCode": job["error"]["code"]}
-                                  for kind, job in structured.items()},
-        "structuredGenerationSuccessVerified": False}
+    raw = b'# Smoke fixture\n\nSynthetic alpha material is measured at 250 C for 30 min. Not company knowledge.\n'
+    accepted = stack.upload(raw)
+    source = stack.wait_document(accepted['documentId'])
+    original = Request(stack.api + '/documents/' + source['id'] + '/raw', headers={'Authorization': 'Bearer ' + stack.token})
+    with OPENER.open(original, timeout=10) as response:
+        if response.read() != raw:
+            raise SmokeFailure('Raw source changed')
+    conv = stack.request('POST', '/conversations', {'title': 'Isolated smoke'})
+    run_ids = []
+    for question in ('Explain the alpha material conditions.', 'Which temperature was used?'):
+        run = stack.request('POST', '/conversations/' + conv['id'] + '/turns',
+                            {'question': question, 'requestId': uuid4().hex})
+        stack.events(run['eventsUrl'])
+        saved = stack.request('GET', '/answer-runs/' + run['runId'])
+        if saved['status'] != 'completed' or not saved['answer']['citations']:
+            raise SmokeFailure('Fixture answer did not persist evidence')
+        citation = saved['answer']['citations'][0]
+        content = stack.request('GET', '/documents/' + citation['documentId'] + '/passages?revisionId=' + citation['sourceRevisionId'])
+        if citation['passageId'] not in {p['id'] for p in content['passages']}:
+            raise SmokeFailure('Citation did not resolve')
+        run_ids.append(run['runId'])
+    transcript = stack.request('GET', '/conversations/' + conv['id'])
+    if len(transcript['messages']) != 4:
+        raise SmokeFailure('Follow-up transcript was not restored')
+    stack.request('POST', '/documents/' + source['id'] + '/deactivate')
+    redacted = stack.request('GET', '/conversations/' + conv['id'])
+    if not all(m['sourceUnavailable'] and not m['content'] for m in redacted['messages'] if m['role'] == 'assistant'):
+        raise SmokeFailure('Withdrawn evidence remained visible')
+    return {'status': 'passed', 'providerMode': health['providerMode'], 'versions': versions,
+            'documentId': source['id'], 'answerRunIds': run_ids,
+            'checks': ['fresh_migrations', 'employee_upload', 'automatic_worker_index', 'raw_integrity',
+                       'web_proxy', 'answer_events', 'citation_resolution', 'followup_restore', 'withdrawal'],
+            'limitations': ['fixture providers; no live model quality evaluation', 'HTTP smoke, not browser interaction']}
 
 
 def write_report(directory, result):

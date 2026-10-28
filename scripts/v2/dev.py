@@ -17,7 +17,7 @@ def main():
     if command == 'serve':
         invocation = [sys.executable,'-m','uvicorn','knowledge.main:app','--host','127.0.0.1','--port','8000',*rest]
     elif command == 'test':
-        invocation = [sys.executable,'-m','pytest','tests/foundation',*rest]
+        invocation = [sys.executable,'-m','pytest','tests/foundation','tests/unit','tests/evaluation',*rest]
     else:
         invocation = [sys.executable,'-m','knowledge.cli',command,*rest]
     raise SystemExit(subprocess.call(invocation,cwd=ROOT,env=environment))

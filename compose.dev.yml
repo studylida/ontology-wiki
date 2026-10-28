@@ -1,8 +1,8 @@
 # New, isolated development environment. Does not mount a legacy database/volume.
-name: ontology-wiki-redesign-dev
+name: ontology-wiki-assistant-dev
 services:
   db:
-    image: pgvector/pgvector:pg16
+    image: pgvector/pgvector:0.8.7-pg16-bookworm
     environment:
       POSTGRES_USER: ontology_dev
       POSTGRES_DB: ontology_wiki_dev
@@ -10,7 +10,7 @@ services:
     ports:
       - "127.0.0.1:${OW_DEV_DB_PORT:-55432}:5432"
     volumes:
-      - v2_pg_data:/var/lib/postgresql/data
+      - assistant_pg_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ontology_dev -d ontology_wiki_dev"]
       interval: 3s
@@ -31,12 +31,11 @@ services:
       OW_EMBEDDING_API_DIMENSIONS: ${OW_EMBEDDING_API_DIMENSIONS:-1536}
       OW_EMBEDDING_TRANSFORM: ${OW_EMBEDDING_TRANSFORM:-native}
       OW_STORAGE_PATH: /app/var/raw
-      OW_RESEARCH_NETWORK_MODE: ${OW_RESEARCH_NETWORK_MODE:-system}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     ports:
       - "127.0.0.1:${OW_DEV_API_PORT:-8000}:8000"
     volumes:
-      - v2_raw_sources:/app/var/raw
+      - assistant_raw_sources:/app/var/raw
     depends_on:
       db:
         condition: service_healthy
@@ -47,7 +46,7 @@ services:
     command: ["python", "-m", "knowledge.cli", "worker"]
     environment: *app-env
     volumes:
-      - v2_raw_sources:/app/var/raw
+      - assistant_raw_sources:/app/var/raw
     depends_on:
       db:
         condition: service_healthy
@@ -62,5 +61,5 @@ services:
     depends_on:
       - api
 volumes:
-  v2_pg_data:
-  v2_raw_sources:
+  assistant_pg_data:
+  assistant_raw_sources:

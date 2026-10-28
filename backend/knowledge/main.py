@@ -83,7 +83,7 @@ def create_app(settings=None, session_factory=None, *, embedding_client=None, ge
         except Exception:
             pass
         return JSONResponse({'status': 'ok' if connected else 'degraded',
-            'database': 'connected' if connected else 'unavailable', 'stage': 'answers',
+            'database': 'connected' if connected else 'unavailable', 'stage': 'answers', 'providerMode': settings.provider_mode,
             'capabilities': ['authentication', 'private_conversations', 'message_storage',
                 'shared_document_upload', 'automatic_indexing', 'grounded_answers', 'durable_answer_events']},
             status_code=200 if connected else 503)

@@ -69,14 +69,16 @@ jobs:
       - name: Install existing backend test dependencies
         run: python -m pip install -r backend/requirements-dev.txt
       - name: Verify source syntax
-        run: python -m compileall -q backend/knowledge tests/foundation tests/browser scripts/v2/dev.py
+        run: python -m compileall -q backend/knowledge tests/foundation tests/unit tests/evaluation tests/browser scripts/v2
       - name: Real PostgreSQL, HTTP and process-restart foundation tests
-        run: python -m pytest tests/foundation -q --junitxml="$RUNNER_TEMP/foundation.xml"
+        run: python -m pytest tests/foundation tests/unit tests/evaluation -q --junitxml="$RUNNER_TEMP/foundation.xml"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: foundation-results-${{ github.sha }}
-          path: ${{ runner.temp }}/foundation.xml
+          path: |
+            ${{ runner.temp }}/foundation.xml
+            ${{ runner.temp }}/evaluation
           retention-days: 3
   browser-workspace:
     runs-on: ubuntu-latest
