@@ -25,7 +25,7 @@ jobs:
           POSTGRES_DB: ontology_assistant_test
         ports: ['5432:5432']
         options: >-
-          --health-cmd 'pg_isready -U postgres -d ontology_assistant_test'
+          --health-cmd "pg_isready -U postgres -d ontology_assistant_test"
           --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       OW_TEST_DATABASE_URL: postgresql+asyncpg://postgres:foundation-ci-only@127.0.0.1:5432/ontology_assistant_test
