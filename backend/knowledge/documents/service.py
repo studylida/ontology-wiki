@@ -1,166 +1,175 @@
-from sqlalchemy import select, update
+"""Shared file intake and document operations. No model call in HTTP requests."""
+from __future__ import annotations
+import asyncio
+import hashlib
+from pathlib import PurePath
+from sqlalchemy import func, select, text
+from ..core.errors import AppError
+from ..core.ids import new_id, utcnow
+from ..jobs.entities import Job
+from ..jobs.repository import JobRepository
+from .entities import Document, DocumentRevision, Passage
+from .parsing import metadata_digest
+from .repository import DocumentRepository
+from .storage import read_raw, save_raw
 
-from knowledge.core.errors import AppError
-from knowledge.core.ids import new_id, utcnow
-from knowledge.documents.entities import Document, DocumentAttachment, DocumentRevision, MetadataHistory, Passage, ReviewDecision
-from knowledge.documents.parsing import declared_document_form, digest, metadata_digest, save_raw, segment
-from knowledge.documents.repository import DocumentRepository, is_reviewer, read_scope
-from knowledge.jobs.repository import JobRepository
-
-
-def document_dict(document, revision):
-    metadata = revision.metadata_json
-    return {"id": document.id, "title": document.title, "currentRevisionId": revision.id,
-            "activeRevisionId": document.active_revision_id, "revision": revision.revision,
-            "reviewStatus": revision.review_status, "indexStatus": revision.index_status,
-            "visibility": document.visibility, "publisher": metadata.get("publisher"),
-            "publisherId": metadata.get("publisherId"), "sourceType": metadata.get("sourceType"),
-            "url": metadata.get("url"), "updatedAt": document.updated_at.isoformat()}
+MAX_UPLOAD_BYTES = 20 * 1024 * 1024
+MEDIA_TYPES = {'.md':'text/markdown','.markdown':'text/markdown','.txt':'text/plain',
+               '.pdf':'application/pdf','.xml':'application/xml','.nxml':'application/xml','.jats':'application/jats+xml'}
 
 
 class DocumentService:
     def __init__(self, session_factory, settings):
         self.sessions, self.settings = session_factory, settings
 
-    async def create(self, principal, request, *, read_scope_value="full", raw_bytes=None, origin_key=None,
-                     media_type=None, processing_metadata=None, passage_records=None):
-        principal.require("documents:write")
-        raw_path = save_raw(self.settings.storage_path, raw_bytes or request.content.encode())
+    async def upload(self, principal, body, filename, info, document_id=None):
+        if principal.kind != 'user':
+            raise AppError(403,'employee_required','직원 계정으로 문헌을 등록해 주세요.')
+        filename = PurePath((filename or 'upload').replace('\\','/')).name
+        if not filename or len(filename) > 255 or any(ord(c) < 32 for c in filename):
+            raise AppError(422,'invalid_filename','파일 이름을 확인해 주세요.')
+        media_type = MEDIA_TYPES.get(PurePath(filename).suffix.lower())
+        if not media_type:
+            raise AppError(415,'unsupported_source_type','Markdown·UTF-8 텍스트·PDF·JATS XML을 업로드해 주세요.')
+        if not body or len(body) > MAX_UPLOAD_BYTES:
+            raise AppError(413,'source_too_large','0바이트가 아닌 20MB 이하의 파일이 필요합니다.')
+        if document_id:
+            async with self.sessions() as session:
+                document = await DocumentRepository(session).get(document_id)
+                DocumentRepository.require_manage(document,principal)
+                DocumentRepository.require_enabled(document)
+        raw_hash = hashlib.sha256(body).hexdigest()
+        metadata = info.metadata.model_dump(mode='json',by_alias=True,exclude_none=True)
+        fingerprint = metadata_digest({'raw':raw_hash,'media':media_type,'title':info.title,'metadata':metadata})
+        raw_path = await asyncio.to_thread(save_raw,self.settings.storage_path,body)
         async with self.sessions() as session, session.begin():
-            doc, rev = await DocumentRepository(session).create_source(principal, request, raw_path,
-                read_scope_value=read_scope_value, origin_key=origin_key, media_type=media_type,
-                processing_metadata=processing_metadata, passage_records=passage_records)
-            return document_dict(doc, rev)
+            repo = DocumentRepository(session)
+            if document_id is None:
+                # Serialize identical intake across API processes. No network work inside this transaction.
+                lock_key = int.from_bytes(bytes.fromhex(fingerprint)[:8],'big',signed=True)
+                await session.execute(text('SELECT pg_advisory_xact_lock(:key)'),{'key':lock_key})
+                document = await session.scalar(select(Document).where(Document.origin_key == fingerprint).with_for_update())
+                if document is None:
+                    document = Document(id=new_id('doc'),owner_id=principal.id,title=info.title,origin_key=fingerprint)
+                    session.add(document)
+                    await session.flush()
+            else:
+                document = await repo.get(document_id,lock=True)
+                repo.require_manage(document,principal)
+            repo.require_enabled(document)
+            revision = await session.scalar(select(DocumentRevision).where(
+                DocumentRevision.document_id == document.id,DocumentRevision.input_hash == fingerprint))
+            duplicate = revision is not None
+            if revision is None:
+                number = (await session.scalar(select(func.max(DocumentRevision.revision)).where(DocumentRevision.document_id == document.id)) or 0) + 1
+                revision = DocumentRevision(id=new_id('rev'),document_id=document.id,revision=number,
+                    title=info.title,filename=filename,media_type=media_type,raw_path=raw_path,
+                    raw_sha256=raw_hash,input_hash=fingerprint,metadata_json=metadata)
+                session.add(revision)
+                await session.flush()
+                # A newer upload supersedes unfinished work, not the last usable active revision.
+                previous_jobs = list(await session.scalars(select(Job).where(Job.document_id == document.id,
+                    Job.status.in_(['pending','running'])).with_for_update()))
+                for old in previous_jobs:
+                    old.status, old.updated_at = 'superseded', utcnow()
+                    old_revision = await session.get(DocumentRevision,old.source_revision_id)
+                    if old_revision.id != document.active_revision_id:
+                        old_revision.index_status = 'superseded'
+                document.current_revision_id, document.updated_at = revision.id, utcnow()
+            job = await JobRepository(session).enqueue(document.id,revision.id)
+            result = {'documentId':document.id,'revisionId':revision.id,'jobId':job.id,
+                      'duplicate':duplicate,'status':revision.index_status,'jobStatus':job.status,
+                      'shared':True,'searchable':bool(document.active_revision_id and not document.withdrawn)}
+        return result
 
-    @staticmethod
-    def _add_passages(session, revision_id, title, content, *, quality_review_required=False):
-        for p in segment(content, title):
-            values = dict(p.__dict__)
-            if quality_review_required and not p.excluded:
-                values.update(excluded=True, exclusion_reason="편집된 보류 원문의 전처리 검토 필요")
-            session.add(Passage(source_revision_id=revision_id, **values))
+    async def _revision_summary(self, session, revision):
+        if revision is None:
+            return None
+        total = await session.scalar(select(func.count()).select_from(Passage).where(Passage.source_revision_id == revision.id))
+        held = await session.scalar(select(func.count()).select_from(Passage).where(Passage.source_revision_id == revision.id,Passage.excluded.is_(True)))
+        status = revision.index_status
+        if status == 'ready' and (held or revision.read_scope == 'partial'):
+            status = 'partial'
+        job = await JobRepository(session).for_revision(revision.id)
+        return {'id':revision.id,'revision':revision.revision,'title':revision.title,'filename':revision.filename,
+                'mediaType':revision.media_type,'status':status,'readScope':revision.read_scope,
+                'passageCount':total,'heldPassageCount':held,'usablePassageCount':total-held,
+                'metadata':revision.metadata_json,'processing':revision.processing_metadata,
+                'limitations':revision.limitations,'embeddingProfile':revision.embedding_profile,
+                'indexSnapshotId':revision.index_snapshot_id,'job':JobRepository.public(job),
+                'createdAt':revision.created_at.isoformat()}
 
-    async def add_revision(self, principal, document_id, request):
-        principal.require("documents:write")
-        raw_path = save_raw(self.settings.storage_path, request.content.encode())
-        async with self.sessions() as session, session.begin():
-            doc = await session.get(Document, document_id, with_for_update=True)
-            if not doc or (doc.owner_id != principal.id and not is_reviewer(principal)):
-                raise AppError(404, "source_not_found", "문헌이 없거나 편집 권한이 없습니다.")
-            previous = await session.get(DocumentRevision, doc.current_revision_id)
-            if previous.content_hash == digest(request.content):
-                return document_dict(doc, previous)
-            metadata = dict(previous.metadata_json)
-            quality_review_required = bool(metadata.get("preprocessingEditReviewRequired") or
-                metadata.get("preprocessingQuality", {}).get("issues"))
-            if quality_review_required:
-                metadata["preprocessingEditReviewRequired"] = True
-            if metadata.get("editorialSha256"):
-                metadata["derivedFromRevisionId"] = previous.id
-                metadata["editorialSha256"] = digest(request.content)
-                for field in ("editorialFile", "reviewScope", "editorialCorrections"):
-                    metadata.pop(field, None)
-            if metadata.get("parserProfile"):
-                metadata["derivedFromRevisionId"] = previous.id
-                for field in ("parserProfile", "chunkProfile", "preparedPassagesArtifact", "sourceMapArtifact", "structuredArtifact",
-                              "sourceMapPath", "structuredDocumentPath", "extractedTextPath", "conversionKey", "rawPath",
-                              "sourceSha256", "totalPages", "pagesRead", "pagesWithoutExtractedText", "conversionStatus",
-                              "tableCount", "pictureCount", "processing"):
-                    metadata.pop(field, None)
-                metadata["documentForm"] = "edited_derivative"
-            declared_form = declared_document_form(request.content)
-            if not metadata.get("derivedFromRevisionId") and declared_form is not None and declared_form != declared_document_form(previous.content):
-                metadata["documentForm"] = declared_form
-            rev = DocumentRevision(id=new_id("rev"), document_id=doc.id, revision=previous.revision + 1,
-                content=request.content, content_hash=digest(request.content), raw_path=raw_path,
-                read_scope=previous.read_scope,
-                metadata_json=metadata, metadata_hash=metadata_digest(metadata),
-                review_status="private" if doc.visibility == "private" else "pending")
-            session.add(rev)
-            await session.flush()
-            doc.current_revision_id, doc.updated_at = rev.id, utcnow()
-            self._add_passages(session, rev.id, doc.title, request.content, quality_review_required=quality_review_required)
-            await session.flush()
-            return document_dict(doc, rev)
+    async def _summary(self, session, document, principal):
+        latest = await session.get(DocumentRevision,document.current_revision_id) if document.current_revision_id else None
+        active = await session.get(DocumentRevision,document.active_revision_id) if document.active_revision_id else None
+        latest_view = await self._revision_summary(session,latest)
+        active_view = latest_view if active is not None and latest is not None and active.id == latest.id else await self._revision_summary(session,active)
+        return {'id':document.id,'title':document.title,'shared':True,'withdrawn':document.withdrawn,
+                'status':'inactive' if document.withdrawn else latest_view['status'] if latest_view else 'queued',
+                'searchable':bool(active is not None and active.index_status == 'ready' and not document.withdrawn),
+                'canManage':document.owner_id == principal.id or principal.role == 'admin',
+                'currentRevisionId':document.current_revision_id,'activeRevisionId':document.active_revision_id,
+                'latestRevision':latest_view,'activeRevision':active_view,'updatedAt':document.updated_at.isoformat()}
 
-    async def list(self, principal, review_status=None):
+    async def list(self, principal):
         async with self.sessions() as session:
-            stmt = select(Document, DocumentRevision).join(DocumentRevision, DocumentRevision.id == Document.current_revision_id).where(read_scope(principal))
-            if review_status:
-                stmt = stmt.where(DocumentRevision.review_status == review_status)
-            rows = (await session.execute(stmt.order_by(Document.updated_at.desc()).limit(250))).all()
-            return {"items": [document_dict(d, r) for d, r in rows]}
+            documents = await DocumentRepository(session).list()
+            return {'items':[await self._summary(session,d,principal) for d in documents]}
 
-    async def detail(self, principal, revision_id):
+    async def detail(self, principal, document_id):
+        async with self.sessions() as session:
+            return await self._summary(session,await DocumentRepository(session).get(document_id),principal)
+
+    async def source(self, principal, document_id, revision_id=None, *, raw=False):
         async with self.sessions() as session:
             repo = DocumentRepository(session)
-            rev, doc = await repo.revision(principal, revision_id)
-            passages = await repo.passages(rev.id, include_excluded=True)
-            reviews = list((await session.scalars(select(ReviewDecision).where(ReviewDecision.source_revision_id == rev.id).order_by(ReviewDecision.created_at))).all())
-            return {"id": rev.id, "documentId": doc.id, "title": doc.title, "content": rev.content,
-                    "metadata": rev.metadata_json, "metadataVersion": rev.metadata_version,
-                    "reviewStatus": rev.review_status, "indexStatus": rev.index_status,
-                    "readScope": rev.read_scope, "revision": rev.revision,
-                    "passages": [{"id": p.id, "ordinal": p.ordinal, "text": p.text, "locator": p.locator,
-                                  "excluded": p.excluded, "exclusionReason": p.exclusion_reason} for p in passages],
-                    "reviewHistory": [{"decision": r.decision, "reason": r.reason, "at": r.created_at.isoformat()} for r in reviews] if is_reviewer(principal) else []}
+            document = await repo.get(document_id)
+            if document.withdrawn:
+                raise AppError(404,'source_not_found','비활성화된 문헌입니다.')
+            chosen = revision_id or document.active_revision_id or document.current_revision_id
+            revision, owned_document = await repo.revision(principal,chosen)
+            if owned_document.id != document.id:
+                raise AppError(404,'source_not_found','해당 문헌의 판본이 아닙니다.')
+            if raw:
+                path, hashed, filename, media = revision.raw_path, revision.raw_sha256, revision.filename, revision.media_type
+            else:
+                passages = await repo.passages(revision.id,include_excluded=True)
+                return {'documentId':document.id,'revisionId':revision.id,'active':document.active_revision_id == revision.id,
+                        'content':revision.content,'contentHash':revision.content_hash,
+                        'passages':[{'id':p.id,'ordinal':p.ordinal,'text':p.text,'locator':p.locator,
+                                     'startOffset':p.start_offset,'endOffset':p.end_offset,'excluded':p.excluded,
+                                     'exclusionReason':p.exclusion_reason,'sourceMap':p.source_map} for p in passages]}
+        body = await asyncio.to_thread(read_raw,self.settings.storage_path,path,hashed)
+        async with self.sessions() as session:
+            if not await DocumentRepository(session).ensure_readable(principal,[chosen]):
+                raise AppError(404,'source_not_found','비활성화된 문헌입니다.')
+        return body,filename,media
 
-    async def review(self, principal, revision_id, request):
-        principal.require("documents:review")
-        from knowledge.ontology.entities import ConceptSourceView
+    async def reprocess(self, principal, document_id):
         async with self.sessions() as session, session.begin():
-            rev, doc = await DocumentRepository(session).revision(principal, revision_id, for_update=True)
-            if doc.visibility != "shared_candidate":
-                raise AppError(409, "private_source", "비공개 자료는 공용 검토 대상이 아닙니다.")
-            states = {"approve": "approved", "reject": "rejected", "hold": "held", "withdraw": "withdrawn"}
-            previous_status = rev.review_status
-            rev.review_status = states[request.decision]
-            doc.updated_at = utcnow()
-            session.add(ReviewDecision(source_revision_id=rev.id, reviewer_id=principal.id,
-                                       decision=request.decision, reason=request.reason))
-            if request.decision == "withdraw":
-                doc.withdrawn = True
-                await session.execute(update(ConceptSourceView).where(ConceptSourceView.source_revision_id == rev.id,
-                    ConceptSourceView.status == "active").values(status="withdrawn"))
-            elif request.decision == "approve":
-                doc.withdrawn = False
-                if rev.metadata_json.get("preprocessingEditReviewRequired"):
-                    await session.execute(update(Passage).where(Passage.source_revision_id == rev.id,
-                        Passage.excluded.is_(True), Passage.exclusion_reason == "편집된 보류 원문의 전처리 검토 필요")
-                        .values(excluded=False, exclusion_reason=None))
-            if request.decision != "approve" or previous_status != "approved":
-                rev.index_status = "pending"
-                if doc.active_revision_id == rev.id:
-                    doc.active_revision_id = None
+            repo = DocumentRepository(session)
+            document = await repo.get(document_id,lock=True)
+            repo.require_manage(document,principal)
+            repo.require_enabled(document)
+            job = await JobRepository(session).for_revision(document.current_revision_id,lock=True)
+            if job is None:
+                raise AppError(409,'job_missing','문헌 처리 작업을 찾을 수 없습니다.')
+            if job.status == 'failed':
+                JobRepository.restart(job)
+                revision = await session.get(DocumentRevision,job.source_revision_id)
+                revision.index_status = 'queued'
             await session.flush()
-            return document_dict(doc, rev)
+            result = {'documentId':document.id,'revisionId':job.source_revision_id,'job':JobRepository.public(job)}
+        return result
 
-    async def patch_metadata(self, principal, revision_id, request):
-        principal.require("documents:review")
-        from knowledge.ontology.entities import ConceptSourceView
+    async def deactivate(self, principal, document_id):
         async with self.sessions() as session, session.begin():
-            rev, doc = await DocumentRepository(session).revision(principal, revision_id, for_update=True)
-            patch = request.model_dump(mode="json", by_alias=True, exclude_unset=True)
-            updated = {**rev.metadata_json, **patch}
-            if updated == rev.metadata_json:
-                return {"metadataVersion": rev.metadata_version, "changed": False}
-            session.add(MetadataHistory(source_revision_id=rev.id, version=rev.metadata_version,
-                                        metadata_json=rev.metadata_json, changed_by=principal.id))
-            views = list((await session.scalars(select(ConceptSourceView).where(
-                ConceptSourceView.source_revision_id == rev.id, ConceptSourceView.status == "active"))).all())
-            rev.metadata_json, rev.metadata_hash = updated, metadata_digest(updated)
-            rev.metadata_version += 1
-            for view in views:
-                view.status = "superseded"
-                await JobRepository(session).enqueue("source_view",
-                    f"view:{rev.id}:{view.concept_id}:{view.aspect}:{rev.metadata_version}",
-                    {"sourceRevisionId": rev.id, "conceptId": view.concept_id, "aspect": view.aspect,
-                     "metadataVersion": rev.metadata_version})
-            return {"metadataVersion": rev.metadata_version, "changed": True,
-                    "invalidatedViews": len(views), "reembeddingRequired": False}
-
-    async def attach(self, principal, revision_id, conversation_id):
-        from knowledge.conversations.repository import ConversationRepository
-        async with self.sessions() as session, session.begin():
-            await ConversationRepository(session).owned(conversation_id, principal.id, lock=True)
-            return await DocumentRepository(session).attach(principal, revision_id, conversation_id)
+            repo = DocumentRepository(session)
+            document = await repo.get(document_id,lock=True)
+            repo.require_manage(document,principal)
+            document.withdrawn,document.updated_at = True,utcnow()
+            jobs = list(await session.scalars(select(Job).where(Job.document_id == document.id,Job.status.in_(['pending','running'])).with_for_update()))
+            for job in jobs:
+                job.status,job.updated_at = 'cancelled',utcnow()
+                job.error = {'code':'document_inactive','message':'문헌이 비활성화되었습니다.','retryable':False}
+        return {'documentId':document_id,'status':'inactive','searchable':False}

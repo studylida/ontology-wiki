@@ -1,46 +1,73 @@
-from fastapi import APIRouter, Depends, Request
+from urllib.parse import quote
+from fastapi import APIRouter, Depends, File, Form, Query, Request, UploadFile
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import Response
+from pydantic import ValidationError
+from ..core.errors import AppError
+from ..identity.dependencies import current_principal
+from ..identity.dto import Principal
+from .dto import SourceMetadata, UploadInfo
+from .service import MAX_UPLOAD_BYTES
 
-from knowledge.identity.dependencies import current_principal
-from knowledge.documents.dto import AttachRequest, MetadataPatch, NewDocument, NewRevision, ReviewRequest
-from knowledge.documents.service import DocumentService
-
-router = APIRouter(tags=["documents"])
-
-
-def service(request: Request):
-    return DocumentService(request.app.state.session_factory, request.app.state.settings)
-
-
-@router.get("/documents")
-async def list_documents(request: Request, reviewStatus: str | None = None, principal=Depends(current_principal)):
-    return await service(request).list(principal, reviewStatus)
+router = APIRouter(prefix='/documents',tags=['shared_documents'])
 
 
-@router.post("/documents", status_code=201)
-async def create_document(body: NewDocument, request: Request, principal=Depends(current_principal)):
-    return await service(request).create(principal, body)
+async def receive_upload(request, principal, file, title, metadata, document_id=None):
+    try:
+        body = await file.read(MAX_UPLOAD_BYTES + 1)
+        if not body or len(body) > MAX_UPLOAD_BYTES:
+            raise AppError(413,'source_too_large','0바이트가 아닌 20MB 이하 파일을 업로드해 주세요.')
+        try:
+            info = UploadInfo(title=title or file.filename or '문헌',metadata=SourceMetadata.model_validate_json(metadata))
+        except ValidationError as exc:
+            raise RequestValidationError(exc.errors()) from exc
+        return await request.app.state.services.documents.upload(principal,body,file.filename,info,document_id)
+    finally:
+        await file.close()
 
 
-@router.post("/documents/{document_id}/revisions", status_code=201)
-async def create_revision(document_id: str, body: NewRevision, request: Request, principal=Depends(current_principal)):
-    return await service(request).add_revision(principal, document_id, body)
+@router.post('',status_code=202)
+async def upload(request: Request, file: UploadFile = File(...), title: str | None = Form(None),
+                 metadata: str = Form('{}'), principal: Principal = Depends(current_principal)):
+    return await receive_upload(request,principal,file,title,metadata)
 
 
-@router.get("/documents/revisions/{revision_id}")
-async def revision(revision_id: str, request: Request, principal=Depends(current_principal)):
-    return await service(request).detail(principal, revision_id)
+@router.post('/{document_id}/revisions',status_code=202)
+async def revise(document_id: str, request: Request, file: UploadFile = File(...), title: str | None = Form(None),
+                 metadata: str = Form('{}'), principal: Principal = Depends(current_principal)):
+    return await receive_upload(request,principal,file,title,metadata,document_id)
 
 
-@router.post("/documents/revisions/{revision_id}/review")
-async def review(revision_id: str, body: ReviewRequest, request: Request, principal=Depends(current_principal)):
-    return await service(request).review(principal, revision_id, body)
+@router.get('')
+async def list_documents(request: Request, principal: Principal = Depends(current_principal)):
+    return await request.app.state.services.documents.list(principal)
 
 
-@router.patch("/documents/revisions/{revision_id}/metadata")
-async def metadata(revision_id: str, body: MetadataPatch, request: Request, principal=Depends(current_principal)):
-    return await service(request).patch_metadata(principal, revision_id, body)
+@router.get('/{document_id}')
+async def detail(document_id: str, request: Request, principal: Principal = Depends(current_principal)):
+    return await request.app.state.services.documents.detail(principal,document_id)
 
 
-@router.post("/documents/revisions/{revision_id}/attach")
-async def attach(revision_id: str, body: AttachRequest, request: Request, principal=Depends(current_principal)):
-    return {"attachmentId": await service(request).attach(principal, revision_id, body.conversation_id)}
+@router.get('/{document_id}/passages')
+async def passages(document_id: str, request: Request, revision_id: str | None = Query(None,alias='revisionId'),
+                   principal: Principal = Depends(current_principal)):
+    return await request.app.state.services.documents.source(principal,document_id,revision_id)
+
+
+@router.get('/{document_id}/raw')
+async def raw(document_id: str, request: Request, revision_id: str | None = Query(None,alias='revisionId'),
+              principal: Principal = Depends(current_principal)):
+    body,name,media_type = await request.app.state.services.documents.source(principal,document_id,revision_id,raw=True)
+    return Response(body,media_type=media_type,headers={
+        'Content-Disposition':"attachment; filename*=UTF-8''" + quote(name,safe=''),
+        'X-Content-Type-Options':'nosniff','Cache-Control':'no-store'})
+
+
+@router.post('/{document_id}/reprocess',status_code=202)
+async def reprocess(document_id: str, request: Request, principal: Principal = Depends(current_principal)):
+    return await request.app.state.services.documents.reprocess(principal,document_id)
+
+
+@router.post('/{document_id}/deactivate')
+async def deactivate(document_id: str, request: Request, principal: Principal = Depends(current_principal)):
+    return await request.app.state.services.documents.deactivate(principal,document_id)
