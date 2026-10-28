@@ -17,6 +17,9 @@ ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location('evaluation_server_support', ROOT / 'tests/foundation/conftest.py')
 support = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(support)
+# Register the existing fixture here. A second bare conftest module shadows
+# foundation helpers during combined collection under pytest's prepend mode.
+database_factory = support.database_factory
 DATASET = Path(__file__).with_name('cases.json')
 
 
