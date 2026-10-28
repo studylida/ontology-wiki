@@ -8,6 +8,27 @@ from .context import (conflict_companions, experiment_companions, prioritize_con
 from .entities import RetrievalRun
 
 
+def select_anchors(candidates, limit):
+    ranked = select_ranked_hits(candidates, limit=limit)['hits']
+    if any('rerankScore' in hit for hit in candidates):
+        return ranked
+    source = lambda hit: hit.get('lineageKey') or hit.get('documentId', hit['sourceRevisionId'])
+    chosen = {hit['passageId'] for hit in ranked}
+    for hit in candidates[:limit * 2]:
+        if hit['passageId'] in chosen or any(source(item) == source(hit) for item in ranked):
+            continue
+        duplicate = next((item for item in reversed(ranked)
+                          if sum(source(other) == source(item) for other in ranked) > 1), None)
+        # Trade only near-tied fusion scores; do not displace a clearly stronger passage.
+        if duplicate and duplicate.get('score', 0) > 0 and hit.get('score', 0) >= duplicate['score'] * .98:
+            ranked.remove(duplicate)
+            ranked.append(hit)
+            chosen.remove(duplicate['passageId'])
+            chosen.add(hit['passageId'])
+    order = {hit['passageId']: i for i, hit in reversed(list(enumerate(candidates)))}
+    return sorted(ranked, key=lambda hit: order[hit['passageId']])
+
+
 class RAGService:
     def __init__(self, sessions, settings, embedding_client, reranker=None):
         self.sessions, self.settings = sessions, settings
@@ -44,7 +65,7 @@ class RAGService:
                     # This is an optional refinement, not a failed source lookup.
                     reranking = {'status': 'fallback', 'code': getattr(exc, 'code', 'reranker_failed')}
                     warnings.append('선택적 재순위화가 실패하여 기본 검색 순위를 사용했습니다.')
-            selected = select_ranked_hits(candidates, limit=self.settings.retrieval_limit)['hits']
+            selected = select_anchors(candidates, self.settings.retrieval_limit)
             companions = experiment_companions(candidates, selected)
             companions += conflict_companions(candidates, [*selected, *companions])
             anchors = prioritize_conflict_notes([*selected, *companions])

@@ -7,6 +7,7 @@ import pytest
 from knowledge.core.errors import AppError
 from knowledge.documents.repository import select_ranked_hits
 from knowledge.integrations import rerank
+from knowledge.rag.service import select_anchors
 
 
 def hit(pid, document="a", publisher="large", text="본문"):
@@ -22,6 +23,24 @@ def test_selection_preserves_rerank_order_group_opportunity_and_document_diversi
     assert [h["passageId"] for h in chosen["hits"]] == ["b", "0", "1", "2", "c"]
     assert chosen["groupCoverage"] == [{"groupId": "small", "hitCount": 1, "status": "available"}]
     assert hits == original
+
+
+def test_anchors_offer_nearby_documents_space_without_promoting_distant_candidates():
+    hits = [hit('a1'), hit('a2'), hit('b1', 'b'), hit('b2', 'b'),
+            hit('c1', 'c'), hit('a3'), hit('b3', 'b'), hit('c2', 'c'), hit('d1', 'd')]
+    assert [h['passageId'] for h in select_anchors(hits, 4)] == ['a1', 'a2', 'b1', 'c1']
+    assert [h['passageId'] for h in select_anchors([hits[0], hits[0], hits[2]], 4)] == ['a1', 'b1']
+
+
+def test_anchors_preserve_strong_evidence_and_explicit_reranking():
+    hits = [hit('a1'), hit('a2'), hit('b1', 'b'), hit('c1', 'c')]
+    hits[0]['score'], hits[1]['score'], hits[2]['score'], hits[3]['score'] = .03, .029, .028, .01
+    assert [h['passageId'] for h in select_anchors(hits, 3)] == ['a1', 'a2', 'b1']
+    hits[3]['score'] = .0288
+    assert [h['passageId'] for h in select_anchors(hits, 3)] == ['a1', 'b1', 'c1']
+    for item, score in zip(hits, (10, 9, 8, -10)):
+        item['rerankScore'] = score
+    assert [h['passageId'] for h in select_anchors(hits, 3)] == ['a1', 'a2', 'b1']
 
 
 
