@@ -100,7 +100,7 @@ export function useWikiController(userId: string) {
   }
   function acceptLatestBase() {
     if (!latest || (editing && !latest.canEdit)) return;
-    setPage(latest); setBaseVersion(latest.version); clearPanels();
+    setPage(latest); setBaseVersion(latest.version); clearPanels(); refresh();
     setNotice(editing ? '비교한 최신 판본을 편집 기준으로 선택했습니다. 남겨둔 입력을 검토한 뒤 저장해 주세요.' :
       '최신 문서 상태를 확인했습니다. 필요한 작업을 다시 선택해 주세요.');
   }

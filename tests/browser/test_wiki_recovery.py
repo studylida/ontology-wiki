@@ -49,6 +49,7 @@ def test_restore_conflict_has_visible_latest_state_recovery(browser_app):
     expect(page.get_by_label('위키 본문', exact=True)).to_contain_text('동료의 세 번째 판본')
     assert app.database.query('SELECT count(*) AS n FROM wiki_revisions WHERE page_id=$1', pid)[0]['n'] == 3
     expect(page.get_by_label('이전 판본', exact=True)).to_have_count(0)
+    expect(page.get_by_role('button', name=re.compile('^RUL 검증 개념'))).to_contain_text('v3 · bob')
 
 
 def test_lost_save_acknowledgement_survives_browser_reload(browser_app):

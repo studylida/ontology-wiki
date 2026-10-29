@@ -100,6 +100,7 @@ it('recovers stale protection/restore without silently retrying the operation', 
   expect(hook.result.current.page).toEqual(locked);
   expect(hook.result.current.conflicted).toBe(false);
   expect(hook.result.current.historical).toBeNull();
+  await waitFor(() => expect(wikiRepository.list).toHaveBeenCalledTimes(2));
   expect(wikiRepository.mutate).toHaveBeenCalledTimes(1);
 });
 it('does not publish an error from an obsolete history request into a different page', async () => {
