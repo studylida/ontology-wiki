@@ -27,3 +27,5 @@
 .wiki-proposals blockquote {white-space:pre-wrap;max-height:180px;overflow:auto}
 .wiki-chat-proposal {position:fixed;inset:5vh 8vw;z-index:25;background:white;border:1px solid #c8d2dc;border-radius:14px;box-shadow:0 12px 60px #0003;padding:24px;overflow:auto}
 .wiki-proposals .source-panel {position:fixed;right:0;top:0;bottom:0;width:min(600px,90vw);background:white;z-index:30;overflow:auto}
+
+.wiki-proposals .proposal-field {display:grid;gap:5px}

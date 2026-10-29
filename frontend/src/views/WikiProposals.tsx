@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { useWikiProposals } from '../controllers/useWikiProposals';
 import { proposalLabel, proposalSource } from '../services/wikiProposalService';
 import type { ChatSeed } from '../types/wikiProposal';
@@ -9,18 +9,19 @@ import { SourcePanel } from './SourcePanel';
 import { WikiSearchPanel } from './WikiDiscovery';
 export function WikiProposals({userId, page, seed, onApplied}: {userId: string; page: WikiDetail | null; seed?: ChatSeed; onApplied?: (id:string)=>void}) {
   const c = useWikiProposals(userId, page, seed, onApplied), p = c.selected;
+  const fieldId = useId();
   const [source, setSource] = useState<SourceSelection | null>(null), [preview, setPreview] = useState(false);
   return <section className="wiki-proposals" aria-label="AI 위키 편집 보조">
     <h2>{page ? '이 문서의 AI 수정 제안' : 'AI로 새 개념 초안 만들기'}</h2>
     <p className="muted">제안은 본인과 대상 문서 관리자만 확인합니다. 직접 검토하고 반영하기 전에는 공용 위키·검색·Markdown에 공개되지 않습니다.</p>
     <details open={!!seed}><summary>AI에게 {page ? '부분 수정·링크' : '새 초안'} 요청</summary>
-      {seed && <><label>대화 메시지 원문 — 반영할 부분만 선택하세요<textarea readOnly rows={5} value={seed.content}
-        onSelect={e => {const t=e.currentTarget; if(t.selectionEnd>t.selectionStart)c.setContext(t.value.slice(t.selectionStart,t.selectionEnd));}} /></label>
+      {seed && <><div className="proposal-field"><label htmlFor={`${fieldId}-message`}>대화 메시지 원문 — 반영할 부분만 선택하세요</label><textarea id={`${fieldId}-message`} readOnly rows={5} value={seed.content}
+        onSelect={e => {const t=e.currentTarget; if(t.selectionEnd>t.selectionStart)c.setContext(t.value.slice(t.selectionStart,t.selectionEnd));}} /></div>
         <p>선택한 문장만 전달합니다. 대화 전체와 다른 메시지는 포함되지 않습니다.</p></>}
       <form onSubmit={e=>{e.preventDefault();c.submit();}}>
         {page && <label>제안 종류<select disabled={c.busy || !!c.pending} value={c.mode} onChange={e=>c.setMode(e.target.value as 'edit'|'links')}><option value="edit">필요한 부분 수정</option><option value="links">핵심 개념 링크만 제안</option></select></label>}
-        <label>AI 편집 요청<textarea maxLength={3000} rows={2} value={c.instruction} disabled={c.busy || !!c.pending} onChange={e=>c.setInstruction(e.target.value)} /></label>
-        <label>{seed ? '위키 반영 요청에 포함할 선택 문장' : '추가할 업무 경험·내용 (선택)'}<textarea maxLength={6000} rows={3} value={c.context} disabled={c.busy || !!c.pending} onChange={e=>c.setContext(e.target.value)} /></label>
+        <div className="proposal-field"><label htmlFor={`${fieldId}-instruction`}>AI 편집 요청</label><textarea id={`${fieldId}-instruction`} maxLength={3000} rows={2} value={c.instruction} disabled={c.busy || !!c.pending} onChange={e=>c.setInstruction(e.target.value)} /></div>
+        <div className="proposal-field"><label htmlFor={`${fieldId}-context`}>{seed ? '위키 반영 요청에 포함할 선택 문장' : '추가할 업무 경험·내용 (선택)'}</label><textarea id={`${fieldId}-context`} maxLength={6000} rows={3} value={c.context} disabled={c.busy || !!c.pending} onChange={e=>c.setContext(e.target.value)} /></div>
         {seed && <label><input type="checkbox" checked={c.confirmed} onChange={e=>c.setConfirmed(e.target.checked)}/> 선택 문장과 요청만 제안 검토용으로 전달하는 것을 확인했습니다.</label>}
         <button disabled={c.busy || !!c.pending || !c.instruction.trim() || (!!seed && (!c.confirmed || !c.context.trim() || !seed.content.includes(c.context)))}>AI 제안 요청</button>
       </form>
@@ -44,8 +45,8 @@ export function WikiProposals({userId, page, seed, onApplied}: {userId: string; 
         {p.result.similar.map(s=><p key={s.pageId}><a target="_blank" rel="noopener noreferrer" href={'/wiki/'+s.pageId}>{s.title}</a> — {s.meaning}</p>)}</div>}
       {p.status === 'ready' && c.draft && <form onSubmit={e=>{e.preventDefault();c.apply();}} aria-label="제안 반영 편집">
         <label>반영할 위키 제목<input maxLength={300} value={c.draft.title} disabled={c.busy || !!c.pending} onChange={e=>c.change('title',e.target.value)}/></label>
-        <label>반영할 Markdown<textarea rows={10} maxLength={100000} value={c.draft.markdown} disabled={c.busy || !!c.pending} onChange={e=>c.change('markdown',e.target.value)}/></label>
-        <label>반영할 근거·업무 맥락<textarea rows={2} maxLength={10000} value={c.draft.sourceNote} disabled={c.busy || !!c.pending} onChange={e=>c.change('sourceNote',e.target.value)}/></label>
+        <div className="proposal-field"><label htmlFor={`${fieldId}-markdown`}>반영할 Markdown</label><textarea id={`${fieldId}-markdown`} rows={10} maxLength={100000} value={c.draft.markdown} disabled={c.busy || !!c.pending} onChange={e=>c.change('markdown',e.target.value)}/></div>
+        <div className="proposal-field"><label htmlFor={`${fieldId}-source`}>반영할 근거·업무 맥락</label><textarea id={`${fieldId}-source`} rows={2} maxLength={10000} value={c.draft.sourceNote} disabled={c.busy || !!c.pending} onChange={e=>c.change('sourceNote',e.target.value)}/></div>
         {!page && <WikiSearchPanel draft={c.draft} disabled={c.busy} onNavigate={()=>{}}/>}
         <p className="notice">아래 반영 버튼을 누르면 위의 제목·본문·근거 메모가 공용 위키에 공개됩니다. 요청문과 개인 대화 원문은 자동 공개하지 않습니다.</p>
         <button type="button" onClick={()=>setPreview(v=>!v)}>반영 내용 미리보기</button>
