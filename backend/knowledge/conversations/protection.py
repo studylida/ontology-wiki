@@ -1,17 +1,10 @@
 """One display/history policy for stored messages, run detail and replay."""
-from knowledge.documents.repository import DocumentRepository
+from knowledge.evidence.access import EvidenceAccess
 from .dto import MessageView
 
 
 async def source_state(session, principal, revision_ids):
-    ids = set(revision_ids or [])
-    if not ids:
-        return 'current'
-    repository = DocumentRepository(session)
-    if not await repository.ensure_readable(principal, ids):
-        return 'unavailable'
-    active = set(await repository.resolve_snapshot(principal, list(ids)))
-    return 'current' if active == ids else 'historical'
+    return await EvidenceAccess(session).state(principal, revision_ids)
 
 
 async def visible_message(session, principal, message):

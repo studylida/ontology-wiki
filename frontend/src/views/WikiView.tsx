@@ -1,3 +1,4 @@
+import { WikiMarkdownDownload } from './WikiMarkdownDownload';
 import { useState } from 'react';
 import { useWikiController } from '../controllers/useWikiController';
 import { validWikiDraft } from '../services/wikiService';
@@ -12,7 +13,7 @@ export function WikiView({userId}: {userId: string}) {
   return <section className="wiki" aria-label="공용 위키">
     <header className="section-header"><div><p className="eyebrow">SHARED WIKI</p><h1>공용 위키</h1><p>개념과 업무 경험을 함께 기록하고 보강합니다.</p></div>
       <button className="primary" disabled={unavailable || wiki.editing} onClick={wiki.startNew}>새 위키 문서</button></header>
-    <p className="muted">모든 직원이 읽고 일반 문서를 편집할 수 있습니다. AI 편집과 채팅 검색 연동은 아직 제공하지 않습니다.</p>
+    <p className="muted">모든 직원이 읽고 일반 문서를 편집할 수 있습니다. 검색 준비가 끝나면 채팅의 근거로 활용합니다. AI 편집은 아직 제공하지 않습니다.</p>
     {wiki.error && <p role="alert" className="error">{wiki.error}</p>}{wiki.notice && <p role="status" className="notice">{wiki.notice}</p>}
     {wiki.storageWarning && <p className="notice" role="alert">{wiki.storageWarning}</p>}
     {wiki.pending && !wiki.busy && <div className="notice" role="alert"><p>{wiki.pending.receipt ?
@@ -54,6 +55,7 @@ export function WikiView({userId}: {userId: string}) {
         <header><h2>{page.title}</h2>{page.meaning && <p>{page.meaning}</p>}{!!page.aliases?.length && <p className="muted">다른 이름: {page.aliases.join(" · ")}</p>}<p className="muted">v{page.revisionNumber} · {page.locked ? '보호된 문서' : '공동 편집 가능'}</p>
           <p className="muted">작성 {page.creator.username} · {date(page.createdAt)}<br/>최근 본문 수정 {page.editor.username} · {date(page.revision.createdAt)}</p></header>
         <div className="actions">{page.canEdit && <button disabled={unavailable || wiki.conflicted} onClick={wiki.startEdit}>문서 편집</button>}
+          <WikiMarkdownDownload page={page} />
           <button disabled={unavailable} onClick={() => void wiki.showHistory()}>변경 이력</button>
           <button disabled={unavailable} onClick={() => void wiki.select(page.id)}>문서 새로고침</button>
           {page.canProtect && <button disabled={unavailable || wiki.conflicted} onClick={() => wiki.setConfirmProtect(true)}>{page.locked ? '문서 보호 해제' : '문서 보호'}</button>}</div>

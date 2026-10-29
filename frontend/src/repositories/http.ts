@@ -48,11 +48,13 @@ export async function http<T>(path: string, options: { method?: string; body?: u
 }
 export async function downloadSource(documentId: string, revisionId: string) {
   const blob = await http<Blob>(`/documents/${encodeURIComponent(documentId)}/raw?revisionId=${encodeURIComponent(revisionId)}`, { binary: true });
+  saveBlob(blob, `source-${documentId}-${revisionId}${blob.type.includes('pdf') ? '.pdf' : blob.type.includes('xml') ? '.xml' : blob.type.includes('markdown') ? '.md' : '.txt'}`);
+}
+export function saveBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  const extension = blob.type.includes('pdf') ? '.pdf' : blob.type.includes('xml') ? '.xml' : blob.type.includes('markdown') ? '.md' : '.txt';
-  link.download = `source-${documentId}-${revisionId}${extension}`;
+  link.download = filename;
   document.body.append(link);
   link.click(); link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);

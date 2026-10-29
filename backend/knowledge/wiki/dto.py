@@ -129,3 +129,21 @@ class RevisionComparison(DTO):
     before: RevisionView
     after: RevisionView
     diff: str
+
+
+class PageDeactivate(MutationRequest):
+    base_version: int = Field(ge=1, strict=True)
+
+
+class WikiSourceView(DTO):
+    source_kind: str = 'wiki'
+    page_id: str
+    revision_id: str
+    revision_number: int
+    active: bool
+    title: str
+    content: str
+    source_note: str
+    editor: AuthorView
+    created_at: datetime
+    passages: list[dict]

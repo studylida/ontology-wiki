@@ -9,7 +9,7 @@ from knowledge.core.errors import AppError
 from knowledge.conversations.entities import Message
 from knowledge.conversations.protection import source_state, visible_message
 from knowledge.conversations.repository import ConversationRepository
-from knowledge.documents.repository import DocumentRepository
+from knowledge.evidence.access import EvidenceAccess
 from knowledge.rag.entities import RetrievalRun
 from .repository import AnswerRepository
 from .runtime import RunRegistry
@@ -45,9 +45,10 @@ class AnswerService:
     async def check_live(self, principal, source_ids):
         if self._lease is None or self._lease.is_closed():
             raise AppError(503, 'execution_lease_lost', '실행 연결이 중단되었습니다. 자동으로 모델을 다시 호출하지 않습니다.', retryable=True)
-        await self.identity.refresh_principal(principal)
+        principal = await self.identity.refresh_principal(principal)
+        principal.require('conversations:read')
         async with self.sessions() as session:
-            if not await DocumentRepository(session).ensure_readable(principal, source_ids):
+            if not await EvidenceAccess(session).ensure_readable(principal, source_ids):
                 raise AppError(409, 'source_unavailable', '근거 문헌이 비활성화되어 실행을 중단했습니다.', retryable=True)
 
     @staticmethod

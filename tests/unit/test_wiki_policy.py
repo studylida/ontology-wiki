@@ -11,7 +11,7 @@ from knowledge.wiki.policy import can_edit, can_protect, require_edit, require_p
 @pytest.mark.parametrize('locked', [False, True])
 def test_flags_and_write_checks_share_policy(kind, role, locked):
     actor = Principal(id='actor', username='actor', kind=kind, role=role)
-    page = SimpleNamespace(is_locked=locked, version=3, current_revision_id='r3')
+    page = SimpleNamespace(is_locked=locked, withdrawn=False, version=3, current_revision_id='r3')
     employee, admin = kind == 'user', kind == 'user' and role == 'admin'
     editable = employee and (not locked or admin)
     assert is_employee(actor) == employee

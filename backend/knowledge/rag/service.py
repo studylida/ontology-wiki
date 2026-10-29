@@ -1,5 +1,9 @@
 """One internal retrieval policy: candidates, optional rerank, companions and neighbors."""
 from time import monotonic
+import hashlib
+from sqlalchemy.exc import SQLAlchemyError
+from knowledge.evidence.access import EvidenceAccess
+from knowledge.wiki.evidence import WikiEvidenceRepository
 from knowledge.core.errors import AppError
 from knowledge.core.ids import new_id
 from knowledge.documents.repository import DocumentRepository, select_ranked_hits
@@ -44,18 +48,43 @@ class RAGService:
         async with self.sessions() as session:
             revisions = await DocumentRepository(session).resolve_snapshot(principal)
         candidates, evidence, warnings, usage, reranking = [], [], [], {}, {'status': 'disabled'}
+        wiki_revisions = []
+        try:
+            async with self.sessions() as session:
+                wiki_revisions = await WikiEvidenceRepository(session).indexed_ids(principal)
+        except SQLAlchemyError as exc:
+            if not revisions:
+                raise AppError(503, 'wiki_retrieval_failed', '위키 검색 저장소에 접근하지 못했습니다.', retryable=True) from exc
+            warnings.append('위키 검색에 실패하여 이번 답변은 원문 근거만 사용합니다.')
         snapshot = None
-        if revisions:
+        if revisions or wiki_revisions:
             response = await self.embedding_client.embed([query])
             usage = response.usage
             async with self.sessions() as session:
                 repository = DocumentRepository(session)
                 found = await repository.search_candidates(principal, response.vectors[0],
                     self.embedding_client.profile_id, query, revisions,
-                    candidate_limit=self.settings.retrieval_candidate_limit)
-            candidates = found['hits']
+                    candidate_limit=self.settings.retrieval_candidate_limit) if revisions else {'hits': []}
+                # Wiki is optional enrichment: its repository failure is not 'no evidence'.
+            wiki_hits, wiki_error = [], False
+            if wiki_revisions:
+                try:
+                    async with self.sessions() as session:
+                        wiki_hits = await WikiEvidenceRepository(session).candidates(principal, query, response.vectors[0],
+                            self.embedding_client.profile_id, wiki_revisions, self.settings.retrieval_candidate_limit)
+                except SQLAlchemyError as exc:
+                    if not found['hits']:
+                        raise AppError(503, 'wiki_retrieval_failed', '위키 검색 저장소에 접근하지 못했습니다.', retryable=True) from exc
+                    wiki_error = True
+                    warnings.append('위키 검색에 실패하여 이번 답변은 원문 근거만 사용합니다.')
+            candidates = [{**h, 'sourceKind': 'document'} for h in found['hits']] + wiki_hits
+            if wiki_hits:
+                candidates.sort(key=lambda h: (-h.get('score', 0), h['passageId']))
+            candidates = candidates[:self.settings.retrieval_candidate_limit]
             warnings.extend(found.get('warnings', []))
             snapshot = found.get('indexSnapshotId')
+            if wiki_revisions and not wiki_error:
+                snapshot = 'mix-' + hashlib.sha256('|'.join(sorted([*revisions, *wiki_revisions])).encode()).hexdigest()[:24]
             candidates, reranking, rerank_warnings = await optional_rerank(self.reranker, query, candidates)
             warnings.extend(rerank_warnings)
             selected = select_anchors(candidates, self.settings.retrieval_limit)
@@ -64,7 +93,10 @@ class RAGService:
             anchors = prioritize_conflict_notes([*selected, *companions])
             async with self.sessions() as session:
                 neighbors = await DocumentRepository(session).get_neighbors(
-                    principal, [h['passageId'] for h in anchors], revisions)
+                    principal, [h['passageId'] for h in anchors if h.get('sourceKind') != 'wiki'], revisions)
+                if wiki_hits:
+                    neighbors += await WikiEvidenceRepository(session).neighbors(principal,
+                        [h['passageId'] for h in anchors if h.get('sourceKind') == 'wiki'], wiki_revisions)
             evidence = select_context([*anchors, *neighbors], self.settings.context_max_characters)
             if len({h['passageId'] for h in [*anchors, *neighbors]}) > len(evidence):
                 warnings.append('문맥 예산 때문에 일부 후보 구간은 답변 모델에 전달하지 않았습니다.')
@@ -75,7 +107,7 @@ class RAGService:
             'embeddingProfile': self.embedding_client.profile_id, 'indexSnapshotId': snapshot,
             'sourceRevisionIds': sorted({h['sourceRevisionId'] for h in evidence}),
             'evidence': evidence, 'contextCharacters': len(serialized_evidence(evidence)),
-            'candidates': [{k: h[k] for k in ('passageId', 'sourceRevisionId', 'score', 'cosineDistance', 'rerankScore', 'methods') if k in h}
+            'candidates': [{k: h[k] for k in ('sourceKind', 'pageId', 'passageId', 'sourceRevisionId', 'score', 'cosineDistance', 'rerankScore', 'methods') if k in h}
                            for h in candidates],
             'reranking': reranking, 'warnings': warnings, 'usage': usage,
             'elapsedMs': round((monotonic() - started) * 1000, 2),
@@ -83,7 +115,7 @@ class RAGService:
         run_id = new_id('ret')
         async with self.sessions() as session, session.begin():
             # Recheck before preserving the context as usable evidence.
-            active = await DocumentRepository(session).resolve_snapshot(principal, result['sourceRevisionIds'])
+            active = await EvidenceAccess(session).current_ids(principal, result['sourceRevisionIds'])
             if set(active) != set(result['sourceRevisionIds']):
                 raise AppError(409, 'source_changed', '검색 중 문헌 상태가 변경되었습니다. 다시 질문해 주세요.', retryable=True)
             session.add(RetrievalRun(id=run_id, owner_id=principal.id, conversation_id=conversation_id,

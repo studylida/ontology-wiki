@@ -19,12 +19,12 @@ class WikiRepository:
         await self.session.execute(text('SELECT pg_advisory_xact_lock(:key)'), {'key': key})
         return await self.session.get(WikiMutation, (actor_id, request_id))
 
-    async def get(self, page_id, *, lock=False):
+    async def get(self, page_id, *, lock=False, include_withdrawn=False):
         stmt = select(WikiPage).where(WikiPage.id == page_id)
         if lock:
             stmt = stmt.with_for_update()
         page = await self.session.scalar(stmt)
-        if page is None:
+        if page is None or (page.withdrawn and not include_withdrawn):
             raise AppError(404, 'wiki_not_found', '위키 문서를 찾을 수 없습니다.')
         return page
 
@@ -32,7 +32,7 @@ class WikiRepository:
         creator, editor = aliased(User), aliased(User)
         return select(WikiPage, WikiRevision, creator, editor).join(
             WikiRevision, (WikiRevision.page_id == WikiPage.id) & (WikiRevision.id == WikiPage.current_revision_id)
-        ).join(creator, creator.id == WikiPage.creator_id).join(editor, editor.id == WikiRevision.editor_id)
+        ).join(creator, creator.id == WikiPage.creator_id).join(editor, editor.id == WikiRevision.editor_id).where(WikiPage.withdrawn.is_(False))
 
     async def detail(self, page_id):
         row = (await self.session.execute(self._page_query().where(WikiPage.id == page_id))).first()
@@ -45,12 +45,13 @@ class WikiRepository:
         stmt = self._page_query().where(predicate)
         rows = (await self.session.execute(stmt.order_by(WikiPage.updated_at.desc(), WikiPage.id).offset(offset).limit(limit))).all()
         total = await self.session.scalar(select(func.count()).select_from(WikiPage).join(
-            WikiRevision, WikiRevision.id == WikiPage.current_revision_id).where(predicate))
+            WikiRevision, WikiRevision.id == WikiPage.current_revision_id).where(predicate, WikiPage.withdrawn.is_(False)))
         return rows, total
 
     async def revision(self, page_id, revision_id):
         row = (await self.session.execute(select(WikiRevision, User).join(User, User.id == WikiRevision.editor_id)
-            .where(WikiRevision.page_id == page_id, WikiRevision.id == revision_id))).first()
+            .join(WikiPage, WikiPage.id == WikiRevision.page_id)
+            .where(WikiRevision.page_id == page_id, WikiRevision.id == revision_id, WikiPage.withdrawn.is_(False)))).first()
         if row is None:
             raise AppError(404, 'wiki_revision_not_found', '이 문서의 판본을 찾을 수 없습니다.')
         return row
@@ -101,4 +102,13 @@ class WikiRepository:
     async def remember(self, actor_id, request_id, digest, page, result):
         self.session.add(WikiMutation(actor_id=actor_id, request_id=request_id, payload_hash=digest,
             page_id=page.id, result=result, created_at=utcnow()))
+        await self.session.flush()
+
+
+    async def withdraw(self, page):
+        page.withdrawn = True
+        page.updated_at = utcnow()
+        page.version += 1
+        from .index_repository import WikiIndexRepository
+        await WikiIndexRepository(self.session).cancel(page.id)
         await self.session.flush()

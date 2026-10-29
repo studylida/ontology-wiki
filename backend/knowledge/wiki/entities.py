@@ -13,6 +13,7 @@ class WikiPage(Base):
     current_revision_id: Mapped[str] = mapped_column(String(80))
     version: Mapped[int] = mapped_column(Integer)
     indexed_revision_id: Mapped[str | None] = mapped_column(String(80))
+    withdrawn: Mapped[bool] = mapped_column(Boolean, default=False)
     is_locked: Mapped[bool] = mapped_column(Boolean, default=False)
     protection_updated_by: Mapped[str | None] = mapped_column(ForeignKey('knowledge_users.id'))
     protection_updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

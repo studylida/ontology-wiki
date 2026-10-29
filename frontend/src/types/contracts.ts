@@ -1,16 +1,21 @@
 export interface User { id: string; username: string; role: string; kind: string; permissions: string[] }
 export interface PublicError { code: string; message: string; retryable?: boolean; phase?: string }
 export type RunStatus = 'accepted' | 'retrieving' | 'generating' | 'completed' | 'failed' | 'cancelled' | 'interrupted';
-export interface Citation {
-  id: string; passageId: string; sourceRevisionId: string; documentId: string;
+interface CitationBase {
+  id: string; passageId: string; sourceRevisionId: string;
   title: string; locator: string; excerpt: string; number: number;
 }
+export type Citation = CitationBase & (
+  | {sourceKind?: 'document'; documentId: string}
+  | {sourceKind: 'wiki'; pageId: string; revisionNumber?: number; sourceNote?: string}
+);
 export function isCitation(value: unknown): value is Citation {
   if (!value || typeof value !== 'object') return false;
-  const c = value as Citation;
-  return ['id', 'passageId', 'sourceRevisionId', 'documentId', 'title', 'locator', 'excerpt'].every(
-    key => typeof (c as unknown as Record<string, unknown>)[key] === 'string') &&
-    c.id === c.passageId && c.id.length > 0 && Number.isSafeInteger(c.number) && c.number > 0;
+  const c = value as Record<string, unknown>;
+  const identity = c.sourceKind === 'wiki' ? typeof c.pageId === 'string' && !!c.pageId && !c.documentId
+    : (c.sourceKind === undefined || c.sourceKind === 'document') && typeof c.documentId === 'string' && !!c.documentId;
+  return identity && ['id', 'passageId', 'sourceRevisionId', 'title', 'locator', 'excerpt'].every(key => typeof c[key] === 'string') &&
+    c.id === c.passageId && !!c.id && Number.isSafeInteger(c.number) && (c.number as number) > 0;
 }
 export interface Message {
   id: string; role: 'user' | 'assistant'; content: string; createdAt: string;
@@ -51,5 +56,15 @@ export interface SharedDocument {
 export interface Passage { id: string; ordinal: number; text: string; locator: string;
   startOffset: number; endOffset: number; excluded: boolean; exclusionReason: string | null }
 export interface Source { documentId: string; revisionId: string; active: boolean; content: string | null; passages: Passage[] }
-export interface SourceSelection { documentId: string; revisionId: string; title: string; citation?: Citation }
+export type SourceSelection = {revisionId: string; title: string; citation?: Citation} & (
+  | {sourceKind?: 'document'; documentId: string}
+  | {sourceKind: 'wiki'; pageId: string}
+);
+export interface WikiSource {
+  sourceKind: 'wiki'; pageId: string; revisionId: string; revisionNumber: number;
+  title: string; active: boolean; content: string; sourceNote: string;
+  editor: {id: string; username: string}; createdAt: string; passages: Passage[];
+}
+export type EvidenceSource = Source | WikiSource;
+
 export interface UploadReceipt { documentId: string; revisionId: string; status: string; searchable: boolean; duplicate: boolean }

@@ -80,7 +80,7 @@ class WikiService:
 
     async def mutate(self, principal, operation, body, page_id=None):
         require_read(principal)
-        if operation == 'protect':
+        if operation in ('protect', 'deactivate'):
             require_protect(principal)
         content = body.model_dump(mode='json', exclude={'request_id'})
         # Preserve receipts for unchanged Stage-1 commands across the additive upgrade.
@@ -111,11 +111,13 @@ class WikiService:
                         source, _ = await repo.revision(page.id, body.revision_id)
                         await repo.append(page, principal.id, title=source.title, markdown=source.markdown,
                             source_note=source.source_note, summary=f'v{source.number} 복구', aliases=source.aliases, meaning=source.meaning, restored_from=source.id)
+                    elif operation == 'deactivate':
+                        await repo.withdraw(page)
                     elif operation == 'protect':
                         await repo.protect(page, principal.id, body.locked)
                     else:
                         raise ValueError('Unknown wiki mutation')
-                if operation != 'protect':
+                if operation not in ('protect', 'deactivate'):
                     from .index_repository import WikiIndexRepository
                     await WikiIndexRepository(session).enqueue(page)
                 result = MutationResult(page_id=page.id, revision_id=page.current_revision_id, version=page.version)
@@ -125,3 +127,29 @@ class WikiService:
         except SQLAlchemyError as exc:
             # Rollback has completed. Do not leak SQL parameters or return success on failed commit.
             raise AppError(503, 'wiki_storage_failed', '위키 저장을 완료하지 못했습니다. 같은 요청으로 다시 확인해 주세요.', retryable=True) from exc
+
+
+    async def source(self, principal, page_id, revision_id=None):
+        from .dto import WikiSourceView
+        from .index_repository import WikiIndexRepository
+        require_read(principal)
+        async with self.sessions() as session:
+            repo = WikiRepository(session)
+            # Short DB snapshot only. No provider or network call under this lock.
+            page = await repo.get(page_id, lock=True)
+            revision, editor = await repo.revision(page_id, revision_id or page.current_revision_id)
+            passages = await WikiIndexRepository(session).passages(revision.id, all_passages=True)
+            return WikiSourceView(page_id=page.id, revision_id=revision.id, revision_number=revision.number,
+                active=page.current_revision_id == revision.id, title=revision.title, content=revision.markdown,
+                source_note=revision.source_note, editor=AuthorView(id=editor.id, username=editor.username),
+                created_at=revision.created_at, passages=[{
+                    'id': p.id, 'ordinal': p.ordinal, 'text': p.text, 'locator': p.locator,
+                    'startOffset': p.start_offset, 'endOffset': p.end_offset, 'excluded': p.excluded,
+                    'exclusionReason': p.exclusion_reason} for p in passages])
+
+    async def markdown(self, principal, page_id, revision_id=None):
+        require_read(principal)
+        async with self.sessions() as session:
+            repo = WikiRepository(session)
+            page = await repo.get(page_id, lock=True)
+            return revision_view(*(await repo.revision(page_id, revision_id or page.current_revision_id)))

@@ -5,7 +5,7 @@ import re
 from time import monotonic
 from knowledge.core.errors import AppError
 from knowledge.conversations.protection import source_state
-from knowledge.documents.repository import DocumentRepository
+from knowledge.evidence.access import EvidenceAccess
 from .citations import CitationNormalizer
 from .prompt import build_messages
 from .repository import AnswerRepository
@@ -16,7 +16,7 @@ async def persist(service, runtime, *, status=None, retrieval_id=None, error=Non
         events = list(runtime.pending)
         try:
             async with service.sessions() as session, session.begin():
-                if status == 'completed' and not await DocumentRepository(session).ensure_readable(
+                if status == 'completed' and not await EvidenceAccess(session).ensure_readable(
                         None, runtime.source_ids, lock=True):
                     raise AppError(409, 'source_unavailable', '답변 중 근거 문헌이 비활성화되었습니다.', retryable=True)
                 await AnswerRepository(session).persist(runtime.run_id, runtime.epoch,

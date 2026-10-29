@@ -7,6 +7,7 @@ import { LoginView } from './views/LoginView';
 import { ConversationView } from './views/ConversationView';
 import { DocumentsView } from './views/DocumentsView';
 import { SourcePanel } from './views/SourcePanel';
+import { sourceKey, sourceSelection } from './services/sourceService';
 import { currentWikiPage, onWikiNavigation } from './repositories/wikiNavigation';
 import { WikiView } from './views/WikiView';
 function Workspace({user, logout}: {user: User; logout: () => void}) {
@@ -17,8 +18,7 @@ function Workspace({user, logout}: {user: User; logout: () => void}) {
   const [source, setSource] = useState<SourceSelection | null>(null);
   useEffect(() => setSource(null), [chat.selected]);
   const documentsChanged = useCallback(() => {setSource(null); chat.refresh();}, [chat.refresh]);
-  const showCitation = useCallback((citation: Citation) => setSource({documentId: citation.documentId,
-    revisionId: citation.sourceRevisionId, title: citation.title, citation}), []);
+  const showCitation = useCallback((citation: Citation) => setSource(sourceSelection(citation)), []);
   return <div className={`workspace ${source ? 'with-source' : ''}`}>
     <aside className="sidebar"><div className="brand"><BookOpen aria-hidden="true" /><strong>사내 지식<br/>어시스턴트</strong></div>
       <button className="primary" disabled={chat.busy} onClick={() => {setTab('chat'); setSource(null); void chat.create();}}>새 대화</button>
@@ -31,7 +31,7 @@ function Workspace({user, logout}: {user: User; logout: () => void}) {
     </aside>
     <main className="main-content">{tab === 'chat' && <ConversationView chat={chat} onCitation={showCitation} />}{tab === 'documents' && <DocumentsView onMutation={documentsChanged} onSource={setSource} />}
       {wikiOpened && <div className="wiki-host" hidden={tab !== 'wiki'}><WikiView userId={user.id} /></div>}</main>
-    {source && <SourcePanel key={`${source.documentId}:${source.revisionId}:${source.citation?.passageId || ''}`} selection={source} onClose={() => setSource(null)} />}
+    {source && <SourcePanel key={sourceKey(source)} selection={source} onClose={() => setSource(null)} />}
   </div>;
 }
 export default function App() {

@@ -67,7 +67,8 @@ def create_app(settings=None, session_factory=None, *, embedding_client=None, ge
     app.add_middleware(CORSMiddleware,
         allow_origins=[o.strip() for o in settings.cors_origins.split(',') if o.strip()],
         allow_credentials=False, allow_methods=['GET', 'POST', 'PATCH'],
-        allow_headers=['Authorization', 'Content-Type', 'Last-Event-ID'])
+        allow_headers=['Authorization', 'Content-Type', 'Last-Event-ID'],
+        expose_headers=['X-Wiki-Page-Id', 'X-Wiki-Revision-Id', 'X-Wiki-Revision-Number', 'X-Content-SHA256', 'ETag', 'Link'])
     install_error_handlers(app)
 
     @app.middleware('http')

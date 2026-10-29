@@ -15,7 +15,7 @@ class WikiSearchRepository:
 
     def _pages(self, exclude=None):
         stmt = select(WikiPage, WikiRevision).join(WikiRevision, and_(
-            WikiRevision.page_id == WikiPage.id, WikiRevision.id == WikiPage.current_revision_id))
+            WikiRevision.page_id == WikiPage.id, WikiRevision.id == WikiPage.current_revision_id)).where(WikiPage.withdrawn.is_(False))
         return stmt.where(WikiPage.id != exclude) if exclude else stmt
 
     def _passages(self, exclude=None):
@@ -24,7 +24,7 @@ class WikiSearchRepository:
                 WikiRevision.page_id == WikiPage.id, WikiRevision.id == WikiPage.current_revision_id,
                 WikiRevision.id == WikiPage.indexed_revision_id)).join(WikiIndexJob,
                 WikiIndexJob.revision_id == WikiRevision.id).where(
-                WikiPassage.excluded.is_(False), WikiIndexJob.status == 'succeeded')
+                WikiPassage.excluded.is_(False), WikiIndexJob.status == 'succeeded', WikiPage.withdrawn.is_(False))
         return stmt.where(WikiPage.id != exclude) if exclude else stmt
 
     async def alternatives(self, page_id, limit=12):
@@ -41,7 +41,7 @@ class WikiSearchRepository:
         stmt = stmt.where(WikiPassageEmbedding.profile_id == profile, WikiIndexJob.profile_id == profile).limit(1)
         return (await self.session.execute(stmt)).first() is not None
 
-    async def candidates(self, query, vector, profile, *, name_query=None, exclude=None, limit=60):
+    async def candidates(self, query, vector, profile, *, name_query=None, exclude=None, limit=60, passages_only=False):
         terms, key = query_terms(query), name_key(name_query or query)
         # Names remain discoverable immediately, even before the index worker runs.
         names_text = func.lower(cast(WikiRevision.aliases, Text))
@@ -50,7 +50,7 @@ class WikiSearchRepository:
                  for t in terms]
         exact = WikiRevision.name_keys.contains([key])
         score = sum((case((condition, 1), else_=0) for condition in tests), case((exact, 5), else_=0))
-        names = (await self.session.execute(self._pages(exclude).add_columns(score)
+        names = [] if passages_only else (await self.session.execute(self._pages(exclude).add_columns(score)
             .where(or_(exact, *tests)).order_by(score.desc(), WikiPage.id).limit(limit))).all()
         lexical, vectors = [], []
         if terms:

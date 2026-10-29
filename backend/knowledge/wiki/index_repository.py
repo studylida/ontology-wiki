@@ -38,7 +38,7 @@ class WikiIndexRepository:
         snapshot = await self.session.get(WikiIndexJob, job_id)
         if not snapshot:
             raise AppError(404, 'wiki_job_missing', '위키 색인 작업을 찾을 수 없습니다.')
-        page = await WikiRepository(self.session).get(snapshot.page_id, lock=True)
+        page = await WikiRepository(self.session).get(snapshot.page_id, lock=True, include_withdrawn=True)
         job = await self.session.get(WikiIndexJob, job_id, with_for_update=True, populate_existing=True)
         revision = await self.session.get(WikiRevision, job.revision_id)
         return page, revision, job
@@ -47,7 +47,7 @@ class WikiIndexRepository:
     def valid(page, revision, job):
         if job.status != 'running':
             return False
-        if page.current_revision_id != revision.id:
+        if page.withdrawn or page.current_revision_id != revision.id:
             job.status, job.updated_at = 'superseded', utcnow()
             return False
         return True
@@ -84,3 +84,9 @@ class WikiIndexRepository:
         if job.status == 'failed' or (job.status == 'succeeded' and job.profile_id != profile):
             job.status, job.error, job.progress, job.updated_at = 'pending', None, {'phase': 'queued'}, utcnow()
         return job
+
+
+    async def cancel(self, page_id):
+        await self.session.execute(update(WikiIndexJob).where(WikiIndexJob.page_id == page_id,
+            WikiIndexJob.status.in_(['pending', 'running'])).values(status='cancelled', updated_at=utcnow(),
+            error={'code': 'wiki_withdrawn', 'message': '위키가 비활성화되었습니다.', 'retryable': False}))

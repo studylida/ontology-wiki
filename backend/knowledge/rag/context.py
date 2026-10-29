@@ -48,7 +48,7 @@ def conflict_companions(ranked, selected):
 
 def prompt_evidence(evidence):
     fields = ('alias', 'passageId', 'sourceRevisionId', 'title', 'locator', 'text',
-              'author', 'publisher', 'publishedAt', 'sourceType', 'documentForm', 'readScope')
+              'author', 'publisher', 'publishedAt', 'sourceType', 'documentForm', 'readScope', 'sourceKind', 'pageId', 'revisionNumber', 'sourceNote', 'editorId')
     return [{key: hit[key] for key in fields if key in hit} for hit in evidence]
 
 
@@ -73,5 +73,5 @@ def select_context(hits, max_characters):
 
 def citation(hit):
     fields = ('passageId', 'sourceRevisionId', 'documentId', 'title', 'locator', 'excerpt',
-              'author', 'publisher', 'publishedAt', 'sourceType', 'documentForm', 'readScope')
+              'author', 'publisher', 'publishedAt', 'sourceType', 'documentForm', 'readScope', 'sourceKind', 'pageId', 'revisionNumber', 'sourceNote', 'editorId')
     return {'id': hit['passageId'], **{key: hit[key] for key in fields if key in hit}}

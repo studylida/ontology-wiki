@@ -61,7 +61,7 @@ def select_ranked_hits(hits, source_groups=None, limit=12, *, per_document_limit
 
 def citation_dict(passage, revision, document):
     meta = revision.metadata_json
-    return {'id': passage.id, 'passageId': passage.id, 'sourceRevisionId': revision.id,
+    return {'sourceKind': 'document', 'id': passage.id, 'passageId': passage.id, 'sourceRevisionId': revision.id,
             'documentId': document.id, 'title': revision.title, 'locator': passage.locator,
             'excerpt': passage.text, 'readScope': revision.read_scope,
             **{k: meta.get(k) for k in ('publisher','publisherId','author','sourceType','documentForm','publishedAt','url','lineageKey')}}

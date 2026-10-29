@@ -14,7 +14,7 @@ def can_protect(principal: Principal) -> bool:
 
 
 def can_edit(principal: Principal, page: WikiPage) -> bool:
-    return is_employee(principal) and (not page.is_locked or can_protect(principal))
+    return is_employee(principal) and not page.withdrawn and (not page.is_locked or can_protect(principal))
 
 
 def require_edit(principal: Principal, page: WikiPage) -> None:

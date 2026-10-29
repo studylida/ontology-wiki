@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query, Request
 from ..identity.dependencies import current_principal
-from .dto import (MutationResult, PageCreate, PageDetail, PageEdit, PageList, PageProtection,
+from .dto import (MutationResult, PageDeactivate, PageCreate, PageDetail, PageEdit, PageList, PageProtection,
                   PageRestore, RevisionComparison, RevisionList, RevisionView)
 
 router = APIRouter(prefix='/wiki/pages', tags=['shared wiki'])
@@ -53,3 +53,31 @@ async def restore(page_id: str, body: PageRestore, request: Request, principal=D
 @router.patch('/{page_id}/protection', response_model=MutationResult)
 async def protect(page_id: str, body: PageProtection, request: Request, principal=Depends(current_principal)):
     return await request.app.state.services.wiki.mutate(principal, 'protect', body, page_id)
+
+
+@router.get('/{page_id}/passages')
+async def source(page_id: str, request: Request, revision_id: str | None = Query(default=None, alias='revisionId', max_length=80),
+                 principal=Depends(current_principal)):
+    return (await request.app.state.services.wiki.source(principal, page_id, revision_id)).public()
+
+
+@router.get('/{page_id}/markdown')
+async def markdown(page_id: str, request: Request, revision_id: str | None = Query(default=None, alias='revisionId', max_length=80),
+                   principal=Depends(current_principal)):
+    import hashlib
+    from fastapi.responses import Response
+    revision = await request.app.state.services.wiki.markdown(principal, page_id, revision_id)
+    # No frontmatter, normalization or HTML wrapper: exactly this stored revision's UTF-8 bytes.
+    body = revision.markdown.encode('utf-8')
+    digest = hashlib.sha256(body).hexdigest()
+    return Response(body, media_type='text/markdown; charset=utf-8', headers={
+        'X-Content-Type-Options': 'nosniff', 'X-Wiki-Page-Id': revision.page_id,
+        'X-Wiki-Revision-Id': revision.id, 'X-Wiki-Revision-Number': str(revision.number),
+        'X-Content-SHA256': digest, 'ETag': '"' + revision.id + '-' + digest + '"',
+        'Link': '</api/v1/wiki/pages/' + revision.page_id + '/revisions/' + revision.id + '>; rel="describedby"',
+        'Content-Disposition': 'attachment; filename="wiki-' + revision.page_id + '-' + revision.id + '.md"'})
+
+
+@router.post('/{page_id}/deactivate', response_model=MutationResult)
+async def deactivate(page_id: str, body: PageDeactivate, request: Request, principal=Depends(current_principal)):
+    return await request.app.state.services.wiki.mutate(principal, 'deactivate', body, page_id)
