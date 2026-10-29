@@ -22,7 +22,7 @@ def test_real_login_schema_and_health(application):
     assert response.status_code == 200
     assert set(response.json()['capabilities']) == {'authentication','private_conversations','message_storage','shared_document_upload','automatic_indexing','grounded_answers','durable_answer_events','shared_wiki'}
     tables = {r['tablename'] for r in application.database.query("SELECT tablename FROM pg_tables WHERE schemaname='public'")}
-    assert tables == CORE_TABLES | DOCUMENT_TABLES | ANSWER_TABLES | {'wiki_pages','wiki_revisions','wiki_mutations','wiki_index_jobs','wiki_passages','wiki_passage_embeddings','knowledge_schema_migrations'}
+    assert tables == CORE_TABLES | DOCUMENT_TABLES | ANSWER_TABLES | {'wiki_pages','wiki_revisions','wiki_mutations','wiki_index_jobs','wiki_passages','wiki_passage_embeddings','wiki_proposals','knowledge_schema_migrations'}
     columns = {r['column_name'] for r in application.database.query("SELECT column_name FROM information_schema.columns WHERE table_schema='public'")}
     assert not columns.intersection({'auto_wiki','response_mode','extended','next_settings','review_status'})
     me = application.server.request('GET','/auth/me',token=application.tokens['alice'])
@@ -94,7 +94,7 @@ def test_blank_patch_rejected_and_default_title_works(application):
     response = server.request('POST','/conversations',token=token,json={})
     assert response.status_code == 201 and response.json()['title'] == '새 대화'
     for body in ({},{'title':None},{'title':' '},{'autoWiki':False}):
-        assert server.request('PATCH','/conversations/'+response.json()['id'],token=token,json=body).status_code == 422
+        assert server.request('PATCH',f'/conversations/{response.json()["id"]}',token=token,json=body).status_code == 422
 
 
 def test_migration_is_idempotent_and_target_is_explicit(application):
@@ -147,7 +147,7 @@ from knowledge.main import app
 from knowledge.registry import load_entities
 from knowledge.core.database import Base
 load_entities()
-assert set(Base.metadata.tables) == {'knowledge_users','conversations','messages','documents','document_revisions','passages','embedding_records','passage_embeddings','processing_jobs','retrieval_runs','answer_runs','answer_event_batches','wiki_pages','wiki_revisions','wiki_mutations','wiki_index_jobs','wiki_passages','wiki_passage_embeddings'}
+assert set(Base.metadata.tables) == {'knowledge_users','conversations','messages','documents','document_revisions','passages','embedding_records','passage_embeddings','processing_jobs','retrieval_runs','answer_runs','answer_event_batches','wiki_pages','wiki_revisions','wiki_mutations','wiki_index_jobs','wiki_passages','wiki_passage_embeddings','wiki_proposals'}
 for prefix in ('knowledge.personal_wiki','knowledge.research','knowledge.ontology','knowledge.jobs.worker','knowledge.integrations.public_fetch'):
     assert not any(name == prefix or name.startswith(prefix+'.') for name in sys.modules), prefix
 '''

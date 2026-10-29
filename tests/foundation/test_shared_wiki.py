@@ -214,7 +214,7 @@ def test_additive_upgrade_preserves_existing_chat_database(database_factory):
         env = {**os.environ, 'PYTHONPATH': str(ROOT / 'backend'), 'OW_DATABASE_URL': database.url}
         import json
         result = json.loads(cli(env, 'migrate', '--database-name', database.name).stdout)
-        assert result['applied'] == ['004_shared_wiki.sql', '005_wiki_discovery.sql', '006_wiki_publication.sql']
+        assert result['applied'] == ['004_shared_wiki.sql', '005_wiki_discovery.sql', '006_wiki_publication.sql', '007_wiki_proposals.sql']
         assert database.query("SELECT content FROM messages WHERE id='upgrade-message'") == [{'content': '보존할 기존 질문'}]
-        assert database.query("SELECT version,sha256 FROM knowledge_schema_migrations WHERE version NOT IN ('004_shared_wiki.sql','005_wiki_discovery.sql','006_wiki_publication.sql') ORDER BY version") == old
+        assert database.query("SELECT version,sha256 FROM knowledge_schema_migrations WHERE version NOT IN ('004_shared_wiki.sql','005_wiki_discovery.sql','006_wiki_publication.sql','007_wiki_proposals.sql') ORDER BY version") == old
         assert database.query('SELECT count(*) AS n FROM wiki_pages') == [{'n': 0}]

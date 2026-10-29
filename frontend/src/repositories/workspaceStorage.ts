@@ -1,3 +1,4 @@
+import { isProposalPending, type ProposalPending } from '../types/wikiProposal';
 import type { Submission } from '../types/contracts';
 import { isWikiPending, type WikiPending } from '../types/wiki';
 
@@ -33,6 +34,7 @@ export function clearWorkspace(userId: string) {
   sessionStorage.removeItem(PREFIX + userId + '.conversation');
   sessionStorage.removeItem(PREFIX + userId + '.pending');
   sessionStorage.removeItem(PREFIX + userId + '.wiki-pending');
+  sessionStorage.removeItem(PREFIX + userId + '.wiki-proposal-pending');
 }
 export function newRequestId(): string {
   return crypto.randomUUID();
@@ -51,4 +53,14 @@ export function savePendingWikiMutation(userId: string, pending: WikiPending | n
     else sessionStorage.removeItem(key);
     return true;
   } catch { return false; } // The controller warns; never pretend refresh recovery was persisted.
+}
+
+export function pendingProposal(userId: string): ProposalPending | null {
+  try {const raw: unknown = JSON.parse(sessionStorage.getItem(PREFIX + userId + '.wiki-proposal-pending') || 'null');
+    return isProposalPending(raw) ? raw : null;} catch {return null;}
+}
+export function savePendingProposal(userId: string, value: ProposalPending | null): boolean {
+  try {const key = PREFIX + userId + '.wiki-proposal-pending';
+    if (value) sessionStorage.setItem(key, JSON.stringify(value)); else sessionStorage.removeItem(key);
+    return true;} catch {return false;}
 }

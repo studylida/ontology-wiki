@@ -45,3 +45,11 @@ class ConversationRepository:
         self.session.add(message)
         await self.session.flush()
         return message
+
+    async def message_for_owner(self, conversation_id, message_id, owner_id):
+        await self.owned(conversation_id, owner_id)
+        message = await self.session.scalar(select(Message).where(Message.id == message_id,
+            Message.conversation_id == conversation_id))
+        if message is None:
+            raise AppError(404, 'MESSAGE_NOT_FOUND', '대화 메시지를 찾을 수 없습니다.')
+        return message

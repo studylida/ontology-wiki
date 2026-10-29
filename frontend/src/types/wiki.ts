@@ -1,5 +1,6 @@
 export type WikiAuthor = {id: string; username: string};
 export type WikiRevisionSummary = {
+  aiAssisted?: boolean; provenance?: Record<string, unknown>;
   id: string; pageId: string; number: number; title: string; changeSummary: string;
   editor: WikiAuthor; createdAt: string; restoredFromId: string | null;
 };

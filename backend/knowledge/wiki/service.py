@@ -11,7 +11,8 @@ from .policy import can_edit, can_protect, require_edit, require_protect, requir
 
 
 def revision_view(revision, editor, *, summary=False):
-    data = dict(id=revision.id, page_id=revision.page_id, number=revision.number, title=revision.title,
+    data = dict(ai_assisted=bool(revision.ai_proposal_id), provenance=revision.provenance or {},
+        id=revision.id, page_id=revision.page_id, number=revision.number, title=revision.title,
         change_summary=revision.change_summary, editor=AuthorView(id=editor.id, username=editor.username),
         created_at=revision.created_at, restored_from_id=revision.restored_from_id)
     return RevisionSummary(**data) if summary else RevisionView(**data, markdown=revision.markdown, source_note=revision.source_note,
@@ -98,28 +99,7 @@ class WikiService:
                     if old.payload_hash != digest:
                         raise AppError(409, 'wiki_request_conflict', '같은 요청 ID에 다른 내용을 사용할 수 없습니다.')
                     return MutationResult(**{**old.result, 'replayed': True})
-                if operation == 'create':
-                    page = await repo.create(principal.id, body)
-                else:
-                    page = await repo.get(page_id, lock=True)
-                    require_edit(principal, page)
-                    require_version(page, body.base_version)
-                    if operation == 'edit':
-                        await repo.append(page, principal.id, title=body.title, markdown=body.markdown,
-                            source_note=body.source_note, summary=body.change_summary, aliases=body.aliases, meaning=body.meaning)
-                    elif operation == 'restore':
-                        source, _ = await repo.revision(page.id, body.revision_id)
-                        await repo.append(page, principal.id, title=source.title, markdown=source.markdown,
-                            source_note=source.source_note, summary=f'v{source.number} 복구', aliases=source.aliases, meaning=source.meaning, restored_from=source.id)
-                    elif operation == 'deactivate':
-                        await repo.withdraw(page)
-                    elif operation == 'protect':
-                        await repo.protect(page, principal.id, body.locked)
-                    else:
-                        raise ValueError('Unknown wiki mutation')
-                if operation not in ('protect', 'deactivate'):
-                    from .index_repository import WikiIndexRepository
-                    await WikiIndexRepository(session).enqueue(page)
+                page = await self.write(session, principal, operation, body, page_id)
                 result = MutationResult(page_id=page.id, revision_id=page.current_revision_id, version=page.version)
                 await repo.remember(principal.id, body.request_id, digest, page, result.model_dump())
                 # Context-manager commit completes before a successful HTTP response can escape.
@@ -128,6 +108,41 @@ class WikiService:
             # Rollback has completed. Do not leak SQL parameters or return success on failed commit.
             raise AppError(503, 'wiki_storage_failed', '위키 저장을 완료하지 못했습니다. 같은 요청으로 다시 확인해 주세요.', retryable=True) from exc
 
+
+    async def write(self, session, principal, operation, body, page_id=None):
+        """Shared transaction-local write, used by manual and reviewed AI publication.
+
+        Caller owns request serialization/receipt and commits before responding.
+        """
+        require_read(principal)
+        if operation in ('protect', 'deactivate'):
+            require_protect(principal)
+        repo = WikiRepository(session)
+        if operation == 'create':
+            page = await repo.create(principal.id, body)
+        else:
+            page = await repo.get(page_id, lock=True)
+            require_edit(principal, page)
+            require_version(page, body.base_version)
+            if operation == 'edit':
+                await repo.append(page, principal.id, title=body.title, markdown=body.markdown,
+                    source_note=body.source_note, summary=body.change_summary, aliases=body.aliases, meaning=body.meaning)
+            elif operation == 'restore':
+                source, _ = await repo.revision(page.id, body.revision_id)
+                await repo.append(page, principal.id, title=source.title, markdown=source.markdown,
+                    source_note=source.source_note, summary=f'v{source.number} 복구', aliases=source.aliases, meaning=source.meaning, restored_from=source.id)
+                restored, _ = await repo.revision(page.id, page.current_revision_id)
+                restored.ai_proposal_id, restored.provenance = source.ai_proposal_id, source.provenance
+            elif operation == 'deactivate':
+                await repo.withdraw(page)
+            elif operation == 'protect':
+                await repo.protect(page, principal.id, body.locked)
+            else:
+                raise ValueError('Unknown wiki mutation')
+        if operation not in ('protect', 'deactivate'):
+            from .index_repository import WikiIndexRepository
+            await WikiIndexRepository(session).enqueue(page)
+        return page
 
     async def source(self, principal, page_id, revision_id=None):
         from .dto import WikiSourceView

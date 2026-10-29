@@ -1,6 +1,6 @@
 """Small serial worker. A PostgreSQL advisory lock prevents duplicate consumers.
 
-Document and wiki index queues share this serial executor; no generation or ontology extraction. A crashed
+Document/wiki indexing and requested wiki drafts share this bounded serial executor. No automatic proposals or ontology extraction. A crashed
 running job is recorded as interrupted on next start and can be explicitly retried.
 """
 import asyncio
@@ -37,7 +37,7 @@ async def recover_interrupted(sessions):
             job.updated_at = utcnow()
 
 
-async def run_worker(*, once=False, settings=None, embedding_client=None):
+async def run_worker(*, once=False, settings=None, embedding_client=None, generation_client=None):
     settings = settings or get_settings()
     load_entities()
     engine = create_async_engine(settings.database_url,pool_pre_ping=True)
@@ -55,13 +55,16 @@ async def run_worker(*, once=False, settings=None, embedding_client=None):
                 from ..wiki.index_repository import WikiIndexRepository
                 await recover_wiki_jobs(sessions)
                 from ..indexing.service import process_index_job
-                processed = 0
-                wiki_first = False
+                from ..wiki.proposals.repository import ProposalRepository
+                from ..wiki.proposals.generation import process_proposal_job
+                async with sessions() as session, session.begin():
+                    await ProposalRepository(session).recover()
+                processed, cursor = 0, 0
                 while True:
                     async with sessions() as session, session.begin():
-                        queues = [('wiki_index', WikiIndexRepository(session)), ('document_index', JobRepository(session))]
-                        if not wiki_first:
-                            queues.reverse()
+                        queues = [('document_index', JobRepository(session)), ('wiki_index', WikiIndexRepository(session)),
+                                  ('wiki_proposal', ProposalRepository(session))]
+                        queues = queues[cursor:] + queues[:cursor]
                         job, kind = None, None
                         for kind, repository in queues:
                             job = await repository.claim()
@@ -69,9 +72,12 @@ async def run_worker(*, once=False, settings=None, embedding_client=None):
                                 break
                         job_id = job.id if job else None
                     if job_id:
-                        wiki_first = kind != 'wiki_index'
-                        processor = process_wiki_index_job if kind == 'wiki_index' else process_index_job
-                        result = await processor(sessions,settings,job_id,embedding_client)
+                        cursor = ({'document_index': 0, 'wiki_index': 1, 'wiki_proposal': 2}[kind] + 1) % 3
+                        if kind == 'wiki_proposal':
+                            result = await process_proposal_job(sessions, settings, job_id, embedding_client, generation_client)
+                        else:
+                            processor = process_wiki_index_job if kind == 'wiki_index' else process_index_job
+                            result = await processor(sessions, settings, job_id, embedding_client)
                         processed += 1
                         if once:
                             return {**result,'processed':processed}

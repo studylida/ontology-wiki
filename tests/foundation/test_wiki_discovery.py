@@ -273,9 +273,9 @@ def test_stage1_migration_backfills_current_wiki_once(database_factory):
         INSERT INTO wiki_revisions(id,page_id,number,title,markdown,editor_id,created_at) VALUES('old-rev','old-page',1,'OLD','보존 원문','stage1-user',now()); COMMIT;""")
         before = db.query('SELECT version,sha256 FROM knowledge_schema_migrations ORDER BY version')
         env = {**os.environ, 'PYTHONPATH': str(ROOT / 'backend'), 'OW_DATABASE_URL': db.url}
-        assert json.loads(cli(env, 'migrate', '--database-name', db.name).stdout)['applied'] == ['005_wiki_discovery.sql', '006_wiki_publication.sql']
+        assert json.loads(cli(env, 'migrate', '--database-name', db.name).stdout)['applied'] == ['005_wiki_discovery.sql', '006_wiki_publication.sql', '007_wiki_proposals.sql']
         assert json.loads(cli(env, 'migrate', '--database-name', db.name).stdout)['applied'] == []
-        assert db.query("SELECT version,sha256 FROM knowledge_schema_migrations WHERE version NOT IN ('005_wiki_discovery.sql','006_wiki_publication.sql') ORDER BY version") == before
+        assert db.query("SELECT version,sha256 FROM knowledge_schema_migrations WHERE version NOT IN ('005_wiki_discovery.sql','006_wiki_publication.sql','007_wiki_proposals.sql') ORDER BY version") == before
         assert db.query('SELECT markdown FROM wiki_revisions')[0]['markdown'] == '보존 원문'
         assert db.query('SELECT revision_id,status FROM wiki_index_jobs') == [{'revision_id':'old-rev', 'status':'pending'}]
 

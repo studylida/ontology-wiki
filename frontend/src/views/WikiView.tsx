@@ -1,3 +1,4 @@
+import { WikiProposals } from './WikiProposals';
 import { WikiMarkdownDownload } from './WikiMarkdownDownload';
 import { useState } from 'react';
 import { useWikiController } from '../controllers/useWikiController';
@@ -13,7 +14,7 @@ export function WikiView({userId}: {userId: string}) {
   return <section className="wiki" aria-label="공용 위키">
     <header className="section-header"><div><p className="eyebrow">SHARED WIKI</p><h1>공용 위키</h1><p>개념과 업무 경험을 함께 기록하고 보강합니다.</p></div>
       <button className="primary" disabled={unavailable || wiki.editing} onClick={wiki.startNew}>새 위키 문서</button></header>
-    <p className="muted">모든 직원이 읽고 일반 문서를 편집할 수 있습니다. 검색 준비가 끝나면 채팅의 근거로 활용합니다. AI 편집은 아직 제공하지 않습니다.</p>
+    <p className="muted">모든 직원이 읽고 일반 문서를 편집할 수 있습니다. 검색 준비가 끝나면 채팅의 근거로 활용합니다. AI 제안은 직접 확인한 뒤 반영합니다.</p>
     {wiki.error && <p role="alert" className="error">{wiki.error}</p>}{wiki.notice && <p role="status" className="notice">{wiki.notice}</p>}
     {wiki.storageWarning && <p className="notice" role="alert">{wiki.storageWarning}</p>}
     {wiki.pending && !wiki.busy && <div className="notice" role="alert"><p>{wiki.pending.receipt ?
@@ -21,6 +22,7 @@ export function WikiView({userId}: {userId: string}) {
       '저장 결과를 확인하지 못했습니다. 입력은 보존했습니다. 같은 요청으로 다시 확인하면 중복 저장하지 않습니다.'}</p>
       <button onClick={wiki.resend}>{wiki.pending.receipt ? '저장된 문서 다시 불러오기' : '같은 저장 요청 다시 확인'}</button></div>}
     <WikiSearchPanel onNavigate={id => void wiki.select(id)} disabled={unavailable || wiki.editing} />
+    {!wiki.editing && !wiki.pending && <WikiProposals key={page?.id || "new"} userId={userId} page={page} onApplied={id => {wiki.refresh(); void wiki.select(id);}}/>}
     <div className="wiki-workspace"><aside className="wiki-list" aria-label="위키 문서 목록">
       <form onSubmit={e => {e.preventDefault(); wiki.search(search);}}><label>위키 제목 검색<input value={search} maxLength={300} onChange={e => setSearch(e.target.value)} /></label>
         <div className="actions"><button>검색</button><button type="button" onClick={wiki.refresh}>목록 새로고침</button></div></form>
@@ -53,6 +55,7 @@ export function WikiView({userId}: {userId: string}) {
       </form> : page ? <>
         <WikiDiscovery key={page.id} page={page} onNavigate={id => void wiki.select(id)} />
         <header><h2>{page.title}</h2>{page.meaning && <p>{page.meaning}</p>}{!!page.aliases?.length && <p className="muted">다른 이름: {page.aliases.join(" · ")}</p>}<p className="muted">v{page.revisionNumber} · {page.locked ? '보호된 문서' : '공동 편집 가능'}</p>
+          {page.revision.aiAssisted && <p className="notice">AI 제안을 직원이 검토·수정하여 반영한 판본입니다. 자동으로 사실을 인증한 내용은 아닙니다.</p>}
           <p className="muted">작성 {page.creator.username} · {date(page.createdAt)}<br/>최근 본문 수정 {page.editor.username} · {date(page.revision.createdAt)}</p></header>
         <div className="actions">{page.canEdit && <button disabled={unavailable || wiki.conflicted} onClick={wiki.startEdit}>문서 편집</button>}
           <WikiMarkdownDownload page={page} />

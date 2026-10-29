@@ -66,6 +66,8 @@ class AuthorView(DTO):
 
 
 class RevisionSummary(DTO):
+    ai_assisted: bool = False
+    provenance: dict = Field(default_factory=dict)
     id: str
     page_id: str
     number: int

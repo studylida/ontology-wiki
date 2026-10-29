@@ -1,3 +1,4 @@
+import type { ChatSeed } from '../types/wikiProposal';
 import { useLayoutEffect, useRef } from 'react';
 import type { Citation } from '../types/contracts';
 import type { useConversationController } from '../controllers/useConversationController';
@@ -5,7 +6,7 @@ import { statusLabel } from '../services/chatState';
 import { orderedCitations } from '../services/citationService';
 import { SafeMarkdown } from './components/SafeMarkdown';
 type Chat = ReturnType<typeof useConversationController>;
-export function ConversationView({chat, onCitation}: {chat: Chat; onCitation: (c: Citation) => void}) {
+export function ConversationView({chat, onCitation, onWikiRequest}: {chat: Chat; onCitation: (c: Citation) => void; onWikiRequest?: (seed:ChatSeed)=>void}) {
   const scroller = useRef<HTMLDivElement>(null), stick = useRef(true);
   useLayoutEffect(() => { stick.current = true; }, [chat.selected]);
   useLayoutEffect(() => { const node = scroller.current; if (node && stick.current) node.scrollTop = node.scrollHeight; }, [chat.conversation?.messages]);
@@ -34,6 +35,8 @@ export function ConversationView({chat, onCitation}: {chat: Chat; onCitation: (c
             {orderedCitations(message.citations).map(c => <button key={c.passageId} onClick={() => onCitation(c)}>[{c.number}] {c.title} · {c.locator}</button>)}
           </nav>}
         </>}
+        {!message.sourceUnavailable && message.content && message.status === 'completed' && chat.selected && onWikiRequest &&
+          <button onClick={()=>onWikiRequest({conversationId:chat.selected!,messageId:message.id,content:message.content})}>선택해서 위키 제안</button>}
         {message.warnings.map(warning => <p className="muted" key={warning}>{warning}</p>)}
         {message.runId === chat.run?.runId && chat.run.error && <p role="alert" className="error">{chat.run.error.message}</p>}
         {message.id === lastAssistant?.id && ['failed', 'cancelled', 'interrupted'].includes(message.status) && message.runId &&

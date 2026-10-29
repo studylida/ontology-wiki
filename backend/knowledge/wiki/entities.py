@@ -28,6 +28,8 @@ class WikiPage(Base):
 
 class WikiRevision(Base):
     __tablename__ = 'wiki_revisions'
+    ai_proposal_id: Mapped[str | None] = mapped_column(ForeignKey('wiki_proposals.id'))
+    provenance: Mapped[dict] = mapped_column(JSONB, default=dict)
     id: Mapped[str] = mapped_column(String(80), primary_key=True)
     page_id: Mapped[str] = mapped_column(ForeignKey('wiki_pages.id'))
     number: Mapped[int] = mapped_column(Integer)

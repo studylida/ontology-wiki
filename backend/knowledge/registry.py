@@ -8,3 +8,4 @@ def load_entities():
     from knowledge.answers import entities as answers
     from knowledge.wiki import entities as wiki
     from knowledge.wiki import index_entities as wiki_index
+    from knowledge.wiki.proposals import entities as proposals

@@ -19,6 +19,8 @@ from .migration.schema import assert_current_schema
 from .registry import load_entities
 from .wiki.router import router as wiki_router
 from .wiki.service import WikiService
+from .wiki.proposals.router import router as proposal_router
+from .wiki.proposals.service import ProposalService
 from .wiki.search import WikiSearchService
 from .wiki.search_router import router as wiki_search_router
 from .answers.router import router as answer_router
@@ -33,16 +35,14 @@ def create_app(settings=None, session_factory=None, *, embedding_client=None, ge
     if session_factory is None:
         engine = create_async_engine(settings.database_url, pool_pre_ping=True)
         session_factory = async_sessionmaker(engine, expire_on_commit=False, autoflush=False)
-    if reranker is None and settings.reranker_mode == 'cross_encoder':
-        from .integrations.rerank import LocalCrossEncoderReranker
-        reranker = LocalCrossEncoderReranker(settings.reranker_python_path, settings.reranker_model_path,
-            settings.reranker_model_revision, timeout_seconds=settings.reranker_timeout_seconds,
-            device=settings.reranker_device, max_length=settings.reranker_max_length,
-            batch_size=settings.reranker_batch_size)
+    if reranker is None:
+        from .integrations.rerank import configured_reranker
+        reranker = configured_reranker(settings)
     services = SimpleNamespace(identity=IdentityService(session_factory, settings),
         conversations=ConversationService(session_factory), documents=DocumentService(session_factory, settings))
     rag = RAGService(session_factory, settings, embedding_client or get_embedding_client(settings), reranker)
     services.wiki = WikiService(session_factory)
+    services.proposals = ProposalService(session_factory)
     services.wiki_search = WikiSearchService(session_factory, settings, rag.embedding_client, reranker)
     services.answers = AnswerService(session_factory, settings, services.identity, rag,
                                     generation_client or get_generation_client(settings))
@@ -78,7 +78,7 @@ def create_app(settings=None, session_factory=None, *, embedding_client=None, ge
             response.headers['Cache-Control'] = 'no-store'
         return response
 
-    for router in (identity_router, conversation_router, document_router, answer_router, wiki_router, wiki_search_router):
+    for router in (identity_router, conversation_router, document_router, answer_router, wiki_router, wiki_search_router, proposal_router):
         app.include_router(router, prefix='/api/v1')
 
     @app.get('/api/v1/health', tags=['health'])

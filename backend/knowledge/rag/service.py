@@ -39,7 +39,7 @@ class RAGService:
         self.sessions, self.settings = sessions, settings
         self.embedding_client, self.reranker = embedding_client, reranker
 
-    async def retrieve(self, principal, conversation_id, question, history):
+    async def retrieve(self, principal, conversation_id, question, history, *, record=True):
         started = monotonic()
         query = question[:4000]
         previous = next((m['content'] for m in reversed(history) if m['role'] == 'user'), None)
@@ -118,6 +118,7 @@ class RAGService:
             active = await EvidenceAccess(session).current_ids(principal, result['sourceRevisionIds'])
             if set(active) != set(result['sourceRevisionIds']):
                 raise AppError(409, 'source_changed', '검색 중 문헌 상태가 변경되었습니다. 다시 질문해 주세요.', retryable=True)
-            session.add(RetrievalRun(id=run_id, owner_id=principal.id, conversation_id=conversation_id,
-                                     query_text=query, result=result))
+            if record:
+                session.add(RetrievalRun(id=run_id, owner_id=principal.id, conversation_id=conversation_id,
+                                         query_text=query, result=result))
         return run_id, result

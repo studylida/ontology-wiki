@@ -305,6 +305,12 @@ class FixtureGenerationClient:
     """Labelled excerpts for contract tests, not an AI-quality or latency simulation."""
     model = 'fixture-generation'
     async def stream(self, messages, *, effort=None, cancel_event=None):
+        if messages[1]['content'].startswith('WIKI_PROPOSAL_INPUT\n'):
+            from ..wiki.proposals.fixture import fixture_proposal
+            data = json.loads(messages[1]['content'].split('\n', 1)[1])
+            yield ProviderDelta(text=json.dumps(fixture_proposal(data), ensure_ascii=False), model=self.model)
+            yield ProviderDelta(usage=unknown_usage(self.model, source='fixture'), model=self.model)
+            return
         evidence = json.loads(messages[1]['content'].split('\n', 1)[1])
         output = '검증용 fixture 응답입니다. 실제 모델의 해석이나 사내 판단이 아닙니다.\n\n'
         for item in evidence[:3]:
@@ -359,12 +365,14 @@ def get_generation_client(settings=None):
     return OpenAIGenerationClient(settings.generation_model)
 
 
-async def generate_json(client, messages, *, effort=None):
+async def generate_json(client, messages, *, effort=None, max_characters=60000):
     """Optional structured calls remain separate from the answer execution path."""
     text, usage = '', unknown_usage(client.model, source='fixture' if client.model.startswith('fixture-') else 'provider')
     try:
         async for delta in client.stream(messages, effort=effort):
             text += delta.text
+            if len(text) > max_characters:
+                raise AppError(502, 'structured_output_too_large', '정리 결과가 허용된 크기를 초과했습니다.')
             if delta.usage is not None:
                 usage = delta.usage
     except (Exception, asyncio.CancelledError) as exc:

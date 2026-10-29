@@ -142,3 +142,13 @@ class LocalCrossEncoderReranker:
         finally:
             if acquired:
                 self._lock.release()
+
+
+def configured_reranker(settings):
+    """One configuration owner for API and requested-edit worker reuse."""
+    if settings.reranker_mode != 'cross_encoder':
+        return None
+    return LocalCrossEncoderReranker(settings.reranker_python_path, settings.reranker_model_path,
+        settings.reranker_model_revision, timeout_seconds=settings.reranker_timeout_seconds,
+        device=settings.reranker_device, max_length=settings.reranker_max_length,
+        batch_size=settings.reranker_batch_size)
