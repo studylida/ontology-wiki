@@ -5,6 +5,7 @@ import hashlib
 from pathlib import PurePath
 from sqlalchemy import func, select, text
 from ..core.errors import AppError
+from ..identity.authorization import require_employee
 from ..core.ids import new_id, utcnow
 from ..jobs.entities import Job
 from ..jobs.repository import JobRepository
@@ -23,8 +24,7 @@ class DocumentService:
         self.sessions, self.settings = session_factory, settings
 
     async def upload(self, principal, body, filename, info, document_id=None):
-        if principal.kind != 'user':
-            raise AppError(403,'employee_required','직원 계정으로 문헌을 등록해 주세요.')
+        require_employee(principal, code='employee_required', message='직원 계정으로 문헌을 등록해 주세요.')
         filename = PurePath((filename or 'upload').replace('\\','/')).name
         if not filename or len(filename) > 255 or any(ord(c) < 32 for c in filename):
             raise AppError(422,'invalid_filename','파일 이름을 확인해 주세요.')

@@ -19,3 +19,24 @@ export type WikiCommand =
   | {kind: 'edit'; pageId: string; body: WikiDraft & {requestId: string; baseVersion: number}}
   | {kind: 'restore'; pageId: string; body: {requestId: string; baseVersion: number; revisionId: string}}
   | {kind: 'protect'; pageId: string; body: {requestId: string; baseVersion: number; locked: boolean}};
+
+/** Only a submitted command is retained for recovery; this is not an autosaved draft. */
+export type WikiPending = {command: WikiCommand; receipt: WikiMutation | null};
+const record = (value: unknown): value is Record<string, unknown> => !!value && typeof value === 'object' && !Array.isArray(value);
+const text = (value: unknown, max: number) => typeof value === 'string' && value.length <= max && !value.includes('\0');
+const id = (value: unknown) => text(value, 128) && (value as string).length > 0;
+const version = (value: unknown) => typeof value === 'number' && Number.isSafeInteger(value) && value > 0;
+export function isWikiPending(value: unknown): value is WikiPending {
+  if (!record(value) || !record(value.command) || !record(value.command.body)) return false;
+  const c = value.command, b = value.command.body;
+  if (typeof b.requestId !== 'string' || !/^[A-Za-z0-9_.:-]{8,128}$/.test(b.requestId)) return false;
+  if (c.kind !== 'create' && (!id(c.pageId) || !version(b.baseVersion))) return false;
+  if (c.kind === 'create' || c.kind === 'edit') {
+    if (!text(b.title, 300) || !text(b.markdown, 100000) || !text(b.sourceNote, 10000) || !text(b.changeSummary, 500)) return false;
+  } else if (c.kind === 'restore') { if (!id(b.revisionId)) return false; }
+  else if (c.kind === 'protect') { if (typeof b.locked !== 'boolean') return false; }
+  else return false;
+  const receipt = value.receipt;
+  return receipt === null || (record(receipt) && id(receipt.pageId) && id(receipt.revisionId) &&
+    version(receipt.version) && typeof receipt.replayed === 'boolean' && (c.kind === 'create' || receipt.pageId === c.pageId));
+}

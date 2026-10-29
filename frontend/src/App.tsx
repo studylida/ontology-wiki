@@ -28,7 +28,7 @@ function Workspace({user, logout}: {user: User; logout: () => void}) {
       <footer><span>{user.username}</span><button onClick={logout}><LogOut aria-hidden="true" /> 로그아웃</button></footer>
     </aside>
     <main className="main-content">{tab === 'chat' && <ConversationView chat={chat} onCitation={showCitation} />}{tab === 'documents' && <DocumentsView onMutation={documentsChanged} onSource={setSource} />}
-      {wikiOpened && <div className="wiki-host" hidden={tab !== 'wiki'}><WikiView /></div>}</main>
+      {wikiOpened && <div className="wiki-host" hidden={tab !== 'wiki'}><WikiView userId={user.id} /></div>}</main>
     {source && <SourcePanel key={`${source.documentId}:${source.revisionId}:${source.citation?.passageId || ''}`} selection={source} onClose={() => setSource(null)} />}
   </div>;
 }

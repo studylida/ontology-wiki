@@ -7,23 +7,7 @@ from ..core.errors import AppError
 from .dto import (AuthorView, MutationResult, PageDetail, PageList, PageView,
                   RevisionComparison, RevisionList, RevisionSummary, RevisionView)
 from .repository import WikiRepository
-
-
-def require_employee(principal):
-    if principal.kind != 'user':
-        raise AppError(403, 'wiki_employee_required', '직원 계정으로 위키를 이용해 주세요.')
-
-
-def require_edit(principal, page):
-    require_employee(principal)
-    if page.is_locked and principal.role != 'admin':
-        raise AppError(403, 'wiki_locked', '관리자가 보호한 문서입니다. 작성한 내용은 보존하고 관리자에게 문의해 주세요.')
-
-
-def require_version(page, expected):
-    if page.version != expected:
-        raise AppError(409, 'wiki_version_conflict', '문서 또는 보호 상태가 변경됐습니다. 입력은 유지하고 최신 판본과 비교해 주세요.',
-            details={'currentVersion': page.version, 'currentRevisionId': page.current_revision_id})
+from .policy import can_edit, can_protect, require_edit, require_protect, require_read, require_version
 
 
 def revision_view(revision, editor, *, summary=False):
@@ -37,7 +21,7 @@ def page_view(row, principal, *, detail=False):
     page, revision, creator, editor = row
     data = dict(id=page.id, title=revision.title, current_revision_id=revision.id,
         revision_number=revision.number, version=page.version, locked=page.is_locked,
-        can_edit=not page.is_locked or principal.role == 'admin', can_protect=principal.role == 'admin',
+        can_edit=can_edit(principal, page), can_protect=can_protect(principal),
         creator=AuthorView(id=creator.id, username=creator.username),
         editor=AuthorView(id=editor.id, username=editor.username), created_at=page.created_at, updated_at=page.updated_at)
     return PageDetail(**data, revision=revision_view(revision, editor)) if detail else PageView(**data)
@@ -60,7 +44,7 @@ class WikiService:
         self.sessions = sessions
 
     async def list(self, principal, query='', limit=30, offset=0):
-        require_employee(principal)
+        require_read(principal)
         if '\x00' in query:
             raise AppError(422, 'invalid_wiki_query', '검색어를 확인해 주세요.')
         async with self.sessions() as session:
@@ -68,23 +52,23 @@ class WikiService:
             return PageList(items=[page_view(row, principal) for row in rows], total=total, limit=limit, offset=offset)
 
     async def get(self, principal, page_id):
-        require_employee(principal)
+        require_read(principal)
         async with self.sessions() as session:
             return page_view(await WikiRepository(session).detail(page_id), principal, detail=True)
 
     async def history(self, principal, page_id, limit=30, offset=0):
-        require_employee(principal)
+        require_read(principal)
         async with self.sessions() as session:
             rows, total = await WikiRepository(session).history(page_id, limit, offset)
             return RevisionList(items=[revision_view(r, u, summary=True) for r, u in rows], total=total, limit=limit, offset=offset)
 
     async def revision(self, principal, page_id, revision_id):
-        require_employee(principal)
+        require_read(principal)
         async with self.sessions() as session:
             return revision_view(*(await WikiRepository(session).revision(page_id, revision_id)))
 
     async def compare(self, principal, page_id, before_id, after_id):
-        require_employee(principal)
+        require_read(principal)
         async with self.sessions() as session:
             repo = WikiRepository(session)
             before = revision_view(*(await repo.revision(page_id, before_id)))
@@ -92,9 +76,9 @@ class WikiService:
             return RevisionComparison(before=before, after=after, diff=compare_revisions(before, after))
 
     async def mutate(self, principal, operation, body, page_id=None):
-        require_employee(principal)
-        if operation == 'protect' and principal.role != 'admin':
-            raise AppError(403, 'wiki_admin_required', '문서 보호와 해제는 관리자만 할 수 있습니다.')
+        require_read(principal)
+        if operation == 'protect':
+            require_protect(principal)
         payload = {'operation': operation, 'pageId': page_id, 'body': body.model_dump(mode='json', exclude={'request_id'})}
         digest = hashlib.sha256(json.dumps(payload, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
         try:

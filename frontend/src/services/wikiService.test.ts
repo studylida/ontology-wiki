@@ -1,5 +1,5 @@
 import { expect, it, vi } from 'vitest';
-import { draftFromRevision, emptyWikiDraft, saveWikiCommand, validWikiDraft } from './wikiService';
+import { draftFromRevision, emptyWikiDraft, saveWikiCommand, validWikiDraft, wikiMutationNotice } from './wikiService';
 import type { WikiDetail, WikiRevision } from '../types/wiki';
 vi.mock('../repositories/workspaceStorage', () => ({newRequestId: () => 'same-test-request'}));
 const revision: WikiRevision = {id: 'r1', pageId: 'p1', number: 1, title: '개념', markdown: '  code  \n', sourceNote: '경험',
@@ -22,4 +22,12 @@ it('keeps the original edit base even when the latest page has changed', () => {
   const command = saveWikiCommand(draftFromRevision(revision), page, 1);
   expect(command.kind === 'edit' && command.body.baseVersion).toBe(1);
   expect(() => saveWikiCommand(draftFromRevision(revision), page, null)).toThrow();
+});
+
+it("does not label another editor's subsequent revision as this request result", () => {
+  const command = saveWikiCommand(draftFromRevision(revision), null, null);
+  const notice = wikiMutationNotice(command, {pageId: 'p1', revisionId: 'r1', version: 1, replayed: false},
+    {version: 3, revisionNumber: 3} as WikiDetail);
+  expect(notice).toContain('이후의 변경');
+  expect(notice).not.toContain('판본 3이 저장');
 });
