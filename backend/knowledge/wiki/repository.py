@@ -6,6 +6,7 @@ from ..core.errors import AppError
 from ..core.ids import new_id, utcnow
 from ..identity.entities import User
 from .entities import WikiMutation, WikiPage, WikiRevision
+from .names import name_keys
 
 
 class WikiRepository:
@@ -69,16 +70,18 @@ class WikiRepository:
         await self.session.flush()  # Current-revision FK is deferred until commit.
         revision = WikiRevision(id=revision_id, page_id=page_id, number=1, title=body.title,
             markdown=body.markdown, source_note=body.source_note, change_summary=body.change_summary,
+            aliases=body.aliases, meaning=body.meaning, name_keys=name_keys(body.title, body.aliases),
             editor_id=actor_id, created_at=now)
         self.session.add(revision)
         await self.session.flush()
         return page
 
-    async def append(self, page, actor_id, *, title, markdown, source_note, summary, restored_from=None):
+    async def append(self, page, actor_id, *, title, markdown, source_note, summary, aliases=None, meaning='', restored_from=None):
         previous, _ = await self.revision(page.id, page.current_revision_id)
         now = utcnow()
         revision = WikiRevision(id=new_id('wrv'), page_id=page.id, number=previous.number + 1,
-            title=title, markdown=markdown, source_note=source_note, change_summary=summary,
+            title=title, markdown=markdown, source_note=source_note, change_summary=summary, aliases=aliases or [], meaning=meaning,
+            name_keys=name_keys(title, aliases or []),
             editor_id=actor_id, restored_from_id=restored_from, created_at=now)
         self.session.add(revision)
         await self.session.flush()

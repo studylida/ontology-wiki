@@ -3,9 +3,11 @@ import { wikiRepository } from '../repositories/wikiRepository';
 import type { WikiCommand, WikiDetail, WikiDraft, WikiMutation, WikiPending, WikiRevision } from '../types/wiki';
 export const emptyWikiDraft = (): WikiDraft => ({title: '', markdown: '', sourceNote: '', changeSummary: ''});
 export const draftFromRevision = (revision: WikiRevision): WikiDraft => ({title: revision.title,
-  markdown: revision.markdown, sourceNote: revision.sourceNote, changeSummary: ''});
+  markdown: revision.markdown, sourceNote: revision.sourceNote, changeSummary: '',
+  aliasesText: (revision.aliases || []).join('\n'), meaning: revision.meaning || ''});
 export function saveWikiCommand(draft: WikiDraft, page: WikiDetail | null, baseVersion: number | null): WikiCommand {
-  const body = {...draft, requestId: newRequestId()};
+  const {aliasesText, ...fields} = draft;
+  const body = {...fields, aliases: (aliasesText || '').split('\n').map(s => s.trim()).filter(Boolean), requestId: newRequestId()};
   if (!page) return {kind: 'create', body};
   if (baseVersion === null) throw new Error('편집 기준 판본이 없습니다. 문서를 다시 확인해 주세요.');
   return {kind: 'edit', pageId: page.id, body: {...body, baseVersion}};
@@ -28,6 +30,7 @@ export function draftFromPending(pending: WikiPending | null): WikiDraft {
   return command && (command.kind === 'create' || command.kind === 'edit') ? {
     title: command.body.title, markdown: command.body.markdown,
     sourceNote: command.body.sourceNote, changeSummary: command.body.changeSummary,
+    aliasesText: (command.body.aliases || []).join('\n'), meaning: command.body.meaning || '',
   } : emptyWikiDraft();
 }
 export function wikiMutationNotice(command: WikiCommand, receipt: WikiMutation, page: WikiDetail): string {

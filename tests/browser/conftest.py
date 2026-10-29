@@ -56,7 +56,7 @@ def browser_app(database_factory, tmp_path):
                 time.sleep(.1)
             else: raise AssertionError('Frontend did not start')
             with sync_playwright() as engine:
-                browser = engine.chromium.launch()
+                browser = engine.chromium.launch(executable_path=os.environ.get('OW_TEST_CHROMIUM_EXECUTABLE'))
                 context = browser.new_context(viewport={'width': 1440, 'height': 1000}, accept_downloads=True)
                 page = context.new_page(); page.set_default_timeout(15000)
                 errors = []; page.on('pageerror', lambda error: errors.append(str(error)))

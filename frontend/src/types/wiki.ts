@@ -3,20 +3,21 @@ export type WikiRevisionSummary = {
   id: string; pageId: string; number: number; title: string; changeSummary: string;
   editor: WikiAuthor; createdAt: string; restoredFromId: string | null;
 };
-export type WikiRevision = WikiRevisionSummary & {markdown: string; sourceNote: string};
+export type WikiRevision = WikiRevisionSummary & {markdown: string; sourceNote: string; aliases?: string[]; meaning?: string};
 export type WikiPage = {
   id: string; title: string; currentRevisionId: string; revisionNumber: number; version: number;
   locked: boolean; canEdit: boolean; canProtect: boolean; creator: WikiAuthor; editor: WikiAuthor;
-  createdAt: string; updatedAt: string;
+  createdAt: string; updatedAt: string; aliases?: string[]; meaning?: string;
 };
 export type WikiDetail = WikiPage & {revision: WikiRevision};
 export type WikiList<T> = {items: T[]; total: number; offset: number; limit: number};
-export type WikiDraft = {title: string; markdown: string; sourceNote: string; changeSummary: string};
+export type WikiDraft = {title: string; markdown: string; sourceNote: string; changeSummary: string; aliasesText?: string; meaning?: string};
+export type WikiWrite = Omit<WikiDraft, 'aliasesText'> & {aliases?: string[]};
 export type WikiComparison = {before: WikiRevision; after: WikiRevision; diff: string};
 export type WikiMutation = {pageId: string; revisionId: string; version: number; replayed: boolean};
 export type WikiCommand =
-  | {kind: 'create'; body: WikiDraft & {requestId: string}}
-  | {kind: 'edit'; pageId: string; body: WikiDraft & {requestId: string; baseVersion: number}}
+  | {kind: 'create'; body: WikiWrite & {requestId: string}}
+  | {kind: 'edit'; pageId: string; body: WikiWrite & {requestId: string; baseVersion: number}}
   | {kind: 'restore'; pageId: string; body: {requestId: string; baseVersion: number; revisionId: string}}
   | {kind: 'protect'; pageId: string; body: {requestId: string; baseVersion: number; locked: boolean}};
 
@@ -32,6 +33,8 @@ export function isWikiPending(value: unknown): value is WikiPending {
   if (typeof b.requestId !== 'string' || !/^[A-Za-z0-9_.:-]{8,128}$/.test(b.requestId)) return false;
   if (c.kind !== 'create' && (!id(c.pageId) || !version(b.baseVersion))) return false;
   if (c.kind === 'create' || c.kind === 'edit') {
+    if ((b.aliases !== undefined && (!Array.isArray(b.aliases) || b.aliases.length > 30 || !b.aliases.every(x => text(x, 300)))) ||
+        (b.meaning !== undefined && !text(b.meaning, 500))) return false;
     if (!text(b.title, 300) || !text(b.markdown, 100000) || !text(b.sourceNote, 10000) || !text(b.changeSummary, 500)) return false;
   } else if (c.kind === 'restore') { if (!id(b.revisionId)) return false; }
   else if (c.kind === 'protect') { if (typeof b.locked !== 'boolean') return false; }

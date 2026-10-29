@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { wikiPageId } from '../../services/wikiLinks';
 import type { Citation } from '../../types/contracts';
 import { citationIndex, safeUrl } from '../../services/citationService';
 
@@ -28,11 +29,11 @@ function citationPlugin(citations: Map<string, Citation>) {
     walk(tree);
   };
 }
-export function SafeMarkdown({content, citations = [], onCitation}: {content: string; citations?: Citation[]; onCitation?: (citation: Citation) => void}) {
+export function SafeMarkdown({content, citations = [], onCitation, onWikiNavigate}: {content: string; citations?: Citation[]; onCitation?: (citation: Citation) => void; onWikiNavigate?: (id: string) => void}) {
   const index = useMemo(() => citationIndex(citations), [citations]);
   const plugin = useMemo(() => citationPlugin(index), [index]);
   return <div className="markdown"><ReactMarkdown skipHtml remarkPlugins={[remarkGfm, plugin]}
-    urlTransform={url => url.startsWith('citation:') ? url : safeUrl(url) || ''}
+    urlTransform={url => url.startsWith('citation:') || wikiPageId(url) ? url : safeUrl(url) || ''}
     components={{img: () => null, a: ({href, children}) => {
       if (href?.startsWith('citation:')) {
         let key = ''; try { key = decodeURIComponent(href.slice(9)); } catch { /* Inert malformed reference. */ }
@@ -40,6 +41,12 @@ export function SafeMarkdown({content, citations = [], onCitation}: {content: st
         return citation && onCitation ? <button className="inline-citation" title={citation.title}
           aria-label={`출처 ${citation.number}: ${citation.title}`} onClick={() => onCitation(citation)}>{citation.number}</button> : <span>{children}</span>;
       }
+      const page = wikiPageId(href);
+      if (page) return <a href={href} onClick={event => {
+        if (onWikiNavigate && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey && event.button === 0) {
+          event.preventDefault(); onWikiNavigate(page);
+        }
+      }}>{children}</a>;
       const url = safeUrl(href);
       return url ? <a href={url} target="_blank" rel="noopener noreferrer">{children}</a> : <span>{children}</span>;
     }, table: ({children}) => <div className="table-scroll"><table>{children}</table></div>}}>{content}</ReactMarkdown></div>;

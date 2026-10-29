@@ -12,6 +12,7 @@ class WikiPage(Base):
     creator_id: Mapped[str] = mapped_column(ForeignKey('knowledge_users.id'))
     current_revision_id: Mapped[str] = mapped_column(String(80))
     version: Mapped[int] = mapped_column(Integer)
+    indexed_revision_id: Mapped[str | None] = mapped_column(String(80))
     is_locked: Mapped[bool] = mapped_column(Boolean, default=False)
     protection_updated_by: Mapped[str | None] = mapped_column(ForeignKey('knowledge_users.id'))
     protection_updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
@@ -19,7 +20,9 @@ class WikiPage(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     __table_args__ = (ForeignKeyConstraint(['id', 'current_revision_id'],
         ['wiki_revisions.page_id', 'wiki_revisions.id'], name='wiki_current_revision_fk',
-        deferrable=True, initially='DEFERRED', use_alter=True),)
+        deferrable=True, initially='DEFERRED', use_alter=True),
+        ForeignKeyConstraint(['id', 'indexed_revision_id'], ['wiki_revisions.page_id', 'wiki_revisions.id'],
+            name='wiki_indexed_revision_fk', deferrable=True, initially='DEFERRED', use_alter=True))
 
 
 class WikiRevision(Base):
@@ -29,6 +32,9 @@ class WikiRevision(Base):
     number: Mapped[int] = mapped_column(Integer)
     title: Mapped[str] = mapped_column(String(300))
     markdown: Mapped[str] = mapped_column(Text)
+    aliases: Mapped[list] = mapped_column(JSONB, default=list)
+    meaning: Mapped[str] = mapped_column(String(500), default='')
+    name_keys: Mapped[list] = mapped_column(JSONB, default=list)
     source_note: Mapped[str] = mapped_column(Text, default='')
     change_summary: Mapped[str] = mapped_column(String(500), default='')
     editor_id: Mapped[str] = mapped_column(ForeignKey('knowledge_users.id'))

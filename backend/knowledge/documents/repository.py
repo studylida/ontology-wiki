@@ -6,6 +6,7 @@ from collections import defaultdict
 from sqlalchemy import and_, case, func, or_, select
 from sqlalchemy.orm import aliased
 from ..core.errors import AppError
+from ..rag.ranking import query_terms, rank_score
 from .entities import Document, DocumentRevision, EmbeddingRecord, Passage, PassageEmbedding
 
 
@@ -152,8 +153,7 @@ class DocumentRepository:
         distance = EmbeddingRecord.vector.cosine_distance(query_vector)
         vector_rows, lexical_rows = [], []
         method_limit = max(60,limit if candidates_only else limit * 4)
-        separated = re.sub(r'(?<=[^\W\d_가-힣])(?=[가-힣])',' ',query_text)
-        terms = list(dict.fromkeys(t.casefold() for t in re.findall(r'[\w\u2070-\u209f-]{2,}',separated)))[:16]
+        terms = query_terms(query_text)
         anchor = aliased(Passage)
         first_visible = select(func.min(anchor.ordinal)).where(anchor.source_revision_id == DocumentRevision.id,
             anchor.excluded.is_(False)).correlate(DocumentRevision).scalar_subquery()
@@ -175,7 +175,7 @@ class DocumentRepository:
             for rank,row in enumerate(rows,1):
                 p,r,d = row[:3]
                 hit = candidates.setdefault(p.id,{**citation_dict(p,r,d),'text':p.text,'score':0.0,'methods':[]})
-                hit['score'] += 1 / (60 + rank)
+                hit['score'] += rank_score(rank)
                 hit['methods'].append(method)
                 if method == 'vector':
                     hit['cosineDistance'] = float(row[3])

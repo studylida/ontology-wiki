@@ -6,6 +6,7 @@ from knowledge.documents.repository import DocumentRepository, select_ranked_hit
 from .context import (conflict_companions, experiment_companions, prioritize_conflict_notes,
                       select_context, serialized_evidence)
 from .entities import RetrievalRun
+from .ranking import optional_rerank
 
 
 def select_anchors(candidates, limit):
@@ -55,16 +56,8 @@ class RAGService:
             candidates = found['hits']
             warnings.extend(found.get('warnings', []))
             snapshot = found.get('indexSnapshotId')
-            if self.reranker is not None and candidates:
-                try:
-                    reranked = await self.reranker.rerank(query, candidates)
-                    candidates = reranked['hits']
-                    reranking = {k: v for k, v in reranked.items() if k != 'hits'}
-                    reranking['status'] = 'used'
-                except Exception as exc:
-                    # This is an optional refinement, not a failed source lookup.
-                    reranking = {'status': 'fallback', 'code': getattr(exc, 'code', 'reranker_failed')}
-                    warnings.append('선택적 재순위화가 실패하여 기본 검색 순위를 사용했습니다.')
+            candidates, reranking, rerank_warnings = await optional_rerank(self.reranker, query, candidates)
+            warnings.extend(rerank_warnings)
             selected = select_anchors(candidates, self.settings.retrieval_limit)
             companions = experiment_companions(candidates, selected)
             companions += conflict_companions(candidates, [*selected, *companions])

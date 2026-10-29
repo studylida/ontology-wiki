@@ -25,3 +25,15 @@ it('does not produce a link for an incomplete streaming marker', () => {
   view.rerender(<SafeMarkdown content={'문장 [[p1]]'} citations={[c]} onCitation={vi.fn()} />);
   expect(screen.getByRole('button').textContent).toBe('7');
 });
+it('renders only canonical stored wiki hyperlinks and delegates navigation', () => {
+  const id = 'wpg_' + 'a'.repeat(32), click = vi.fn();
+  const view = render(<SafeMarkdown content={`[예지보전](/wiki/${id}) [기타](/settings) [잘못](/wiki/%2e%2e/auth)`} onWikiNavigate={click} />);
+  const links = view.container.querySelectorAll('a'); expect(links.length).toBe(1);
+  expect(links[0].getAttribute('href')).toBe(`/wiki/${id}`);
+  fireEvent.click(links[0]); expect(click).toHaveBeenCalledWith(id);
+});
+it('internal link handling never changes the supplied markdown or its label', () => {
+  const content = `[상태 모니터링](/wiki/wpg_${'b'.repeat(32)})`;
+  render(<SafeMarkdown content={content} />);
+  expect(screen.getByRole('link').textContent).toBe('상태 모니터링');
+});

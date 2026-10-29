@@ -1,5 +1,6 @@
 from datetime import datetime
 from pydantic import Field, field_validator
+from .names import name_key
 from ..core.dto import DTO
 
 
@@ -12,6 +13,21 @@ class PageCreate(MutationRequest):
     markdown: str = Field(min_length=1, max_length=100000)
     source_note: str = Field(default='', max_length=10000)
     change_summary: str = Field(default='', max_length=500)
+    aliases: list[str] = Field(default_factory=list, max_length=30)
+    meaning: str = Field(default='', max_length=500)
+
+    @field_validator('aliases')
+    @classmethod
+    def valid_aliases(cls, values):
+        result, seen = [], set()
+        for item in values:
+            item = item.strip()
+            if not item or len(item) > 300 or any(ord(c) < 32 for c in item):
+                raise ValueError('Aliases must be short single-line names')
+            key = name_key(item)
+            if key not in seen:
+                result.append(item); seen.add(key)
+        return result
 
     @field_validator('title')
     @classmethod
@@ -21,7 +37,7 @@ class PageCreate(MutationRequest):
             raise ValueError('Use a nonempty single-line title')
         return value
 
-    @field_validator('markdown', 'source_note', 'change_summary')
+    @field_validator('markdown', 'source_note', 'change_summary', 'meaning')
     @classmethod
     def preserve_text(cls, value, info):
         if '\x00' in value or (info.field_name == 'markdown' and not value.strip()):
@@ -63,9 +79,13 @@ class RevisionSummary(DTO):
 class RevisionView(RevisionSummary):
     markdown: str
     source_note: str
+    aliases: list[str] = Field(default_factory=list)
+    meaning: str = ''
 
 
 class PageView(DTO):
+    aliases: list[str] = Field(default_factory=list)
+    meaning: str = ''
     id: str
     title: str
     current_revision_id: str

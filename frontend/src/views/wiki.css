@@ -15,3 +15,7 @@
 .wiki .actions {display: flex; gap: 8px; flex-wrap: wrap;}
 .wiki-diff {white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; background: #f5f7fa; padding: 12px;}
 @media (max-width: 850px) {.wiki-workspace {grid-template-columns: 1fr;} .wiki-list {border-right: none; border-bottom: 1px solid #dce1e8; padding: 0 0 16px;} .wiki {padding: 16px;}}
+
+.wiki-discovery { margin: 1rem 0; padding: .8rem; border: 1px solid var(--line, #d7dfeb); border-radius: .5rem; }
+.wiki-discovery input { width: 100%; } .wiki-search-hit { padding: .8rem 0; border-top: 1px solid var(--line, #d7dfeb); }
+.wiki-search-hit p { white-space: pre-wrap; overflow-wrap: anywhere; } .wiki-discovery details { margin-top: .5rem; }

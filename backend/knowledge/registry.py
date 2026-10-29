@@ -7,3 +7,4 @@ def load_entities():
     from knowledge.rag import entities as retrieval
     from knowledge.answers import entities as answers
     from knowledge.wiki import entities as wiki
+    from knowledge.wiki import index_entities as wiki_index

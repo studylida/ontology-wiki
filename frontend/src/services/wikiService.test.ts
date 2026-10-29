@@ -5,7 +5,7 @@ vi.mock('../repositories/workspaceStorage', () => ({newRequestId: () => 'same-te
 const revision: WikiRevision = {id: 'r1', pageId: 'p1', number: 1, title: '개념', markdown: '  code  \n', sourceNote: '경험',
   editor: {id: 'u1', username: 'alice'}, createdAt: '2026-10-29', changeSummary: '처음', restoredFromId: null};
 it('keeps exact Markdown whitespace and clears only the next change summary', () => {
-  expect(draftFromRevision(revision)).toEqual({title: '개념', markdown: '  code  \n', sourceNote: '경험', changeSummary: ''});
+  expect(draftFromRevision(revision)).toEqual({title: '개념', markdown: '  code  \n', sourceNote: '경험', changeSummary: '', aliasesText: '', meaning: ''});
 });
 it('rejects empty drafts without requiring a source file', () => {
   expect(validWikiDraft(emptyWikiDraft())).toBe(false);
@@ -30,4 +30,13 @@ it("does not label another editor's subsequent revision as this request result",
     {version: 3, revisionNumber: 3} as WikiDetail);
   expect(notice).toContain('이후의 변경');
   expect(notice).not.toContain('판본 3이 저장');
+});
+it('stores aliases and meaning while preserving markdown exactly', () => {
+  const draft = {...emptyWikiDraft(), title: 'RUL', markdown: '  unchanged  \n', aliasesText: '잔여 수명\nRemaining Useful Life', meaning: '설비 상태'};
+  const cmd = saveWikiCommand(draft, null, null);
+  expect(cmd.kind).toBe('create');
+  if (cmd.kind === 'create') {
+    expect(cmd.body.aliases).toEqual(['잔여 수명', 'Remaining Useful Life']);
+    expect(cmd.body).not.toHaveProperty('aliasesText'); expect(cmd.body.markdown).toBe(draft.markdown);
+  }
 });

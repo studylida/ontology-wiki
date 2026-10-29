@@ -14,12 +14,13 @@ def revision_view(revision, editor, *, summary=False):
     data = dict(id=revision.id, page_id=revision.page_id, number=revision.number, title=revision.title,
         change_summary=revision.change_summary, editor=AuthorView(id=editor.id, username=editor.username),
         created_at=revision.created_at, restored_from_id=revision.restored_from_id)
-    return RevisionSummary(**data) if summary else RevisionView(**data, markdown=revision.markdown, source_note=revision.source_note)
+    return RevisionSummary(**data) if summary else RevisionView(**data, markdown=revision.markdown, source_note=revision.source_note,
+        aliases=revision.aliases, meaning=revision.meaning)
 
 
 def page_view(row, principal, *, detail=False):
     page, revision, creator, editor = row
-    data = dict(id=page.id, title=revision.title, current_revision_id=revision.id,
+    data = dict(id=page.id, title=revision.title, aliases=revision.aliases, meaning=revision.meaning, current_revision_id=revision.id,
         revision_number=revision.number, version=page.version, locked=page.is_locked,
         can_edit=can_edit(principal, page), can_protect=can_protect(principal),
         creator=AuthorView(id=creator.id, username=creator.username),
@@ -29,13 +30,15 @@ def page_view(row, principal, *, detail=False):
 
 def compare_revisions(before, after):
     changes = []
-    for label, field in [('제목', 'title'), ('본문', 'markdown'), ('근거·업무 맥락', 'source_note')]:
+    for label, field in [('제목', 'title'), ('본문', 'markdown'), ('근거·업무 맥락', 'source_note'), ('뜻·구분', 'meaning')]:
         old, new = getattr(before, field), getattr(after, field)
         lines = list(difflib.unified_diff(old.splitlines(), new.splitlines(),
             fromfile=f'v{before.number} {label}', tofile=f'v{after.number} {label}', lineterm=''))
         if old != new and not lines:
             lines = [f'{label}: 개행 형식 또는 마지막 개행이 변경되었습니다. 각 판본의 원문을 확인하세요.']
         changes.extend(lines)
+    if before.aliases != after.aliases:
+        changes.extend(['별칭: ' + ', '.join(before.aliases), '→ ' + ', '.join(after.aliases)])
     return '\n'.join(changes)
 
 
@@ -79,7 +82,13 @@ class WikiService:
         require_read(principal)
         if operation == 'protect':
             require_protect(principal)
-        payload = {'operation': operation, 'pageId': page_id, 'body': body.model_dump(mode='json', exclude={'request_id'})}
+        content = body.model_dump(mode='json', exclude={'request_id'})
+        # Preserve receipts for unchanged Stage-1 commands across the additive upgrade.
+        # Empty optional name fields have the same meaning as their absence.
+        for key in ('aliases', 'meaning'):
+            if key in content and not content[key]:
+                content.pop(key)
+        payload = {'operation': operation, 'pageId': page_id, 'body': content}
         digest = hashlib.sha256(json.dumps(payload, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
         try:
             async with self.sessions() as session, session.begin():
@@ -97,15 +106,18 @@ class WikiService:
                     require_version(page, body.base_version)
                     if operation == 'edit':
                         await repo.append(page, principal.id, title=body.title, markdown=body.markdown,
-                            source_note=body.source_note, summary=body.change_summary)
+                            source_note=body.source_note, summary=body.change_summary, aliases=body.aliases, meaning=body.meaning)
                     elif operation == 'restore':
                         source, _ = await repo.revision(page.id, body.revision_id)
                         await repo.append(page, principal.id, title=source.title, markdown=source.markdown,
-                            source_note=source.source_note, summary=f'v{source.number} 복구', restored_from=source.id)
+                            source_note=source.source_note, summary=f'v{source.number} 복구', aliases=source.aliases, meaning=source.meaning, restored_from=source.id)
                     elif operation == 'protect':
                         await repo.protect(page, principal.id, body.locked)
                     else:
                         raise ValueError('Unknown wiki mutation')
+                if operation != 'protect':
+                    from .index_repository import WikiIndexRepository
+                    await WikiIndexRepository(session).enqueue(page)
                 result = MutationResult(page_id=page.id, revision_id=page.current_revision_id, version=page.version)
                 await repo.remember(principal.id, body.request_id, digest, page, result.model_dump())
                 # Context-manager commit completes before a successful HTTP response can escape.

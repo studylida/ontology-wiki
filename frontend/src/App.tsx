@@ -7,11 +7,13 @@ import { LoginView } from './views/LoginView';
 import { ConversationView } from './views/ConversationView';
 import { DocumentsView } from './views/DocumentsView';
 import { SourcePanel } from './views/SourcePanel';
+import { currentWikiPage, onWikiNavigation } from './repositories/wikiNavigation';
 import { WikiView } from './views/WikiView';
 function Workspace({user, logout}: {user: User; logout: () => void}) {
   const chat = useConversationController(user.id);
-  const [tab, setTab] = useState<'chat' | 'documents' | 'wiki'>('chat');
-  const [wikiOpened, setWikiOpened] = useState(false);
+  const [tab, setTab] = useState<'chat' | 'documents' | 'wiki'>(() => currentWikiPage() ? 'wiki' : 'chat');
+  const [wikiOpened, setWikiOpened] = useState(() => !!currentWikiPage());
+  useEffect(() => onWikiNavigation(id => {if (id) {setTab('wiki'); setWikiOpened(true);}}), []);
   const [source, setSource] = useState<SourceSelection | null>(null);
   useEffect(() => setSource(null), [chat.selected]);
   const documentsChanged = useCallback(() => {setSource(null); chat.refresh();}, [chat.refresh]);

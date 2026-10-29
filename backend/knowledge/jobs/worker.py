@@ -1,6 +1,6 @@
 """Small serial worker. A PostgreSQL advisory lock prevents duplicate consumers.
 
-No broker, scheduler, personal wiki or automatic ontology extraction. A crashed
+Document and wiki index queues share this serial executor; no generation or ontology extraction. A crashed
 running job is recorded as interrupted on next start and can be explicitly retried.
 """
 import asyncio
@@ -51,14 +51,27 @@ async def run_worker(*, once=False, settings=None, embedding_client=None):
                 return {'status':'busy','processed':0}
             try:
                 await recover_interrupted(sessions)
+                from ..wiki.indexing import recover_wiki_jobs, process_wiki_index_job
+                from ..wiki.index_repository import WikiIndexRepository
+                await recover_wiki_jobs(sessions)
                 from ..indexing.service import process_index_job
                 processed = 0
+                wiki_first = False
                 while True:
                     async with sessions() as session, session.begin():
-                        job = await JobRepository(session).claim()
+                        queues = [('wiki_index', WikiIndexRepository(session)), ('document_index', JobRepository(session))]
+                        if not wiki_first:
+                            queues.reverse()
+                        job, kind = None, None
+                        for kind, repository in queues:
+                            job = await repository.claim()
+                            if job is not None:
+                                break
                         job_id = job.id if job else None
                     if job_id:
-                        result = await process_index_job(sessions,settings,job_id,embedding_client)
+                        wiki_first = kind != 'wiki_index'
+                        processor = process_wiki_index_job if kind == 'wiki_index' else process_index_job
+                        result = await processor(sessions,settings,job_id,embedding_client)
                         processed += 1
                         if once:
                             return {**result,'processed':processed}

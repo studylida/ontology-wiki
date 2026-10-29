@@ -19,6 +19,8 @@ from .migration.schema import assert_current_schema
 from .registry import load_entities
 from .wiki.router import router as wiki_router
 from .wiki.service import WikiService
+from .wiki.search import WikiSearchService
+from .wiki.search_router import router as wiki_search_router
 from .answers.router import router as answer_router
 from .answers.service import AnswerService
 from .integrations.providers import get_embedding_client, get_generation_client
@@ -41,6 +43,7 @@ def create_app(settings=None, session_factory=None, *, embedding_client=None, ge
         conversations=ConversationService(session_factory), documents=DocumentService(session_factory, settings))
     rag = RAGService(session_factory, settings, embedding_client or get_embedding_client(settings), reranker)
     services.wiki = WikiService(session_factory)
+    services.wiki_search = WikiSearchService(session_factory, settings, rag.embedding_client, reranker)
     services.answers = AnswerService(session_factory, settings, services.identity, rag,
                                     generation_client or get_generation_client(settings))
 
@@ -74,7 +77,7 @@ def create_app(settings=None, session_factory=None, *, embedding_client=None, ge
             response.headers['Cache-Control'] = 'no-store'
         return response
 
-    for router in (identity_router, conversation_router, document_router, answer_router, wiki_router):
+    for router in (identity_router, conversation_router, document_router, answer_router, wiki_router, wiki_search_router):
         app.include_router(router, prefix='/api/v1')
 
     @app.get('/api/v1/health', tags=['health'])

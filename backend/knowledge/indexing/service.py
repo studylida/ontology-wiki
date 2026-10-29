@@ -2,18 +2,19 @@
 from __future__ import annotations
 import asyncio
 import logging
-import math
 from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert
 from ..core.errors import AppError
 from ..core.ids import new_id, utcnow
-from ..documents.entities import Document, DocumentRevision, EmbeddingRecord, Passage, PassageEmbedding
+from ..documents.entities import Document, DocumentRevision, Passage, PassageEmbedding
 from ..documents.parsing import digest
 from ..documents.processing import prepare_file
 from ..documents.repository import DocumentRepository
 from ..documents.storage import read_raw
 from ..jobs.entities import Job
 from .dto import IndexUnit
+from .repository import EmbeddingCache
+from .embeddings import embed_uncached
 
 
 async def locked_work(session, job_id):
@@ -88,32 +89,16 @@ async def process_index_job(sessions, settings, job_id, embedding_client=None):
                     return {'jobId':job_id,'status':job.status}
                 job.progress = {'phase':phase,'processed':offset,'total':len(units),'embedded':embedded,'reused':reused}
                 job.updated_at = utcnow()
-                records = list(await session.scalars(select(EmbeddingRecord).where(EmbeddingRecord.scope == 'shared',
-                    EmbeddingRecord.profile_id == profile,EmbeddingRecord.input_hash.in_([u.input_hash for u in batch]))))
-                cached = {r.input_hash:r.id for r in records}
-            missing = {u.input_hash:u.text for u in batch if u.input_hash not in cached}
-            response,vectors = None,{}
-            if missing:
-                response = await embedding_client.embed(list(missing.values()))
-                if len(response.vectors) != len(missing):
-                    raise AppError(502,'invalid_embedding','임베딩 결과와 입력 개수가 다릅니다.')
-                for hashed,vector in zip(missing,response.vectors,strict=True):
-                    if len(vector) != 1536 or any(not isinstance(v,(int,float)) or not math.isfinite(v) for v in vector) or not any(v != 0 for v in vector):
-                        raise AppError(502,'invalid_embedding','임베딩 벡터의 차원 또는 값이 유효하지 않습니다.')
-                    vectors[hashed] = vector
+                cached = await EmbeddingCache(session).lookup(profile, [u.input_hash for u in batch])
+            vectors, usage = await embed_uncached(embedding_client, batch, cached)
             async with sessions() as session, session.begin():
                 document,revision,job = await locked_work(session,job_id)
-                if response is not None:
-                    job.usage = {'calls':[*(job.usage or {}).get('calls',[]),response.usage]}
+                if usage is not None:
+                    job.usage = {'calls':[*(job.usage or {}).get('calls',[]),usage]}
                 if not valid_work(document,revision,job):
                     return {'jobId':job_id,'status':job.status}
-                reused += len(batch) - len(missing)
-                for hashed,vector in vectors.items():
-                    await session.execute(insert(EmbeddingRecord).values(id=new_id('vec'),scope='shared',profile_id=profile,
-                        input_hash=hashed,vector=vector).on_conflict_do_nothing(index_elements=['scope','profile_id','input_hash']))
-                    record = await session.scalar(select(EmbeddingRecord).where(EmbeddingRecord.scope == 'shared',
-                        EmbeddingRecord.profile_id == profile,EmbeddingRecord.input_hash == hashed))
-                    cached[hashed] = record.id
+                reused += len(batch) - len(vectors)
+                cached.update(await EmbeddingCache(session).store(profile, vectors))
                 embedded += len(vectors)
                 for unit in batch:
                     await session.execute(insert(PassageEmbedding).values(id=new_id('pe'),passage_id=unit.passage_id,

@@ -1,0 +1,11 @@
+import type { WikiPage } from './wiki';
+export type WikiSearchHit = {page: WikiPage; revisionId: string; passageId: string | null;
+  locator: string; excerpt: string; methods: string[]; score: number; nameMatch: boolean};
+export type WikiSearchResult = {items: WikiSearchHit[]; warnings: string[]; semanticStatus: string;
+  embeddingProfile: string; reranking: {status: string}};
+export type WikiAlternative = {page: WikiPage; matchedNames: string[]};
+export type WikiIndexStatus = {status: string; currentRevisionId: string; indexedRevisionId: string | null;
+  embeddingProfile: string | null; requestedProfile: string; canRetry: boolean;
+  job: {id: string; status: string; attempts: number; progress: Record<string, unknown>;
+    error: {code: string; message: string} | null} | null;
+  heldPassages: {id: string; locator: string; reason: string}[]};
