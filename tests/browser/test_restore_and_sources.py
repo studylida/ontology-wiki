@@ -31,8 +31,8 @@ def test_source_deactivation_is_reflected_in_restored_chat(browser_app):
     page.get_by_role('button', name='비활성화 실행', exact=True).click()
     expect(page.get_by_text('서버에서 문헌을 비활성화했습니다.')).to_be_visible()
     page.get_by_role('button', name='대화', exact=True).click()
-    expect(page.get_by_text('근거 문헌을 현재 사용할 수 없어 답변과 출처를 숨겼습니다.')).to_be_visible()
+    expect(page.get_by_text('근거 자료를 현재 사용할 수 없어 답변과 출처를 숨겼습니다.')).to_be_visible()
     expect(page.get_by_test_id('message-assistant').get_by_role('button', name=re.compile('^출처 '))).to_have_count(0)
     assert app.database.query('SELECT withdrawn FROM documents')[0]['withdrawn']
     page.reload()
-    expect(page.get_by_text('근거 문헌을 현재 사용할 수 없어 답변과 출처를 숨겼습니다.')).to_be_visible()
+    expect(page.get_by_text('근거 자료를 현재 사용할 수 없어 답변과 출처를 숨겼습니다.')).to_be_visible()
