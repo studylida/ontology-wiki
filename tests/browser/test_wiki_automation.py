@@ -64,7 +64,14 @@ def test_upload_automatically_proposes_then_links_chat_and_exports(browser_app):
         page.get_by_role('button',name='원문 닫기',exact=True).click()
     ask(page,'What are the restrictions on RULStage5Source?',new=False)
     expect(page.get_by_test_id('message-assistant')).to_have_count(2);answer(page)
+    # Switching from a permalink to chat must also update the browser route.
+    expect(page).to_have_url(app.url + '/')
     page.reload();answer(page)
+    expect(page.get_by_test_id('message-assistant')).to_have_count(2)
+    page.get_by_role('button', name='공용 문헌', exact=True).click()
+    expect(page).to_have_url(app.url + '/documents')
+    page.reload()
+    expect(page.get_by_role('button', name='공용 문헌', exact=True)).to_have_attribute('aria-current', 'page')
     assert app.database.query('SELECT count(*) n FROM wiki_document_jobs')[0]['n']==1
     assert app.database.query('SELECT count(*) n FROM wiki_proposals')[0]['n']==1
     assert app.server.request('GET',f'/wiki/pages/{pid}/markdown',token=alice).text==reviewed

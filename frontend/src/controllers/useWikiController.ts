@@ -8,7 +8,7 @@ import { currentWikiPage, onWikiNavigation, rememberWikiPage } from '../reposito
 import type { WikiCommand, WikiComparison, WikiDetail, WikiDraft, WikiList, WikiPage, WikiPending, WikiRevision, WikiRevisionSummary } from '../types/wiki';
 
 /** Workspace is keyed by authenticated user; no private recovery state crosses logout. */
-export function useWikiController(userId: string) {
+export function useWikiController(userId: string, active = true) {
   const [recovered] = useState(() => pendingWikiMutation(userId));
   const [pending, setPending] = useState<WikiPending | null>(recovered);
   const [query, setQuery] = useState(''), [offset, setOffset] = useState(0), [refreshKey, setRefreshKey] = useState(0);
@@ -45,6 +45,9 @@ export function useWikiController(userId: string) {
     if (id && !recovered) navigation.current(id);
     return onWikiNavigation(id => {if (id) navigation.current(id);});
   }, []);
+  // The view stays mounted across tabs. Background read/save completion must not
+  // replace a chat/documents URL; returning to the wiki restores its permalink.
+  useEffect(() => {if (active && page) rememberWikiPage(page.id, true);}, [active, page?.id]);
   const refresh = useCallback(() => setRefreshKey(n => n + 1), []);
   function remember(value: WikiPending | null) {
     setPending(value);
@@ -57,7 +60,8 @@ export function useWikiController(userId: string) {
       setError('작성 중인 내용을 저장하거나 편집을 취소한 뒤 다른 문서를 열어 주세요.'); return;
     }
     const sequence = ++request.current; setBusy(false); setLoadingPage(true); setTargetId(id); setPage(null); clearPanels(); setError(''); setNotice('');
-    try {const result = await wikiRepository.detail(id); if (current(sequence)) {setPage(result); rememberWikiPage(id);}}
+    if (active) rememberWikiPage(id);
+    try {const result = await wikiRepository.detail(id); if (current(sequence)) setPage(result);}
     catch (e) {if (current(sequence)) setError(errorMessage(e));}
     finally {if (current(sequence)) setLoadingPage(false);}
   }
@@ -84,7 +88,7 @@ export function useWikiController(userId: string) {
         if (current(sequence)) remember({command, receipt: value});
       });
       if (!current(sequence)) return;
-      setPage(result.page); setTargetId(result.page.id); rememberWikiPage(result.page.id); remember(null); clearPanels(); refresh();
+      setPage(result.page); setTargetId(result.page.id); remember(null); clearPanels(); refresh();
       setEditing(false); setDraft(emptyWikiDraft()); setBaseVersion(null);
       setNotice(wikiMutationNotice(command, result.receipt, result.page));
     } catch (e) {

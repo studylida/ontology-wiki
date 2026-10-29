@@ -7,8 +7,8 @@ import { WikiDiscovery, WikiSearchPanel } from './WikiDiscovery';
 import { SafeMarkdown } from './components/SafeMarkdown';
 import './wiki.css';
 const date = (value: string) => new Date(value).toLocaleString('ko-KR');
-export function WikiView({userId}: {userId: string}) {
-  const wiki = useWikiController(userId), page = wiki.page;
+export function WikiView({userId, active = true}: {userId: string; active?: boolean}) {
+  const wiki = useWikiController(userId, active), page = wiki.page;
   const [search, setSearch] = useState(''), [preview, setPreview] = useState(false);
   const unavailable = wiki.busy || !!wiki.pending;
   return <section className="wiki" aria-label="공용 위키">
