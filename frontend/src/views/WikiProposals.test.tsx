@@ -13,9 +13,9 @@ it('keeps populated review labels separate from document contents', () => {
     instruction: '', context: '', busy: false, pending: null, change: vi.fn(), refresh: vi.fn(),
     apply: vi.fn(), dismiss: vi.fn()} as unknown as ReturnType<typeof useWikiProposals>);
   render(<WikiProposals userId="alice" page={null}/>);
-  const field = screen.getByRole('textbox', {name: '반영할 Markdown', exact: true}) as HTMLTextAreaElement;
+  const field = screen.getByRole('textbox', {name: '반영할 Markdown'}) as HTMLTextAreaElement;
   expect(field.value).toContain('Employee experience');
   expect(field.labels?.[0].textContent).toBe('반영할 Markdown');
-  const note = screen.getByRole('textbox', {name: '반영할 근거·업무 맥락', exact: true}) as HTMLTextAreaElement;
+  const note = screen.getByRole('textbox', {name: '반영할 근거·업무 맥락'}) as HTMLTextAreaElement;
   expect(note.labels?.[0].textContent).toBe('반영할 근거·업무 맥락');
 });
