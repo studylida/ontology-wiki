@@ -1,8 +1,9 @@
+import { DocumentWikiSuggestions } from './DocumentWikiSuggestions';
 import { useRef, useState } from 'react';
 import { useDocumentController } from '../controllers/useDocumentController';
 import { documentStatus } from '../services/documentService';
 import type { SourceSelection } from '../types/contracts';
-export function DocumentsView({onMutation, onSource}: {onMutation: () => void; onSource: (source: SourceSelection) => void}) {
+export function DocumentsView({userId, onMutation, onSource}: {userId: string; onMutation: () => void; onSource: (source: SourceSelection) => void}) {
   const docs = useDocumentController(onMutation), input = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState(''), [file, setFile] = useState<File | null>(null);
   const current = docs.current, latest = current?.latestRevision;
@@ -31,6 +32,8 @@ export function DocumentsView({onMutation, onSource}: {onMutation: () => void; o
           {latest.job?.error && <p role="alert" className="error">{latest.job.error.message} <small>({latest.job.error.code})</small></p>}
           {latest.limitations.map(note => <p className="notice" key={note}>{note}</p>)}
         </>}
+        {!current.withdrawn && current.currentRevisionId && <DocumentWikiSuggestions key={current.id} userId={userId}
+          documentId={current.id} revisionId={current.currentRevisionId}/>}
         <div className="actions">
           {!current.withdrawn && current.currentRevisionId && <button onClick={() => onSource({documentId: current.id, revisionId: current.currentRevisionId!, title: latest?.title || current.title})}>최신 판본 원문 확인</button>}
           {!current.withdrawn && current.activeRevisionId && current.activeRevisionId !== current.currentRevisionId && <button onClick={() => onSource({documentId: current.id, revisionId: current.activeRevisionId!, title: current.activeRevision?.title || current.title})}>사용 중 판본 원문 확인</button>}

@@ -1,8 +1,9 @@
 """Proposal storage/queue only. Access and publication rules live in the service."""
 import hashlib
-from sqlalchemy import select, text, update, or_, and_
+from sqlalchemy import select, text, update, or_, and_, exists
 from ...core.errors import AppError
 from ...core.ids import utcnow
+from ...documents.entities import Document, DocumentRevision
 from ..entities import WikiPage, WikiRevision
 from .entities import WikiProposal
 
@@ -27,9 +28,13 @@ class ProposalRepository:
         return item
 
     async def list(self, owner_id, *, admin=False, page_id=None):
-        scope = WikiProposal.owner_id == owner_id
+        public_source = exists(select(DocumentRevision.id).join(Document, Document.id == DocumentRevision.document_id)
+            .where(DocumentRevision.id == WikiProposal.origin_revision_id, Document.withdrawn.is_(False)))
+        private_scope = WikiProposal.owner_id == owner_id
         if admin and page_id:
-            scope = or_(scope, WikiProposal.page_id == page_id)
+            private_scope = or_(private_scope, WikiProposal.page_id == page_id)
+        scope = or_(and_(WikiProposal.origin_revision_id.is_(None), private_scope),
+                    and_(WikiProposal.origin_revision_id.is_not(None), public_source))
         statement = select(WikiProposal).where(scope)
         if page_id:
             statement = statement.where(WikiProposal.page_id == page_id)
@@ -37,8 +42,9 @@ class ProposalRepository:
             statement = statement.where(WikiProposal.page_id.is_(None))
         return list(await self.session.scalars(statement.order_by(WikiProposal.created_at.desc()).limit(30)))
 
-    async def claim(self):
-        item = await self.session.scalar(select(WikiProposal).where(WikiProposal.status == 'pending')
+    async def claim(self, *, include_document=True):
+        item = await self.session.scalar(select(WikiProposal).where(WikiProposal.status == 'pending',
+            True if include_document else WikiProposal.origin_revision_id.is_(None))
             .order_by(WikiProposal.created_at, WikiProposal.id).with_for_update(skip_locked=True).limit(1))
         if item:
             item.status, item.updated_at = 'running', utcnow()

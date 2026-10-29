@@ -1,9 +1,10 @@
 """Small serial worker. A PostgreSQL advisory lock prevents duplicate consumers.
 
-Document/wiki indexing and requested wiki drafts share this bounded serial executor. No automatic proposals or ontology extraction. A crashed
+Document/wiki indexing and requested wiki drafts share this bounded serial executor. Opt-in document-change proposals are independent; no ontology extraction. A crashed
 running job is recorded as interrupted on next start and can be explicitly retried.
 """
 import asyncio
+import logging
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from ..core.config import get_settings
@@ -59,22 +60,55 @@ async def run_worker(*, once=False, settings=None, embedding_client=None, genera
                 from ..wiki.proposals.generation import process_proposal_job
                 async with sessions() as session, session.begin():
                     await ProposalRepository(session).recover()
+                from ..wiki.automation.repository import DocumentWikiRepository
+                from ..wiki.automation.processing import process_document_wiki_job
+                try:
+                    async with sessions() as session, session.begin():
+                        await DocumentWikiRepository(session).recover()
+                except Exception as exc:
+                    logging.getLogger('knowledge.worker').warning(
+                        'wiki_discovery_recovery_failed error_type=%s', type(exc).__name__)
                 processed, cursor = 0, 0
                 while True:
+                    if settings.wiki_auto_proposals_enabled:
+                        try:
+                            async with sessions() as session, session.begin():
+                                await DocumentWikiRepository(session).reconcile()
+                        except Exception as exc:
+                            # Optional queue faults must not roll back an indexed document.
+                            logging.getLogger('knowledge.worker').warning(
+                                'wiki_discovery_reconcile_failed error_type=%s', type(exc).__name__)
                     async with sessions() as session, session.begin():
-                        queues = [('document_index', JobRepository(session)), ('wiki_index', WikiIndexRepository(session)),
-                                  ('wiki_proposal', ProposalRepository(session))]
+                        queues = [('document_index', JobRepository(session).claim),
+                                  ('wiki_index', WikiIndexRepository(session).claim),
+                                  ('wiki_proposal', lambda: ProposalRepository(session).claim(
+                                      include_document=settings.wiki_auto_proposals_enabled))]
+                        if settings.wiki_auto_proposals_enabled:
+                            queues.append(('wiki_discovery', lambda: DocumentWikiRepository(session).claim(
+                                settings.wiki_auto_daily_documents)))
+                        order = [kind for kind, _ in queues]
                         queues = queues[cursor:] + queues[:cursor]
                         job, kind = None, None
-                        for kind, repository in queues:
-                            job = await repository.claim()
+                        for kind, claim in queues:
+                            if kind == 'wiki_discovery':
+                                try:
+                                    async with session.begin_nested():
+                                        job = await claim()
+                                except Exception as exc:
+                                    logging.getLogger('knowledge.worker').warning(
+                                        'wiki_discovery_claim_failed error_type=%s', type(exc).__name__)
+                                    job = None
+                            else:
+                                job = await claim()
                             if job is not None:
                                 break
                         job_id = job.id if job else None
                     if job_id:
-                        cursor = ({'document_index': 0, 'wiki_index': 1, 'wiki_proposal': 2}[kind] + 1) % 3
+                        cursor = (order.index(kind) + 1) % len(order)
                         if kind == 'wiki_proposal':
                             result = await process_proposal_job(sessions, settings, job_id, embedding_client, generation_client)
+                        elif kind == 'wiki_discovery':
+                            result = await process_document_wiki_job(sessions, settings, job_id, embedding_client, generation_client)
                         else:
                             processor = process_wiki_index_job if kind == 'wiki_index' else process_index_job
                             result = await processor(sessions, settings, job_id, embedding_client)

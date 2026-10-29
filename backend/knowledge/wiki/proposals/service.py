@@ -23,18 +23,23 @@ def digest(value):
 
 def require_access(principal, proposal):
     require_read(principal)
-    if proposal.owner_id != principal.id and not (proposal.page_id and is_administrator(principal)):
+    if not proposal.origin_revision_id and proposal.owner_id != principal.id and not (proposal.page_id and is_administrator(principal)):
         raise AppError(404, 'proposal_not_found', '제안을 찾을 수 없습니다.')
 
 
 async def require_sources(session, principal, proposal, *, current=False, lock=False):
     ids = set(proposal.result.get('sourceRevisionIds', []))
+    if proposal.origin_revision_id:
+        ids.add(proposal.origin_revision_id)
     if proposal.base_revision_id:
         ids.add(proposal.base_revision_id)
     ids.update(proposal.input.get('selectionRevisionIds', []))
     access = EvidenceAccess(session)
     if not await access.ensure_readable(principal, ids, lock=lock):
         raise AppError(409, 'proposal_source_unavailable', '제안의 근거가 비활성화되었습니다. 제안 내용을 다시 공개하거나 적용하지 않습니다.')
+    if current and proposal.origin_revision_id:
+        from .source import document_context
+        await document_context(session, principal, proposal.origin_revision_id, proposal.input['sourcePassageIds'])
     if current:
         supporting = ids - {proposal.base_revision_id}
         if set(await access.current_ids(principal, supporting)) != supporting:
@@ -43,6 +48,7 @@ async def require_sources(session, principal, proposal, *, current=False, lock=F
 
 def summary(item):
     return {'id': item.id, 'pageId': item.page_id, 'mode': item.mode, 'status': item.status,
+            'originRevisionId': item.origin_revision_id, 'shared': bool(item.origin_revision_id),
             'createdAt': item.created_at.isoformat(), 'updatedAt': item.updated_at.isoformat()}
 
 
@@ -51,43 +57,55 @@ class ProposalService:
         self.sessions, self.wiki = sessions, WikiService(sessions)
 
     async def submit(self, principal, body):
-        require_read(principal)
-        hashed = digest(body.model_dump(mode='json', exclude={'request_id'}))
         async with self.sessions() as session, session.begin():
-            repo = ProposalRepository(session)
-            old = await repo.request_lock(principal.id, body.request_id)
-            if old:
-                if old.request_hash != hashed:
-                    raise AppError(409, 'proposal_request_conflict', '같은 요청 ID의 내용을 바꿀 수 없습니다.')
-                return summary(old)
-            base, revision_id, version = {}, None, None
-            if body.page_id:
-                page, revision, _, _ = await WikiRepository(session).detail(body.page_id)
-                if len(revision.markdown) > 20000:
-                    raise AppError(422, 'proposal_budget', 'AI 부분 편집은 현재 20,000자 이하 문서에 제공됩니다. 직접 편집은 계속 사용할 수 있습니다.')
-                base = {'title': revision.title, 'markdown': revision.markdown, 'sourceNote': revision.source_note,
-                        'aliases': revision.aliases, 'meaning': revision.meaning}
-                revision_id, version = revision.id, page.version
-            data = {'instruction': body.instruction, 'employeeText': body.context_text, 'inputKind': 'employee',
-                    'selectionRevisionIds': []}
-            if body.selection:
-                selected = body.selection
-                message = await ConversationRepository(session).message_for_owner(
-                    selected.conversation_id, selected.message_id, principal.id)
-                view = await visible_message(session, principal, message)
-                if view.source_unavailable or message.status not in ('completed', 'complete', 'saved'):
-                    raise AppError(409, 'selection_unavailable', '완료되고 열람 가능한 대화 내용만 선택할 수 있습니다.')
-                if not selected.text.strip() or selected.text not in view.content:
-                    raise AppError(422, 'selection_mismatch', '선택한 문장이 해당 대화 메시지와 일치하지 않습니다.')
-                data.update(employeeText=selected.text, inputKind='chat_selection',
-                    selectionRevisionIds=message.source_revision_ids or [])
-                # No full conversation, message ID or nonselected text enters this draft.
-            item = WikiProposal(owner_id=principal.id, request_id=body.request_id, request_hash=hashed,
-                page_id=body.page_id, base_revision_id=revision_id, base_version=version,
-                mode=body.mode, input=data, base_snapshot=base)
-            session.add(item)
-            await session.flush()
-            return summary(item)
+            return await self.enqueue(session, principal, body)
+
+    async def enqueue(self, session, principal, body, *, origin_revision_id=None, source_passage_ids=None):
+        """Shared submission use case. Origin is trusted worker-only input, never an HTTP field."""
+        require_read(principal)
+        fingerprint = body.model_dump(mode='json', exclude={'request_id'})
+        if origin_revision_id:
+            fingerprint.update(originRevisionId=origin_revision_id, sourcePassageIds=source_passage_ids)
+        hashed = digest(fingerprint)
+        repo = ProposalRepository(session)
+        old = await repo.request_lock(principal.id, body.request_id)
+        if old:
+            if old.request_hash != hashed:
+                raise AppError(409, 'proposal_request_conflict', '같은 요청 ID의 내용을 바꿀 수 없습니다.')
+            return summary(old)
+        base, revision_id, version = {}, None, None
+        if body.page_id:
+            page, revision, _, _ = await WikiRepository(session).detail(body.page_id)
+            if len(revision.markdown) > 20000:
+                raise AppError(422, 'proposal_budget', 'AI 부분 편집은 현재 20,000자 이하 문서에 제공됩니다. 직접 편집은 계속 사용할 수 있습니다.')
+            base = {'title': revision.title, 'markdown': revision.markdown, 'sourceNote': revision.source_note,
+                    'aliases': revision.aliases, 'meaning': revision.meaning}
+            revision_id, version = revision.id, page.version
+        data = {'instruction': body.instruction, 'employeeText': body.context_text, 'inputKind': 'employee',
+                'selectionRevisionIds': []}
+        if body.selection:
+            selected = body.selection
+            message = await ConversationRepository(session).message_for_owner(
+                selected.conversation_id, selected.message_id, principal.id)
+            view = await visible_message(session, principal, message)
+            if view.source_unavailable or message.status not in ('completed', 'complete', 'saved'):
+                raise AppError(409, 'selection_unavailable', '완료되고 열람 가능한 대화 내용만 선택할 수 있습니다.')
+            if not selected.text.strip() or selected.text not in view.content:
+                raise AppError(422, 'selection_mismatch', '선택한 문장이 해당 대화 메시지와 일치하지 않습니다.')
+            data.update(employeeText=selected.text, inputKind='chat_selection',
+                selectionRevisionIds=message.source_revision_ids or [])
+            # No full conversation, message ID or nonselected text enters this draft.
+        if origin_revision_id:
+            from .source import document_context
+            await document_context(session, principal, origin_revision_id, source_passage_ids)
+            data.update(inputKind='document_change', sourcePassageIds=source_passage_ids)
+        item = WikiProposal(origin_revision_id=origin_revision_id, owner_id=principal.id, request_id=body.request_id, request_hash=hashed,
+            page_id=body.page_id, base_revision_id=revision_id, base_version=version,
+            mode=body.mode, input=data, base_snapshot=base)
+        session.add(item)
+        await session.flush()
+        return summary(item)
+
 
     async def list(self, principal, page_id=None):
         require_read(principal)
@@ -103,6 +121,12 @@ class ProposalService:
             require_access(principal, item)
             await require_sources(session, principal, item)
             editable, stale, current_version = True, False, None
+            source_changed = False
+            if item.origin_revision_id:
+                try:
+                    await require_sources(session, principal, item, current=True)
+                except AppError:
+                    source_changed = True
             if item.page_id:
                 page = await WikiRepository(session).get(item.page_id)
                 editable, current_version = can_edit(principal, page), page.version
@@ -112,7 +136,8 @@ class ProposalService:
                 'instruction': item.input['instruction'], 'employeeText': item.input['employeeText'],
                 'inputKind': item.input['inputKind'], 'result': item.result,
                 'error': item.error, 'usage': item.usage, 'stale': stale, 'currentVersion': current_version,
-                'canApply': item.status == 'ready' and editable and not stale,
+                'sourceChanged': source_changed,
+                'canApply': item.status == 'ready' and editable and not stale and not source_changed,
                 'appliedResult': MutationResult(**item.applied_result).public() if item.applied_result else None}
 
     async def dismiss(self, principal, proposal_id):

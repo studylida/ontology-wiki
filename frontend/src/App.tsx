@@ -32,7 +32,7 @@ function Workspace({user, logout}: {user: User; logout: () => void}) {
         disabled={chat.busy} onClick={() => {setTab('chat'); setSource(null); chat.select(item.id);}}><span>{item.title}</span><small>{new Date(item.updatedAt).toLocaleString('ko-KR')}</small></button>)}</nav>
       <footer><span>{user.username}</span><button onClick={logout}><LogOut aria-hidden="true" /> 로그아웃</button></footer>
     </aside>
-    <main className="main-content">{tab === 'chat' && <ConversationView chat={chat} onCitation={showCitation} onWikiRequest={setWikiSeed} />}{tab === 'documents' && <DocumentsView onMutation={documentsChanged} onSource={setSource} />}
+    <main className="main-content">{tab === 'chat' && <ConversationView chat={chat} onCitation={showCitation} onWikiRequest={setWikiSeed} />}{tab === 'documents' && <DocumentsView userId={user.id} onMutation={documentsChanged} onSource={setSource} />}
       {wikiOpened && <div className="wiki-host" hidden={tab !== 'wiki'}><WikiView userId={user.id} /></div>}</main>
     {wikiSeed && <ChatWikiProposal userId={user.id} seed={wikiSeed} onClose={()=>setWikiSeed(null)}/>}
     {source && <SourcePanel key={sourceKey(source)} selection={source} onClose={() => setSource(null)} />}

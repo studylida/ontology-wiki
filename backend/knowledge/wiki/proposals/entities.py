@@ -8,6 +8,7 @@ class WikiProposal(Base):
     __tablename__ = 'wiki_proposals'
     id = Column(String(80), primary_key=True, default=lambda: new_id('wpr'))
     owner_id = Column(String(80), ForeignKey('knowledge_users.id'), nullable=False)
+    origin_revision_id = Column(String(80), ForeignKey('document_revisions.id'))
     request_id = Column(String(128), nullable=False)
     request_hash = Column(String(64), nullable=False)
     page_id = Column(String(80), ForeignKey('wiki_pages.id'))

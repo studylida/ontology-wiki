@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     embedding_api_dimensions: int = 1536
     embedding_transform: str = 'native'
     wiki_proposal_timeout_seconds: float = Field(default=120, ge=5, le=300)
+    wiki_auto_proposals_enabled: bool = False
+    wiki_auto_daily_documents: int = Field(default=20, ge=1, le=100)
+    wiki_auto_max_proposals: int = Field(default=2, ge=1, le=3)
     worker_poll_seconds: float = Field(default=2, ge=.05)
     retrieval_limit: int = Field(default=8, ge=1, le=40)
     retrieval_candidate_limit: int = Field(default=60, ge=8, le=200)

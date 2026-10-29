@@ -20,7 +20,7 @@ spec.loader.exec_module(support)
 database_factory = support.database_factory
 
 @pytest.fixture
-def browser_app(database_factory, tmp_path):
+def browser_app(database_factory, tmp_path, request):
     with database_factory() as database, ThreadPoolExecutor(max_workers=1) as database_thread:
         # Playwright's synchronous facade owns an event loop on this thread.
         # Reuse the real foundation DB helpers on another thread, not nested
@@ -30,6 +30,7 @@ def browser_app(database_factory, tmp_path):
             execute=lambda sql, *args: database_thread.submit(database.execute, sql, *args).result(timeout=20))
         env = {**os.environ, 'PYTHONPATH': str(ROOT / 'backend'), 'OW_DATABASE_URL': database.url,
             'OW_AUTH_SECRET': secrets.token_hex(32), 'OW_BOOTSTRAP_PASSWORD': secrets.token_urlsafe(24),
+            'OW_WIKI_AUTO_PROPOSALS_ENABLED': 'true' if getattr(request, 'param', False) else 'false',
             'OW_PROVIDER_MODE': 'fixture', 'OW_STORAGE_PATH': str(tmp_path / 'raw'), 'OW_PDF_PARSER': 'legacy'}
         env.pop('OPENAI_API_KEY', None)
         support.cli(env, 'migrate', '--database-name', database.name)

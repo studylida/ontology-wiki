@@ -21,6 +21,8 @@ from .wiki.router import router as wiki_router
 from .wiki.service import WikiService
 from .wiki.proposals.router import router as proposal_router
 from .wiki.proposals.service import ProposalService
+from .wiki.automation.service import DocumentWikiService
+from .wiki.automation.router import router as document_wiki_router
 from .wiki.search import WikiSearchService
 from .wiki.search_router import router as wiki_search_router
 from .answers.router import router as answer_router
@@ -43,6 +45,7 @@ def create_app(settings=None, session_factory=None, *, embedding_client=None, ge
     rag = RAGService(session_factory, settings, embedding_client or get_embedding_client(settings), reranker)
     services.wiki = WikiService(session_factory)
     services.proposals = ProposalService(session_factory)
+    services.document_wiki = DocumentWikiService(session_factory, settings)
     services.wiki_search = WikiSearchService(session_factory, settings, rag.embedding_client, reranker)
     services.answers = AnswerService(session_factory, settings, services.identity, rag,
                                     generation_client or get_generation_client(settings))
@@ -78,7 +81,7 @@ def create_app(settings=None, session_factory=None, *, embedding_client=None, ge
             response.headers['Cache-Control'] = 'no-store'
         return response
 
-    for router in (identity_router, conversation_router, document_router, answer_router, wiki_router, wiki_search_router, proposal_router):
+    for router in (identity_router, conversation_router, document_router, answer_router, wiki_router, wiki_search_router, proposal_router, document_wiki_router):
         app.include_router(router, prefix='/api/v1')
 
     @app.get('/api/v1/health', tags=['health'])

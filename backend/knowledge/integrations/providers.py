@@ -305,6 +305,12 @@ class FixtureGenerationClient:
     """Labelled excerpts for contract tests, not an AI-quality or latency simulation."""
     model = 'fixture-generation'
     async def stream(self, messages, *, effort=None, cancel_event=None):
+        if messages[1]['content'].startswith('WIKI_DOCUMENT_CHANGE_INPUT\n'):
+            from ..wiki.automation.fixture import fixture_plan
+            data = json.loads(messages[1]['content'].split('\n', 1)[1])
+            yield ProviderDelta(text=json.dumps(fixture_plan(data), ensure_ascii=False), model=self.model)
+            yield ProviderDelta(usage=unknown_usage(self.model, source='fixture'), model=self.model)
+            return
         if messages[1]['content'].startswith('WIKI_PROPOSAL_INPUT\n'):
             from ..wiki.proposals.fixture import fixture_proposal
             data = json.loads(messages[1]['content'].split('\n', 1)[1])

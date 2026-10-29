@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ApiError, errorMessage } from '../repositories/http';
+import { loadDocumentWikiNotice } from '../services/documentWikiService';
 import { proposalRepository } from '../repositories/wikiProposalRepository';
 import { guardWikiUnload } from '../repositories/wikiRepository';
 import { pendingProposal, savePendingProposal, newRequestId } from '../repositories/workspaceStorage';
 import { applyProposalCommand, executeProposal, proposalDraft } from '../services/wikiProposalService';
 import type { ChatSeed, Proposal, ProposalCommand, ProposalMode, ProposalPending, ProposalSummary } from '../types/wikiProposal';
 import type { WikiDetail, WikiWrite } from '../types/wiki';
-export function useWikiProposals(userId: string, page: WikiDetail | null, seed?: ChatSeed, onApplied?: (id: string) => void) {
+export function useWikiProposals(userId: string, page: WikiDetail | null, seed?: ChatSeed, onApplied?: (id: string) => void, documentId?: string) {
   const [items, setItems] = useState<ProposalSummary[]>([]), [selected, setSelected] = useState<Proposal | null>(null);
   const [mode, setMode] = useState<ProposalMode>(page ? 'edit' : 'create');
   const [instruction, setInstruction] = useState(''), [context, setContext] = useState('');
@@ -19,10 +20,18 @@ export function useWikiProposals(userId: string, page: WikiDetail | null, seed?:
   useEffect(() => guardWikiUnload(!!pending || !!draft), [pending, draft]);
   useEffect(() => {
     const abort = new AbortController();
-    proposalRepository.list(page?.id, abort.signal).then(v => {if (!abort.signal.aborted) setItems(v.items);})
-      .catch(e => {if (!abort.signal.aborted) setError(errorMessage(e));});
-    return () => abort.abort();
-  }, [page?.id, refresh]);
+    let reading = false;
+    const read = async () => {
+      if (reading || abort.signal.aborted) return;
+      reading = true;
+      try {const v = documentId ? await loadDocumentWikiNotice(documentId, abort.signal) : await proposalRepository.list(page?.id, abort.signal);
+        if (!abort.signal.aborted) setItems(v.items);}
+      catch(e) {if (!abort.signal.aborted) setError(errorMessage(e));}
+      finally {reading = false;}
+    };
+    void read(); const timer = setInterval(() => void read(), 4000);
+    return () => {abort.abort(); clearInterval(timer);};
+  }, [page?.id, documentId, refresh]);
   const show = useCallback((value: Proposal) => {
     setSelected(value);
     setItems(items => items.map(item => item.id === value.id ? {...item, status: value.status, updatedAt: value.updatedAt} : item));
