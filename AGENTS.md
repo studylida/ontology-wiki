@@ -2,19 +2,29 @@
 
 ## Source of truth
 
-Read README.md for the implemented chat/RAG. **docs/CHAT_ARCHITECTURE.md governs the implemented conversation, shared document ingestion and RAG design. docs/WIKI_ARCHITECTURE.md independently governs the new shared concept wiki's product architecture (currently planned, not implemented).** Do not apply removed personal-wiki features, legacy ontology flows or historical chat-only decisions as constraints on the new wiki. Neither product agreement nor old implementation plans imply that a new feature is live. Keep the source-preserving preprocessing baseline `68ccd5f3bc98abd480d5a413947974aa02843a66`. Continue the implementation branch, not an old baseline.
+Read README.md for the implemented chat/RAG. **docs/CHAT_ARCHITECTURE.md governs the implemented conversation, shared document ingestion and RAG design. docs/WIKI_ARCHITECTURE.md independently governs the new shared concept wiki's product architecture (manual editing stage 1 implemented; AI/search integration remains planned).** Do not apply removed personal-wiki features, legacy ontology flows or historical chat-only decisions as constraints on the new wiki. Neither product agreement nor old implementation plans imply that a new feature is live. Keep the source-preserving preprocessing baseline `68ccd5f3bc98abd480d5a413947974aa02843a66`. Continue the implementation branch, not an old baseline.
 
 Current chat/RAG job: answer work questions using shared company-domain documents, naturally, with clickable evidence footnotes. Every authenticated employee may upload shareable material. Valid passages are indexed automatically without approval. Conversations and answer runs stay private. Operations handle processing exceptions, not mandatory approval.
 
-Removed from the **current chat runtime**: external research, fixed five-part answers, response modes, Extended, old personal wiki and legacy answer compatibility. This does not prohibit the newly agreed **shared concept wiki**, which is a separate product scope; it is not yet implemented. Ontology generation and diagrams are not chat-answer prerequisites. Do not reintroduce old schema fields just to satisfy obsolete tests.
+Removed from the **current chat runtime**: external research, fixed five-part answers, response modes, Extended, old personal wiki and legacy answer compatibility. This does not prohibit the newly agreed **shared concept wiki**, which is a separate product scope; manual shared editing is implemented, while AI/search integration is not. Ontology generation and diagrams are not chat-answer prerequisites. Do not reintroduce old schema fields just to satisfy obsolete tests.
 
-## Implemented boundary: Stages 1–5 (fixture integration, not production qualification)
+## Existing chat boundary: Stages 1–5 (fixture integration, not production qualification)
 
-`knowledge.main` composes Identity, Conversations, Documents and Answers. Additive migrations are `001_foundation.sql`, `002_documents.sql`, `003_answers.sql`. Never rewrite applied migrations. Stage 4 connects the React frontend to these contracts; Stage 5 integrates regression tests, synthetic evaluation and fresh Compose smoke checks. Neither adds a schema. The root HTML/JS prototype and retired frontend hooks, screens and contracts are removed. Run the UI from `frontend`.
+`knowledge.main` now composes Identity, Conversations, Documents, Answers and the manual Wiki service. Existing chat migrations are `001_foundation.sql`, `002_documents.sql`, `003_answers.sql`; the wiki adds `004_shared_wiki.sql`. Never rewrite applied migrations. Stage 4 connects the React frontend to these contracts; Stage 5 integrates regression tests, synthetic evaluation and fresh Compose smoke checks. Neither adds a schema. The root HTML/JS prototype and retired frontend hooks, screens and contracts are removed. Run the UI from `frontend`.
 
 The API requires one process per DB (`--workers 1`), enforced by a dedicated PostgreSQL session advisory lock. This prevents startup recovery from interrupting another live API's generation. Concurrent conversations are asynchronous within that process. The document worker is separate and uses its own lock. Do not silently remove these locks or claim multi-replica operation is implemented.
 
 Startup checks the schema and records abandoned answer runs as interrupted. It does not migrate, create users, invoke a provider or start document processing. GET/reconnect never generates another answer. `POST /conversations/{id}/messages` saves only; the UI uses `/conversations/{id}/turns` for an actual question, not both.
+
+## Shared wiki stage 1 boundary
+
+`knowledge.wiki` and additive `004_shared_wiki.sql` provide employee page creation/title search/read/edit/history/diff/restore and admin protection. `WikiService` owns permissions, optimistic `baseVersion` validation and idempotent mutation policy; `WikiRepository` owns SQL/row locks/revisions/receipts. Do not copy Documents' uploader-only management policy: all employees edit ordinary wiki pages. Admin alone changes protection or edits/restores a protected page. Revert creates a new content revision and never restores old protection settings. Titles are not identity and need not be unique.
+
+The page `version` includes protection changes; content `revisionNumber` does not. Every mutation locks the actor/request key then the page row and commits page/revision/receipt together. Same-request replay acknowledges an existing receipt without a new write; different payload is a conflict. Preserve stale drafts and require explicit latest-version review instead of automatic merge. No provider or worker is required for manual wiki operations. Do not change applied `001~004` SQL in later phases.
+
+The frontend wiki uses View/Controller/Service/Repository/DTO; shared authenticated HTTP and safe Markdown remain single owners. Current, preview and historical Markdown all use the same safety policy. The wiki view stays mounted after first entry to preserve an in-memory draft across tabs, but is cleared on logout. Unload warns about an edit/pending request; unsaved crash/refresh recovery is not implemented. The source/business-context note is optional staff-authored text, not verified citation metadata.
+
+No stage-2 search/indexing, semantic deduplication, automatic links, AI proposals, wiki RAG integration or external Markdown export yet. Tests are `tests/foundation/test_shared_wiki.py`, `tests/browser/test_shared_wiki.py` and frontend wiki tests. Preserve the existing chat regression tests. Browser CI is pinned to Ubuntu 24.04 because the existing Playwright version cannot install on the current Ubuntu 26.04 runner; do not silently skip browser checks.
 
 ## Single-owner responsibilities
 
@@ -45,7 +55,7 @@ The synthetic-only evaluation corpus has 12 documents and 18 work-style question
 
 The Compose smoke script uses a new random project/database/raw volume and explicit fixture providers, not an existing developer .env or credentials. Cleanup may only target resources it created. Current schema versions must not be rewritten. Old source crawler scripts and public URL fetch adapters have been removed; uploaded file parsers and existing stored source files are retained.
 
-Optional ontology extraction/management and diagram rendering are deferred, not secretly implemented or required. Remove old incompatible extraction services rather than recreating legacy tables. A code fence is not a rendered diagram. New-revision UI and source correction editors are not yet provided.
+Optional ontology extraction/management and diagram rendering are deferred, not secretly implemented or required. Remove old incompatible extraction services rather than recreating legacy tables. A code fence is not a rendered diagram. New uploaded-document-revision UI and source correction editors are not yet provided; this does not refer to wiki editing/history.
 
 The frontend lockfile audit found six development dependency advisories on 2026-10-28 (two critical, one high, three moderate); production-only npm audit reported zero. That is not a security certification. Keep dev/test servers private, record the unresolved tooling upgrades, and do not use audit fix --force or claim the warnings are resolved without a tested lockfile change. Real model quality, employee review and public deployment remain separate work.
 

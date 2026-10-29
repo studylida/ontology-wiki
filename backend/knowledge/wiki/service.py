@@ -2,6 +2,7 @@
 import difflib
 import hashlib
 import json
+from sqlalchemy.exc import SQLAlchemyError
 from ..core.errors import AppError
 from .dto import (AuthorView, MutationResult, PageDetail, PageList, PageView,
                   RevisionComparison, RevisionList, RevisionSummary, RevisionView)
@@ -45,9 +46,12 @@ def page_view(row, principal, *, detail=False):
 def compare_revisions(before, after):
     changes = []
     for label, field in [('제목', 'title'), ('본문', 'markdown'), ('근거·업무 맥락', 'source_note')]:
-        changes.extend(difflib.unified_diff(getattr(before, field).splitlines(),
-            getattr(after, field).splitlines(), fromfile=f'v{before.number} {label}',
-            tofile=f'v{after.number} {label}', lineterm=''))
+        old, new = getattr(before, field), getattr(after, field)
+        lines = list(difflib.unified_diff(old.splitlines(), new.splitlines(),
+            fromfile=f'v{before.number} {label}', tofile=f'v{after.number} {label}', lineterm=''))
+        if old != new and not lines:
+            lines = [f'{label}: 개행 형식 또는 마지막 개행이 변경되었습니다. 각 판본의 원문을 확인하세요.']
+        changes.extend(lines)
     return '\n'.join(changes)
 
 
@@ -93,31 +97,35 @@ class WikiService:
             raise AppError(403, 'wiki_admin_required', '문서 보호와 해제는 관리자만 할 수 있습니다.')
         payload = {'operation': operation, 'pageId': page_id, 'body': body.model_dump(mode='json', exclude={'request_id'})}
         digest = hashlib.sha256(json.dumps(payload, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
-        async with self.sessions() as session, session.begin():
-            repo = WikiRepository(session)
-            old = await repo.mutation(principal.id, body.request_id)
-            if old is not None:
-                if old.payload_hash != digest:
-                    raise AppError(409, 'wiki_request_conflict', '같은 요청 ID에 다른 내용을 사용할 수 없습니다.')
-                return MutationResult(**{**old.result, 'replayed': True})
-            if operation == 'create':
-                page = await repo.create(principal.id, body)
-            else:
-                page = await repo.get(page_id, lock=True)
-                require_edit(principal, page)
-                require_version(page, body.base_version)
-                if operation == 'edit':
-                    await repo.append(page, principal.id, title=body.title, markdown=body.markdown,
-                        source_note=body.source_note, summary=body.change_summary)
-                elif operation == 'restore':
-                    source, _ = await repo.revision(page.id, body.revision_id)
-                    await repo.append(page, principal.id, title=source.title, markdown=source.markdown,
-                        source_note=source.source_note, summary=f'v{source.number} 복구', restored_from=source.id)
-                elif operation == 'protect':
-                    await repo.protect(page, principal.id, body.locked)
+        try:
+            async with self.sessions() as session, session.begin():
+                repo = WikiRepository(session)
+                old = await repo.mutation(principal.id, body.request_id)
+                if old is not None:
+                    if old.payload_hash != digest:
+                        raise AppError(409, 'wiki_request_conflict', '같은 요청 ID에 다른 내용을 사용할 수 없습니다.')
+                    return MutationResult(**{**old.result, 'replayed': True})
+                if operation == 'create':
+                    page = await repo.create(principal.id, body)
                 else:
-                    raise ValueError('Unknown wiki mutation')
-            result = MutationResult(page_id=page.id, revision_id=page.current_revision_id, version=page.version)
-            await repo.remember(principal.id, body.request_id, digest, page, result.model_dump())
-            # Context-manager commit completes before a successful HTTP response can escape.
-            return result
+                    page = await repo.get(page_id, lock=True)
+                    require_edit(principal, page)
+                    require_version(page, body.base_version)
+                    if operation == 'edit':
+                        await repo.append(page, principal.id, title=body.title, markdown=body.markdown,
+                            source_note=body.source_note, summary=body.change_summary)
+                    elif operation == 'restore':
+                        source, _ = await repo.revision(page.id, body.revision_id)
+                        await repo.append(page, principal.id, title=source.title, markdown=source.markdown,
+                            source_note=source.source_note, summary=f'v{source.number} 복구', restored_from=source.id)
+                    elif operation == 'protect':
+                        await repo.protect(page, principal.id, body.locked)
+                    else:
+                        raise ValueError('Unknown wiki mutation')
+                result = MutationResult(page_id=page.id, revision_id=page.current_revision_id, version=page.version)
+                await repo.remember(principal.id, body.request_id, digest, page, result.model_dump())
+                # Context-manager commit completes before a successful HTTP response can escape.
+                return result
+        except SQLAlchemyError as exc:
+            # Rollback has completed. Do not leak SQL parameters or return success on failed commit.
+            raise AppError(503, 'wiki_storage_failed', '위키 저장을 완료하지 못했습니다. 같은 요청으로 다시 확인해 주세요.', retryable=True) from exc

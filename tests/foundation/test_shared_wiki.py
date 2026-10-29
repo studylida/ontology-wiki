@@ -167,7 +167,7 @@ def test_storage_failure_has_no_partial_revision_or_success_receipt(application)
     body = edit_body(p, markdown='must not persist', changeSummary='FAIL_STORAGE_TEST')
     try:
         response = call(app, 'POST', f'/{pid}/revisions', json=body)
-        assert response.status_code == 500
+        assert response.status_code == 503 and response.json()['error']['code'] == 'wiki_storage_failed'
         assert detail(app, pid) == p
         assert not app.database.query('SELECT request_id FROM wiki_mutations WHERE request_id=$1', body['requestId'])
     finally:
@@ -181,3 +181,40 @@ def test_pagination_has_no_omitted_pages_or_history(application):
     found = [call(app, 'GET', '', params={'q': name, 'limit': 1, 'offset': i}).json() for i in range(3)]
     assert all(x['total'] == 3 for x in found)
     assert {x['items'][0]['id'] for x in found} == {r['pageId'] for r in receipts}
+
+
+def test_markdown_newline_changes_are_visible_in_comparison(application):
+    app = application
+    first, _ = create(app, markdown='line')
+    p = detail(app, first['pageId'])
+    changed = call(app, 'POST', f"/{p['id']}/revisions", json=edit_body(p, markdown='line\n'))
+    assert changed.status_code == 201
+    compared = call(app, 'GET', f"/{p['id']}/compare", params={
+        'fromRevisionId': first['revisionId'], 'toRevisionId': changed.json()['revisionId']})
+    assert compared.status_code == 200 and '개행' in compared.json()['diff']
+    assert compared.json()['before']['markdown'] == 'line'
+    assert compared.json()['after']['markdown'] == 'line\n'
+
+
+def test_additive_upgrade_preserves_existing_chat_database(database_factory):
+    import os
+    from conftest import ROOT, cli
+    from knowledge.migration.schema import migration_files
+    with database_factory() as database:
+        database.execute('CREATE TABLE knowledge_schema_migrations (version text PRIMARY KEY, sha256 text NOT NULL, applied_at timestamptz NOT NULL DEFAULT now())')
+        files = migration_files()
+        for name, (body, digest) in files.items():
+            if name.startswith(('001_', '002_', '003_')):
+                database.execute(body)
+                database.execute('INSERT INTO knowledge_schema_migrations(version,sha256) VALUES($1,$2)', name, digest)
+        database.execute("INSERT INTO knowledge_users(id,username,password_hash) VALUES('upgrade-user','upgrade-user','not-a-login-hash')")
+        database.execute("INSERT INTO conversations(id,owner_id,title) VALUES('upgrade-chat','upgrade-user','기존 대화')")
+        database.execute("INSERT INTO messages(id,conversation_id,role,content) VALUES('upgrade-message','upgrade-chat','user','보존할 기존 질문')")
+        old = database.query('SELECT version,sha256 FROM knowledge_schema_migrations ORDER BY version')
+        env = {**os.environ, 'PYTHONPATH': str(ROOT / 'backend'), 'OW_DATABASE_URL': database.url}
+        import json
+        result = json.loads(cli(env, 'migrate', '--database-name', database.name).stdout)
+        assert result['applied'] == ['004_shared_wiki.sql']
+        assert database.query("SELECT content FROM messages WHERE id='upgrade-message'") == [{'content': '보존할 기존 질문'}]
+        assert database.query("SELECT version,sha256 FROM knowledge_schema_migrations WHERE version <> '004_shared_wiki.sql' ORDER BY version") == old
+        assert database.query('SELECT count(*) AS n FROM wiki_pages') == [{'n': 0}]

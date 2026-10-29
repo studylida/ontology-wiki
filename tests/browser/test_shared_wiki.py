@@ -111,3 +111,23 @@ def test_lost_save_response_resends_same_request_and_safe_preview(browser_app):
     assert app.database.query('SELECT count(*) AS n FROM wiki_pages')[0]['n'] == 1
     assert app.database.query('SELECT count(*) AS n FROM wiki_revisions')[0]['n'] == 1
     assert app.database.query('SELECT markdown FROM wiki_revisions')[0]['markdown'] == text
+
+
+def test_long_editor_is_scrollable_and_draft_survives_tab_switch(browser_app):
+    app = browser_app; page = app.page; login(app)
+    page.set_viewport_size({'width': 1200, 'height': 600})
+    page.get_by_role('button', name='새 위키 문서', exact=True).click()
+    page.get_by_label('위키 제목', exact=True).fill('작성 중인 개념')
+    page.get_by_label('위키 본문 (Markdown)', exact=True).fill('탭을 이동해도 보존할 초안')
+    page.get_by_role('button', name='대화', exact=True).click()
+    page.get_by_role('button', name='공용 위키', exact=True).click()
+    expect(page.get_by_label('위키 본문 (Markdown)', exact=True)).to_have_value('탭을 이동해도 보존할 초안')
+    host = page.locator('.wiki-host')
+    assert host.evaluate("el => getComputedStyle(el).overflowY") == 'auto'
+    assert host.evaluate('el => el.scrollHeight > el.clientHeight')
+    host.evaluate('el => {el.scrollTop = 0}')
+    page.locator('.wiki-detail h2').hover()
+    page.mouse.wheel(0, 900)
+    page.wait_for_function("document.querySelector('.wiki-host').scrollTop > 0")
+    page.get_by_role('button', name='위키 저장', exact=True).click()
+    expect(page.get_by_text('판본 1이 저장되었습니다.', exact=True)).to_be_visible()

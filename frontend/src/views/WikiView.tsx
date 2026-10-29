@@ -32,8 +32,8 @@ export function WikiView() {
         <h2>{page ? '문서 편집' : '새 문서 작성'}</h2>
         <p className="muted">저장하면 전 직원에게 바로 공개됩니다. 출처나 업무 경험은 필요한 만큼 기록하세요.</p>
         <label>위키 제목<input required maxLength={300} value={wiki.draft.title} disabled={unavailable} onChange={e => wiki.change('title', e.target.value)} /></label>
-        <label>위키 본문 (Markdown)<textarea required maxLength={100000} rows={14} value={wiki.draft.markdown} disabled={unavailable} onChange={e => wiki.change('markdown', e.target.value)} /></label>
-        <label>근거·업무 맥락 (선택)<textarea rows={3} maxLength={10000} placeholder="문헌명·판본·관련 위치 또는 프로젝트에서 직접 확인한 조건을 적어 주세요." value={wiki.draft.sourceNote} disabled={unavailable} onChange={e => wiki.change('sourceNote', e.target.value)} /></label>
+        <div className="wiki-field"><label htmlFor="wiki-markdown">위키 본문 (Markdown)</label><textarea id="wiki-markdown" required maxLength={100000} rows={14} value={wiki.draft.markdown} disabled={unavailable} onChange={e => wiki.change('markdown', e.target.value)} /></div>
+        <div className="wiki-field"><label htmlFor="wiki-source-note">근거·업무 맥락 (선택)</label><textarea id="wiki-source-note" rows={3} maxLength={10000} placeholder="문헌명·판본·관련 위치 또는 프로젝트에서 직접 확인한 조건을 적어 주세요." value={wiki.draft.sourceNote} disabled={unavailable} onChange={e => wiki.change('sourceNote', e.target.value)} /></div>
         <label>변경 요약 (선택)<input maxLength={500} value={wiki.draft.changeSummary} disabled={unavailable} onChange={e => wiki.change('changeSummary', e.target.value)} /></label>
         <div className="actions"><button className="primary" disabled={unavailable || wiki.conflicted || !validWikiDraft(wiki.draft)}>위키 저장</button>
           <button type="button" disabled={unavailable} onClick={wiki.cancelEdit}>편집 취소</button>
